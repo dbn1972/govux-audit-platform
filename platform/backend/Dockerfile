@@ -1,0 +1,30 @@
+# bookworm pin: playwright 1.44 --with-deps knows Debian 12's package names
+FROM python:3.12-slim-bookworm
+WORKDIR /app
+
+# Node.js for the audit engine (Playwright + Lighthouse + axe-core)
+RUN apt-get update && apt-get install -y --no-install-recommends nodejs npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# audit engine deps + the full browser matrix (Chromium/Chrome+Edge, Firefox,
+# WebKit=Safari/iOS) so every audit can run cross-browser. --with-deps pulls the
+# browsers' system libraries. Done BEFORE pip so that changing requirements.txt
+# does not re-run this expensive step (keeps cross-browser a permanent capability
+# without a browser re-download on every Python dep change).
+COPY audit_engine/package.json audit_engine/
+# disable apt's date/valid-until checks — the build VM clock can be skewed, which
+# otherwise fails GPG signature validation with "invalid signature". Then install
+# the browsers AND their system libraries with --with-deps. No masking retry:
+# if apt fails, the build must fail loudly rather than ship browsers with no libs.
+RUN printf 'Acquire::Check-Valid-Until "false";\nAcquire::Check-Date "false";\n' \
+        > /etc/apt/apt.conf.d/99no-check-valid \
+    && cd audit_engine && npm install --omit=dev \
+    && npx playwright install --with-deps chromium firefox webkit
+
+# Python deps last — the layer most likely to change.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

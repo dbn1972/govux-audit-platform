@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compare & Page Coverage — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'compare.html',title:'Compare & Page Coverage',mode:'owner',nav:'compare'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Audits</a> › <a>ncsc.dop.gov.in</a> › <b>Compare &amp; coverage</b></div>
+      <h1>Compare audits &amp; page coverage</h1>
+      <div class="sub">Every run is an immutable, engine-versioned dated snapshot. Diff any two.</div>
+    </div>
+    <div class="grow"></div>
+    <select class="select" style="width:auto"><option>04 Apr 2026 (58)</option></select>
+    <span style="align-self:center;color:var(--muted)">→</span>
+    <select class="select" style="width:auto"><option>06 Jul 2026 (63.9)</option></select>
+  </div>
+
+  <!-- diff summary -->
+  <div class="grid g-4" style="margin-bottom:20px">
+    <div class="card stat"><div class="lab">Overall change</div><div class="val" style="color:var(--green)">+5.9</div><div class="delta up">58 → 63.9</div></div>
+    <div class="card stat"><div class="lab">New issues</div><div class="val" style="color:#B4322D">+3</div><div class="delta down">since last run</div></div>
+    <div class="card stat"><div class="lab">Resolved</div><div class="val" style="color:var(--green)">−11</div><div class="delta up">fixes confirmed</div></div>
+    <div class="card stat"><div class="lab">Band</div><div class="val" style="font-size:22px">C → C</div><div class="delta">guard-rail still active</div></div>
+  </div>
+
+  <div class="grid g-25" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-h"><h3>Category deltas</h3><div class="grow"></div><span class="mini">04 Apr → 06 Jul</span></div>
+      <div class="card-b">
+        <div class="catrow" style="grid-template-columns:150px 1fr 70px"><span class="cn">Accessibility</span><div class="bar"><i style="width:58%;background:var(--e)"></i></div><span class="cs up">+14</span></div>
+        <div class="catrow" style="grid-template-columns:150px 1fr 70px"><span class="cn">Usability &amp; UX</span><div class="bar"><i style="width:65%;background:var(--c)"></i></div><span class="cs up">+9</span></div>
+        <div class="catrow" style="grid-template-columns:150px 1fr 70px"><span class="cn">GIGW 3.0</span><div class="bar"><i style="width:72%;background:var(--b)"></i></div><span class="cs up">+6</span></div>
+        <div class="catrow" style="grid-template-columns:150px 1fr 70px"><span class="cn">Responsiveness</span><div class="bar"><i style="width:61%;background:var(--c)"></i></div><span class="cs" style="color:var(--muted)">new</span></div>
+        <div class="catrow" style="grid-template-columns:150px 1fr 70px"><span class="cn">Performance</span><div class="bar"><i style="width:62%;background:var(--c)"></i></div><span class="cs up">+3</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>What changed</h3></div>
+      <div class="card-b" style="display:grid;gap:11px">
+        <div style="display:flex;gap:10px"><span class="badge b-ok">Resolved</span><span style="font-size:13px">11 contrast failures fixed across templates</span></div>
+        <div style="display:flex;gap:10px"><span class="badge b-ok">Resolved</span><span style="font-size:13px">Form labels added on 5 pages</span></div>
+        <div class="divider" style="margin:2px 0"></div>
+        <div style="display:flex;gap:10px"><span class="badge b-crit">New</span><span style="font-size:13px">WebKit nav clipping (introduced in redesign)</span></div>
+        <div style="display:flex;gap:10px"><span class="badge b-crit">New</span><span style="font-size:13px">Overflow at 360px on the schemes table</span></div>
+        <div style="display:flex;gap:10px"><span class="badge b-high">New</span><span style="font-size:13px">LCP regressed on the home hero image</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- page-wise coverage -->
+  <div class="card">
+    <div class="card-h"><h3>Page-wise coverage</h3><div class="grow"></div><span class="badge b-ok">47 / 50 analysed · 94%</span></div>
+    <table class="tbl">
+      <thead><tr><th>Page</th><th>Status</th><th>Page score</th><th>Δ vs last</th><th>Issues</th><th>Crawled</th></tr></thead>
+      <tbody>
+        <tr><td class="u">/  (home)</td><td><span class="badge b-ok">Analysed</span></td><td style="font-weight:700">68</td><td class="down">▼ 4</td><td>5</td><td class="mini">08:44</td></tr>
+        <tr><td class="u">/savings-schemes</td><td><span class="badge b-ok">Analysed</span></td><td style="font-weight:700">61</td><td class="up">▲ 7</td><td>6</td><td class="mini">08:45</td></tr>
+        <tr><td class="u">/apply</td><td><span class="badge b-ok">Analysed</span></td><td style="font-weight:700;color:var(--e)">44</td><td class="up">▲ 3</td><td>9</td><td class="mini">08:46</td></tr>
+        <tr><td class="u">/branch-locator</td><td><span class="badge b-med">Timed out</span></td><td class="mini">—</td><td class="mini">—</td><td class="mini">—</td><td class="mini">retry queued</td></tr>
+        <tr><td class="u">/faq</td><td><span class="badge b-ok">Analysed</span></td><td style="font-weight:700">72</td><td class="up">▲ 2</td><td>3</td><td class="mini">08:47</td></tr>
+        <tr><td class="u">/admin/*</td><td><span class="badge b-low">Skipped</span></td><td class="mini">—</td><td class="mini">—</td><td class="mini">robots.txt</td><td class="mini">—</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:12px 18px" class="mini">3 pages not analysed: 1 timed out (retry queued → may yield a <b>partial</b> result), 2 excluded by robots.txt.</div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

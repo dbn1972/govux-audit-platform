@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manual Review — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'manual-review.html',title:'Manual Review (Assessor)',mode:'owner',nav:'manual'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Assess</a> › <b>Manual Review</b></div>
+      <h1>Guided manual review — ncsc.dop.gov.in</h1>
+      <div class="sub">Some GIGW / WCAG items need human judgement. Confirm, override or annotate the automated findings, then sign off.</div>
+    </div>
+    <div class="grow"></div>
+    <span class="badge b-info">Assessor: A. Rao</span>
+  </div>
+
+  <div class="card pad" style="margin-bottom:18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <div style="flex:1;min-width:220px"><b style="font-size:14px">Review progress</b><div class="progress-lg" style="margin-top:8px"><i style="width:45%"></i></div><div class="mini" style="margin-top:6px">9 of 20 manual checks completed</div></div>
+    <div style="display:flex;gap:22px"><div><div class="mini">Confirmed</div><b style="font-size:20px;color:var(--green)">6</b></div><div><div class="mini">Overridden</div><b style="font-size:20px;color:var(--d)">2</b></div><div><div class="mini">Needs info</div><b style="font-size:20px;color:var(--muted)">1</b></div></div>
+  </div>
+
+  <div class="grid g-25">
+    <div class="card">
+      <div class="card-h"><h3>Manual checklist</h3><div class="grow"></div><span class="mini">Items requiring human judgement</span></div>
+      <div class="card-b" style="display:grid;gap:0">
+        <!-- item -->
+        <div style="padding:16px 0;border-bottom:1px solid var(--line)">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span class="badge b-info">WCAG 1.1.1</span>
+            <div style="flex:1"><b style="font-size:14px">Do images convey meaning through their alt text?</b>
+              <div class="mini" style="margin-top:3px">Automated: 14 images have alt text present, but relevance needs a human to judge.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <span class="chip on" style="background:var(--green);border-color:var(--green);color:#fff">✓ Confirm pass</span>
+            <span class="chip">✗ Mark fail</span>
+            <span class="chip">N/A</span>
+            <span class="chip" style="margin-left:auto">✎ Add note</span>
+          </div>
+        </div>
+        <!-- item -->
+        <div style="padding:16px 0;border-bottom:1px solid var(--line)">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span class="badge b-info">GIGW 2.1</span>
+            <div style="flex:1"><b style="font-size:14px">Is the content written in plain, citizen-friendly language?</b>
+              <div class="mini" style="margin-top:3px">Automated readability flagged 3 pages as complex. Confirm severity.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <span class="chip">✓ Confirm pass</span>
+            <span class="chip on" style="background:var(--d);border-color:var(--d);color:#fff">✗ Override → Fail</span>
+            <span class="chip">N/A</span>
+          </div>
+          <div class="note warn" style="margin-top:10px"><span class="i">✎</span><span>Assessor note: “Scheme eligibility text uses legal jargon; recommend plain-language rewrite.”</span></div>
+        </div>
+        <!-- item -->
+        <div style="padding:16px 0;border-bottom:1px solid var(--line)">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span class="badge b-info">WCAG 2.4.6</span>
+            <div style="flex:1"><b style="font-size:14px">Do headings and labels describe topic or purpose?</b>
+              <div class="mini" style="margin-top:3px">Needs review across the application journey.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <span class="chip">✓ Confirm pass</span><span class="chip">✗ Mark fail</span>
+            <span class="chip on" style="background:var(--muted);border-color:var(--muted);color:#fff">? Needs info</span>
+          </div>
+        </div>
+        <!-- item -->
+        <div style="padding:16px 0">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span class="badge b-info">UX · Forms</span>
+            <div style="flex:1"><b style="font-size:14px">Are error messages helpful and shown next to the field?</b>
+              <div class="mini" style="margin-top:3px">Automated detected inline errors; confirm they are understandable.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <span class="chip on" style="background:var(--green);border-color:var(--green);color:#fff">✓ Confirm pass</span>
+            <span class="chip">✗ Mark fail</span><span class="chip">N/A</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:12px">Sign-off</h4>
+        <p class="mini" style="margin:0 0 12px">A formal review sign-off is recorded separately from automated results and is fully audit-logged.</p>
+        <div class="field"><label>Reviewer decision</label><select class="select"><option>Approve — meets standard</option><option>Approve with conditions</option><option>Reject — remediation required</option></select></div>
+        <div class="field"><label>Summary note</label><textarea class="input" rows="3" style="resize:vertical">Accessibility much improved; plain-language rewrite of scheme pages required before certification readiness.</textarea></div>
+        <button class="btn navy lg" style="width:100%;justify-content:center">Record sign-off</button>
+      </div>
+      <div class="card pad" style="background:var(--sky);border-color:#d3e4f2">
+        <h4 style="font-size:14px;margin-bottom:8px">Automated vs. reviewed</h4>
+        <p class="mini" style="margin:0">Findings are clearly labelled as <b>automated</b> or <b>assessor-reviewed</b> so leadership knows the confidence behind each result.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

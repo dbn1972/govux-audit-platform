@@ -1,0 +1,87 @@
+name: GovUX CI
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16
+        env: { POSTGRES_USER: govux, POSTGRES_PASSWORD: govux, POSTGRES_DB: govux }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U govux" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    defaults: { run: { working-directory: backend } }
+    env:
+      GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@localhost:5432/govux
+      GOVUX_REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Run pytest with coverage gate (>=80%)
+        run: pytest
+
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16
+        env: { POSTGRES_USER: govux, POSTGRES_PASSWORD: govux, POSTGRES_DB: govux }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U govux" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    defaults: { run: { working-directory: backend } }
+    env:
+      GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@localhost:5432/govux
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - name: Migration round-trip (apply → reverse → re-apply must all succeed)
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
+
+  screens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Screen-by-screen verification
+        run: python3 platform/scripts/verify_screens.py
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm install
+      - run: npm run test          # vitest
+      - run: npm run build          # next build
+
+  engine:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: backend/audit_engine } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: node --check runner.js && node --check gigw-rules.js

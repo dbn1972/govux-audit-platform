@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audit in Progress — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'running.html',title:'Audit in Progress',mode:'owner',nav:'configure'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Audits</a> › <b>Running</b></div>
+      <h1>Auditing ncsc.dop.gov.in</h1>
+      <div class="sub">Task ID <b>a1b2-9c3d</b> · queued 08:42 · Engine v3.2 · runs in the background — you can leave this page.</div>
+    </div>
+    <div class="grow"></div>
+    <button class="btn">⧉ Copy task ID</button>
+    <span class="badge b-info" style="font-size:13px;padding:7px 14px">● Live</span>
+  </div>
+
+  <!-- async job states ribbon -->
+  <div class="card pad" style="margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap">
+      <span class="chip" style="background:var(--green);border-color:var(--green);color:#fff">✓ Queued</span>
+      <span style="flex:1;min-width:16px;height:2px;background:var(--green)"></span>
+      <span class="chip" style="background:var(--green);border-color:var(--green);color:#fff">✓ Crawling</span>
+      <span style="flex:1;min-width:16px;height:2px;background:var(--blue)"></span>
+      <span class="chip on">● Analyzing</span>
+      <span style="flex:1;min-width:16px;height:2px;background:var(--line)"></span>
+      <span class="chip">Scoring</span>
+      <span style="flex:1;min-width:16px;height:2px;background:var(--line)"></span>
+      <span class="chip">Completed</span>
+    </div>
+    <div class="mini" style="margin-top:10px">Status auto-updates via WebSocket · poll <span class="kbd">GET /v1/audits/a1b2-9c3d</span> · optional webhook on completion</div>
+  </div>
+
+  <div class="card pad" style="margin-bottom:18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+      <b style="font-size:15px">Crawling &amp; evaluating pages…</b>
+      <b style="font-size:22px;color:var(--navy)"><span id="pct">64</span>%</b>
+    </div>
+    <div class="progress-lg"><i id="pbar" style="width:64%"></i></div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px" class="mini"><span><span id="done">32</span> of 50 pages analysed</span><span>Est. 5 min remaining</span></div>
+  </div>
+
+  <div class="grid g-4" style="margin-bottom:18px">
+    <div class="card pad"><div class="lab" style="color:var(--muted);font-size:12px;font-weight:600">Accessibility</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span class="dot-s" style="background:var(--green)"></span><b>Complete</b></div><div class="mini" style="margin-top:6px">41 checks per page</div></div>
+    <div class="card pad"><div class="lab" style="color:var(--muted);font-size:12px;font-weight:600">UX4G + heuristics</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span class="dot-s" style="background:var(--blue)"></span><b>In progress</b></div><div class="mini" style="margin-top:6px">Nav, search, design</div></div>
+    <div class="card pad"><div class="lab" style="color:var(--muted);font-size:12px;font-weight:600">Responsiveness</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span class="dot-s" style="background:var(--blue)"></span><b>In progress</b></div><div class="mini" style="margin-top:6px">3 browsers × 5 devices</div></div>
+    <div class="card pad"><div class="lab" style="color:var(--muted);font-size:12px;font-weight:600">Core Web Vitals</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span class="dot-s" style="background:#CBD6E1"></span><b style="color:var(--muted)">Queued</b></div><div class="mini" style="margin-top:6px">LCP · INP · CLS</div></div>
+  </div>
+
+  <div class="grid g-25">
+    <div class="card">
+      <div class="card-h"><h3>Live activity log</h3><div class="grow"></div><span class="mini">GovUX-Bot</span></div>
+      <div class="card-b" style="font:13px/1.9 ui-monospace,Menlo,monospace;color:var(--muted)" id="log">
+        <div>✓ /  — home rendered on Chromium · Firefox · WebKit</div>
+        <div>✓ /savings-schemes — 6 issues flagged</div>
+        <div>⚠ /apply — form field missing label (WCAG 3.3.2)</div>
+        <div>✗ /apply — payment step not keyboard-operable (WCAG 2.1.1)</div>
+        <div>⚠ /apply — layout overflow at 360px (responsive)</div>
+        <div>◐ /faq — analysing readability…</div>
+      </div>
+    </div>
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:6px">Running tally</h4>
+        <div class="catrow" style="grid-template-columns:1fr auto"><span class="tag-dot"><span class="dot-s dc"></span>Critical</span><b style="color:var(--crit)">4</b></div>
+        <div class="catrow" style="grid-template-columns:1fr auto;margin:8px 0"><span class="tag-dot"><span class="dot-s dh"></span>High</span><b style="color:var(--high)">9</b></div>
+        <div class="catrow" style="grid-template-columns:1fr auto;margin:8px 0"><span class="tag-dot"><span class="dot-s dm"></span>Medium</span><b style="color:#9A7207">18</b></div>
+        <div class="catrow" style="grid-template-columns:1fr auto;margin:8px 0"><span class="tag-dot"><span class="dot-s dl"></span>Low</span><b style="color:var(--low)">23</b></div>
+      </div>
+      <a href="report.html" class="btn navy lg" style="justify-content:center">Preview partial report →</a>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+<script>
+let p=64,d=32;const bar=document.getElementById('pbar'),pct=document.getElementById('pct'),done=document.getElementById('done');
+const t=setInterval(()=>{p=Math.min(100,p+2);d=Math.min(50,d+1);bar.style.width=p+'%';pct.textContent=p;done.textContent=d;
+ if(p>=100){clearInterval(t);pct.parentElement.innerHTML='<b style="font-size:16px;color:var(--green)">✓ Completed</b>';
+ document.getElementById('log').insertAdjacentHTML('beforeend','<div style="color:var(--green)">✓ Report ready — <a href="report.html">view results →</a></div>');}
+},900);
+</script>
+</body></html>

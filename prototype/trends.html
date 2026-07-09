@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trends — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'trends.html',title:'Trends & Re-audit History',mode:'owner',nav:'trends'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Audits</a> › <a>ncsc.dop.gov.in</a> › <b>Trends</b></div>
+      <h1>Score trend &amp; history</h1>
+      <div class="sub">Prove improvement over time. Every re-audit is versioned against the rules engine.</div>
+    </div>
+    <div class="grow"></div>
+    <select class="select" style="width:auto"><option>Last 12 months</option><option>Last 6 months</option><option>All time</option></select>
+  </div>
+
+  <div class="grid g-25" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-h"><h3>GovUX Score over time</h3><div class="grow"></div><span class="badge b-ok">▲ +22 since first audit</span></div>
+      <div class="card-b">
+        <svg viewBox="0 0 640 260" width="100%" height="260" font-family="inherit">
+          <!-- bands -->
+          <rect x="40" y="20" width="580" height="36" fill="#E6F4EC"/>
+          <rect x="40" y="56" width="580" height="30" fill="#EAF6F5"/>
+          <rect x="40" y="86" width="580" height="42" fill="#FBF3DA"/>
+          <rect x="40" y="128" width="580" height="48" fill="#FDF0E4"/>
+          <text x="46" y="34" font-size="9" fill="#127a42">A 90+</text>
+          <text x="46" y="74" font-size="9" fill="#2f8a83">B 75+</text>
+          <text x="46" y="110" font-size="9" fill="#9A7207">C 60+</text>
+          <text x="46" y="152" font-size="9" fill="#B85614">D 40+</text>
+          <!-- gridlines x -->
+          <g stroke="#DEE2E6"><line x1="40" y1="200" x2="620" y2="200"/></g>
+          <!-- line: values 42,50,58,64 mapped -->
+          <polyline fill="none" stroke="#0D6EFD" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+            points="90,166 240,150 400,128 560,112"/>
+          <polygon fill="url(#g)" opacity="0.15" points="90,166 240,150 400,128 560,112 560,200 90,200"/>
+          <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0D6EFD"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+          <g fill="#0A3D7A">
+            <circle cx="90" cy="166" r="5" fill="#fff" stroke="#0D6EFD" stroke-width="3"/>
+            <circle cx="240" cy="150" r="5" fill="#fff" stroke="#0D6EFD" stroke-width="3"/>
+            <circle cx="400" cy="128" r="5" fill="#fff" stroke="#0D6EFD" stroke-width="3"/>
+            <circle cx="560" cy="112" r="6" fill="#0D6EFD"/>
+          </g>
+          <g font-size="11" font-weight="700" fill="#0A3D7A" text-anchor="middle">
+            <text x="90" y="186">42</text><text x="240" y="170">50</text><text x="400" y="118">58</text><text x="560" y="102">64</text>
+          </g>
+          <g font-size="10" fill="#6C757D" text-anchor="middle">
+            <text x="90" y="216">Oct '25</text><text x="240" y="216">Jan '26</text><text x="400" y="216">Apr '26</text><text x="560" y="216">Jul '26</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad"><div class="mini">Current score</div><div style="display:flex;align-items:center;gap:12px;margin-top:8px"><span class="band C">C</span><div><b style="font-size:28px;color:var(--navy)">64</b><div class="mini">Band C · Needs work</div></div></div></div>
+      <div class="card pad"><div class="mini">Critical issues closed</div><b style="font-size:28px;color:var(--green)">6 <span style="font-size:13px;color:var(--muted)">of 10</span></b><div class="bar" style="margin-top:8px"><i style="width:60%;background:var(--green)"></i></div></div>
+      <a href="configure.html" class="btn primary lg" style="justify-content:center">↻ Run new re-audit</a>
+    </div>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card">
+      <div class="card-h"><h3>Category progress</h3></div>
+      <div class="card-b">
+        <div class="catrow"><span class="cn">Accessibility</span><div class="bar"><i style="width:58%;background:var(--e)"></i></div><span class="cs">58 <span class="up" style="font-size:11px">▲14</span></span></div>
+        <div class="catrow"><span class="cn">Usability &amp; UX</span><div class="bar"><i style="width:66%;background:var(--c)"></i></div><span class="cs">66 <span class="up" style="font-size:11px">▲9</span></span></div>
+        <div class="catrow"><span class="cn">GIGW 3.0</span><div class="bar"><i style="width:71%;background:var(--b)"></i></div><span class="cs">71 <span class="up" style="font-size:11px">▲6</span></span></div>
+        <div class="catrow"><span class="cn">Performance</span><div class="bar"><i style="width:62%;background:var(--c)"></i></div><span class="cs">62 <span class="up" style="font-size:11px">▲3</span></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Audit history</h3></div>
+      <table class="tbl">
+        <thead><tr><th>Date</th><th>Score</th><th>Δ</th><th>Engine</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>6 Jul 2026</td><td class="u">64</td><td class="up">▲ 6</td><td class="mini">v3.2</td><td><a href="report.html" class="btn ghost">View</a></td></tr>
+          <tr><td>4 Apr 2026</td><td class="u">58</td><td class="up">▲ 8</td><td class="mini">v3.1</td><td><a class="btn ghost">View</a></td></tr>
+          <tr><td>10 Jan 2026</td><td class="u">50</td><td class="up">▲ 8</td><td class="mini">v3.1</td><td><a class="btn ghost">View</a></td></tr>
+          <tr><td>2 Oct 2025</td><td class="u">42</td><td class="mini">baseline</td><td class="mini">v3.0</td><td><a class="btn ghost">View</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

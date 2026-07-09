@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Issue Detail — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'issue-detail.html',title:'Issue Detail & Fix',mode:'owner',nav:'issues'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a href="issues.html">Issues</a> › <b>#1 · WCAG 2.1.1</b></div>
+      <h1 style="max-width:720px">Payment step is not operable by keyboard</h1>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><span class="badge b-crit">● Critical</span><span class="badge b-info">Accessibility</span><span class="badge b-med">Medium effort</span><span class="chip">Affects 3 pages</span></div>
+    </div>
+    <div class="grow"></div>
+    <button class="btn">Mark resolved</button>
+    <button class="btn primary">Assign to developer</button>
+  </div>
+
+  <div class="grid g-25">
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h3 style="font-size:15px;margin-bottom:8px">What's wrong</h3>
+        <p style="font-size:14px;color:#33414d;margin:0">On the certificate application, the “Proceed to pay” control is a <span class="kbd">&lt;div&gt;</span> with a click handler. It cannot receive keyboard focus, so citizens who navigate with a keyboard or assistive technology — including many persons with disabilities — reach the payment step and cannot proceed. This blocks task completion entirely.</p>
+      </div>
+
+      <div class="card pad">
+        <h3 style="font-size:15px;margin-bottom:8px">Why it matters to citizens</h3>
+        <p style="font-size:14px;color:#33414d;margin:0 0 10px">Keyboard operability is a Level A requirement — the most basic tier of accessibility and a legal obligation under GIGW 3.0 and the RPwD Act, 2016. A blocked payment step means affected citizens must visit a physical office, defeating the purpose of the digital service.</p>
+        <div class="note warn"><span class="i">🛡</span><span>This is a guard-rail issue: it caps the whole site at <b>Band C</b> until fixed.</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>Evidence</h3><div class="grow"></div><span class="mini">Captured during audit</span></div>
+        <div class="card-b">
+          <div style="border:1px dashed var(--line-2);border-radius:11px;padding:16px;background:#FBFDFE">
+            <div class="mini" style="margin-bottom:8px">Rendered element · /apply?step=pay</div>
+            <div style="font:12.5px/1.7 ui-monospace,Menlo,monospace;background:#0E2233;color:#e2ecf5;border-radius:9px;padding:13px 15px;overflow:auto">
+<span style="color:#ff9a8a">&lt;div</span> <span style="color:#8fd0ff">class</span>=<span style="color:#a5e8a0">"btn-pay"</span> <span style="color:#8fd0ff">onclick</span>=<span style="color:#a5e8a0">"pay()"</span><span style="color:#ff9a8a">&gt;</span>Proceed to pay<span style="color:#ff9a8a">&lt;/div&gt;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card pad" style="border-color:#c7e9d4;background:#F5FBF7">
+        <h3 style="font-size:15px;margin-bottom:8px;color:#146c3c">How to fix ✓</h3>
+        <p style="font-size:14px;color:#274b39;margin:0 0 10px">Use a native <span class="kbd">&lt;button&gt;</span> (focusable and keyboard-operable by default), or add <span class="kbd">role</span>, <span class="kbd">tabindex</span> and key handlers.</p>
+        <div style="font:12.5px/1.7 ui-monospace,Menlo,monospace;background:#0E2233;color:#e2ecf5;border-radius:9px;padding:13px 15px;overflow:auto">
+<span style="color:#a5e8a0">&lt;!-- Recommended --&gt;</span>
+<span style="color:#8fd0ff">&lt;button</span> <span style="color:#8fd0ff">type</span>=<span style="color:#a5e8a0">"submit"</span> <span style="color:#8fd0ff">class</span>=<span style="color:#a5e8a0">"btn-pay"</span><span style="color:#8fd0ff">&gt;</span>Proceed to pay<span style="color:#8fd0ff">&lt;/button&gt;</span>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px"><a href="#" class="btn ghost">📘 Read WCAG 2.1.1 guidance</a><a href="#" class="btn ghost">See a good government example</a></div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:12px">Issue facts</h4>
+        <div style="display:grid;gap:11px;font-size:13px">
+          <div style="display:flex;justify-content:space-between"><span class="mini">Guideline</span><b>WCAG 2.1.1 (Level A)</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">GIGW mapping</span><b>GIGW 3.0 · 3.1</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Category</span><b>Accessibility</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Severity</span><b style="color:var(--crit)">Critical</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Effort</span><b>Medium · ~2 hrs</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Score impact</span><b class="up">+5 if fixed</b></div>
+        </div>
+      </div>
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:10px">Affected pages</h4>
+        <ul class="list-plain" style="display:grid;gap:9px;font-size:13px">
+          <li class="path">/apply?step=pay</li>
+          <li class="path">/renew?step=pay</li>
+          <li class="path">/nsc/purchase</li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:10px">Status</h4>
+        <select class="select"><option>Open</option><option>In progress</option><option>Resolved — needs re-audit</option></select>
+        <div class="note" style="margin-top:12px"><span class="i">↻</span><span>Re-audit after fixing to confirm and update your score.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

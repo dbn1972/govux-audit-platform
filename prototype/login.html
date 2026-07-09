@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in — GovUX Audit Platform</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'login.html',title:'Sign in',mode:'none'}</script>
+<style>
+.otp-boxes{display:flex;gap:8px;justify-content:space-between}
+.otp-boxes input{width:46px;height:54px;text-align:center;font-size:22px;font-weight:700;border:1px solid var(--line-2);border-radius:10px;outline:0;color:var(--navy)}
+.otp-boxes input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(31,111,178,.14)}
+</style>
+</head><body>
+<div class="gov-strip"></div>
+<div class="login-wrap">
+  <div class="login-hero">
+    <div class="brand" style="color:#fff">
+      <div class="logo">GX</div>
+      <div style="font-size:18px">GovUX<small style="color:#bcd4ea">Audit Platform · MeitY / NIC</small></div>
+    </div>
+    <h2 style="margin-top:44px">Measure and improve how citizens<br>actually use your website.</h2>
+    <p>A self-service UX &amp; compliance audit engine for <b style="color:#fff">.gov.in</b> and <b style="color:#fff">.nic.in</b> websites — scored against GIGW 3.0, WCAG 2.2 AA, UX4G and Core Web Vitals.</p>
+    <div class="login-feats">
+      <div class="login-feat"><div class="fi">🔑</div><div><b>Passwordless, official-only access</b><br><span>Only .gov.in / .nic.in emails · verified by OTP</span></div></div>
+      <div class="login-feat"><div class="fi">📱</div><div><b>Stays signed in on trusted devices</b><br><span>Device-bound sessions — like Gmail</span></div></div>
+      <div class="login-feat"><div class="fi">🛡️</div><div><b>You control your sessions</b><br><span>See &amp; sign out any device; new-device alerts</span></div></div>
+    </div>
+    <p style="position:absolute;bottom:26px;font-size:11.5px;color:#9dc0e0">Access restricted to authorised government users · Data resident in India</p>
+  </div>
+  <div class="login-form">
+    <!-- STEP 1: email -->
+    <div class="login-card" id="step1">
+      <h1 style="font-size:24px">Sign in</h1>
+      <p style="color:var(--muted);margin:6px 0 24px;font-size:13.5px">Enter your official government email. We'll send a one-time password.</p>
+      <div class="field"><label>Government email</label>
+        <input class="input" id="email" placeholder="name.dept@nic.in" value="d.nayak@nic.in">
+        <div class="hint" id="emailHint">Only addresses ending in <b>.gov.in</b> or <b>.nic.in</b> are accepted.</div>
+      </div>
+      <button class="btn navy lg" style="width:100%;justify-content:center" onclick="sendOtp()">Send OTP</button>
+      <div class="or">or</div>
+      <a href="dashboard.html" class="sso-btn">🔐 Continue with Parichay SSO</a>
+      <p class="note" style="margin-top:20px"><span class="i">ℹ</span><span>Access is logged for accountability. Other email domains are rejected automatically.</span></p>
+    </div>
+
+    <!-- STEP 2: OTP -->
+    <div class="login-card" id="step2" style="display:none">
+      <h1 style="font-size:24px">Enter the code</h1>
+      <p style="color:var(--muted);margin:6px 0 22px;font-size:13.5px">We sent a 6-digit OTP to <b id="emailEcho">d.nayak@nic.in</b>. It expires in <b id="ttl">04:58</b>.</p>
+      <div class="field"><label>One-time password</label>
+        <div class="otp-boxes" id="otp">
+          <input maxlength="1" value="4"><input maxlength="1" value="2"><input maxlength="1" value="9">
+          <input maxlength="1" value="1"><input maxlength="1" value="0"><input maxlength="1" value="7">
+        </div>
+      </div>
+      <label class="toggle on" style="margin:6px 0 18px"><span class="sw"></span> Trust this device &amp; keep me signed in</label>
+      <a href="dashboard.html" class="btn navy lg" style="width:100%;justify-content:center">Verify &amp; sign in</a>
+      <div style="display:flex;justify-content:space-between;margin-top:16px;font-size:13px">
+        <a onclick="back()" style="cursor:pointer">← Change email</a>
+        <a style="color:var(--muted)">Resend OTP</a>
+      </div>
+      <p class="note ok" style="margin-top:20px"><span class="i">🛡️</span><span>On verify we bind this session to this browser (device key). A stolen cookie won't work on another device.</span></p>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+<script>
+function sendOtp(){
+  var e=document.getElementById('email').value.trim().toLowerCase();
+  var ok=/(\.gov\.in|\.nic\.in)$/.test(e);
+  if(!ok){document.getElementById('emailHint').innerHTML='<span style="color:#B4322D">✗ Must end in <b>.gov.in</b> or <b>.nic.in</b>.</span>';return;}
+  document.getElementById('emailEcho').textContent=e;
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  var boxes=document.querySelectorAll('#otp input'); if(boxes[0]) boxes[0].focus();
+}
+function back(){document.getElementById('step2').style.display='none';document.getElementById('step1').style.display='block';}
+// otp box auto-advance
+document.querySelectorAll('#otp input').forEach(function(b,i,a){
+  b.addEventListener('input',function(){if(b.value&&a[i+1])a[i+1].focus();});
+});
+</script>
+</body></html>

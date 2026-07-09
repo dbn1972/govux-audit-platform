@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Responsiveness & Compatibility — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'compatibility.html',title:'Responsiveness & Compatibility',mode:'owner',nav:'compat'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Audits</a> › <a>ncsc.dop.gov.in</a> › <b>Responsiveness &amp; Compatibility</b></div>
+      <h1>Responsiveness &amp; compatibility</h1>
+      <div class="sub">Rendered across 3 browser engines × 4 device sizes × 2 orientations · category score <b>61 / 100</b></div>
+    </div>
+    <div class="grow"></div>
+    <a href="report.html" class="btn">← Back to report</a>
+  </div>
+
+  <div class="grid g-4" style="margin-bottom:20px">
+    <div class="card stat"><div class="lab">Category score</div><div class="val" style="color:#997404">61</div><div class="delta">Band C</div></div>
+    <div class="card stat"><div class="lab">Breakpoints passing</div><div class="val">3<span style="font-size:16px;color:var(--muted)">/4</span></div><div class="delta down">overflow at 360px</div></div>
+    <div class="card stat"><div class="lab">Cross-browser issues</div><div class="val" style="color:#B4322D">2</div><div class="delta down">WebKit rendering</div></div>
+    <div class="card stat"><div class="lab">Orientation</div><div class="val" style="color:#209A8F">OK</div><div class="delta up">portrait &amp; landscape</div></div>
+  </div>
+
+  <!-- compatibility matrix: browsers x device sizes -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-h"><h3>Compatibility matrix</h3><div class="grow"></div>
+      <span class="mini" style="display:flex;gap:12px">
+        <span class="tag-dot"><span class="dot-s" style="background:var(--a)"></span>Pass</span>
+        <span class="tag-dot"><span class="dot-s" style="background:var(--c)"></span>Minor</span>
+        <span class="tag-dot"><span class="dot-s" style="background:var(--e)"></span>Fail</span></span>
+    </div>
+    <div class="card-b">
+      <table class="tbl" style="text-align:center">
+        <thead><tr><th style="text-align:left">Device size</th><th>Chromium (Chrome/Edge)</th><th>Firefox (Gecko)</th><th>WebKit (Safari)</th></tr></thead>
+        <tbody>
+          <tr><td style="text-align:left"><b>Small phone</b><div class="path">360 × 640</div></td>
+            <td><span class="badge b-med">Minor · overflow</span></td>
+            <td><span class="badge b-med">Minor · overflow</span></td>
+            <td><span class="badge b-crit">Fail · clipped nav</span></td></tr>
+          <tr><td style="text-align:left"><b>Phone</b><div class="path">414 × 896</div></td>
+            <td><span class="badge b-ok">Pass</span></td>
+            <td><span class="badge b-ok">Pass</span></td>
+            <td><span class="badge b-crit">Fail · button overlap</span></td></tr>
+          <tr><td style="text-align:left"><b>Tablet</b><div class="path">768 × 1024</div></td>
+            <td><span class="badge b-ok">Pass</span></td>
+            <td><span class="badge b-ok">Pass</span></td>
+            <td><span class="badge b-ok">Pass</span></td></tr>
+          <tr><td style="text-align:left"><b>Desktop</b><div class="path">1440 × 900</div></td>
+            <td><span class="badge b-ok">Pass</span></td>
+            <td><span class="badge b-ok">Pass</span></td>
+            <td><span class="badge b-ok">Pass</span></td></tr>
+        </tbody>
+      </table>
+      <p class="mini" style="margin-top:12px">Each cell = a rendered snapshot; a visual diff (SSIM) between engines flags divergence beyond a threshold.</p>
+    </div>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card">
+      <div class="card-h"><h3>Responsive breakpoints</h3></div>
+      <div class="card-b">
+        <div class="catrow" style="grid-template-columns:130px 1fr auto"><span class="cn">360px (small)</span><div class="bar"><i style="width:55%;background:var(--e)"></i></div><span class="badge b-high">Overflow</span></div>
+        <div class="catrow" style="grid-template-columns:130px 1fr auto"><span class="cn">414px (phone)</span><div class="bar"><i style="width:82%;background:var(--b)"></i></div><span class="badge b-ok">OK</span></div>
+        <div class="catrow" style="grid-template-columns:130px 1fr auto"><span class="cn">768px (tablet)</span><div class="bar"><i style="width:88%;background:var(--b)"></i></div><span class="badge b-ok">OK</span></div>
+        <div class="catrow" style="grid-template-columns:130px 1fr auto"><span class="cn">1440px (desktop)</span><div class="bar"><i style="width:92%;background:var(--a)"></i></div><span class="badge b-ok">OK</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Findings</h3></div>
+      <div class="card-b" style="display:grid;gap:12px">
+        <a href="issue-detail.html" style="display:flex;gap:11px;align-items:flex-start"><span class="dot-s dc" style="margin-top:5px"></span><div><b style="font-size:13px">Nav bar clipped on WebKit at ≤360px</b><div class="mini">Safari/iOS users can't reach the menu · Critical</div></div></a>
+        <div class="divider" style="margin:0"></div>
+        <a href="issue-detail.html" style="display:flex;gap:11px;align-items:flex-start"><span class="dot-s dc" style="margin-top:5px"></span><div><b style="font-size:13px">“Apply” button overlaps on WebKit (414px)</b><div class="mini">flex-gap fallback needed · Critical</div></div></a>
+        <div class="divider" style="margin:0"></div>
+        <a href="issues.html" style="display:flex;gap:11px;align-items:flex-start"><span class="dot-s dh" style="margin-top:5px"></span><div><b style="font-size:13px">Horizontal overflow at 360px (all browsers)</b><div class="mini">a fixed-width table forces scroll · High</div></div></a>
+        <div class="divider" style="margin:0"></div>
+        <a href="issues.html" style="display:flex;gap:11px;align-items:flex-start"><span class="dot-s dm" style="margin-top:5px"></span><div><b style="font-size:13px">Tap targets below 24px on small phones</b><div class="mini">footer links too close · Medium</div></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

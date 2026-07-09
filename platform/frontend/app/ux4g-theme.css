@@ -1,0 +1,61 @@
+/* ============================================================
+   UX4G theme layer — overrides Bootstrap 5.3 CSS variables to the
+   UX4G Design System 2.0 tokens (which is itself Bootstrap-based).
+   Imported AFTER bootstrap.min.css so these win.
+   ============================================================ */
+:root,
+[data-bs-theme="light"] {
+  /* brand */
+  --bs-primary:        #0d6efd;   /* UX4G primary */
+  --bs-primary-rgb:    13,110,253;
+  --bs-secondary:      #6c757d;   /* gray-600 */
+  --bs-secondary-rgb:  108,117,125;
+  --bs-success:        #198754;
+  --bs-info:           #0dcaf0;
+  --bs-warning:        #ffc107;
+  --bs-danger:         #dc3545;
+
+  /* surfaces & text */
+  --bs-body-color:     #212529;
+  --bs-body-bg:        #f8f9fa;
+  --bs-border-color:   #dee2e6;
+  --bs-tertiary-bg:    #ffffff;
+
+  /* links */
+  --bs-link-color:       #0d6efd;
+  --bs-link-color-rgb:   13,110,253;
+  --bs-link-hover-color: #0a58ca;
+
+  /* shape & type */
+  --bs-border-radius:    .5rem;
+  --bs-border-radius-lg: .75rem;
+  --bs-font-sans-serif:  var(--font-ux4g), system-ui, -apple-system, "Segoe UI",
+                         Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+
+  /* UX4G brand extras used by GovUX components */
+  --ux-navy:  #0a3d7a;   /* deep blue for headings/brand */
+  --ux-saff:  #ff9933;
+  --ux-green: #138808;
+}
+
+/* headings/brand in UX4G deep blue */
+h1, h2, h3, .navbar-brand, .h1, .h2, .h3 { color: var(--ux-navy); }
+
+/* national tricolour identity strip */
+.govux-strip {
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--ux-saff) 0 33%, #fff 33% 66%, var(--ux-green) 66% 100%);
+}
+
+/* GovUX score-band utilities — AA-safe text colours (each ≥4.5:1 on white;
+   the old teal #20c997 / olive #997404 / orange #fd7e14 failed as text). */
+.band-A { color:#15803d } .band-B { color:#0f766e } .band-C { color:#b45309 }
+.band-D { color:#c2410c } .band-E { color:#b91c1c }
+/* band fills — darker so white text on them clears AA (≥4.5:1) */
+.bg-band-A{background:#15803d}.bg-band-B{background:#0f766e}.bg-band-C{background:#b45309}
+.bg-band-D{background:#c2410c}.bg-band-E{background:#b91c1c}
+
+/* a slightly softer card shadow to match UX4G */
+.card { box-shadow: 0 1px 2px rgba(16,40,64,.05); }
+.btn { font-weight: 600; }

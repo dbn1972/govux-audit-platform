@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Issues — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'issues.html',title:'Report — Issues List',mode:'owner',nav:'issues'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Audits</a> › <a>ncsc.dop.gov.in</a> › <b>Issues</b></div>
+      <h1>Prioritised issues</h1>
+      <div class="sub">54 findings · ranked by citizen impact and remediation effort. Fix critical items first.</div>
+    </div>
+    <div class="grow"></div>
+    <button class="btn">⬇ Export JSON/CSV</button>
+  </div>
+
+  <!-- filters -->
+  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+    <span class="chip on">All 54</span>
+    <span class="chip"><span class="dot-s dc"></span> Critical 4</span>
+    <span class="chip"><span class="dot-s dh"></span> High 9</span>
+    <span class="chip"><span class="dot-s dm"></span> Medium 18</span>
+    <span class="chip"><span class="dot-s dl"></span> Low 23</span>
+    <span style="width:1px;height:22px;background:var(--line)"></span>
+    <select class="select" style="width:auto;padding:8px 12px"><option>All categories</option><option>Accessibility</option><option>UX heuristics</option><option>GIGW 3.0</option><option>Performance</option></select>
+    <select class="select" style="width:auto;padding:8px 12px"><option>Sort: Impact × Effort</option><option>Severity</option><option>Category</option></select>
+  </div>
+
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th style="width:44px">#</th><th>Issue</th><th>Category</th><th>Guideline</th><th>Severity</th><th>Effort</th><th>Pages</th><th></th></tr></thead>
+      <tbody>
+        <tr style="cursor:pointer" onclick="location='issue-detail.html'">
+          <td><b>1</b></td>
+          <td><span class="u">Payment step not operable by keyboard</span><div class="path">Users who can't use a mouse cannot complete the application</div></td>
+          <td><span class="badge b-info">Accessibility</span></td><td class="mini">WCAG 2.1.1</td>
+          <td><span class="badge b-crit">● Critical</span></td><td><span class="badge b-med">Medium</span></td><td>3</td><td>→</td></tr>
+        <tr style="cursor:pointer" onclick="location='issue-detail.html'">
+          <td><b>2</b></td>
+          <td><span class="u">Form fields missing visible labels</span><div class="path">Screen-reader users can't tell what to enter</div></td>
+          <td><span class="badge b-info">Accessibility</span></td><td class="mini">WCAG 3.3.2</td>
+          <td><span class="badge b-crit">● Critical</span></td><td><span class="badge b-ok">Low</span></td><td>5</td><td>→</td></tr>
+        <tr style="cursor:pointer" onclick="location='issue-detail.html'">
+          <td><b>3</b></td>
+          <td><span class="u">Insufficient colour contrast on primary buttons</span><div class="path">Hard to read for low-vision users and in sunlight</div></td>
+          <td><span class="badge b-info">Accessibility</span></td><td class="mini">WCAG 1.4.3</td>
+          <td><span class="badge b-crit">● Critical</span></td><td><span class="badge b-ok">Low</span></td><td>12</td><td>→</td></tr>
+        <tr style="cursor:pointer" onclick="location='issue-detail.html'">
+          <td><b>4</b></td>
+          <td><span class="u">No HTTPS redirect on tracking sub-path</span><div class="path">Citizen data could be transmitted insecurely</div></td>
+          <td><span class="badge b-info">Security</span></td><td class="mini">GIGW 6.2</td>
+          <td><span class="badge b-crit">● Critical</span></td><td><span class="badge b-med">Medium</span></td><td>1</td><td>→</td></tr>
+        <tr style="cursor:pointer" onclick="location='issue-detail.html'">
+          <td><b>5</b></td>
+          <td><span class="u">Site search returns no useful results</span><div class="path">Citizens can't find schemes by common terms</div></td>
+          <td><span class="badge b-info">UX heuristic</span></td><td class="mini">Search UX</td>
+          <td><span class="badge b-high">● High</span></td><td><span class="badge b-high">High</span></td><td>—</td><td>→</td></tr>
+        <tr style="cursor:pointer" onclick="location='issue-detail.html'">
+          <td><b>6</b></td>
+          <td><span class="u">Navigation labels are unclear / jargon</span><div class="path">"NSC/KVP/RD" without plain-language descriptions</div></td>
+          <td><span class="badge b-info">UX heuristic</span></td><td class="mini">Nav clarity</td>
+          <td><span class="badge b-high">● High</span></td><td><span class="badge b-med">Medium</span></td><td>All</td><td>→</td></tr>
+        <tr style="cursor:pointer" onclick="location='issue-detail.html'">
+          <td><b>7</b></td>
+          <td><span class="u">Slow Largest Contentful Paint on mobile (3.8s)</span><div class="path">Hero image unoptimised; render-blocking scripts</div></td>
+          <td><span class="badge b-info">Performance</span></td><td class="mini">CWV · LCP</td>
+          <td><span class="badge b-high">● High</span></td><td><span class="badge b-med">Medium</span></td><td>Home</td><td>→</td></tr>
+        <tr style="cursor:pointer" onclick="location='issue-detail.html'">
+          <td><b>8</b></td>
+          <td><span class="u">Missing mandatory "Last updated" &amp; contact block</span><div class="path">Required GIGW footer elements absent</div></td>
+          <td><span class="badge b-info">GIGW 3.0</span></td><td class="mini">GIGW 2.4</td>
+          <td><span class="badge b-med">● Medium</span></td><td><span class="badge b-ok">Low</span></td><td>8</td><td>→</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center"><span class="mini">Showing 8 of 54 · Critical &amp; High first</span><div style="display:flex;gap:6px"><button class="btn" style="padding:7px 12px">‹</button><button class="btn primary" style="padding:7px 13px">1</button><button class="btn" style="padding:7px 12px">2</button><button class="btn" style="padding:7px 12px">›</button></div></div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

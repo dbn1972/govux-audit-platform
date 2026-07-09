@@ -1,0 +1,80 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: govux
+      POSTGRES_PASSWORD: govux
+      POSTGRES_DB: govux
+    ports: ["5432:5432"]
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  # S3-compatible object storage for registered-user report PDFs
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: govux
+      MINIO_ROOT_PASSWORD: govux-secret
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["miniodata:/data"]
+
+  api:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
+      GOVUX_REDIS_URL: redis://redis:6379/0
+    ports: ["8000:8000"]
+    depends_on: [db, redis]
+    volumes: ["./backend:/app"]
+
+  worker:
+    build: ./backend
+    command: python -m app.worker
+    environment:
+      GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
+      GOVUX_REDIS_URL: redis://redis:6379/0
+      PYTHONUNBUFFERED: "1"
+    depends_on: [db, redis]
+    # second volume keeps the image's node_modules from being shadowed by the bind mount
+    volumes: ["./backend:/app", "/app/audit_engine/node_modules"]
+
+  # continuous, scheduled estate monitoring (gap G2): submits due audits on cadence
+  scheduler:
+    build: ./backend
+    command: python -m app.services.scheduler
+    environment:
+      GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
+      GOVUX_REDIS_URL: redis://redis:6379/0
+      PYTHONUNBUFFERED: "1"
+    depends_on: [db, redis]
+    volumes: ["./backend:/app", "/app/audit_engine/node_modules"]
+
+  # free public single-URL scanner — single-concurrency worker (one scan at a time)
+  public-worker:
+    build: ./backend
+    command: python -m app.public_worker
+    environment:
+      GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
+      GOVUX_REDIS_URL: redis://redis:6379/0
+      GOVUX_S3_ENDPOINT: http://minio:9000
+      PYTHONUNBUFFERED: "1"
+    depends_on: [db, redis, minio]
+    volumes: ["./backend:/app", "/app/audit_engine/node_modules"]
+
+  web:
+    build: ./frontend
+    command: npm run dev
+    ports: ["3000:3000"]
+    depends_on: [api]
+    volumes: ["./frontend:/app", "/app/node_modules"]
+
+volumes:
+  pgdata:
+  miniodata:

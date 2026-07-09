@@ -1,0 +1,87 @@
+// Minimal API client. Access token kept in memory; refresh cookie is HttpOnly.
+let accessToken: string | null = null;
+
+export function setToken(t: string | null) { accessToken = t; }
+
+/** Thrown when the session can't be recovered — callers/boundaries treat as sign-out. */
+export class AuthError extends Error {}
+
+async function req(path: string, opts: RequestInit = {}, retry = true): Promise<any> {
+  const res = await fetch(`/api${path}`, {
+    ...opts,
+    headers: {
+      "Content-Type": "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...(opts.headers || {}),
+    },
+    credentials: "include", // send/receive the HttpOnly refresh cookie
+  });
+  if (res.status === 401 && retry) {
+    // silent refresh (device-bound rotating token), then retry once
+    const r = await fetch(`/api/v1/auth/refresh`, { method: "POST", credentials: "include" });
+    if (r.ok) { const d = await r.json(); setToken(d.access_token); return req(path, opts, false); }
+  }
+  if (res.status === 401) {
+    // unrecoverable: bounce to sign-in (except for the auth calls on /login itself)
+    if (typeof window !== "undefined" && !path.startsWith("/v1/auth/")) {
+      setToken(null);
+      window.location.assign("/login");
+    }
+    throw new AuthError("Your session has expired — please sign in again.");
+  }
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
+  return res.status === 204 ? null : res.json();
+}
+
+export const api = {
+  requestOtp: (email: string) =>
+    req("/v1/auth/otp/request", { method: "POST", body: JSON.stringify({ email }) }),
+  verifyOtp: (email: string, code: string, device_pubkey: string, trust_device = true) =>
+    req("/v1/auth/otp/verify", { method: "POST",
+      body: JSON.stringify({ email, code, device_pubkey, trust_device }) }),
+  devices: () => req("/v1/auth/devices"),
+  revokeDevice: (id: string) => req(`/v1/auth/devices/${id}`, { method: "DELETE" }),
+  listDomains: () => req("/v1/domains"),
+  submitAudit: (domain_id: string) =>
+    req("/v1/audits", { method: "POST", body: JSON.stringify({ domain_id }) }),
+  auditStatus: (taskId: string) => req(`/v1/audits/${taskId}`),
+  auditReport: (taskId: string) => req(`/v1/audits/${taskId}/report`),
+  reviewAudit: (taskId: string, approved: boolean, notes?: string) =>
+    req(`/v1/audits/${taskId}/review`, { method: "POST",
+      body: JSON.stringify({ approved, notes }) }),
+  registerDomain: (url: string, category?: string) =>
+    req("/v1/domains", { method: "POST", body: JSON.stringify({ url, service_category: category }) }),
+  verifyDomain: (id: string) =>
+    req(`/v1/domains/${id}/verify`, { method: "POST", body: JSON.stringify({ method: "dns_txt" }) }),
+  guidelines: (family?: string) => req(`/v1/guidelines${family ? `?family=${family}` : ""}`),
+  updateFinding: (id: string, state: string) =>
+    req(`/v1/findings/${id}`, { method: "PATCH", body: JSON.stringify({ state, is_reviewed: true }) }),
+  auditHistory: (domainId: string) => req(`/v1/domains/${domainId}/audits`),
+  compare: (domainId: string, frm: string, to: string) =>
+    req(`/v1/domains/${domainId}/compare?frm=${frm}&to=${to}`),
+  national: () => req("/v1/national"),
+  rankings: (category?: string) => req(`/v1/rankings${category ? `?category=${category}` : ""}`),
+  ministries: () => req("/v1/ministries"),
+  states: () => req("/v1/states"),
+  auditTrend: (taskId: string) => req(`/v1/audits/${taskId}/trend`),
+  bulkScan: (scope: string) =>
+    req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),
+  // gap-closure endpoints
+  remediation: (taskId: string) => req(`/v1/audits/${taskId}/remediation`),
+  auditDocuments: (taskId: string) => req(`/v1/audits/${taskId}/documents`),
+  schedules: () => req("/v1/schedules"),
+  createSchedule: (domain_id: string, cadence: string) =>
+    req("/v1/schedules", { method: "POST", body: JSON.stringify({ domain_id, cadence }) }),
+  deleteSchedule: (id: string) => req(`/v1/schedules/${id}`, { method: "DELETE" }),
+  discovered: () => req("/v1/discovery"),
+  discoveryScan: (samples: any[]) =>
+    req("/v1/discovery/scan", { method: "POST", body: JSON.stringify({ samples }) }),
+  ciGate: (domainId: string, minScore = 70) =>
+    req(`/v1/ci/gate?domain_id=${domainId}&min_score=${minScore}`),
+  adminConfig: () => req("/v1/admin/config"),
+  updateConfig: (updates: Record<string, any>) =>
+    req("/v1/admin/config", { method: "PATCH", body: JSON.stringify({ updates }) }),
+  testEmail: (to: string) =>
+    req("/v1/admin/config/test-email", { method: "POST", body: JSON.stringify({ to }) }),
+  adminMetrics: () => req("/v1/admin/config/metrics-summary"),
+};

@@ -1,0 +1,41 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# ---- Node / Next.js ----
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-error.log*
+
+# ---- Secrets / environment ----
+.env
+.env.*
+!.env.example
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+*.swp
+
+# ---- Local tooling ----
+.claude/
+
+# ---- Session screenshot/capture scratch tooling (not product source) ----
+platform/backend/audit_engine/capture.cjs
+platform/backend/audit_engine/shots/
+platform/backend/audit_engine/resp/
+platform/backend/audit_engine/resp2/
+platform/backend/audit_engine/resp3/
+platform/backend/audit_engine/aa/
+platform/backend/audit_engine/final/
+platform/backend/audit_engine/sweep_*/
+
+# Office temp lock files
+~$*

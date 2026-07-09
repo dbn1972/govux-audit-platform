@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Domains — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'domains.html',title:'My Domains',mode:'owner',nav:'domains'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Workspace</a> › <b>My Domains</b></div>
+      <h1>My domains</h1>
+      <div class="sub">4 domains under India Post · Department of Posts</div>
+    </div>
+    <div class="grow"></div>
+    <a class="btn primary" href="register.html">＋ Add domain</a>
+  </div>
+
+  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+    <span class="chip on">All 4</span>
+    <span class="chip">Verified 3</span>
+    <span class="chip">Pending 1</span>
+    <span style="width:1px;height:22px;background:var(--line)"></span>
+    <div class="searchbox" style="width:260px"><input placeholder="Search domains…"></div>
+    <select class="select" style="width:auto;padding:8px 12px"><option>Sort: Score (low→high)</option><option>Last audited</option><option>Critical issues</option></select>
+  </div>
+
+  <div class="grid g-2" style="margin-bottom:18px">
+    <a class="card pad" href="report.html" style="display:flex;gap:16px;align-items:center;color:var(--ink)">
+      <span class="band B">B</span>
+      <div style="flex:1"><b style="font-size:15px;color:var(--navy)">indiapost.gov.in</b><div class="mini">Main portal · audited 2 days ago</div>
+        <div class="bar" style="margin-top:9px"><i style="width:78%;background:var(--b)"></i></div></div>
+      <div style="text-align:right"><b style="font-size:22px;color:var(--navy)">78</b><div class="mini">2 critical</div></div>
+    </a>
+    <a class="card pad" href="report.html" style="display:flex;gap:16px;align-items:center;color:var(--ink)">
+      <span class="band B">B</span>
+      <div style="flex:1"><b style="font-size:15px;color:var(--navy)">ippbonline.gov.in</b><div class="mini">Payments bank · audited 5 days ago</div>
+        <div class="bar" style="margin-top:9px"><i style="width:75%;background:var(--b)"></i></div></div>
+      <div style="text-align:right"><b style="font-size:22px;color:var(--navy)">75</b><div class="mini">1 critical</div></div>
+    </a>
+    <a class="card pad" href="report.html" style="display:flex;gap:16px;align-items:center;color:var(--ink)">
+      <span class="band C">C</span>
+      <div style="flex:1"><b style="font-size:15px;color:var(--navy)">ncsc.dop.gov.in</b><div class="mini">Savings certificates · audited 1 week ago</div>
+        <div class="bar" style="margin-top:9px"><i style="width:64%;background:var(--c)"></i></div></div>
+      <div style="text-align:right"><b style="font-size:22px;color:var(--navy)">64</b><div class="mini" style="color:var(--crit)">4 critical</div></div>
+    </a>
+    <a class="card pad" href="register.html" style="display:flex;gap:16px;align-items:center;color:var(--ink);border-style:dashed">
+      <span class="band" style="background:#CBD6E1">?</span>
+      <div style="flex:1"><b style="font-size:15px;color:var(--navy)">tracking.indiapost.nic.in</b><div class="mini">Consignment tracking · not verified</div>
+        <span class="badge b-med" style="margin-top:9px">Pending verification</span></div>
+      <div style="text-align:right"><span class="btn ghost">Verify →</span></div>
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>All domains</h3><div class="grow"></div><span class="mini">Detailed view</span></div>
+    <table class="tbl">
+      <thead><tr><th>Domain</th><th>Category</th><th>Score</th><th>Band</th><th>Critical</th><th>Last audit</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="u">indiapost.gov.in</td><td class="mini">Main portal</td><td style="font-weight:800">78</td><td><span class="badge b-ok">B</span></td><td>2</td><td>2 days ago</td><td><span class="badge b-ok">Verified</span></td><td><a href="configure.html" class="btn ghost">Re-audit</a></td></tr>
+        <tr><td class="u">ippbonline.gov.in</td><td class="mini">Payments</td><td style="font-weight:800">75</td><td><span class="badge b-ok">B</span></td><td>1</td><td>5 days ago</td><td><span class="badge b-ok">Verified</span></td><td><a href="configure.html" class="btn ghost">Re-audit</a></td></tr>
+        <tr><td class="u">ncsc.dop.gov.in</td><td class="mini">Certificates</td><td style="font-weight:800">64</td><td><span class="badge b-med">C</span></td><td style="color:var(--crit)">4</td><td>1 week ago</td><td><span class="badge b-ok">Verified</span></td><td><a href="configure.html" class="btn ghost">Re-audit</a></td></tr>
+        <tr><td class="u">tracking.indiapost.nic.in</td><td class="mini">Tracking</td><td class="mini">—</td><td>—</td><td>—</td><td class="mini">Never</td><td><span class="badge b-med">Pending</span></td><td><a href="register.html" class="btn ghost">Verify</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

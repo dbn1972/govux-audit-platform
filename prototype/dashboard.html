@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — GovUX Audit Platform</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'dashboard.html',title:'Owner Dashboard',mode:'owner',nav:'dashboard'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div>
+      <div class="crumbs"><a>Workspace</a> › <b>Dashboard</b></div>
+      <h1>Good morning, Nodal Officer</h1>
+      <div class="sub">India Post · Department of Posts — 4 domains under your care</div>
+    </div>
+    <div class="grow"></div>
+    <a class="btn" href="register.html">＋ Add domain</a>
+    <a class="btn primary" href="configure.html">▶ New audit</a>
+  </div>
+
+  <!-- stat row -->
+  <div class="grid g-4" style="margin-bottom:20px">
+    <div class="card stat"><div style="display:flex;justify-content:space-between"><div class="lab">Avg. GovUX Score</div><div class="ic">◎</div></div><div class="val">71<span style="font-size:16px;color:var(--muted)">/100</span></div><div class="delta up">▲ 6 pts this quarter</div></div>
+    <div class="card stat"><div style="display:flex;justify-content:space-between"><div class="lab">Verified domains</div><div class="ic">🌐</div></div><div class="val">4</div><div class="delta">1 pending verification</div></div>
+    <div class="card stat"><div style="display:flex;justify-content:space-between"><div class="lab">Open critical issues</div><div class="ic" style="background:#FDECEB;color:#B4322D">!</div></div><div class="val" style="color:#B4322D">7</div><div class="delta down">3 accessibility · 4 other</div></div>
+    <div class="card stat"><div style="display:flex;justify-content:space-between"><div class="lab">Audits this month</div><div class="ic">📄</div></div><div class="val">12</div><div class="delta up">▲ vs 8 last month</div></div>
+  </div>
+
+  <div class="grid g-25">
+    <!-- domains table -->
+    <div class="card">
+      <div class="card-h"><h3>My domains</h3><div class="grow"></div><span class="mini">Sorted by score</span></div>
+      <table class="tbl">
+        <thead><tr><th>Domain</th><th>Score</th><th>Band</th><th>Critical</th><th>Last audit</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><span class="u">indiapost.gov.in</span><div class="path">Main portal</div></td><td style="font-weight:800;font-size:16px;color:#209A8F">78</td><td><span class="badge b-ok">B · Strong</span></td><td>2</td><td>2 days ago</td><td><a href="report.html" class="btn ghost">View →</a></td></tr>
+          <tr><td><span class="u">ippbonline.gov.in</span><div class="path">Payments bank</div></td><td style="font-weight:800;font-size:16px;color:#209A8F">75</td><td><span class="badge b-ok">B · Strong</span></td><td>1</td><td>5 days ago</td><td><a href="report.html" class="btn ghost">View →</a></td></tr>
+          <tr><td><span class="u">ncsc.dop.gov.in</span><div class="path">Savings certificates</div></td><td style="font-weight:800;font-size:16px;color:#997404">64</td><td><span class="badge b-med">C · Needs work</span></td><td>4</td><td>1 week ago</td><td><a href="report.html" class="btn ghost">View →</a></td></tr>
+          <tr><td><span class="u">tracking.indiapost.nic.in</span><div class="path">Consignment tracking</div></td><td style="color:var(--muted);font-weight:700">—</td><td><span class="badge b-info">Pending verify</span></td><td>—</td><td>Not audited</td><td><a href="register.html" class="btn ghost">Verify →</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- right column -->
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card">
+        <div class="card-h"><h3>Priority actions</h3></div>
+        <div class="card-b" style="display:grid;gap:12px">
+          <a href="issue-detail.html" style="display:flex;gap:11px;align-items:flex-start"><span class="dot-s dc" style="margin-top:5px"></span><div><b style="font-size:13px">Fix keyboard-inaccessible payment form</b><div class="mini">ncsc.dop.gov.in · Critical · WCAG 2.1.1</div></div></a>
+          <div class="divider" style="margin:2px 0"></div>
+          <a href="issues.html" style="display:flex;gap:11px;align-items:flex-start"><span class="dot-s dc" style="margin-top:5px"></span><div><b style="font-size:13px">Low contrast on primary buttons</b><div class="mini">indiapost.gov.in · Critical · WCAG 1.4.3</div></div></a>
+          <div class="divider" style="margin:2px 0"></div>
+          <a href="issues.html" style="display:flex;gap:11px;align-items:flex-start"><span class="dot-s dh" style="margin-top:5px"></span><div><b style="font-size:13px">Search returns no useful results</b><div class="mini">ncsc.dop.gov.in · High · UX heuristic</div></div></a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Recent activity</h3></div>
+        <div class="card-b">
+          <div class="timeline">
+            <div class="tl-item up"><b style="font-size:13px">indiapost.gov.in re-audited</b><div class="mini">Score 72 → 78 (+6) · 2 days ago</div></div>
+            <div class="tl-item"><b style="font-size:13px">Audit completed — ippbonline.gov.in</b><div class="mini">14 issues found · 5 days ago</div></div>
+            <div class="tl-item"><b style="font-size:13px">Domain added — tracking.indiapost.nic.in</b><div class="mini">Awaiting verification · 6 days ago</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

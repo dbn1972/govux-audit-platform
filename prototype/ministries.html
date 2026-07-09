@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ministries — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'ministries.html',title:'Ministries Breakdown',mode:'admin',nav:'ministries'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Overview</a> › <b>Ministries</b></div>
+      <h1>Ministries &amp; departments</h1>
+      <div class="sub">Digital-service quality grouped by organisation · drill down to any domain</div>
+    </div>
+    <div class="grow"></div>
+    <div class="searchbox" style="width:240px"><input placeholder="Search ministry…"></div>
+    <button class="btn primary">⬇ Export</button>
+  </div>
+
+  <div class="grid g-4" style="margin-bottom:20px">
+    <div class="card stat"><div class="lab">Ministries tracked</div><div class="val">54</div><div class="delta up">+3 onboarded</div></div>
+    <div class="card stat"><div class="lab">Best performer</div><div class="val" style="font-size:20px">Income Tax</div><div class="delta up">81 avg · Band B</div></div>
+    <div class="card stat"><div class="lab">Most improved</div><div class="val" style="font-size:20px">UIDAI</div><div class="delta up">▲ 6 pts</div></div>
+    <div class="card stat"><div class="lab">Needs attention</div><div class="val" style="font-size:20px;color:#B4322D">9</div><div class="delta down">avg below 50</div></div>
+  </div>
+
+  <div class="grid g-3" style="margin-bottom:20px">
+    <div class="card pad"><div style="display:flex;justify-content:space-between;align-items:center"><b>Income Tax Dept.</b><span class="band B" style="width:40px;height:40px;font-size:18px">B</span></div><div class="bar" style="margin-top:12px"><i style="width:81%;background:var(--b)"></i></div><div style="display:flex;justify-content:space-between;margin-top:8px" class="mini"><span>34 domains · 94% covered</span><b style="color:var(--navy)">81</b></div></div>
+    <div class="card pad"><div style="display:flex;justify-content:space-between;align-items:center"><b>Ministry of External Affairs</b><span class="band B" style="width:40px;height:40px;font-size:18px">B</span></div><div class="bar" style="margin-top:12px"><i style="width:79%;background:var(--b)"></i></div><div style="display:flex;justify-content:space-between;margin-top:8px" class="mini"><span>52 domains · 88% covered</span><b style="color:var(--navy)">79</b></div></div>
+    <div class="card pad"><div style="display:flex;justify-content:space-between;align-items:center"><b>UIDAI</b><span class="band B" style="width:40px;height:40px;font-size:18px">B</span></div><div class="bar" style="margin-top:12px"><i style="width:77%;background:var(--b)"></i></div><div style="display:flex;justify-content:space-between;margin-top:8px" class="mini"><span>19 domains · 100% covered</span><b style="color:var(--navy)">77</b></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>All ministries</h3><div class="grow"></div><select class="select" style="width:auto;padding:8px 12px"><option>Sort: Avg score</option><option>Coverage</option><option>Critical issues</option></select></div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Ministry / Department</th><th>Domains</th><th>Coverage</th><th>Avg score</th><th>Band</th><th>Critical</th><th>Trend</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="u">Income Tax Department</td><td>34</td><td>94%</td><td style="font-weight:800">81</td><td><span class="badge b-ok">B</span></td><td>28</td><td class="up">▲5</td><td><a href="league.html" class="btn ghost">Drill</a></td></tr>
+        <tr><td>2</td><td class="u">Ministry of External Affairs</td><td>52</td><td>88%</td><td style="font-weight:800">79</td><td><span class="badge b-ok">B</span></td><td>44</td><td class="up">▲3</td><td><a href="league.html" class="btn ghost">Drill</a></td></tr>
+        <tr><td>3</td><td class="u">UIDAI</td><td>19</td><td>100%</td><td style="font-weight:800">77</td><td><span class="badge b-ok">B</span></td><td>12</td><td class="up">▲6</td><td><a href="league.html" class="btn ghost">Drill</a></td></tr>
+        <tr><td>4</td><td class="u">Department of Posts</td><td>41</td><td>76%</td><td style="font-weight:800">71</td><td><span class="badge b-med">C</span></td><td>61</td><td class="up">▲4</td><td><a href="league.html" class="btn ghost">Drill</a></td></tr>
+        <tr><td>5</td><td class="u">Ministry of Railways</td><td>88</td><td>69%</td><td style="font-weight:800">66</td><td><span class="badge b-med">C</span></td><td>140</td><td class="up">▲2</td><td><a href="league.html" class="btn ghost">Drill</a></td></tr>
+        <tr><td>…</td><td class="u">Ministry of Rural Development</td><td>63</td><td>58%</td><td style="font-weight:800;color:var(--d)">48</td><td><span class="badge b-high">D</span></td><td>210</td><td class="down">▼1</td><td><a href="alerts.html" class="btn ghost">Review</a></td></tr>
+        <tr><td>…</td><td class="u">Ministry of Panchayati Raj</td><td>29</td><td>41%</td><td style="font-weight:800;color:var(--e)">39</td><td><span class="badge b-crit">E</span></td><td>118</td><td class="down">▼3</td><td><a href="alerts.html" class="btn ghost">Review</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

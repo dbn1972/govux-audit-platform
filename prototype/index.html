@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GovUX Audit Platform — Prototype Launcher</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'index.html',title:'Master Launcher',mode:'none'}</script>
+</head><body>
+<div class="gov-strip"></div>
+<div class="launch">
+  <div class="launch-hero">
+    <div class="brand" style="color:#fff"><div class="logo">GX</div><div style="font-size:18px">GovUX<small style="color:#bcd4ea">Audit Platform · MeitY / NIC</small></div></div>
+    <h1 style="margin-top:26px">Interactive product prototype</h1>
+    <p>A self-service UX &amp; compliance audit engine for <b style="color:#fff">.gov.in</b> and <b style="color:#fff">.nic.in</b> websites — designed from <b style="color:#fff">BRD v1.1</b>. <b style="color:#fff">22 screens</b>, every nav link live. Click any card, or use <b style="color:#fff">Prev / Next</b> in the top bar to walk the full flow.</p>
+    <div class="flow">
+      <span class="fstep">Sign in</span><span class="arr">→</span>
+      <span class="fstep">Dashboard</span><span class="arr">→</span>
+      <span class="fstep">Register</span><span class="arr">→</span>
+      <span class="fstep">Configure</span><span class="arr">→</span>
+      <span class="fstep">Task ID + run</span><span class="arr">→</span>
+      <span class="fstep">Report (8 cats)</span><span class="arr">→</span>
+      <span class="fstep">Issues</span><span class="arr">→</span>
+      <span class="fstep">Compatibility</span><span class="arr">→</span>
+      <span class="fstep">Compare</span>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin:30px 4px 6px"><h2 style="font-size:19px">Access</h2></div>
+  <div class="screens-grid">
+    <a class="scard" href="login.html"><div class="thumb"><span class="n">1</span><span class="ph">🔐</span></div><div class="sb"><h4>Sign in (Government SSO)</h4><p>Parichay / NIC-email / DigiLocker. Restricted to .gov.in &amp; .nic.in.</p><div class="go">Open screen →</div></div></a>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin:30px 4px 6px">
+    <h2 style="font-size:19px">Owner journey</h2>
+    <span class="badge b-info">Nodal / Web Information Manager</span>
+    <span class="badge b-new">v1.1 updates</span>
+  </div>
+  <div class="screens-grid">
+    <a class="scard" href="dashboard.html"><div class="thumb"><span class="n">2</span><span class="ph">📊</span></div><div class="sb"><h4>Owner Dashboard</h4><p>All domains, average GovUX Score, critical issues, priority actions.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="domains.html"><div class="thumb"><span class="n">3</span><span class="ph">🌐</span></div><div class="sb"><h4>My Domains</h4><p>Domain score cards and detailed table, with verify &amp; re-audit.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="register.html"><div class="thumb"><span class="n">4</span><span class="ph">➕</span></div><div class="sb"><h4>Register &amp; Verify Domain</h4><p>Add a .gov.in/.nic.in domain; verify via DNS, file or SSO.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="configure.html"><div class="thumb"><span class="n">5</span><span class="ph">⚙️</span></div><div class="sb"><h4>Configure Audit <span class="badge b-new" style="font-size:9px">v1.1</span></h4><p>All 8 scoring categories + the browser × device compatibility matrix.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="running.html"><div class="thumb"><span class="n">6</span><span class="ph">⏳</span></div><div class="sb"><h4>Audit in Progress <span class="badge b-new" style="font-size:9px">v1.1</span></h4><p>Task ID + async job states (queued→crawling→analyzing→scoring).</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="report.html"><div class="thumb"><span class="n">7</span><span class="ph">◎</span></div><div class="sb"><h4>Report — Score Overview <span class="badge b-new" style="font-size:9px">v1.1</span></h4><p>GovUX Score ring + all 8 weighted category sub-scores, guard-rail.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="issues.html"><div class="thumb"><span class="n">8</span><span class="ph">🚩</span></div><div class="sb"><h4>Report — Issues List</h4><p>Findings ranked by impact × effort, filterable by severity &amp; category.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="issue-detail.html"><div class="thumb"><span class="n">9</span><span class="ph">🛠️</span></div><div class="sb"><h4>Issue Detail &amp; Fix</h4><p>Plain-language reason, evidence, exact guideline and a copy-paste fix.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="compatibility.html"><div class="thumb" style="background:linear-gradient(135deg,#eaf5ef,#dcefe4)"><span class="n">10</span><span class="ph">📐</span></div><div class="sb"><h4>Responsiveness &amp; Compatibility <span class="badge b-new" style="font-size:9px">NEW</span></h4><p>Browser × device-size matrix, responsive breakpoints, orientation.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="trends.html"><div class="thumb"><span class="n">11</span><span class="ph">📈</span></div><div class="sb"><h4>Trends &amp; Re-audit History</h4><p>Score over time against bands, category progress, audit history.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="compare.html"><div class="thumb" style="background:linear-gradient(135deg,#eaf5ef,#dcefe4)"><span class="n">12</span><span class="ph">🔀</span></div><div class="sb"><h4>Compare &amp; Page Coverage <span class="badge b-new" style="font-size:9px">NEW</span></h4><p>Diff two dated snapshots (new vs resolved) + page-wise coverage.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="manual-review.html"><div class="thumb"><span class="n">13</span><span class="ph">✅</span></div><div class="sb"><h4>Manual Review (Assessor)</h4><p>Guided checklists; confirm/override findings and sign off.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="library.html"><div class="thumb"><span class="n">14</span><span class="ph">📚</span></div><div class="sb"><h4>Guideline Library</h4><p>Every check explained in plain language with a good example.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="settings.html"><div class="thumb"><span class="n">15</span><span class="ph">👥</span></div><div class="sb"><h4>Team &amp; Settings</h4><p>Role-based access, invitations, notifications and language.</p><div class="go">Open screen →</div></div></a>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin:34px 4px 6px">
+    <h2 style="font-size:19px">Steward journey</h2>
+    <span class="badge b-new">MeitY / NIC Programme Admin</span>
+  </div>
+  <div class="screens-grid">
+    <a class="scard" href="national.html"><div class="thumb" style="background:linear-gradient(135deg,#e7eefc,#dfe8fb)"><span class="n">16</span><span class="ph">🏛️</span></div><div class="sb"><h4>National Dashboard</h4><p>Coverage, score distribution, failing guidelines, league table, alerts.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="bulk-scan.html"><div class="thumb" style="background:linear-gradient(135deg,#eaf5ef,#dcefe4)"><span class="n">17</span><span class="ph">🗂️</span></div><div class="sb"><h4>Bulk Scan &amp; Estate Discovery <span class="badge b-new" style="font-size:9px">NEW</span></h4><p>Scan the whole estate: auto-discover the register or upload a list; watch task IDs process.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="ministries.html"><div class="thumb" style="background:linear-gradient(135deg,#e7eefc,#dfe8fb)"><span class="n">18</span><span class="ph">🏢</span></div><div class="sb"><h4>Ministries Breakdown</h4><p>Quality by ministry/department with coverage, trend and drill-down.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="states.html"><div class="thumb" style="background:linear-gradient(135deg,#e7eefc,#dfe8fb)"><span class="n">19</span><span class="ph">🗺️</span></div><div class="sb"><h4>States &amp; UTs</h4><p>A quality heat map and ranking across 36 states and UTs.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="league.html"><div class="thumb" style="background:linear-gradient(135deg,#e7eefc,#dfe8fb)"><span class="n">20</span><span class="ph">🏆</span></div><div class="sb"><h4>League Table <span class="badge b-new" style="font-size:9px">v1.1</span></h4><p>Segmented like-for-like ranking, podium, and internal-vs-public publishing controls.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="alerts.html"><div class="thumb" style="background:linear-gradient(135deg,#e7eefc,#dfe8fb)"><span class="n">21</span><span class="ph">🔔</span></div><div class="sb"><h4>Exception Alerts</h4><p>Band E domains, regressions, coverage gaps and critical spikes.</p><div class="go">Open screen →</div></div></a>
+    <a class="scard" href="standards.html"><div class="thumb" style="background:linear-gradient(135deg,#e7eefc,#dfe8fb)"><span class="n">22</span><span class="ph">⚖️</span></div><div class="sb"><h4>Standards &amp; Rules Engine</h4><p>Governance-controlled category weights, guard-rails, versioned rules.</p><div class="go">Open screen →</div></div></a>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin:34px 4px 6px"><h2 style="font-size:19px">Source</h2></div>
+  <div class="screens-grid">
+    <a class="scard" href="../GovUX_Audit_Platform_BRD_v1.1_Consolidated.docx"><div class="thumb" style="background:linear-gradient(135deg,#0A3D7A,#0D6EFD)"><span class="ph" style="color:#fff">📄</span></div><div class="sb"><h4>Consolidated BRD v1.1</h4><p>These 22 screens realise BRD v1.1. Open the full master document.</p><div class="go">Open document →</div></div></a>
+  </div>
+
+  <p class="mini" style="text-align:center;margin-top:40px">GovUX Audit Platform · Interactive prototype · 22 screens · Aligned to BRD v1.1 · Classification: Official</p>
+</div>
+<script src="shell.js"></script>
+</body></html>

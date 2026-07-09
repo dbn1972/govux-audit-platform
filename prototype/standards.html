@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Standards & Rules — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'standards.html',title:'Standards & Rules Engine',mode:'admin',nav:'guidelines'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Insights</a> › <b>Standards &amp; Rules</b></div>
+      <h1>Standards &amp; rules engine</h1>
+      <div class="sub">Governance-controlled. Category weights and guideline sets are versioned; every change is logged.</div>
+    </div>
+    <div class="grow"></div>
+    <span class="badge b-info">Active: v3.2</span>
+    <button class="btn primary">Publish new version</button>
+  </div>
+
+  <div class="grid g-25">
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card">
+        <div class="card-h"><h3>Category weights</h3><div class="grow"></div><span class="mini">Must total 100%</span></div>
+        <div class="card-b" style="display:grid;gap:16px">
+          <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Accessibility (WCAG 2.2 AA)</b><b style="color:var(--navy)">25%</b></div><div class="bar" style="margin-top:6px;height:12px"><i style="width:25%;background:var(--blue)"></i></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Usability &amp; UX heuristics</b><b style="color:var(--navy)">20%</b></div><div class="bar" style="margin-top:6px;height:12px"><i style="width:20%;background:var(--blue)"></i></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>GIGW 3.0 compliance</b><b style="color:var(--navy)">20%</b></div><div class="bar" style="margin-top:6px;height:12px"><i style="width:20%;background:var(--blue)"></i></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Performance / Core Web Vitals</b><b style="color:var(--navy)">15%</b></div><div class="bar" style="margin-top:6px;height:12px"><i style="width:15%;background:var(--blue)"></i></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Content quality &amp; readability</b><b style="color:var(--navy)">10%</b></div><div class="bar" style="margin-top:6px;height:12px"><i style="width:10%;background:var(--blue)"></i></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Trust, security &amp; privacy</b><b style="color:var(--navy)">10%</b></div><div class="bar" style="margin-top:6px;height:12px"><i style="width:10%;background:var(--blue)"></i></div></div>
+          <div class="note"><span class="i">ℹ</span><span>Weight changes apply only to <b>future</b> audits and create a new engine version. Past scores stay tied to their version.</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>Guard-rail rules</h3></div>
+        <div class="card-b" style="display:grid;gap:12px">
+          <label class="toggle on" style="justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:10px"><span>Critical accessibility failure caps at <b>Band C</b></span><span class="sw"></span></label>
+          <label class="toggle on" style="justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:10px"><span>No HTTPS caps at <b>Band D</b></span><span class="sw"></span></label>
+          <label class="toggle" style="justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:10px"><span>Missing mandatory GIGW elements caps at <b>Band B</b></span><span class="sw"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:12px">Standards baseline</h4>
+        <div style="display:grid;gap:11px;font-size:13px">
+          <div style="display:flex;justify-content:space-between"><span class="mini">GIGW</span><b>3.0 · 88 guidelines</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Accessibility</span><b>WCAG 2.2 AA</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">UX heuristics</span><b>Baymard-style v2</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Performance</span><b>Core Web Vitals '26</b></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Version history</h3></div>
+        <div class="card-b">
+          <div class="timeline">
+            <div class="tl-item up"><b style="font-size:13px">v3.2 — current</b><div class="mini">WCAG 2.2 AA baseline; +7 new checks · Jun 2026</div></div>
+            <div class="tl-item"><b style="font-size:13px">v3.1</b><div class="mini">Added INP to Core Web Vitals · Mar 2026</div></div>
+            <div class="tl-item"><b style="font-size:13px">v3.0</b><div class="mini">GIGW 3.0 full rule set · Oct 2025</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="note warn"><span class="i">🔐</span><span>Only Programme-Admins can publish a new version. Changes require a second approver.</span></div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

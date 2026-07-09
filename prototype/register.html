@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Register & Verify Domain — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'register.html',title:'Register & Verify Domain',mode:'owner',nav:'domains'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Workspace</a> › <a>My Domains</a> › <b>Add domain</b></div>
+      <h1>Register &amp; verify a domain</h1>
+      <div class="sub">Only <b>.gov.in</b> and <b>.nic.in</b> domains can be audited. Ownership must be verified before the first audit.</div>
+    </div>
+  </div>
+
+  <div class="steps" style="max-width:640px;margin-bottom:24px">
+    <div class="step done"><div class="cir">✓</div><div class="lb">Enter domain</div></div><div class="step done"><div class="line"></div></div>
+    <div class="step now"><div class="cir">2</div><div class="lb">Verify ownership</div></div><div class="step"><div class="line"></div></div>
+    <div class="step"><div class="cir">3</div><div class="lb">Ready to audit</div></div>
+  </div>
+
+  <div class="grid g-25">
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h3 style="font-size:16px;margin-bottom:14px">1 · Domain details</h3>
+        <div class="field"><label>Website domain</label>
+          <div class="inputgroup"><span class="pf">https://</span><input value="tracking.indiapost.nic.in"><span class="sf">✓ allowed TLD</span></div>
+          <div class="hint">Accepted: <b>.gov.in</b>, <b>.nic.in</b> and approved sub-domains. Other TLDs are rejected automatically.</div>
+        </div>
+        <div class="grid g-2">
+          <div class="field"><label>Owning organisation</label><select class="select"><option>Department of Posts (India Post)</option><option>Ministry of Communications</option></select></div>
+          <div class="field"><label>Service category</label><select class="select"><option>Citizen service — tracking</option><option>Payments</option><option>Information portal</option></select></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>2 · Verify ownership</h3><div class="grow"></div><span class="badge b-med">Not yet verified</span></div>
+        <div class="card-b">
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <span class="chip on">DNS TXT record</span>
+            <span class="chip">Upload HTML file</span>
+            <span class="chip">SSO org mapping</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin:0 0 12px">Add the following TXT record to your domain's DNS, then click verify. This proves you control the domain.</p>
+          <div style="background:#0E2233;color:#d7e6f4;border-radius:11px;padding:14px 16px;font:13px/1.7 ui-monospace,Menlo,monospace;position:relative">
+            <div style="color:#87a9c8">; TXT record — host: @</div>
+            govux-verify=8f3a-91cd-4e07-bb2a-2f19d6a4<span style="color:#5fd08a">  ⧉ copy</span>
+          </div>
+          <div class="note" style="margin-top:14px"><span class="i">⏱</span><span>DNS changes can take up to 30 minutes to propagate. We re-check automatically.</span></div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <a href="configure.html" class="btn primary">Verify now</a>
+            <button class="btn">I'll do this later</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:12px">Why verification?</h4>
+        <ul class="list-plain" style="display:grid;gap:11px;font-size:13px;color:var(--muted)">
+          <li style="display:flex;gap:9px"><span style="color:var(--green)">✓</span> Ensures only authorised officers audit a domain</li>
+          <li style="display:flex;gap:9px"><span style="color:var(--green)">✓</span> Prevents crawling of sites you don't control</li>
+          <li style="display:flex;gap:9px"><span style="color:var(--green)">✓</span> Keeps the national register trustworthy</li>
+        </ul>
+      </div>
+      <div class="card pad" style="background:var(--sky);border-color:#d3e4f2">
+        <h4 style="font-size:14px">Your verified domains</h4>
+        <div style="margin-top:12px;display:grid;gap:9px">
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px"><span style="color:var(--green)">🌐</span> indiapost.gov.in <span class="badge b-ok" style="margin-left:auto">Verified</span></div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px"><span style="color:var(--green)">🌐</span> ippbonline.gov.in <span class="badge b-ok" style="margin-left:auto">Verified</span></div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px"><span style="color:var(--green)">🌐</span> ncsc.dop.gov.in <span class="badge b-ok" style="margin-left:auto">Verified</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team & Settings — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'settings.html',title:'Team & Settings',mode:'owner',nav:'settings'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Account</a> › <b>Team &amp; Settings</b></div>
+      <h1>Team &amp; settings</h1>
+      <div class="sub">Manage who can access your domains, their roles, and how you're notified.</div>
+    </div>
+  </div>
+
+  <div class="grid g-25">
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card">
+        <div class="card-h"><h3>Team &amp; roles</h3><div class="grow"></div><button class="btn primary" style="padding:8px 14px">＋ Invite user</button></div>
+        <table class="tbl">
+          <thead><tr><th>Member</th><th>Role</th><th>Scope</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:32px;height:32px;font-size:11px">DN</span><div><b>D. Nayak</b><div class="mini">d.nayak@nic.in</div></div></div></td><td><span class="badge b-new">Owner</span></td><td class="mini">All domains</td><td><span class="badge b-ok">Active</span></td><td><a class="btn ghost">Edit</a></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:32px;height:32px;font-size:11px">AR</span><div><b>A. Rao</b><div class="mini">a.rao@nic.in</div></div></div></td><td><span class="badge b-info">Assessor</span></td><td class="mini">ncsc.dop.gov.in</td><td><span class="badge b-ok">Active</span></td><td><a class="btn ghost">Edit</a></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:32px;height:32px;font-size:11px">SK</span><div><b>S. Kumar</b><div class="mini">s.kumar@indiapost.gov.in</div></div></div></td><td><span class="badge b-med">Contributor</span></td><td class="mini">indiapost.gov.in</td><td><span class="badge b-ok">Active</span></td><td><a class="btn ghost">Edit</a></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:32px;height:32px;font-size:11px;background:#9AA7B4">MV</span><div><b>M. Verma</b><div class="mini">m.verma@nic.in</div></div></div></td><td><span class="badge b-med">Contributor</span></td><td class="mini">ippbonline.gov.in</td><td><span class="badge b-med">Invited</span></td><td><a class="btn ghost">Resend</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card pad">
+        <h3 style="font-size:15px;margin-bottom:6px">Role permissions (RBAC)</h3>
+        <p class="mini" style="margin:0 0 12px">Access is least-privilege and every action is audit-logged.</p>
+        <table class="tbl" style="border:1px solid var(--line);border-radius:10px;overflow:hidden">
+          <thead><tr><th>Capability</th><th>Owner</th><th>Contributor</th><th>Assessor</th></tr></thead>
+          <tbody>
+            <tr><td>Register / verify domains</td><td>✓</td><td>—</td><td>—</td></tr>
+            <tr><td>Run &amp; configure audits</td><td>✓</td><td>✓</td><td>—</td></tr>
+            <tr><td>View reports &amp; issues</td><td>✓</td><td>✓</td><td>✓</td></tr>
+            <tr><td>Manual review &amp; sign-off</td><td>✓</td><td>—</td><td>✓</td></tr>
+            <tr><td>Manage team &amp; roles</td><td>✓</td><td>—</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>Trusted devices &amp; active sessions</h3><div class="grow"></div><button class="btn" style="padding:8px 12px">Sign out all others</button></div>
+        <table class="tbl">
+          <thead><tr><th>Device</th><th>Location</th><th>Last active</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b>Chrome · Windows</b><div class="mini">Device key bound</div></td><td>New Delhi, IN</td><td>Now</td><td><span class="badge b-ok">This device</span></td><td class="mini">—</td></tr>
+            <tr><td><b>Safari · iPhone</b><div class="mini">Device key bound</div></td><td>New Delhi, IN</td><td>2 days ago</td><td><span class="badge b-info">Trusted</span></td><td><a class="btn ghost">Revoke</a></td></tr>
+            <tr><td><b>Edge · Windows</b><div class="mini">Office desktop</div></td><td>Shimla, IN</td><td>1 week ago</td><td><span class="badge b-info">Trusted</span></td><td><a class="btn ghost">Revoke</a></td></tr>
+          </tbody>
+        </table>
+        <div style="padding:12px 18px"><div class="note"><span class="i">🛡️</span><span>Sessions are device-bound: a short-lived access token + a rotating, device-keyed refresh token keep you signed in on trusted devices (Gmail-style). Sensitive actions still require a fresh OTP.</span></div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:12px">Notifications</h4>
+        <div style="display:grid;gap:14px">
+          <label class="toggle on" style="justify-content:space-between"><span>Audit completed</span><span class="sw"></span></label>
+          <label class="toggle on" style="justify-content:space-between"><span>New critical issue</span><span class="sw"></span></label>
+          <label class="toggle on" style="justify-content:space-between"><span>Score regression</span><span class="sw"></span></label>
+          <label class="toggle" style="justify-content:space-between"><span>Weekly summary</span><span class="sw"></span></label>
+        </div>
+        <div class="divider"></div>
+        <div class="field"><label>Channels</label><div style="display:flex;gap:8px"><span class="chip on">Email</span><span class="chip on">In-app</span><span class="chip">SMS</span></div></div>
+      </div>
+      <div class="card pad">
+        <h4 style="font-size:14px;margin-bottom:12px">Preferences</h4>
+        <div class="field"><label>Interface language</label><select class="select"><option>English</option><option>हिन्दी (Hindi)</option></select></div>
+        <div class="field" style="margin-bottom:0"><label>Default audit depth</label><select class="select"><option>Standard (≤50 pages)</option><option>Quick (≤10)</option><option>Deep (≤250)</option></select></div>
+      </div>
+      <div class="note"><span class="i">🔒</span><span>Passwords and identity are managed by government SSO — GovUX never stores your credentials.</span></div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

@@ -1,0 +1,80 @@
+"""Domain registration & ownership verification (restricted to gov.in/nic.in)."""
+import re
+import secrets
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+
+from ..database import get_db
+from .. import models
+from ..deps import current_user
+from ..services import verification, url_validate, cache, settings_store
+
+router = APIRouter(prefix="/v1/domains", tags=["domains"])
+GOV = re.compile(r"(\.gov\.in|\.nic\.in)$", re.I)
+
+
+def _domains_key(org_id) -> str:
+    return cache.cache_key("domains", str(org_id))
+
+
+class DomainCreate(BaseModel):
+    url: str
+    service_category: str | None = None
+    size_class: str | None = None
+
+
+class VerifyRequest(BaseModel):
+    method: str = "dns_txt"   # dns_txt | file_upload | sso_mapping
+
+
+@router.get("")
+def list_domains(user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    # read-through cache (per org): a hot dashboard read, invalidated on register/verify
+    ttl = settings_store.get_int("cache_ttl_seconds", 120)
+
+    def _load():
+        rows = db.query(models.Domain).filter(models.Domain.org_id == user.org_id).all()
+        return [{"id": str(d.id), "url": d.url, "verify_status": d.verify_status,
+                 "category": d.service_category} for d in rows]
+    return cache.get_or_set(_domains_key(user.org_id), ttl, _load)
+
+
+@router.post("", status_code=201)
+def register_domain(body: DomainCreate, user: models.User = Depends(current_user),
+                    db: Session = Depends(get_db)):
+    # validate: gov domain, resolves, not internal (SSRF guard) — same as the scanner
+    v = url_validate.validate(body.url)
+    if not v["ok"]:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, v["error"])
+    url = v["host"]
+    if db.query(models.Domain).filter(models.Domain.url == url).first():
+        raise HTTPException(status.HTTP_409_CONFLICT, "Domain already registered")
+    tld = "nic.in" if url.endswith("nic.in") else "gov.in"
+    d = models.Domain(org_id=user.org_id, url=url, tld=tld,
+                      service_category=body.service_category, size_class=body.size_class,
+                      verify_status="pending", verify_token="govux-verify=" + secrets.token_hex(8),
+                      created_by=user.id)
+    db.add(d)
+    db.commit()
+    cache.invalidate(_domains_key(user.org_id))   # the list changed
+    return {"id": str(d.id), "url": d.url, "verify_token": d.verify_token, "verify_status": "pending"}
+
+
+@router.post("/{domain_id}/verify")
+def verify_domain(domain_id: str, body: VerifyRequest,
+                  user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    d = db.get(models.Domain, domain_id)
+    # org-scope: only verify domains belonging to your own organisation
+    if not d or (user.role != "super_admin" and d.org_id != user.org_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
+    # Resolve the DNS TXT record / fetch the .well-known metafile and compare the
+    # token we issued at registration. Real ownership proof — no auto-pass.
+    verified = verification.verify(d.url, d.verify_token or "", body.method)
+    d.verify_status = "verified" if verified else "failed"
+    d.verify_method = body.method
+    db.commit()
+    cache.invalidate(_domains_key(d.org_id))      # verify_status changed
+    return {"id": str(d.id), "verify_status": d.verify_status,
+            "detail": ("ownership proven" if verified else
+                       "verification token not found via " + body.method)}

@@ -1,0 +1,140 @@
+# Production topology — real servers, split/persisted Redis, health checks, limits.
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d
+# Secrets come from the environment (.env); NONE are defaulted here (see .env.example).
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources: { limits: { cpus: "2", memory: 2g } }
+
+  # durable job queue + status pub/sub — AOF persistence so a restart never loses jobs
+  redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    volumes: ["redisdata:/data"]
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources: { limits: { cpus: "1", memory: 1g } }
+
+  # separate cache Redis — eviction/flush here can never touch the durable queue
+  redis-cache:
+    image: redis:7
+    command: ["redis-server", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources: { limits: { cpus: "1", memory: 768m } }
+
+  api:
+    build: ./backend
+    # migrate on boot, then run a real multi-worker Gunicorn (no --reload)
+    entrypoint: ["/app/entrypoint.sh"]
+    command: ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker",
+              "--workers", "4", "--bind", "0.0.0.0:8000", "--timeout", "60",
+              "--access-logfile", "-"]
+    user: "10001:10001"                       # non-root
+    environment:
+      GOVUX_ENV: production
+      GOVUX_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      GOVUX_REDIS_URL: redis://redis:6379/0
+      GOVUX_CACHE_REDIS_URL: redis://redis-cache:6379/0
+      GOVUX_JWT_SECRET: ${GOVUX_JWT_SECRET}
+      GOVUX_SECRET_KEY: ${GOVUX_SECRET_KEY}
+      GOVUX_CORS_ORIGINS: ${GOVUX_CORS_ORIGINS}
+      GOVUX_CRUX_API_KEY: ${GOVUX_CRUX_API_KEY:-}
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      redis-cache: { condition: service_healthy }
+    restart: always
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/healthz').status==200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 2
+      resources: { limits: { cpus: "1", memory: 1g } }
+
+  worker:
+    build: ./backend
+    command: ["python", "-m", "app.worker"]
+    environment:
+      GOVUX_ENV: production
+      GOVUX_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      GOVUX_REDIS_URL: redis://redis:6379/0
+      GOVUX_CACHE_REDIS_URL: redis://redis-cache:6379/0
+      GOVUX_JWT_SECRET: ${GOVUX_JWT_SECRET}
+      GOVUX_SECRET_KEY: ${GOVUX_SECRET_KEY}
+      GOVUX_CRUX_API_KEY: ${GOVUX_CRUX_API_KEY:-}
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+    deploy:
+      replicas: 3                             # horizontal audit fleet (consumer-per-replica)
+      resources: { limits: { cpus: "2", memory: 2g } }   # 3 browser engines are heavy
+
+  scheduler:
+    build: ./backend
+    command: ["python", "-m", "app.services.scheduler"]
+    environment:
+      GOVUX_ENV: production
+      GOVUX_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      GOVUX_REDIS_URL: redis://redis:6379/0
+      GOVUX_JWT_SECRET: ${GOVUX_JWT_SECRET}
+      GOVUX_SECRET_KEY: ${GOVUX_SECRET_KEY}
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+
+  public-worker:
+    build: ./backend
+    command: ["python", "-m", "app.public_worker"]
+    environment:
+      GOVUX_ENV: production
+      GOVUX_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      GOVUX_REDIS_URL: redis://redis:6379/0
+      GOVUX_CACHE_REDIS_URL: redis://redis-cache:6379/0
+      GOVUX_JWT_SECRET: ${GOVUX_JWT_SECRET}
+      GOVUX_SECRET_KEY: ${GOVUX_SECRET_KEY}
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+
+  web:
+    build: ./frontend
+    command: ["sh", "-c", "npm run build && npm run start"]   # production build (no dev server)
+    environment:
+      GOVUX_API_URL: http://api:8000
+      NODE_ENV: production
+    depends_on: [api]
+    restart: always
+    deploy:
+      resources: { limits: { cpus: "1", memory: 1g } }
+
+volumes:
+  pgdata:
+  redisdata:

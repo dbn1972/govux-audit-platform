@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>National Dashboard — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'national.html',title:'National Dashboard (MeitY/NIC)',mode:'admin',nav:'national'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Overview</a> › <b>National Dashboard</b></div>
+      <h1>National digital-service quality</h1>
+      <div class="sub">Live view across all audited .gov.in / .nic.in domains · updated hourly</div>
+    </div>
+    <div class="grow"></div>
+    <select class="select" style="width:auto"><option>All India</option><option>Central Ministries</option><option>States &amp; UTs</option></select>
+    <a href="bulk-scan.html" class="btn">🗂️ Bulk scan</a>
+    <button class="btn primary">⬇ Export brief</button>
+  </div>
+
+  <div class="grid g-4" style="margin-bottom:20px">
+    <div class="card stat"><div class="lab">Domains audited</div><div class="val">2,148</div><div class="delta up">▲ 312 this quarter · 61% coverage</div></div>
+    <div class="card stat"><div class="lab">National avg. GovUX Score</div><div class="val">63</div><div class="delta up">▲ 4 pts YoY</div></div>
+    <div class="card stat"><div class="lab">WCAG 2.2 AA pass rate</div><div class="val">54%</div><div class="delta up">▲ 11 pts</div></div>
+    <div class="card stat"><div class="lab">Open critical issues</div><div class="val" style="color:#B4322D">3,904</div><div class="delta down">across 690 domains</div></div>
+  </div>
+
+  <div class="grid g-25" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-h"><h3>Score distribution — all domains</h3><div class="grow"></div><span class="mini">Band A→E</span></div>
+      <div class="card-b">
+        <div style="display:flex;align-items:flex-end;gap:20px;height:190px;padding:0 10px">
+          <div style="flex:1;text-align:center"><div style="height:38px;background:var(--a);border-radius:8px 8px 0 0;margin-top:auto"></div><b style="display:block;margin-top:8px">176</b><span class="badge b-ok" style="margin-top:4px">A</span></div>
+          <div style="flex:1;text-align:center"><div style="height:96px;background:var(--b);border-radius:8px 8px 0 0"></div><b style="display:block;margin-top:8px">602</b><span class="badge" style="background:#EAF6F5;color:#2f8a83;margin-top:4px">B</span></div>
+          <div style="flex:1;text-align:center"><div style="height:150px;background:var(--c);border-radius:8px 8px 0 0"></div><b style="display:block;margin-top:8px">744</b><span class="badge b-med" style="margin-top:4px">C</span></div>
+          <div style="flex:1;text-align:center"><div style="height:110px;background:var(--d);border-radius:8px 8px 0 0"></div><b style="display:block;margin-top:8px">452</b><span class="badge b-high" style="margin-top:4px">D</span></div>
+          <div style="flex:1;text-align:center"><div style="height:52px;background:var(--e);border-radius:8px 8px 0 0"></div><b style="display:block;margin-top:8px">174</b><span class="badge b-crit" style="margin-top:4px">E</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Top failing guidelines</h3></div>
+      <div class="card-b" style="display:grid;gap:13px">
+        <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Colour contrast (WCAG 1.4.3)</b><span class="mini">68%</span></div><div class="bar" style="margin-top:5px"><i style="width:68%;background:var(--e)"></i></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Missing form labels (3.3.2)</b><span class="mini">61%</span></div><div class="bar" style="margin-top:5px"><i style="width:61%;background:var(--e)"></i></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Slow LCP on mobile (CWV)</b><span class="mini">57%</span></div><div class="bar" style="margin-top:5px"><i style="width:57%;background:var(--d)"></i></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>No plain-language nav (UX)</b><span class="mini">49%</span></div><div class="bar" style="margin-top:5px"><i style="width:49%;background:var(--d)"></i></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:13px"><b>Missing GIGW footer elements</b><span class="mini">43%</span></div><div class="bar" style="margin-top:5px"><i style="width:43%;background:var(--c)"></i></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card">
+      <div class="card-h"><h3>League table — by ministry</h3><div class="grow"></div><span class="mini">Avg. GovUX Score</span></div>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Ministry / Department</th><th>Domains</th><th>Avg. score</th><th>Trend</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="u">Income Tax Dept.</td><td>34</td><td><span class="badge b-ok">81 · B</span></td><td class="up">▲ 5</td></tr>
+          <tr><td>2</td><td class="u">Ministry of External Affairs</td><td>52</td><td><span class="badge b-ok">79 · B</span></td><td class="up">▲ 3</td></tr>
+          <tr><td>3</td><td class="u">UIDAI</td><td>19</td><td><span class="badge b-ok">77 · B</span></td><td class="up">▲ 6</td></tr>
+          <tr><td>4</td><td class="u">Department of Posts</td><td>41</td><td><span class="badge b-med">71 · C</span></td><td class="up">▲ 4</td></tr>
+          <tr><td>5</td><td class="u">Ministry of Railways</td><td>88</td><td><span class="badge b-med">66 · C</span></td><td class="up">▲ 2</td></tr>
+          <tr><td>…</td><td class="u">Ministry of Rural Dev.</td><td>63</td><td><span class="badge b-high">48 · D</span></td><td class="down">▼ 1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card">
+        <div class="card-h"><h3>Exception alerts</h3><div class="grow"></div><span class="badge b-crit">12 new</span></div>
+        <div class="card-b" style="display:grid;gap:13px">
+          <div style="display:flex;gap:11px"><span class="dot-s dc" style="margin-top:5px"></span><div><b style="font-size:13px">174 domains in Band E</b><div class="mini">Critical quality risk — needs intervention</div></div></div>
+          <div class="divider" style="margin:0"></div>
+          <div style="display:flex;gap:11px"><span class="dot-s dh" style="margin-top:5px"></span><div><b style="font-size:13px">38 domains regressed this month</b><div class="mini">Score dropped ≥ 5 points after a change</div></div></div>
+          <div class="divider" style="margin:0"></div>
+          <div style="display:flex;gap:11px"><span class="dot-s dm" style="margin-top:5px"></span><div><b style="font-size:13px">1,360 known domains never audited</b><div class="mini">39% of the national register</div></div></div>
+        </div>
+      </div>
+      <div class="card pad" style="background:var(--sky);border-color:#d3e4f2">
+        <h4 style="font-size:14px;margin-bottom:6px">Governance</h4>
+        <p class="mini" style="margin:0 0 10px">Active rules engine <b>v3.2</b> · GIGW 3.0 + WCAG 2.2 AA. Weight changes are version-controlled and logged.</p>
+        <button class="btn" style="width:100%;justify-content:center">Manage standards &amp; weights</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

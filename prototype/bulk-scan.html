@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bulk Scan & Estate Discovery — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'bulk-scan.html',title:'Bulk Scan & Estate Discovery',mode:'admin',nav:'bulk'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Overview</a> › <b>Bulk Scan</b></div>
+      <h1>Bulk scan &amp; estate discovery</h1>
+      <div class="sub">Scan the whole estate, not one site at a time. Each domain is enqueued as an independent task.</div>
+    </div>
+    <div class="grow"></div>
+    <a href="national.html" class="btn">← National dashboard</a>
+  </div>
+
+  <div class="grid g-3" style="margin-bottom:20px">
+    <div class="card pad"><div class="mini">Known domains (register)</div><b style="font-size:26px;color:var(--navy)">3,508</b><div class="mini" style="margin-top:4px">.gov.in &amp; .nic.in</div></div>
+    <div class="card pad"><div class="mini">Audited at least once</div><b style="font-size:26px;color:var(--navy)">2,148</b><div class="bar" style="margin-top:8px"><i style="width:61%;background:var(--b)"></i></div><div class="mini" style="margin-top:4px">61% coverage</div></div>
+    <div class="card pad"><div class="mini">Never audited</div><b style="font-size:26px;color:#B4322D">1,360</b><div class="mini" style="margin-top:4px">39% of the register</div></div>
+  </div>
+
+  <div class="grid g-25">
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h3 style="font-size:16px;margin-bottom:6px">Start a bulk scan</h3>
+        <p class="mini" style="margin-bottom:14px">Choose how to select the domains to enqueue.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <span class="chip on">🗂️ Auto-discover register</span>
+          <span class="chip">📄 Upload CSV</span>
+          <span class="chip">✍️ Paste list</span>
+        </div>
+        <div class="field"><label>Scope</label><select class="select"><option>All never-audited domains (1,360)</option><option>Entire register (3,508)</option><option>By ministry / state…</option><option>Domains not scanned in 30 days</option></select></div>
+        <div class="grid g-2">
+          <div class="field"><label>Audit depth</label><select class="select"><option>Standard (≤50 pages)</option><option>Quick (≤10)</option></select></div>
+          <div class="field"><label>Priority</label><select class="select"><option>Scheduled (background)</option><option>High (jump the queue)</option></select></div>
+        </div>
+        <div class="note" style="margin-bottom:14px"><span class="i">⚙️</span><span>Enqueued to <span class="kbd">Redis Streams</span> · consumed by the polyglot worker fleet · idempotent (no duplicate concurrent runs) · polite per-domain rate limits.</span></div>
+        <button class="btn primary lg" style="width:100%;justify-content:center">▶ Enqueue 1,360 domains</button>
+        <label class="toggle" style="justify-content:center;margin-top:12px"><span class="sw"></span> Re-run monthly (CronJob)</label>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card">
+        <div class="card-h"><h3>Estate scan in progress</h3><div class="grow"></div><span class="badge b-info">● Live</span></div>
+        <div class="card-b">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><b style="font-size:14px">Batch <span class="kbd">b-7f42</span></b><b style="font-size:20px;color:var(--navy)">38%</b></div>
+          <div class="progress-lg"><i style="width:38%"></i></div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px" class="mini"><span>517 of 1,360 domains done</span><span>~2h 10m left</span></div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:18px;flex-wrap:wrap">
+            <div><div class="mini">Completed</div><b style="color:var(--green)">517</b></div>
+            <div><div class="mini">Running</div><b style="color:var(--blue)">40</b></div>
+            <div><div class="mini">Queued</div><b>794</b></div>
+            <div><div class="mini">Failed/partial</div><b style="color:var(--d)">9</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Recent task IDs</h3></div>
+        <table class="tbl">
+          <thead><tr><th>Task</th><th>Domain</th><th>Status</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr><td class="mini">a1b2-9c3d</td><td class="u">ncsc.dop.gov.in</td><td><span class="badge b-ok">Completed</span></td><td style="font-weight:700">64</td></tr>
+            <tr><td class="mini">a1b2-9c40</td><td class="u">panchayat.xx.gov.in</td><td><span class="badge b-ok">Completed</span></td><td style="font-weight:700;color:var(--e)">36</td></tr>
+            <tr><td class="mini">a1b2-9c41</td><td class="u">welfare.xx.nic.in</td><td><span class="badge b-info">● Analyzing</span></td><td class="mini">—</td></tr>
+            <tr><td class="mini">a1b2-9c42</td><td class="u">tourism.xx.gov.in</td><td><span class="badge b-med">Partial · retry</span></td><td class="mini">—</td></tr>
+            <tr><td class="mini">a1b2-9c43</td><td class="u">land-records.xx.gov.in</td><td><span class="badge b-low">Queued</span></td><td class="mini">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

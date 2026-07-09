@@ -1,0 +1,44 @@
+# Prometheus alerting rules for GovUX (scrape target: GET /metrics).
+# Load into Prometheus and wire to Alertmanager. Thresholds are starting points.
+groups:
+  - name: govux-reliability
+    rules:
+      - alert: GovuxDeadLetterQueueNonEmpty
+        expr: govux_queue_audit_dlq > 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Audit DLQ has {{ $value }} poison message(s)"
+          description: "Jobs are failing past the retry cap. Inspect the DLQ stream."
+
+      - alert: GovuxAuditQueueBacklog
+        expr: govux_queue_audit_depth > 5000
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Audit queue backlog ({{ $value }} pending)"
+          description: "Workers can't keep up — scale the worker fleet or investigate stalls."
+
+      - alert: GovuxAuditPendingStuck
+        expr: govux_queue_audit_pending > 100
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $value }} audit jobs stuck unacked"
+          description: "Possible crashed workers; XAUTOCLAIM reclaim should recover them."
+
+      - alert: GovuxCacheHitRateLow
+        expr: govux_cache_hit_rate < 0.4
+        for: 15m
+        labels: { severity: info }
+        annotations:
+          summary: "Cache hit rate low ({{ $value }})"
+          description: "Dashboards may be hammering Postgres — check cache health/TTL."
+
+      - alert: GovuxDbPoolSaturated
+        expr: govux_db_pool_checked_out >= govux_db_pool_size
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "DB connection pool saturated"
+          description: "Requests are queuing on the pool — add PgBouncer / raise pool size."

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alerts — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'alerts.html',title:'Exception Alerts',mode:'admin',nav:'alerts'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Insights</a> › <b>Alerts</b></div>
+      <h1>Exception alerts</h1>
+      <div class="sub">Where quality is at risk — so the programme office can intervene early.</div>
+    </div>
+    <div class="grow"></div>
+    <button class="btn">Mark all read</button>
+    <button class="btn primary">Configure rules</button>
+  </div>
+
+  <div class="grid g-4" style="margin-bottom:20px">
+    <div class="card pad" style="border-left:4px solid var(--e)"><div class="mini">Band E domains</div><div style="font-size:26px;font-weight:800;color:var(--e)">174</div></div>
+    <div class="card pad" style="border-left:4px solid var(--d)"><div class="mini">Regressed this month</div><div style="font-size:26px;font-weight:800;color:var(--d)">38</div></div>
+    <div class="card pad" style="border-left:4px solid var(--c)"><div class="mini">Never audited</div><div style="font-size:26px;font-weight:800;color:#9A7207">1,360</div></div>
+    <div class="card pad" style="border-left:4px solid var(--crit)"><div class="mini">New critical spikes</div><div style="font-size:26px;font-weight:800;color:var(--crit)">12</div></div>
+  </div>
+
+  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px">
+    <span class="chip on">All alerts</span>
+    <span class="chip"><span class="dot-s dc"></span> Critical</span>
+    <span class="chip"><span class="dot-s dh"></span> Regressions</span>
+    <span class="chip"><span class="dot-s dm"></span> Coverage gaps</span>
+  </div>
+
+  <div class="card">
+    <div class="card-b" style="padding:0">
+      <div style="display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);align-items:flex-start">
+        <span class="dot-s dc" style="margin-top:6px"></span>
+        <div style="flex:1"><b>174 domains fell into Band E (critical risk)</b><div class="mini">Highest concentration in Rural Development &amp; Panchayati Raj · avg score 39</div></div>
+        <span class="badge b-crit">Critical</span><a href="league.html" class="btn ghost">View list</a>
+      </div>
+      <div style="display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);align-items:flex-start">
+        <span class="dot-s dh" style="margin-top:6px"></span>
+        <div style="flex:1"><b>railways.gov.in dropped 9 points after a redesign</b><div class="mini">New contrast &amp; keyboard failures introduced · 3 days ago</div></div>
+        <span class="badge b-high">Regression</span><a href="report.html" class="btn ghost">Open report</a>
+      </div>
+      <div style="display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);align-items:flex-start">
+        <span class="dot-s dh" style="margin-top:6px"></span>
+        <div style="flex:1"><b>38 domains regressed ≥ 5 points this month</b><div class="mini">Likely due to unreviewed content or template changes</div></div>
+        <span class="badge b-high">Regression</span><a href="ministries.html" class="btn ghost">Break down</a>
+      </div>
+      <div style="display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);align-items:flex-start">
+        <span class="dot-s dm" style="margin-top:6px"></span>
+        <div style="flex:1"><b>1,360 known domains have never been audited</b><div class="mini">39% of the national register — nudge nodal officers to onboard</div></div>
+        <span class="badge b-med">Coverage</span><button class="btn ghost">Send reminder</button>
+      </div>
+      <div style="display:flex;gap:14px;padding:16px 20px;align-items:flex-start">
+        <span class="dot-s dc" style="margin-top:6px"></span>
+        <div style="flex:1"><b>12 domains show a new spike in critical accessibility failures</b><div class="mini">Guard-rail triggered — capped at Band C until resolved</div></div>
+        <span class="badge b-crit">Critical</span><a href="issues.html" class="btn ghost">Review</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

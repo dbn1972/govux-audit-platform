@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>States & UTs — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'states.html',title:'States & UTs',mode:'admin',nav:'states'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Overview</a> › <b>States &amp; UTs</b></div>
+      <h1>States &amp; Union Territories</h1>
+      <div class="sub">GovUX Score across state government websites · 36 states &amp; UTs</div>
+    </div>
+    <div class="grow"></div>
+    <select class="select" style="width:auto"><option>Metric: Avg score</option><option>Coverage</option><option>Accessibility pass rate</option></select>
+  </div>
+
+  <div class="grid g-25" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-h"><h3>Quality heat map</h3><div class="grow"></div>
+        <span class="mini" style="display:flex;gap:10px;align-items:center">
+          <span class="tag-dot"><span class="dot-s" style="background:var(--a)"></span>High</span>
+          <span class="tag-dot"><span class="dot-s" style="background:var(--c)"></span>Mid</span>
+          <span class="tag-dot"><span class="dot-s" style="background:var(--e)"></span>Low</span></span>
+      </div>
+      <div class="card-b">
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+          <div style="background:var(--b);color:#fff;border-radius:9px;padding:11px 10px"><b>Kerala</b><div style="font-size:18px;font-weight:800">80</div></div>
+          <div style="background:var(--b);color:#fff;border-radius:9px;padding:11px 10px"><b>Karnataka</b><div style="font-size:18px;font-weight:800">76</div></div>
+          <div style="background:var(--c);color:#fff;border-radius:9px;padding:11px 10px"><b>Maharashtra</b><div style="font-size:18px;font-weight:800">70</div></div>
+          <div style="background:var(--c);color:#fff;border-radius:9px;padding:11px 10px"><b>Tamil Nadu</b><div style="font-size:18px;font-weight:800">69</div></div>
+          <div style="background:var(--c);color:#fff;border-radius:9px;padding:11px 10px"><b>Gujarat</b><div style="font-size:18px;font-weight:800">67</div></div>
+          <div style="background:var(--c);color:#fff;border-radius:9px;padding:11px 10px"><b>Telangana</b><div style="font-size:18px;font-weight:800">66</div></div>
+          <div style="background:var(--c);color:#fff;border-radius:9px;padding:11px 10px"><b>Delhi</b><div style="font-size:18px;font-weight:800">64</div></div>
+          <div style="background:var(--c);color:#fff;border-radius:9px;padding:11px 10px"><b>Punjab</b><div style="font-size:18px;font-weight:800">62</div></div>
+          <div style="background:var(--d);color:#fff;border-radius:9px;padding:11px 10px"><b>Rajasthan</b><div style="font-size:18px;font-weight:800">58</div></div>
+          <div style="background:var(--d);color:#fff;border-radius:9px;padding:11px 10px"><b>W. Bengal</b><div style="font-size:18px;font-weight:800">55</div></div>
+          <div style="background:var(--d);color:#fff;border-radius:9px;padding:11px 10px"><b>Bihar</b><div style="font-size:18px;font-weight:800">49</div></div>
+          <div style="background:var(--e);color:#fff;border-radius:9px;padding:11px 10px"><b>Assam</b><div style="font-size:18px;font-weight:800">43</div></div>
+        </div>
+        <p class="mini" style="margin-top:12px">Showing 12 of 36 · colour reflects average GovUX Score band</p>
+      </div>
+    </div>
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card stat"><div class="lab">National state avg.</div><div class="val">63</div><div class="delta up">▲ 4 pts YoY</div></div>
+      <div class="card stat"><div class="lab">Best state</div><div class="val" style="font-size:22px">Kerala · 80</div><div class="delta up">Band B</div></div>
+      <div class="card stat"><div class="lab">Largest gap</div><div class="val" style="font-size:22px">37 pts</div><div class="delta down">Kerala vs Assam</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>State ranking</h3></div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>State / UT</th><th>Domains</th><th>Coverage</th><th>Avg score</th><th>Accessibility</th><th>Trend</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="u">Kerala</td><td>142</td><td>81%</td><td style="font-weight:800">80</td><td><span class="badge b-ok">71% AA</span></td><td class="up">▲6</td></tr>
+        <tr><td>2</td><td class="u">Karnataka</td><td>168</td><td>77%</td><td style="font-weight:800">76</td><td><span class="badge b-ok">66% AA</span></td><td class="up">▲4</td></tr>
+        <tr><td>3</td><td class="u">Maharashtra</td><td>221</td><td>72%</td><td style="font-weight:800">70</td><td><span class="badge b-med">58% AA</span></td><td class="up">▲3</td></tr>
+        <tr><td>4</td><td class="u">Tamil Nadu</td><td>190</td><td>70%</td><td style="font-weight:800">69</td><td><span class="badge b-med">57% AA</span></td><td class="up">▲2</td></tr>
+        <tr><td>…</td><td class="u">Bihar</td><td>96</td><td>52%</td><td style="font-weight:800;color:var(--d)">49</td><td><span class="badge b-high">38% AA</span></td><td class="down">▼1</td></tr>
+        <tr><td>…</td><td class="u">Assam</td><td>74</td><td>44%</td><td style="font-weight:800;color:var(--e)">43</td><td><span class="badge b-crit">31% AA</span></td><td class="down">▼2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Configure Audit — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'configure.html',title:'Configure Audit',mode:'owner',nav:'configure'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Audits</a> › <b>New audit</b></div>
+      <h1>Configure audit</h1>
+      <div class="sub">Choose what to check. Submitting returns a task ID instantly; the audit runs in the background.</div>
+    </div>
+  </div>
+
+  <div class="grid g-25">
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card pad">
+        <h3 style="font-size:16px;margin-bottom:14px">Target &amp; scope</h3>
+        <div class="field"><label>Domain</label><select class="select"><option>ncsc.dop.gov.in — Savings certificates</option><option>indiapost.gov.in — Main portal</option></select></div>
+        <div class="grid g-2">
+          <div class="field"><label>Page discovery</label><select class="select"><option>Auto-discover key pages (recommended)</option><option>Import from sitemap.xml</option><option>Specific URLs only</option></select><div class="hint">Home, search, forms and top citizen journeys.</div></div>
+          <div class="field"><label>Crawl depth</label><select class="select"><option>Up to 50 pages (standard)</option><option>Up to 10 pages (quick)</option><option>Up to 250 pages (deep)</option></select><div class="hint">Standard audits complete in ~15 minutes.</div></div>
+        </div>
+      </div>
+
+      <div class="card pad">
+        <h3 style="font-size:16px;margin-bottom:6px">Standards &amp; categories</h3>
+        <p class="mini" style="margin-bottom:14px">All eight scoring categories are on by default for a complete GovUX Score.</p>
+        <div style="display:grid;gap:10px">
+          <label class="toggle on" style="justify-content:flex-start;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px"><span class="sw"></span><div><b>Accessibility — WCAG 2.2 AA</b><div class="mini">Contrast, keyboard, alt, ARIA, focus</div></div><span class="badge b-info" style="margin-left:auto">22%</span></label>
+          <label class="toggle on" style="justify-content:flex-start;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px"><span class="sw"></span><div><b>Usability &amp; UX heuristics</b><div class="mini">Navigation, search, forms, feedback</div></div><span class="badge b-info" style="margin-left:auto">17%</span></label>
+          <label class="toggle on" style="justify-content:flex-start;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px"><span class="sw"></span><div><b>GIGW 3.0 compliance</b><div class="mini">88 mandatory guidelines</div></div><span class="badge b-info" style="margin-left:auto">15%</span></label>
+          <label class="toggle on" style="justify-content:flex-start;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px"><span class="sw"></span><div><b>Design foundation — UX4G</b><div class="mini">Typography, colour, layout, components</div></div><span class="badge b-info" style="margin-left:auto">11%</span></label>
+          <label class="toggle on" style="justify-content:flex-start;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px"><span class="sw"></span><div><b>Performance — Core Web Vitals</b><div class="mini">LCP, INP, CLS, page weight</div></div><span class="badge b-info" style="margin-left:auto">12%</span></label>
+          <label class="toggle on" style="justify-content:flex-start;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px"><span class="sw"></span><div><b>Responsiveness &amp; Compatibility</b><div class="mini">Responsive, cross-browser, multi-device</div></div><span class="badge b-info" style="margin-left:auto">10%</span></label>
+          <label class="toggle on" style="justify-content:flex-start;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px"><span class="sw"></span><div><b>Content quality &amp; readability</b><div class="mini">Plain language, multilingual</div></div><span class="badge b-info" style="margin-left:auto">7%</span></label>
+          <label class="toggle on" style="justify-content:flex-start;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px"><span class="sw"></span><div><b>Trust, security &amp; privacy</b><div class="mini">HTTPS, headers, cookies, CVEs</div></div><span class="badge b-info" style="margin-left:auto">6%</span></label>
+        </div>
+      </div>
+
+      <div class="card pad">
+        <h3 style="font-size:16px;margin-bottom:6px">Compatibility matrix</h3>
+        <p class="mini" style="margin-bottom:14px">Test responsive behaviour across browsers and device sizes.</p>
+        <div class="grid g-2">
+          <div class="field"><label>Browser engines</label><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip on">Chromium</span><span class="chip on">Firefox</span><span class="chip on">WebKit</span></div></div>
+          <div class="field"><label>Device sizes</label><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip on">📱 Small (360)</span><span class="chip on">📱 Phone (414)</span><span class="chip on">📲 Tablet (768)</span><span class="chip on">💻 Desktop (1440)</span></div></div>
+        </div>
+        <div class="field" style="margin-bottom:0"><label>Also test</label><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip on">Both orientations</span><span class="chip on">🐢 Throttled 3G/4G</span><span class="chip">Real Indian test locations</span></div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="card">
+        <div class="card-h"><h3>Audit summary</h3></div>
+        <div class="card-b" style="font-size:13.5px;display:grid;gap:11px">
+          <div style="display:flex;justify-content:space-between"><span class="mini">Domain</span><b>ncsc.dop.gov.in</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Pages</span><b>~50 (auto)</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Categories</span><b>All 8</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Matrix</span><b>3 browsers × 4 sizes</b></div>
+          <div style="display:flex;justify-content:space-between"><span class="mini">Est. duration</span><b style="color:var(--blue)">≈ 13–16 min</b></div>
+          <div class="divider"></div>
+          <a href="running.html" class="btn primary lg" style="justify-content:center">▶ Submit — get task ID</a>
+          <label class="toggle" style="justify-content:center"><span class="sw"></span> Also schedule monthly</label>
+        </div>
+      </div>
+      <div class="note"><span class="i">🤝</span><span>Crawling is polite: rate-limited, honours robots.txt, uses <span class="kbd">GovUX-Bot</span>, and never captures citizen personal data.</span></div>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

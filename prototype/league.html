@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>League Table — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'league.html',title:'League Table',mode:'admin',nav:'league'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Insights</a> › <b>League Table</b></div>
+      <h1>Benchmarking league table</h1>
+      <div class="sub">Ranked like-for-like within a segment — never one flat national list.</div>
+    </div>
+    <div class="grow"></div>
+    <button class="btn">⬇ Export ranking</button>
+  </div>
+
+  <!-- segmentation -->
+  <div class="card pad" style="margin-bottom:16px">
+    <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end">
+      <div><div class="mini" style="margin-bottom:5px;font-weight:700">Service category</div><div style="display:flex;gap:7px;flex-wrap:wrap"><span class="chip on">Transactional</span><span class="chip">Information</span><span class="chip">Payments</span></div></div>
+      <div><div class="mini" style="margin-bottom:5px;font-weight:700">Site size</div><div style="display:flex;gap:7px;flex-wrap:wrap"><span class="chip on">Large</span><span class="chip">Medium</span><span class="chip">Small</span></div></div>
+      <div><div class="mini" style="margin-bottom:5px;font-weight:700">Organisation</div><select class="select" style="width:auto;padding:8px 12px"><option>All Central</option><option>All States/UTs</option><option>Specific ministry…</option></select></div>
+    </div>
+    <div class="note" style="margin-top:12px"><span class="i">⚖️</span><span>Ranking <b>Transactional · Large · Central</b> — 46 peer domains. Segmentation ensures a small info site isn't compared with a large transactional portal.</span></div>
+  </div>
+
+  <!-- podium -->
+  <div class="grid g-3" style="margin-bottom:20px">
+    <div class="card pad" style="text-align:center;border-top:4px solid #C9A227"><div style="font-size:22px">🥇</div><b style="color:var(--navy)">incometax.gov.in</b><div class="mini">Income Tax Dept.</div><div style="font-size:30px;font-weight:800;color:var(--navy);margin-top:6px">91</div><span class="badge b-ok">A · Exemplary</span></div>
+    <div class="card pad" style="text-align:center;border-top:4px solid #9AA7B4"><div style="font-size:22px">🥈</div><b style="color:var(--navy)">passportindia.gov.in</b><div class="mini">MEA</div><div style="font-size:30px;font-weight:800;color:var(--navy);margin-top:6px">88</div><span class="badge b-ok">B · Strong</span></div>
+    <div class="card pad" style="text-align:center;border-top:4px solid #C08A4B"><div style="font-size:22px">🥉</div><b style="color:var(--navy)">uidai.gov.in</b><div class="mini">UIDAI</div><div style="font-size:30px;font-weight:800;color:var(--navy);margin-top:6px">86</div><span class="badge b-ok">B · Strong</span></div>
+  </div>
+
+  <div class="grid g-25">
+    <div class="card">
+      <div class="card-h"><h3>Ranking — Transactional · Large · Central</h3><div class="grow"></div><span class="mini">46 peers</span></div>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="u">incometax.gov.in</td><td style="font-weight:800">91</td><td><span class="badge b-ok">A</span></td></tr>
+          <tr><td>2</td><td class="u">passportindia.gov.in</td><td style="font-weight:800">88</td><td><span class="badge b-ok">B</span></td></tr>
+          <tr><td>3</td><td class="u">uidai.gov.in</td><td style="font-weight:800">86</td><td><span class="badge b-ok">B</span></td></tr>
+          <tr><td>4</td><td class="u">mygov.in</td><td style="font-weight:800">84</td><td><span class="badge b-ok">B</span></td></tr>
+          <tr><td>…</td><td class="u">ncsc.dop.gov.in</td><td style="font-weight:800;color:var(--c)">64</td><td><span class="badge b-med">C</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:grid;gap:18px;align-content:start">
+      <!-- publishing control -->
+      <div class="card">
+        <div class="card-h"><h3>Publishing</h3><div class="grow"></div><span class="badge b-info">Governance-gated</span></div>
+        <div class="card-b">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <span class="chip on" style="background:var(--navy);border-color:var(--navy);color:#fff">🔒 Internal only</span>
+            <span class="chip">🌐 Public (opt-in)</span>
+          </div>
+          <p class="mini" style="margin:0 0 10px">Rankings default to the internal steward view. Public publication is a MeitY policy decision — not a technical switch. Precedent: US GSA open data, EU reports.</p>
+          <button class="btn" style="width:100%;justify-content:center">Request public publication →</button>
+        </div>
+      </div>
+      <div class="card pad" style="background:var(--sky);border-color:#d3e4f2">
+        <h4 style="font-size:14px;margin-bottom:8px">Anti-gaming safeguards</h4>
+        <ul class="list-plain" style="display:grid;gap:8px;font-size:12.5px;color:#1a5f9e">
+          <li>✓ Guard-rails cap the band on critical failures</li>
+          <li>✓ Versioned, reproducible scores</li>
+          <li>✓ Periodic expert “audit of the auditor”</li>
+          <li>✓ Methodology &amp; date published with any ranking</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="card-h"><h3>Needs intervention (this segment)</h3><div class="grow"></div><span class="badge b-crit">Band E</span></div>
+    <table class="tbl">
+      <thead><tr><th>Domain</th><th>Score</th><th>Critical</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="u">rural-scheme.xx.nic.in</td><td style="font-weight:800;color:var(--e)">38</td><td>15</td><td><a href="alerts.html" class="btn ghost">Flag</a></td></tr>
+        <tr><td class="u">welfare.xx.nic.in</td><td style="font-weight:800;color:var(--d)">44</td><td>12</td><td><a href="alerts.html" class="btn ghost">Flag</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>

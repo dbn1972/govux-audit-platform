@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guideline Library — GovUX</title>
+<link rel="stylesheet" href="app.css">
+<script>window.SCREEN={id:'library.html',title:'Guideline Library',mode:'owner',nav:'library'}</script>
+</head><body>
+<div id="page">
+  <div class="page-head">
+    <div><div class="crumbs"><a>Assess</a> › <b>Guideline Library</b></div>
+      <h1>Guideline library &amp; knowledge base</h1>
+      <div class="sub">Every check the platform runs, explained in plain language with a good example. Mapped to standards versions.</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px;align-items:center">
+    <div class="searchbox" style="width:320px"><input placeholder="Search guidelines, e.g. contrast, forms, LCP…"></div>
+    <span class="chip on">All</span>
+    <span class="chip">WCAG 2.2</span>
+    <span class="chip">GIGW 3.0</span>
+    <span class="chip">UX heuristics</span>
+    <span class="chip">Core Web Vitals</span>
+  </div>
+
+  <div class="grid g-4" style="margin-bottom:18px">
+    <div class="card pad" style="text-align:center"><b style="font-size:24px;color:var(--navy)">88</b><div class="mini">GIGW guidelines</div></div>
+    <div class="card pad" style="text-align:center"><b style="font-size:24px;color:var(--navy)">86</b><div class="mini">WCAG 2.2 criteria</div></div>
+    <div class="card pad" style="text-align:center"><b style="font-size:24px;color:var(--navy)">40+</b><div class="mini">UX heuristics</div></div>
+    <div class="card pad" style="text-align:center"><b style="font-size:24px;color:var(--navy)">3</b><div class="mini">Core Web Vitals</div></div>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card pad">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="badge b-info">WCAG 1.4.3</span><span class="badge b-crit">Level AA</span></div>
+      <h3 style="font-size:15px">Colour contrast (minimum)</h3>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0">Text must have a contrast ratio of at least 4.5:1 against its background (3:1 for large text) so low-vision users and people in bright sunlight can read it.</p>
+      <div class="note ok" style="font-size:12.5px"><span class="i">✓</span><span>Good example: navy #0A3D7A text on white = 11.8:1 — passes comfortably.</span></div>
+      <a href="#" class="btn ghost" style="margin-top:10px;padding-left:0">Full guidance →</a>
+    </div>
+    <div class="card pad">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="badge b-info">WCAG 2.1.1</span><span class="badge b-crit">Level A</span></div>
+      <h3 style="font-size:15px">Keyboard operable</h3>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0">All functionality must be usable with a keyboard alone. Use native controls (button, a, input) so focus and activation work by default.</p>
+      <div class="note ok" style="font-size:12.5px"><span class="i">✓</span><span>Good example: a real &lt;button&gt; instead of a clickable &lt;div&gt;.</span></div>
+      <a href="issue-detail.html" class="btn ghost" style="margin-top:10px;padding-left:0">See related issue →</a>
+    </div>
+    <div class="card pad">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="badge b-info">GIGW 2.4</span><span class="badge b-med">Mandatory</span></div>
+      <h3 style="font-size:15px">Mandatory footer elements</h3>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0">Every page must show contact information, “Last updated” date, copyright, terms, privacy policy and accessibility statement.</p>
+      <div class="note ok" style="font-size:12.5px"><span class="i">✓</span><span>Good example: a consistent footer block present on all templates.</span></div>
+      <a href="#" class="btn ghost" style="margin-top:10px;padding-left:0">Full guidance →</a>
+    </div>
+    <div class="card pad">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="badge b-info">CWV · LCP</span><span class="badge b-low">Performance</span></div>
+      <h3 style="font-size:15px">Largest Contentful Paint</h3>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0">The main content should render within 2.5s on mobile. Optimise hero images, avoid render-blocking scripts, and use caching.</p>
+      <div class="note ok" style="font-size:12.5px"><span class="i">✓</span><span>Good example: compressed WebP hero + deferred non-critical JS.</span></div>
+      <a href="#" class="btn ghost" style="margin-top:10px;padding-left:0">Full guidance →</a>
+    </div>
+    <div class="card pad">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="badge b-info">UX · Search</span><span class="badge b-low">Heuristic</span></div>
+      <h3 style="font-size:15px">Effective site search</h3>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0">Search should tolerate typos and synonyms, cover scheme names and everyday terms, and never return an empty dead-end.</p>
+      <div class="note ok" style="font-size:12.5px"><span class="i">✓</span><span>Good example: “savings” returns NSC, KVP, RD with plain descriptions.</span></div>
+      <a href="#" class="btn ghost" style="margin-top:10px;padding-left:0">Full guidance →</a>
+    </div>
+    <div class="card pad">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="badge b-info">WCAG 3.3.2</span><span class="badge b-crit">Level A</span></div>
+      <h3 style="font-size:15px">Labels or instructions</h3>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0">Form inputs need visible, programmatically associated labels so everyone — including screen-reader users — knows what to enter.</p>
+      <div class="note ok" style="font-size:12.5px"><span class="i">✓</span><span>Good example: &lt;label for="pan"&gt; tied to the PAN field.</span></div>
+      <a href="#" class="btn ghost" style="margin-top:10px;padding-left:0">Full guidance →</a>
+    </div>
+  </div>
+</div>
+<script src="shell.js"></script>
+</body></html>
