@@ -1,0 +1,33 @@
+GovUX Audit Platform
+Copyright (c) 2026 Government of India — Ministry of Electronics & Information
+Technology (MeitY) / National Informatics Centre (NIC). All rights reserved.
+
+PROPRIETARY AND CONFIDENTIAL
+
+This software and its associated documentation ("the Software") are the
+confidential and proprietary property of the Government of India. The Software is
+provided for internal government use in auditing the quality, accessibility, and
+compliance of Indian government (.gov.in / .nic.in) websites.
+
+Permission is NOT granted to any person or organisation to copy, modify, merge,
+publish, distribute, sublicense, or sell copies of the Software, or to disclose
+the Software to any third party, except with the prior written authorisation of
+the copyright holder.
+
+Authorised users and contributors within the Government of India and its
+designated agencies and vendors may use, modify, and deploy the Software strictly
+in accordance with their engagement terms and applicable government IT security
+and data-protection policies (including the DPDP Act, 2023 and CERT-In
+directions).
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING
+FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+--------------------------------------------------------------------------------
+NOTE FOR MAINTAINERS: If this project is later approved for open publication,
+replace this file with the chosen licence (e.g. the Government Open Data Licence
+– India, MIT, or Apache-2.0) per the approving authority's decision, and update
+the badge and licence note in README.md accordingly.

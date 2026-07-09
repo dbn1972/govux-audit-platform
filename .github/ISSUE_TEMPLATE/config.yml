@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔐 Report a security vulnerability
+    url: https://github.com/dbn1972/govux-audit-platform/security/policy
+    about: Please report security issues privately per SECURITY.md — never as a public issue.
+  - name: 📖 User Manual
+    url: https://github.com/dbn1972/govux-audit-platform/blob/main/docs/USER_MANUAL.md
+    about: How to use the platform (officers, assessors, admins) before filing a bug.

@@ -1,0 +1,17 @@
+# Default owners for everything in the repo.
+# Replace with real GitHub teams/handles for your programme.
+*                               @dbn1972
+
+# Security-sensitive areas — require security review.
+/platform/backend/app/routers/auth.py        @dbn1972
+/platform/backend/app/security.py            @dbn1972
+/platform/backend/app/services/secretbox.py  @dbn1972
+/platform/backend/app/services/url_validate.py @dbn1972
+/SECURITY.md                                 @dbn1972
+
+# Scoring integrity — changes must preserve determinism.
+/platform/backend/app/services/scoring.py    @dbn1972
+
+# Infra & CI.
+/platform/docker-compose*.yml                @dbn1972
+/.github/                                     @dbn1972
