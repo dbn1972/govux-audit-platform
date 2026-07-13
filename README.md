@@ -81,6 +81,7 @@ docker compose exec api pytest                  # backend suite (≥80% gate)
 
 ```bash
 cp .env.example .env        # then set REAL secrets (the API refuses to boot without them)
+cp .env.example .env        # EDIT .env and set REAL secrets (API refuses to boot without them)
 docker compose -f platform/docker-compose.prod.yml --env-file .env up -d
 ```
 
