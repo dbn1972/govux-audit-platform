@@ -39,3 +39,6 @@ platform/backend/audit_engine/sweep_*/
 
 # Office temp lock files
 ~$*
+
+# TypeScript incremental build cache
+*.tsbuildinfo
