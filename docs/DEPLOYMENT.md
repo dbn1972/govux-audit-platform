@@ -65,6 +65,28 @@ Migrations run automatically via `entrypoint.sh` (`alembic upgrade head`) before
 the API starts. To seed reference data (guideline library etc.) run your seed step
 once against the production DB.
 
+### 3.3 Kubernetes (Helm) — medium/large & enterprise
+
+A Helm chart mirrors the production compose (API + worker fleet + scheduler +
+public-worker + web, migrate-on-install hook, health probes, HPA hooks). It expects
+**pre-built images** and **external** Postgres/Redis/S3.
+
+```bash
+helm install govux platform/deploy/helm/govux \
+  --namespace govux --create-namespace \
+  --set image.registry=registry.gov.in/ \
+  --set secrets.jwtSecret="$(python -c 'import secrets;print(secrets.token_urlsafe(48))')" \
+  --set secrets.secretKey="$(python -c 'import secrets;print(secrets.token_urlsafe(48))')" \
+  --set secrets.databaseUrl='postgresql+psycopg://USER:PASS@HOST:5432/govux' \
+  --set config.redisUrl='redis://redis:6379/0' \
+  --set config.cacheRedisUrl='redis://redis-cache:6379/0' \
+  --set ingress.enabled=true --set ingress.host=govux.gov.in
+```
+
+Full values, upgrade/rollback, and autoscaling guidance:
+[`platform/deploy/helm/govux/README.md`](../platform/deploy/helm/govux/README.md).
+CI lints and renders the chart on every PR.
+
 ## 4. Required environment variables
 
 | Variable | Required | Notes |

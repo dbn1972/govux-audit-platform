@@ -1,0 +1,104 @@
+# Default values for the GovUX Helm chart. Mirrors docker-compose.prod.yml.
+# Data stores (Postgres/Redis/S3) are EXTERNAL by design — point them at managed
+# services or in-cluster subcharts. Set the required secrets before installing.
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  registry: ""                    # e.g. "registry.gov.in/" (trailing slash) or empty
+  backendRepository: govux/backend
+  webRepository: govux/frontend
+  tag: "1.1"
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+env: production                   # GOVUX_ENV — enables fail-fast secret checks
+
+# ── Secrets ──────────────────────────────────────────────────────────────────
+# Provide values here (chart creates a Secret) OR set existingSecret to the name
+# of a pre-created Secret containing keys: jwtSecret, secretKey, databaseUrl, cruxApiKey
+existingSecret: ""
+secrets:
+  jwtSecret: ""                   # REQUIRED — strong, and MUST differ from secretKey
+  secretKey: ""                   # REQUIRED — encrypts SMTP/CAPTCHA secrets at rest
+  databaseUrl: ""                 # REQUIRED — full DSN incl. credentials
+  cruxApiKey: ""                  # optional — Chrome UX Report field data
+
+# ── Non-secret config ────────────────────────────────────────────────────────
+config:
+  corsOrigins: "https://govux.gov.in"
+  redisUrl: "redis://govux-redis:6379/0"          # durable job queue (AOF-persisted)
+  cacheRedisUrl: "redis://govux-redis-cache:6379/0"  # separate cache instance
+
+# ── Database migrations ──────────────────────────────────────────────────────
+migrations:
+  enabled: true                   # run `alembic upgrade head` as a pre-install/upgrade hook
+
+# ── Workloads ────────────────────────────────────────────────────────────────
+api:
+  replicas: 2
+  resources:
+    requests: { cpu: "250m", memory: "512Mi" }
+    limits:   { cpu: "1",    memory: "1Gi" }
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+worker:                            # audit fleet — 3 browser engines are heavy
+  replicas: 3
+  resources:
+    requests: { cpu: "500m", memory: "1Gi" }
+    limits:   { cpu: "2",    memory: "2Gi" }
+  autoscaling:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 65
+  # Chromium's sandbox needs care under an arbitrary uid; leave empty to run as
+  # the image default. Set runAsNonRoot: true only with a compatible image.
+  podSecurityContext: {}
+
+scheduler:
+  replicas: 1
+  resources:
+    requests: { cpu: "50m", memory: "128Mi" }
+    limits:   { cpu: "250m", memory: "256Mi" }
+
+publicWorker:
+  replicas: 1
+  resources:
+    requests: { cpu: "250m", memory: "512Mi" }
+    limits:   { cpu: "1",    memory: "1Gi" }
+
+web:
+  replicas: 2
+  resources:
+    requests: { cpu: "100m", memory: "256Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+
+# non-root by default for the stateless workloads (worker overrides above)
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  fsGroup: 10001
+
+service:
+  api: { type: ClusterIP, port: 8000 }
+  web: { type: ClusterIP, port: 3000 }
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  host: govux.gov.in
+  tls:
+    enabled: true
+    secretName: govux-tls
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}

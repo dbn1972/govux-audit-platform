@@ -1,0 +1,14 @@
+apiVersion: v2
+name: govux
+description: >-
+  GovUX Audit Platform — self-service UX & compliance auditing for Indian
+  government (.gov.in/.nic.in) websites. Mirrors docker-compose.prod.yml:
+  API + audit-worker fleet + scheduler + public-worker + web, with migrate-on-
+  install, health probes, HPA hooks, and secret/config separation.
+type: application
+version: 0.1.0
+appVersion: "1.1"
+keywords: [govux, accessibility, gigw, wcag, audit, government]
+home: https://github.com/dbn1972/govux-audit-platform
+maintainers:
+  - name: GovUX Platform Team

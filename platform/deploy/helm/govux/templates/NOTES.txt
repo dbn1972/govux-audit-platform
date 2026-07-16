@@ -1,0 +1,34 @@
+GovUX Audit Platform deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Components:
+  API           {{ include "govux.fullname" . }}-api ({{ .Values.api.replicas }} replicas)
+  Audit workers {{ include "govux.fullname" . }}-worker ({{ .Values.worker.replicas }} replicas)
+  Scheduler     {{ include "govux.fullname" . }}-scheduler
+  Public worker {{ include "govux.fullname" . }}-public-worker
+  Web           {{ include "govux.fullname" . }}-web ({{ .Values.web.replicas }} replicas)
+  Migrations    {{ if .Values.migrations.enabled }}applied via pre-install/upgrade hook{{ else }}DISABLED — run alembic manually{{ end }}
+
+1. Check rollout:
+     kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "govux.fullname" . }}-api
+
+2. Health:
+     kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "govux.fullname" . }}-api {{ .Values.service.api.port }}:{{ .Values.service.api.port }}
+     curl -s http://localhost:{{ .Values.service.api.port }}/healthz     # {"status":"ok"}
+
+{{- if .Values.ingress.enabled }}
+3. Access:  https://{{ .Values.ingress.host }}
+{{- else }}
+3. No ingress enabled. Reach the web UI via:
+     kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "govux.fullname" . }}-web {{ .Values.service.web.port }}:{{ .Values.service.web.port }}
+{{- end }}
+
+Readiness reminders (see docs/DEPLOYMENT.md, docs/OPERATIONS.md):
+  • Data stores (Postgres/Redis/S3) are EXTERNAL — confirm managed HA + backups.
+  • Set a strong, distinct GOVUX_JWT_SECRET / GOVUX_SECRET_KEY (the API fails to
+    boot otherwise in production).
+  • Prometheus: scrape {{ include "govux.fullname" . }}-api:/metrics (set a metrics token).
+  • Take a backup and run a restore drill before go-live.
+{{- if not .Values.worker.podSecurityContext }}
+  • Worker pods run with the image default securityContext (Chromium sandbox);
+    harden per your cluster's policy.
+{{- end }}
