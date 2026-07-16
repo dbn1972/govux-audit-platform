@@ -30,3 +30,7 @@ def downgrade():
         "CREATE TABLE alembic_version ("
         "  version_num VARCHAR(32) NOT NULL,"
         "  CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num));")
+    # Re-seed the current revision so alembic's own post-downgrade bookkeeping
+    # (DELETE of this row) matches exactly one row instead of erroring with
+    # "expected to match one row ... 0 found".
+    op.execute("INSERT INTO alembic_version (version_num) VALUES ('0001_initial');")
