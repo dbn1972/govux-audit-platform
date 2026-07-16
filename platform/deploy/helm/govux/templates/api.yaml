@@ -35,7 +35,7 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 20
           readinessProbe:
-            httpGet: { path: /healthz, port: http }
+            httpGet: { path: /readyz, port: http }   # gates traffic on DB + Redis
             initialDelaySeconds: 10
             periodSeconds: 10
           resources: {{- toYaml .Values.api.resources | nindent 12 }}

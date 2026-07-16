@@ -17,6 +17,9 @@
   "GET /metrics": [
     "200"
   ],
+  "GET /readyz": [
+    "200"
+  ],
   "GET /v1/admin/config": [
     "200",
     "422"

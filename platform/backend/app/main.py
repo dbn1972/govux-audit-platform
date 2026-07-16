@@ -45,11 +45,19 @@ def _startup_checks():
 
 @app.middleware("http")
 async def _request_id(request: Request, call_next):
-    """Attach a request id to every request/response for support & tracing."""
+    """Attach a request id and baseline security headers to every response.
+    (An audit platform that flags others for missing headers must set its own.)"""
     rid = request.headers.get("x-request-id") or uuid.uuid4().hex[:12]
     request.state.request_id = rid
     response = await call_next(request)
     response.headers["X-Request-ID"] = rid
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "geolocation=(), camera=(), microphone=()")
+    # HSTS only in production (TLS terminated at the ingress) — never over dev http
+    if settings.env == "production":
+        response.headers.setdefault("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
     return response
 
 
@@ -88,7 +96,34 @@ app.include_router(admin_config.router)
 
 @app.get("/healthz", tags=["ops"])
 def health():
+    """Liveness — the process is up. Cheap, no dependencies."""
     return {"status": "ok", "engine": settings.engine_version}
+
+
+@app.get("/readyz", tags=["ops"])
+def ready():
+    """Readiness — the app can actually serve: Postgres and Redis reachable.
+    Orchestrators (K8s readiness gate / load balancers) should poll this, not
+    /healthz, so traffic only arrives once dependencies are live."""
+    from fastapi import Response
+    from .database import engine
+    from .services import queue
+    from sqlalchemy import text as _text
+    checks = {}
+    try:
+        with engine.connect() as conn:
+            conn.execute(_text("SELECT 1"))
+        checks["db"] = "ok"
+    except Exception as exc:  # pragma: no cover - failure path
+        checks["db"] = f"error: {str(exc)[:80]}"
+    try:
+        queue._r.ping()
+        checks["redis"] = "ok"
+    except Exception as exc:  # pragma: no cover - failure path
+        checks["redis"] = f"error: {str(exc)[:80]}"
+    ok = all(v == "ok" for v in checks.values())
+    return JSONResponse(status_code=200 if ok else 503,
+                        content={"status": "ready" if ok else "not_ready", "checks": checks})
 
 
 @app.get("/metrics", tags=["ops"])

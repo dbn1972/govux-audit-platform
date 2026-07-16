@@ -97,7 +97,7 @@ Runs Gunicorn (multi-worker) + `next start`, a **split & AOF-persisted** Redis (
 |---|---|
 | ⬇️ Installing it | [**Installation Guide**](INSTALL.md) · [**Dependency Manifest**](docs/DEPENDENCIES.md) · [Configuration Reference](docs/CONFIGURATION.md) |
 | 👤 Government users (officers, assessors, admins) | [**User Manual**](docs/USER_MANUAL.md) |
-| 🚀 Operators / DevOps | [**Deployment Guide**](docs/DEPLOYMENT.md) · [**Operations Runbook**](docs/OPERATIONS.md) · [Upgrade Guide](docs/UPGRADING.md) |
+| 🚀 Operators / DevOps | [**Deployment Guide**](docs/DEPLOYMENT.md) · [**Operations Runbook**](docs/OPERATIONS.md) · [Production Readiness](docs/PRODUCTION_READINESS.md) · [Upgrade Guide](docs/UPGRADING.md) |
 | 🏛️ Architecture | [**High-Level Design (HLD)**](docs/HLD.md) · [**Low-Level Design (LLD)**](docs/LLD.md) |
 | 🧑‍💻 Engineers | [Architecture Notes](platform/docs/ARCHITECTURE.md) · [API](platform/docs/API.md) · [Data Access](platform/docs/DATA_ACCESS.md) · [Coding Standards](platform/docs/CODING_STANDARDS.md) · [Gotchas](platform/docs/GOTCHAS.md) |
 | 📊 Methodology | [Scoring & Validation](platform/docs/SCORING_VALIDATION.md) |
