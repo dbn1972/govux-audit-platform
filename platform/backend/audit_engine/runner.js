@@ -413,6 +413,11 @@ async function main() {
   process.stdout.write(JSON.stringify({
     url, categories, cwv: perf.cwv, findings, pages,
     pages_total: pages.length, documents,
+    // Evidence signal for the worker's coverage-confidence gate: if the home
+    // page never loaded (WAF/geo-block/timeout) or nothing was analysed, the
+    // category fillers above are meaningless and MUST NOT become a GovUX band.
+    evidence: { home_reachable: !!resp, pages_analysed: ok.length,
+                pages_total: pages.length },
     coverage: { sitemap_urls: fromSitemap.length, discovered: pool.length + 1,
                 pages_audited: pages.length, sampling: "diversified across site sections" },
   }));

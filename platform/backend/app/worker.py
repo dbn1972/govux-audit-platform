@@ -146,6 +146,36 @@ def process(task_id: str, payload: dict):
         if result.get("coverage"):
             audit.scope = {**(audit.scope or {}), "coverage": result["coverage"]}
 
+        # --- coverage-confidence gate (never score a site we couldn't capture) ---
+        # If the home page never loaded (timeout / WAF / geo-block) or no page was
+        # analysed, the engine's category values are fillers, not evidence. Emitting
+        # a GovUX band from them produces a false verdict (the umang.gov.in case:
+        # unreachable -> all-60 fillers -> a bogus "Band D"). Refuse: mark the audit
+        # `insufficient_evidence` with no band, and stop before scoring.
+        ev = result.get("evidence") or {}
+        if not ev.get("home_reachable", True) or ev.get("pages_analysed", 1) == 0:
+            audit.status = "insufficient_evidence"
+            audit.overall_score = None
+            audit.band = None
+            audit.compliance_status = "not_assessed"
+            audit.method = "automated"
+            audit.pages_total = result.get("pages_total") or 0
+            audit.pages_done = 0
+            db.add(models.Finding(
+                audit_id=audit.id, category="trust", severity="high",
+                guideline_id="Evidence",
+                title=("Home page could not be captured — the site was unreachable from "
+                       "the audit network (timeout / WAF / geo-block). No GovUX score is "
+                       "issued without real evidence."),
+                remediation=("Confirm the site is reachable and allowlists the audit "
+                             "egress IPs, then re-run the audit."),
+                confidence="automated"))
+            audit.finished_at = datetime.now(timezone.utc)
+            db.commit()
+            queue.set_status(task_id, "insufficient_evidence")
+            os.path.exists(shot) and os.remove(shot)
+            return
+
         # --- deterministic CV design score (replaces the hardcoded design: 70) ---
         try:
             cv = design_cv.score_from_path(shot)

@@ -19,7 +19,8 @@ OrgType = ENUM("ministry", "department", "state", "ut", "psu", "other", name="or
 VerifyMethod = ENUM("dns_txt", "file_upload", "sso_mapping", name="verify_method")
 VerifyStatus = ENUM("pending", "verified", "failed", name="verify_status")
 AuditStatus = ENUM("queued", "crawling", "analyzing", "scoring", "completed",
-                   "partial", "failed", "cancelled", name="audit_status")
+                   "partial", "failed", "cancelled", "insufficient_evidence",
+                   name="audit_status")
 PageStatus = ENUM("discovered", "analysed", "timed_out", "skipped", "error",
                   name="page_status")
 PublishMode = ENUM("internal", "public", name="publish_mode")

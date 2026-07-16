@@ -54,6 +54,32 @@ def test_status_and_report_lifecycle(client, ctx, verified_domain, db, monkeypat
     assert any(f["severity"] == "critical" for f in rep["findings"])
 
 
+def test_unreachable_site_yields_insufficient_evidence_not_a_band(
+        client, ctx, verified_domain, db, monkeypatch):
+    """Coverage-confidence gate: a site the engine couldn't capture (home
+    unreachable / zero pages analysed) must NOT be scored — no band, no false
+    verdict. This is the umang.gov.in case: unreachable -> all-60 fillers."""
+    from app import worker
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+        "url": url,
+        # fillers the engine emits when nothing loaded — must be ignored
+        "categories": {"accessibility": 60, "usability": 60, "gigw": 60, "design": 70,
+                       "performance": 60, "responsiveness": 60, "content": 60, "trust": 60},
+        "cwv": {}, "findings": [], "pages": [], "pages_total": 0,
+        "evidence": {"home_reachable": False, "pages_analysed": 0, "pages_total": 0},
+    })
+    sub = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)})
+    tid = sub.json()["task_id"]
+    worker.process(tid, {"domain": verified_domain.url})
+
+    st = client.get(f"/v1/audits/{tid}", headers=ctx["headers"]).json()
+    assert st["status"] == "insufficient_evidence"
+    assert st["overall_score"] is None
+    assert st["band"] is None
+    # the report is not "ready" for an unscored audit
+    assert client.get(f"/v1/audits/{tid}/report", headers=ctx["headers"]).status_code == 409
+
+
 def test_history_and_compare(client, ctx, verified_domain, db, monkeypatch):
     from app import worker
     monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {

@@ -12,7 +12,7 @@ CREATE TYPE user_role      AS ENUM ('owner','contributor','assessor','programme_
 CREATE TYPE org_type       AS ENUM ('ministry','department','state','ut','psu','other');
 CREATE TYPE verify_method  AS ENUM ('dns_txt','file_upload','sso_mapping');
 CREATE TYPE verify_status  AS ENUM ('pending','verified','failed');
-CREATE TYPE audit_status   AS ENUM ('queued','crawling','analyzing','scoring','completed','partial','failed','cancelled');
+CREATE TYPE audit_status   AS ENUM ('queued','crawling','analyzing','scoring','completed','partial','failed','cancelled','insufficient_evidence');
 CREATE TYPE page_status    AS ENUM ('discovered','analysed','timed_out','skipped','error');
 CREATE TYPE severity       AS ENUM ('critical','high','medium','low');
 CREATE TYPE finding_state  AS ENUM ('open','in_progress','resolved','not_applicable');
