@@ -10,6 +10,20 @@ export default function Settings() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Notification preferences persist per-device (no server endpoint yet) so the
+  // toggles actually remember a choice rather than resetting on every visit.
+  const [prefs, setPrefs] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    try { setPrefs(JSON.parse(localStorage.getItem("govux:notif") || "{}")); } catch { /* ignore */ }
+  }, []);
+  function toggleNotif(n: string) {
+    setPrefs((p) => {
+      const next = { ...p, [n]: !(p[n] ?? true) };
+      try { localStorage.setItem("govux:notif", JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  }
+
   useEffect(() => {
     api.devices()
       .then((d) => setDevices(d || []))
@@ -84,9 +98,12 @@ export default function Settings() {
               <h2 className="h6">Notifications</h2>
               {["Audit completed", "New critical issue", "Score regression"].map(n => (
                 <div className="form-check form-switch" key={n}>
-                  <input className="form-check-input" type="checkbox" defaultChecked /> <label className="form-check-label">{n}</label>
+                  <input className="form-check-input" type="checkbox" id={`notif-${n}`}
+                    checked={prefs[n] ?? true} onChange={() => toggleNotif(n)} />
+                  <label className="form-check-label" htmlFor={`notif-${n}`}>{n}</label>
                 </div>
               ))}
+              <p className="text-secondary small mb-0 mt-2">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
             </div></div>
           </div>
         </div>

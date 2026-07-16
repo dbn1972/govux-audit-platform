@@ -46,7 +46,8 @@ export default function Report({ params }: { params: { id: string } }) {
           </div></div></div>
           <div className="col-lg-4"><div className="card shadow-sm h-100"><div className="card-body">
             <h2 className="h6">Issues by severity</h2>
-            {[["Critical", "critical", "#dc3545"], ["High", "high", "#fd7e14"], ["Medium", "medium", "#ffc107"], ["Low", "low", "#6c757d"]].map(([l, k, c]) => (
+            {/* AA-safe severity palette (≥4.5:1 on white) — mirrors lib/score.ts */}
+            {[["Critical", "critical", "#b91c1c"], ["High", "high", "#c2410c"], ["Medium", "medium", "#b45309"], ["Low", "low", "#5c636a"]].map(([l, k, c]) => (
               <div className="d-flex justify-content-between border-bottom py-1" key={k}>
                 <span>{l}</span><b style={{ color: c as string }}>{sev(k as string)}</b>
               </div>
