@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 from sqlalchemy import (
     Column, Text, Boolean, Integer, BigInteger, Numeric, ForeignKey, DateTime, func,
+    CheckConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET, ENUM
 from .database import Base
@@ -42,6 +43,11 @@ class Organisation(Base):
 
 class User(Base):
     __tablename__ = "users"
+    # gov-only access (invariant #4) enforced at the DB layer too — kept in sync
+    # with db/schema.sql's chk_gov_email so an ORM-built schema has it as well.
+    __table_args__ = (
+        CheckConstraint(r"email ~* '[@.](gov|nic)\.in$'", name="chk_gov_email"),
+    )
     id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
     email = Column(Text, unique=True, nullable=False)
     org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"))
@@ -94,6 +100,10 @@ class Session(Base):
 
 class Domain(Base):
     __tablename__ = "domains"
+    # gov-only access (invariant #4) at the DB layer, in sync with db/schema.sql.
+    __table_args__ = (
+        CheckConstraint(r"url ~* '(\.gov\.in|\.nic\.in)$'", name="chk_gov_domain"),
+    )
     id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
     org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
     url = Column(Text, unique=True, nullable=False)
