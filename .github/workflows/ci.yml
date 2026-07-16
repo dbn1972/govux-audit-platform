@@ -84,7 +84,9 @@ jobs:
       - run: npm run build          # next build
 
   e2e:
-    runs-on: ubuntu-latest
+    # Pinned to jammy: Playwright 1.44's `install --with-deps` package list
+    # predates ubuntu-24.04 (noble) and its apt step fails there.
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Boot the full stack (api · db · redis · web · workers)

@@ -21,4 +21,12 @@ def upgrade():
 
 
 def downgrade():
+    # Full reset of the schema this migration installed. DROP SCHEMA CASCADE also
+    # removes alembic's own `alembic_version` table, so recreate it — otherwise
+    # alembic can't record the downgrade and a later `upgrade` fails with
+    # "relation alembic_version does not exist".
     op.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+    op.execute(
+        "CREATE TABLE alembic_version ("
+        "  version_num VARCHAR(32) NOT NULL,"
+        "  CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num));")
