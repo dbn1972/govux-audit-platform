@@ -162,6 +162,45 @@ async function trust(page, resp) {
     else findings.push({ category: "trust", severity: sev,
       guideline: "Security", title: `Missing security header: ${name}`, effort: "low" });
   }
+
+  // --- cookie consent (DPDP s.6 / consent-first) ----------------------------
+  // The homepage is audited in place with NO consent interaction, so any
+  // non-essential cookie present at this point was dropped BEFORE consent —
+  // exactly what DPDP's "free, prior, specific" consent forbids.
+  try {
+    const cookies = await page.context().cookies();
+    const TRACK = /^(_ga|_gid|_gat|_gcl|_ga_|_fbp|_fbc|fr|IDE|DSID|__gads|__gpi|_hj|_uetsid|_uetvid|MUID|_pin_unauth|personalization_id|ln_or|ajs_|_scid|_tt_enable|_pk_|amplitude|mp_|_clck|_clsk)/i;
+    const tracking = cookies.filter(c => TRACK.test(c.name));
+    const cmp = await page.evaluate(() => {
+      const sigs = ["onetrust", "optanon", "cookiebot", "cookieyes", "osano", "usercentrics",
+        "quantcast", "termly", "complianz", "borlabs", "iubenda", "didomi", "klaro",
+        "cookie-script", "cookieconsent", "cookie-consent", "truste", "civic"];
+      const html = document.documentElement.outerHTML.toLowerCase();
+      const vendor = sigs.find(s => html.includes(s)) || null;
+      let banner = false;   // a visible element about cookies with an accept/consent control
+      for (const el of Array.from(document.querySelectorAll("div,section,aside,dialog,[role=dialog]")).slice(0, 500)) {
+        const t = (el.textContent || "").toLowerCase();
+        if (t.length < 600 && t.includes("cookie") && /(accept|agree|allow|consent|got it)/.test(t)) {
+          const cs = getComputedStyle(el);
+          if (cs.display !== "none" && cs.visibility !== "hidden") { banner = true; break; }
+        }
+      }
+      return { vendor, banner };
+    });
+    if (tracking.length) {
+      findings.push({ category: "trust", severity: "high", guideline: "DPDP-s6-consent",
+        title: `${tracking.length} non-essential/tracking cookie(s) set before consent (${tracking.slice(0, 4).map(c => c.name).join(", ")}) — DPDP requires free, prior consent`,
+        effort: "medium" });
+      score -= Math.min(20, 6 * tracking.length);
+    }
+    if (cookies.length && !cmp.vendor && !cmp.banner) {
+      findings.push({ category: "trust", severity: "medium", guideline: "Consent-banner",
+        title: "Cookies are set but no cookie-consent notice / banner was detected",
+        effort: "medium" });
+      score -= 6;
+    }
+  } catch { /* cookie-consent check is best-effort */ }
+
   return { score: clamp(score), findings };
 }
 
