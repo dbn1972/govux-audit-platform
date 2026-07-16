@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       db:
-        image: postgres:16
+        image: pgvector/pgvector:pg16   # schema.sql CREATE EXTENSION vector
         env: { POSTGRES_USER: govux, POSTGRES_PASSWORD: govux, POSTGRES_DB: govux }
         ports: ["5432:5432"]
         options: >-
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       db:
-        image: postgres:16
+        image: pgvector/pgvector:pg16   # schema.sql CREATE EXTENSION vector
         env: { POSTGRES_USER: govux, POSTGRES_PASSWORD: govux, POSTGRES_DB: govux }
         ports: ["5432:5432"]
         options: >-
@@ -77,7 +77,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - run: npm install
+      # Regenerate the lockfile on the CI platform: the committed one is authored
+      # on arm64 and omits the x64 rollup optional dep (npm/cli#4828).
+      - run: rm -f package-lock.json && npm install
       - run: npm run test          # vitest
       - run: npm run build          # next build
 
@@ -102,13 +104,20 @@ jobs:
         run: docker compose exec -T api python -m app.seed || true
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - name: Install frontend deps + Playwright browsers
-        working-directory: platform/frontend
+      # Run Playwright from an ISOLATED dir: platform/frontend/node_modules is
+      # owned by the compose `web` container (root) and is unwritable here, plus
+      # the E2E specs only need @playwright/test + axe — not the app's deps.
+      - name: Prepare isolated Playwright runner + browsers
         run: |
-          npm install
+          mkdir -p /tmp/e2e
+          cp -r platform/frontend/e2e /tmp/e2e/e2e
+          cp platform/frontend/playwright.config.ts /tmp/e2e/
+          cd /tmp/e2e
+          npm init -y >/dev/null
+          npm install -D @playwright/test@1.44.0 @axe-core/playwright@^4.9.1
           npx playwright install --with-deps chromium firefox webkit
       - name: Cross-browser E2E — a11y (axe) · responsive reflow · public flows
-        working-directory: platform/frontend
+        working-directory: /tmp/e2e
         env:
           E2E_BASE_URL: "http://localhost:3000"
           CI: "true"
@@ -122,7 +131,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: platform/frontend/playwright-report
+          path: /tmp/e2e/playwright-report
           if-no-files-found: ignore
 
   helm:
