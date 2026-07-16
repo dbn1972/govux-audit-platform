@@ -2,8 +2,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { api } from "@/lib/api";
 
-const NAV = [
+type NavGroup = { group: string; steward?: boolean; items: string[][] };
+const NAV: NavGroup[] = [
   { group: "Workspace", items: [
     ["Dashboard", "/dashboard", "bi-grid"],
     ["My Domains", "/domains", "bi-globe"],
@@ -20,8 +22,9 @@ const NAV = [
   { group: "Account", items: [
     ["Team & Settings", "/settings", "bi-gear"],
   ]},
-  { group: "Steward (MeitY/NIC)", items: [
+  { group: "Steward (MeitY/NIC)", steward: true, items: [
     ["National Dashboard", "/admin/national", "bi-bank"],
+    ["Approvals", "/admin/approvals", "bi-inbox"],
     ["Bulk Scan", "/admin/bulk-scan", "bi-collection"],
     ["Continuous Monitoring", "/admin/monitoring", "bi-arrow-repeat"],
     ["Estate Discovery", "/admin/discovery", "bi-search"],
@@ -35,17 +38,24 @@ const NAV = [
   ]},
 ];
 
-/** The navigation list — shared by the desktop rail and the mobile drawer. */
-function NavList({ path, onNavigate }: { path: string; onNavigate?: () => void }) {
+// every route behind the steward group — used to guard non-stewards from deep links
+const STEWARD_PREFIXES = NAV.filter(g => g.steward).flatMap(g => g.items.map(([, h]) => h as string));
+const isStewardRoute = (path: string) =>
+  STEWARD_PREFIXES.some(h => path === h || path.startsWith(h + "/"));
+
+/** The navigation list — shared by the desktop rail and the mobile drawer.
+ *  Steward-only groups are hidden unless the signed-in user is a steward. */
+function NavList({ path, isSteward, onNavigate }: { path: string; isSteward: boolean; onNavigate?: () => void }) {
+  const groups = NAV.filter(g => !g.steward || isSteward);
   // Longest-prefix wins so only one item highlights: on /audits/new, "New Audit"
   // is active, not the shorter "/audits" (Audit History) that also prefix-matches.
-  const hrefs = NAV.flatMap(g => g.items.map(([, href]) => href as string));
+  const hrefs = groups.flatMap(g => g.items.map(([, href]) => href as string));
   const activeHref = hrefs
     .filter(h => path === h || path.startsWith(h + "/"))
     .sort((a, b) => b.length - a.length)[0];
   return (
     <nav aria-label="Primary">
-      {NAV.map(g => (
+      {groups.map(g => (
         <div key={g.group}>
           <div className="text-secondary text-uppercase fw-bold px-2 pt-3 pb-1" style={{ fontSize: 10.5, letterSpacing: ".04em" }}>{g.group}</div>
           {g.items.map(([label, href, icon]) => {
@@ -65,11 +75,37 @@ function NavList({ path, onNavigate }: { path: string; onNavigate?: () => void }
   );
 }
 
+function AccessDenied() {
+  return (
+    <div className="container-fluid p-4">
+      <div className="card shadow-sm mx-auto mt-5" style={{ maxWidth: 520 }}>
+        <div className="card-body text-center p-4">
+          <div className="display-6 mb-2" aria-hidden="true">🔒</div>
+          <h1 className="h4" style={{ color: "var(--ux-navy)" }}>This area is for MeitY/NIC stewards</h1>
+          <p className="text-secondary">
+            National oversight, rankings, monitoring and platform configuration are available to
+            programme stewards only. Your account manages your own organisation’s domains and audits.
+          </p>
+          <Link href="/dashboard" className="btn btn-primary">← Back to your workspace</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AppShell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
+  const [me, setMe] = useState<any>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
+
+  // who is signed in — drives role-aware nav + route guarding + the avatar
+  useEffect(() => { api.me().then(setMe).catch(() => setMe({ is_steward: false })); }, []);
+  const isSteward = !!me?.is_steward;
+  const denied = !!me && !me.is_steward && isStewardRoute(path);
+  const initials = ((me?.display_name || me?.email || "").match(/[A-Za-z]+/g) || [])
+    .slice(0, 2).map((s: string) => s[0].toUpperCase()).join("") || "GX";
 
   // close the drawer whenever the route changes (tapping a nav item navigates)
   useEffect(() => { setOpen(false); }, [path]);
@@ -121,7 +157,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <div className="ms-auto d-flex align-items-center gap-3">
           <i className="bi bi-bell text-secondary" />
           <span className="rounded-circle text-white d-inline-flex align-items-center justify-content-center"
-            style={{ width: 34, height: 34, background: "#0a3d7a", fontSize: 13 }}>DN</span>
+            title={me?.email || ""}
+            style={{ width: 34, height: 34, background: "#0a3d7a", fontSize: 13 }}>{initials}</span>
         </div>
       </nav>
 
@@ -129,10 +166,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
         {/* desktop rail — sticky, self-scrolling, hidden below lg */}
         <aside className="border-end bg-white p-2 d-none d-lg-block flex-shrink-0"
           style={{ width: 236, position: "sticky", top: 60, height: "calc(100vh - 60px)", overflowY: "auto" }}>
-          <NavList path={path} />
+          <NavList path={path} isSteward={isSteward} />
         </aside>
 
-        <main className="flex-grow-1" style={{ background: "var(--bs-body-bg)", minWidth: 0 }}>{children}</main>
+        <main className="flex-grow-1" style={{ background: "var(--bs-body-bg)", minWidth: 0 }}>
+          {denied ? <AccessDenied /> : children}
+        </main>
       </div>
 
       {/* mobile / tablet drawer (<lg): backdrop + off-canvas panel, driven by React state */}
@@ -163,7 +202,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <i className="bi bi-x-lg" />
             </button>
           </div>
-          <NavList path={path} onNavigate={() => setOpen(false)} />
+          <NavList path={path} isSteward={isSteward} onNavigate={() => setOpen(false)} />
         </div>
       </div>
     </div>

@@ -39,7 +39,13 @@ export const api = {
   verifyOtp: (email: string, code: string, device_pubkey: string, trust_device = true) =>
     req("/v1/auth/otp/verify", { method: "POST",
       body: JSON.stringify({ email, code, device_pubkey, trust_device }) }),
+  me: () => req("/v1/auth/me"),
   devices: () => req("/v1/auth/devices"),
+  scanRequests: () => req("/v1/scan-requests"),
+  createScanRequest: (domain_id: string, requested_pages: number, reason?: string) =>
+    req("/v1/scan-requests", { method: "POST", body: JSON.stringify({ domain_id, requested_pages, reason }) }),
+  decideScanRequest: (id: string, status: "approved" | "rejected") =>
+    req(`/v1/scan-requests/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
   revokeDevice: (id: string) => req(`/v1/auth/devices/${id}`, { method: "DELETE" }),
   listDomains: () => req("/v1/domains"),
   submitAudit: (domain_id: string) =>

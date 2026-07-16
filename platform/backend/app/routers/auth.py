@@ -26,6 +26,26 @@ def _client_ip(request: Request) -> str | None:
         return None
 
 
+@router.get("/me")
+def me(user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    """The signed-in identity, role and entitlements — so the UI can tailor the
+    navigation and surface quotas instead of showing dead-ends."""
+    is_steward = user.role in ("programme_admin", "super_admin")
+    free_pages = settings_store.get_int("free_registered_pages", settings.free_registered_pages)
+    org = db.get(models.Organisation, user.org_id) if user.org_id else None
+    return {
+        "id": str(user.id), "email": user.email, "display_name": user.display_name,
+        "role": user.role, "is_steward": is_steward,
+        "org_id": str(user.org_id) if user.org_id else None,
+        "org_name": org.name if org else None,
+        "entitlements": {
+            "unlimited_audits": True,
+            "free_pages_per_audit": free_pages,
+            "can_request_larger_crawl": True,
+        },
+    }
+
+
 @router.post("/otp/request", status_code=202)
 def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db)):
     email = str(body.email).lower()

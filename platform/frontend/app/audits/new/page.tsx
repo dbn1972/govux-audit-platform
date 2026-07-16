@@ -20,6 +20,13 @@ export default function NewAudit() {
   const [domainId, setDomainId] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [freePages, setFreePages] = useState(10);
+  // larger-crawl request UI
+  const [showReq, setShowReq] = useState(false);
+  const [reqPages, setReqPages] = useState(25);
+  const [reqReason, setReqReason] = useState("");
+  const [reqMsg, setReqMsg] = useState("");
+  const [reqBusy, setReqBusy] = useState(false);
 
   // Only verified domains can be audited (the API enforces this too). Pre-select
   // the one passed from the dashboard's "Run audit →" link when it's present.
@@ -32,6 +39,7 @@ export default function NewAudit() {
         setDomainId(pre && verified.some((x) => x.id === pre) ? pre : verified[0]?.id || "");
       })
       .catch((e: any) => { setErr(e?.message || "Could not load your domains."); setDomains([]); });
+    api.me().then((m) => setFreePages(m?.entitlements?.free_pages_per_audit ?? 10)).catch(() => {});
   }, []);
 
   async function submit() {
@@ -44,6 +52,18 @@ export default function NewAudit() {
       setErr(e?.message || "Could not start the audit. Please try again.");
       setBusy(false);
     }
+  }
+
+  async function requestCrawl() {
+    if (!domainId || reqBusy) return;
+    setReqBusy(true); setReqMsg("");
+    try {
+      await api.createScanRequest(domainId, reqPages, reqReason || undefined);
+      setReqMsg(`✓ Request for ${reqPages} pages submitted — a steward will review it. You can keep running standard audits meanwhile.`);
+      setShowReq(false);
+    } catch (e: any) {
+      setReqMsg("✗ " + (e?.message || "Could not submit the request."));
+    } finally { setReqBusy(false); }
   }
 
   const noDomains = domains != null && domains.length === 0;
@@ -77,6 +97,42 @@ export default function NewAudit() {
                     </option>
                   ))}
                 </select>
+              )}
+              {!noDomains && domains != null && (
+                <div className="mt-3 pt-3 border-top">
+                  <div className="d-flex align-items-center flex-wrap gap-2">
+                    <span className="badge text-bg-primary-subtle">Covers up to {freePages} pages · free</span>
+                    <span className="text-secondary small">Unlimited audits on your verified domains.</span>
+                    <button type="button" className="btn btn-sm btn-link ms-auto p-0"
+                      onClick={() => { setShowReq((v) => !v); setReqMsg(""); }} disabled={!domainId}>
+                      {showReq ? "Cancel" : "Need a deeper crawl? Request approval →"}
+                    </button>
+                  </div>
+                  {showReq && (
+                    <div className="mt-2 p-3 rounded" style={{ background: "var(--bs-tertiary-bg, #f6f8fa)" }}>
+                      <div className="row g-2 align-items-end">
+                        <div className="col-auto">
+                          <label className="form-label small mb-1" htmlFor="req-pages">Pages requested</label>
+                          <input id="req-pages" type="number" min={freePages + 1} className="form-control form-control-sm"
+                            style={{ width: 110 }} value={reqPages}
+                            onChange={(e) => setReqPages(parseInt(e.target.value) || freePages + 1)} />
+                        </div>
+                        <div className="col">
+                          <label className="form-label small mb-1" htmlFor="req-reason">Reason (optional)</label>
+                          <input id="req-reason" className="form-control form-control-sm" placeholder="e.g. full portal audit before launch"
+                            value={reqReason} onChange={(e) => setReqReason(e.target.value)} />
+                        </div>
+                        <div className="col-auto">
+                          <button className="btn btn-sm btn-outline-primary" onClick={requestCrawl}
+                            disabled={reqBusy || reqPages <= freePages}>
+                            {reqBusy ? "Sending…" : "Submit request"}</button>
+                        </div>
+                      </div>
+                      <div className="text-secondary small mt-2">A programme steward reviews and approves larger crawls.</div>
+                    </div>
+                  )}
+                  {reqMsg && <div className="small mt-2">{reqMsg}</div>}
+                </div>
               )}
             </div></div>
             <div className="card shadow-sm"><div className="card-body">

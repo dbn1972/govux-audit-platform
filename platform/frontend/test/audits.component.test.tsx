@@ -22,6 +22,8 @@ vi.mock("@/lib/api", () => ({
     submitAudit: (...a: any[]) => submitAudit(...a),
     auditStatus: (...a: any[]) => auditStatus(...a),
     listAudits: (...a: any[]) => listAudits(...a),
+    me: () => Promise.resolve({ is_steward: false, entitlements: { free_pages_per_audit: 10 } }),
+    createScanRequest: () => Promise.resolve({ id: "x", status: "pending" }),
   },
 }));
 
