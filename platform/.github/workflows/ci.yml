@@ -103,6 +103,10 @@ jobs:
           python3 scripts/govux-setup.py --answers scripts/setup-answers.example.json --dry-run
           python3 scripts/govux-setup.py --answers scripts/setup-answers.example.json --out /tmp/o
           test -f /tmp/o/.env && test -f /tmp/o/SETUP_SUMMARY.md && test -f /tmp/o/helm-values.yaml
+      - name: Air-gap bundle scaffolding + integrity
+        run: |
+          bash scripts/build-airgap-bundle.sh --skip-images --out=/tmp/ag
+          ( cd /tmp/ag && sha256sum -c SHA256SUMS )
 
   terraform:
     runs-on: ubuntu-latest

@@ -62,3 +62,7 @@ platform/deploy/ansible/group_vars/all.yml
 # Guided-setup output (contains generated secrets)
 deploy-out/
 platform/deploy-out/
+
+# Air-gapped bundles (large; contain images)
+platform/govux-airgap-*
+govux-airgap-*

@@ -102,6 +102,19 @@ Full values, upgrade/rollback, and autoscaling guidance:
 [`platform/deploy/helm/govux/README.md`](../platform/deploy/helm/govux/README.md).
 CI lints and renders the chart on every PR.
 
+### 3.5 Offline / air-gapped
+
+For restricted-network or air-gapped enclaves, build a self-contained bundle on a
+connected machine and install it offline (no online dependency; images carried in the
+bundle, integrity-checked, `pull_policy: never`):
+
+```bash
+cd platform && TAG=1.1 ./scripts/build-airgap-bundle.sh    # -> govux-airgap-1.1.tar.gz
+# transfer into the enclave, then: tar -xzf ... && cp .env.example .env && ./load-and-run.sh
+```
+
+Full procedure + guarantees: [`platform/deploy/AIRGAP.md`](../platform/deploy/AIRGAP.md).
+
 ### 3.4 Automation (Terraform / Ansible)
 
 Both are provided as first-class, CI-validated starters:
