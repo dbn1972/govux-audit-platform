@@ -98,7 +98,8 @@ Runs Gunicorn (multi-worker) + `next start`, a **split & AOF-persisted** Redis (
 | ⬇️ Installing it | [**Installation Guide**](INSTALL.md) · [**Dependency Manifest**](docs/DEPENDENCIES.md) · [Configuration Reference](docs/CONFIGURATION.md) |
 | 👤 Government users (officers, assessors, admins) | [**User Manual**](docs/USER_MANUAL.md) |
 | 🚀 Operators / DevOps | [**Deployment Guide**](docs/DEPLOYMENT.md) · [**Operations Runbook**](docs/OPERATIONS.md) · [Upgrade Guide](docs/UPGRADING.md) |
-| 🧑‍💻 Engineers | [Architecture](platform/docs/ARCHITECTURE.md) · [API](platform/docs/API.md) · [Data Access](platform/docs/DATA_ACCESS.md) · [Coding Standards](platform/docs/CODING_STANDARDS.md) · [Gotchas](platform/docs/GOTCHAS.md) |
+| 🏛️ Architecture | [**High-Level Design (HLD)**](docs/HLD.md) · [**Low-Level Design (LLD)**](docs/LLD.md) |
+| 🧑‍💻 Engineers | [Architecture Notes](platform/docs/ARCHITECTURE.md) · [API](platform/docs/API.md) · [Data Access](platform/docs/DATA_ACCESS.md) · [Coding Standards](platform/docs/CODING_STANDARDS.md) · [Gotchas](platform/docs/GOTCHAS.md) |
 | 📊 Methodology | [Scoring & Validation](platform/docs/SCORING_VALIDATION.md) |
 | 🔐 Security & privacy | [Security Policy](SECURITY.md) · [Security Architecture & Threat Model](docs/SECURITY_ARCHITECTURE.md) · [Privacy & Data Protection (DPDP)](docs/PRIVACY.md) |
 | ⚖️ Legal & governance | [Third-Party Licenses](docs/THIRD_PARTY_LICENSES.md) · [SBOM](docs/SBOM.md) · [Versioning & Support Policy](docs/VERSIONING.md) · [Support](SUPPORT.md) |
