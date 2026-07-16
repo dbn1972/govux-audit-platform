@@ -1,5 +1,9 @@
 name: GovUX CI
 
+# NOTE: GitHub Actions only runs workflows found in the repository-root
+# `.github/workflows/`. The application lives under `platform/`, so every job
+# below is repo-root-relative and points into `platform/…`.
+
 on:
   push: { branches: [main] }
   pull_request:
@@ -21,7 +25,7 @@ jobs:
         options: >-
           --health-cmd "redis-cli ping" --health-interval 5s
           --health-timeout 5s --health-retries 10
-    defaults: { run: { working-directory: backend } }
+    defaults: { run: { working-directory: platform/backend } }
     env:
       GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@localhost:5432/govux
       GOVUX_REDIS_URL: redis://localhost:6379/0
@@ -43,7 +47,7 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U govux" --health-interval 5s
           --health-timeout 5s --health-retries 10
-    defaults: { run: { working-directory: backend } }
+    defaults: { run: { working-directory: platform/backend } }
     env:
       GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@localhost:5432/govux
     steps:
@@ -68,7 +72,7 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: frontend } }
+    defaults: { run: { working-directory: platform/frontend } }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -76,6 +80,50 @@ jobs:
       - run: npm install
       - run: npm run test          # vitest
       - run: npm run build          # next build
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Boot the full stack (api · db · redis · web · workers)
+        working-directory: platform
+        run: docker compose up -d --build
+      - name: Wait for web + api to become ready
+        run: |
+          ok=0
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8000/healthz >/dev/null \
+               && curl -sf http://localhost:3000/login >/dev/null; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1 || { echo "stack did not become ready"; exit 1; }
+      - name: Seed demo data (report/rankings fixtures)
+        working-directory: platform
+        run: docker compose exec -T api python -m app.seed || true
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install frontend deps + Playwright browsers
+        working-directory: platform/frontend
+        run: |
+          npm install
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Cross-browser E2E — a11y (axe) · responsive reflow · public flows
+        working-directory: platform/frontend
+        env:
+          E2E_BASE_URL: "http://localhost:3000"
+          CI: "true"
+        run: npx playwright test
+      - name: Dump stack logs on failure
+        if: failure()
+        working-directory: platform
+        run: docker compose logs --tail=200
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: platform/frontend/playwright-report
+          if-no-files-found: ignore
 
   helm:
     runs-on: ubuntu-latest
@@ -131,7 +179,7 @@ jobs:
 
   engine:
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: backend/audit_engine } }
+    defaults: { run: { working-directory: platform/backend/audit_engine } }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

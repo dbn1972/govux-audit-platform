@@ -20,6 +20,25 @@ body { background: var(--bs-body-bg); }
 /* score ring number */
 .score-value { font-size: 44px; font-weight: 800; color: var(--ux-navy); line-height: 1; }
 
+/* --- AA-safe muted text ------------------------------------------------------
+   Bootstrap's default secondary/muted grey (#6c757d) is only 4.44:1 on the
+   #f8f9fa page ground — just under WCAG 2.2 AA (4.5:1). Darken it to #5c636a
+   (~5.3:1 on light) so every `.text-secondary` / `.text-muted` clears AA. On
+   dark grounds, use an explicit light colour at the element (never these). */
+.text-secondary, .text-muted { color: #5c636a !important; }
+:root { --bs-secondary-color: #5c636a; --bs-tertiary-color: #5c636a; }
+
+/* `.btn-outline-secondary` renders its label in #6c757d (4.44:1 resting) and
+   fills to #6c757d on hover (white text → 4.44:1). Both miss AA — darken the
+   button's colour tokens to #5c636a so resting and hover states clear 4.5:1. */
+.btn-outline-secondary {
+  --bs-btn-color: #5c636a;
+  --bs-btn-hover-bg: #5c636a;
+  --bs-btn-hover-border-color: #5c636a;
+  --bs-btn-active-bg: #5c636a;
+  --bs-btn-active-border-color: #5c636a;
+}
+
 /* --- AA-safe "subtle" badges -------------------------------------------------
    `text-bg-*-subtle` isn't a real Bootstrap utility, so those badges rendered
    with a light ground and near-invisible text (e.g. the old "Minor"/"Pending").
