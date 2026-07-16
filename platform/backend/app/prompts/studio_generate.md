@@ -84,6 +84,12 @@ TRUST (6): NO accessibility overlay widgets (accessiBe/UserWay/etc.). NO trackin
 6. Primary language: {language}. Provide the language switcher even if one language.
 7. NO scripts that call external hosts; keep JS minimal and inline (e.g. text-size
    toggle) or omit it.
+8. THEME is constrained — never a free palette. Honour {mode} (light or dark, both
+   from UX4G's validated themes) and use {accent} ONLY as a decorative highlight
+   (hero band, section headers), keeping the interactive/link/focus tokens fixed to
+   UX4G purple. The accent MUST clear WCAG AA (≥ 4.5:1 for text, ≥ 3:1 for large/UI)
+   against its background; if it wouldn't, fall back to #4a2bc2. Do not accept or use
+   arbitrary hex outside the approved tokens. User choice must never lower the score.
 
 ═══════════ OUTPUT FORMAT ═══════════
 Return ONLY a single JSON object, no prose, mapping each filename to its full HTML:
@@ -102,6 +108,8 @@ Purpose: {purpose}
 Pages (filename → title): {pages}
 Primary language: {language}
 Tone: {tone}
+Theme mode: {mode}          (light | dark — default light)
+Accent: {accent}            (approved token name, default ux4g-purple #4a2bc2)
 Last-updated date to show: {date}
 
 Every page must share the same masthead, primary navigation (cross-linking all

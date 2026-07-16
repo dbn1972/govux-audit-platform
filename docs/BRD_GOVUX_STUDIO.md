@@ -84,6 +84,11 @@ The GovUX Audit Platform today **finds** what is wrong with a government website
 ### 7.1 Intake (FR-1)
 The officer provides: department/organisation name, site purpose, **number of pages (1–12)**, the page list (e.g. Home, About, Services, Documents, Contact), primary language (English/Hindi/other Indic), and tone. Sensible defaults are offered per site type (informational portal, service portal, scheme page).
 
+**Theme is a *constrained* choice, never a free colour picker** (that would break UX4G conformance and risk contrast failures that lower the accessibility score):
+- **Mode:** Light (default) / Dark — both UX4G 3.0 themes are pre-validated for AA contrast.
+- **Accent (optional):** default UX4G purple `#4a2bc2`; a ministry may pick an accent **from an approved, contrast-checked set only**, applied to decorative highlights while the interactive / link / focus tokens stay fixed to the system.
+- The set is curated so **every combination clears WCAG AA** — user choice cannot break the ≥ 80 target. No arbitrary hex input.
+
 ### 7.2 Generation (FR-2)
 The platform calls Claude with the **GovUX Studio generation prompt** (Appendix A), producing exactly N pages as a JSON map `{filename: html}`. Every page:
 - **conforms to the official UX4G Design System 3.0** ([ux4g.gov.in](https://ux4g.gov.in)) — its real tokens (brand purple `#4a2bc2`, saffron `#f70`, green `#080`; text `#171717`/`#525252`; surfaces `#fff`/`#fafafa`/`#f5f5f5`; 4px base radius), typography (`Noto Sans` body, `Schibsted Grotesk` headings, full Indic Noto families), and component patterns. Tokens are emitted as CSS custom properties so the output mirrors the design system;
