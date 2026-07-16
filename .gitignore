@@ -45,3 +45,16 @@ platform/backend/audit_engine/sweep_*/
 
 # Diagnostic bundles (support scratch output)
 platform/govux-diagnostics-*
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+
+# Ansible real (non-example) inventory & vars
+platform/deploy/ansible/inventory.ini
+platform/deploy/ansible/group_vars/all.yml

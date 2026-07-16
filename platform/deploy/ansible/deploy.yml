@@ -1,0 +1,87 @@
+---
+# Deploy the GovUX Audit Platform to a VM (or VM fleet) via Docker Compose.
+# For Kubernetes use the Helm chart / Terraform instead.
+#
+#   ansible-playbook -i inventory.ini deploy.yml --ask-vault-pass
+#
+# Secrets come from group_vars/all.yml (ansible-vault encrypted). See README.
+
+- name: Deploy GovUX (Docker Compose, production)
+  hosts: govux
+  become: true
+  gather_facts: true
+
+  vars:
+    govux_dir: /opt/govux
+    govux_repo: "https://github.com/dbn1972/govux-audit-platform.git"
+    govux_version: main
+    compose_file: docker-compose.prod.yml
+    health_url: "http://127.0.0.1:8000/healthz"
+
+  tasks:
+    # ── prerequisites ────────────────────────────────────────────────────────
+    - name: Install base packages
+      ansible.builtin.package:
+        name: [git, curl, ca-certificates]
+        state: present
+
+    - name: Install Docker Engine + Compose plugin (via convenience script)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        if ! command -v docker >/dev/null 2>&1; then
+          curl -fsSL https://get.docker.com | sh
+        fi
+      args:
+        executable: /bin/bash
+        creates: /usr/bin/docker
+
+    - name: Ensure Docker is running and enabled
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    # ── source ───────────────────────────────────────────────────────────────
+    - name: Fetch the platform source
+      ansible.builtin.git:
+        repo: "{{ govux_repo }}"
+        dest: "{{ govux_dir }}"
+        version: "{{ govux_version }}"
+        depth: 1
+        force: true
+
+    - name: Render the production .env (secrets from vault)
+      ansible.builtin.template:
+        src: env.j2
+        dest: "{{ govux_dir }}/platform/.env"
+        mode: "0600"
+      no_log: true
+
+    # ── validate → deploy ────────────────────────────────────────────────────
+    - name: Pre-install validation (blocks on missing/weak secrets)
+      ansible.builtin.command:
+        cmd: bash scripts/preinstall-check.sh --prod
+        chdir: "{{ govux_dir }}/platform"
+      changed_when: false
+
+    - name: Launch the stack (migrations run on boot)
+      ansible.builtin.command:
+        cmd: docker compose -f {{ compose_file }} --env-file .env up -d --remove-orphans
+        chdir: "{{ govux_dir }}/platform"
+      register: compose_up
+      changed_when: "'Started' in compose_up.stderr or 'Created' in compose_up.stderr"
+
+    # ── verify ───────────────────────────────────────────────────────────────
+    - name: Wait for the API to become healthy
+      ansible.builtin.uri:
+        url: "{{ health_url }}"
+        status_code: 200
+        return_content: true
+      register: health
+      until: health.status == 200 and (health.json.status | default('')) == 'ok'
+      retries: 30
+      delay: 10
+
+    - name: Report
+      ansible.builtin.debug:
+        msg: "GovUX healthy on {{ inventory_hostname }} — engine {{ health.json.engine | default('?') }}"

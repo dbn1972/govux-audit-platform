@@ -91,6 +91,27 @@ jobs:
             --set ingress.enabled=true --set api.autoscaling.enabled=true \
             --set worker.autoscaling.enabled=true > /dev/null
 
+  terraform:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: platform/deploy/terraform } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check
+      - run: terraform init -backend=false
+      - run: terraform validate
+
+  ansible:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: platform/deploy/ansible } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install ansible-core ansible-lint
+      - run: ansible-playbook --syntax-check -i inventory.example.ini deploy.yml
+      - run: ansible-lint deploy.yml
+
   engine:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: backend/audit_engine } }

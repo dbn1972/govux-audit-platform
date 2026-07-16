@@ -87,6 +87,19 @@ Full values, upgrade/rollback, and autoscaling guidance:
 [`platform/deploy/helm/govux/README.md`](../platform/deploy/helm/govux/README.md).
 CI lints and renders the chart on every PR.
 
+### 3.4 Automation (Terraform / Ansible)
+
+Both are provided as first-class, CI-validated starters:
+
+- **Terraform** ([`platform/deploy/terraform`](../platform/deploy/terraform)) — deploys the
+  Helm chart to an existing cluster via the `helm`+`kubernetes` providers; Terraform owns
+  the Secret and enforces the JWT/master-key invariant at plan time. `terraform init &&
+  terraform apply`. CI runs `fmt -check` + `validate`.
+- **Ansible** ([`platform/deploy/ansible`](../platform/deploy/ansible)) — installs Docker,
+  fetches the source, renders a vault-encrypted `.env`, runs the pre-install validator,
+  launches the Compose stack, and waits for `/healthz`. `ansible-playbook -i inventory.ini
+  deploy.yml --ask-vault-pass`. CI runs `--syntax-check` + `ansible-lint` (production profile).
+
 ## 4. Required environment variables
 
 | Variable | Required | Notes |
