@@ -15,7 +15,7 @@ from ..config import settings
 from .. import models
 from ..deps import current_user
 from ..schemas import AuditCreate, AuditAccepted, AuditStatus, BulkScanCreate
-from ..services import queue, remediation, ml_priority, cache, settings_store
+from ..services import queue, remediation, ml_priority, cache, settings_store, llm_advisor
 from ..services import scoring
 from ..services.scoring import CATEGORY_WEIGHTS
 
@@ -194,9 +194,13 @@ def _build_report(db, audit, task_id):
 
 
 @router.get("/audits/{task_id}/remediation")
-def audit_remediation(task_id: str, user: models.User = Depends(current_user),
+def audit_remediation(task_id: str, enrich: bool = False,
+                      user: models.User = Depends(current_user),
                       db: Session = Depends(get_db)):
-    """Impact x effort prioritised fix list with advisory guidance (gap G5)."""
+    """Impact x effort prioritised fix list with advisory guidance (gap G5).
+
+    `enrich=1` adds plain-language LLM 'how to fix' guidance per item when an
+    admin has enabled Advisory AI — strictly advisory, never touches the score."""
     _owned_audit(db, task_id, user)
     findings = (db.query(models.Finding).filter(models.Finding.audit_id == task_id).all())
     items = [{"id": str(f.id), "category": f.category, "severity": f.severity,
@@ -215,8 +219,15 @@ def audit_remediation(task_id: str, user: models.User = Depends(current_user),
         for it in items:
             it["ml_priority"] = mp.get(it["id"])
 
-    return {"task_id": task_id, "items": items,
-            "ordering": "deterministic impact×effort; ml_priority is an advisory XGBoost overlay"}
+    # advisory LLM overlay — opt-in, bounded to the top items, out of the score path.
+    ai_available = llm_advisor.is_enabled()
+    if enrich and ai_available:
+        for it in items[:10]:
+            it["remediation_ai"] = llm_advisor.enrich(it, it.get("remediation", ""), it.get("code_hint", ""))
+
+    return {"task_id": task_id, "items": items, "ai_available": ai_available,
+            "ordering": "deterministic impact×effort; ml_priority is an advisory XGBoost overlay; "
+                        "remediation_ai (if present) is an advisory LLM overlay — none affect the score"}
 
 
 @router.get("/audits/{task_id}/documents")

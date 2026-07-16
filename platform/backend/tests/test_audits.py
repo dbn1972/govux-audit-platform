@@ -228,6 +228,32 @@ def test_remediation_missing_task(client, ctx):
                       headers=ctx["headers"]).status_code == 404
 
 
+def test_remediation_ai_enrichment_opt_in(client, ctx, verified_domain, db, monkeypatch):
+    """?enrich=1 adds advisory LLM guidance when enabled; deterministic guidance stays."""
+    from app import worker
+    from app.services import llm_advisor
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+        "url": url, "categories": {k: 70 for k in
+            ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+        "cwv": {}, "findings": [{"category": "trust", "severity": "medium", "guideline": "Security",
+                                 "title": "Missing security header: HSTS", "effort": "low"}]})
+    r = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r["task_id"], {"domain": verified_domain.url})
+
+    # default: no AI, deterministic remediation present
+    base = client.get(f"/v1/audits/{r['task_id']}/remediation", headers=ctx["headers"]).json()
+    assert base["ai_available"] is False
+    assert base["items"] and base["items"][0].get("remediation")
+    assert "remediation_ai" not in base["items"][0]
+
+    # enable Advisory AI + inject a fake model, then opt in
+    monkeypatch.setattr(llm_advisor, "is_enabled", lambda: True)
+    monkeypatch.setattr(llm_advisor, "enrich", lambda f, b, h: "AI: enable HSTS on your web server")
+    enr = client.get(f"/v1/audits/{r['task_id']}/remediation?enrich=1", headers=ctx["headers"]).json()
+    assert enr["ai_available"] is True
+    assert any(str(it.get("remediation_ai", "")).startswith("AI:") for it in enr["items"])
+
+
 def test_list_audits_org_fenced(client, ctx, verified_domain, db, monkeypatch):
     """GET /v1/audits returns the org's audits; another org never sees them."""
     from app import worker, security

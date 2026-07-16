@@ -76,7 +76,8 @@ export const api = {
   bulkScan: (scope: string) =>
     req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),
   // gap-closure endpoints
-  remediation: (taskId: string) => req(`/v1/audits/${taskId}/remediation`),
+  remediation: (taskId: string, enrich = false) =>
+    req(`/v1/audits/${taskId}/remediation${enrich ? "?enrich=1" : ""}`),
   auditDocuments: (taskId: string) => req(`/v1/audits/${taskId}/documents`),
   schedules: () => req("/v1/schedules"),
   createSchedule: (domain_id: string, cadence: string) =>
