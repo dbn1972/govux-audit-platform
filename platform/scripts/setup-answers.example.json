@@ -1,0 +1,13 @@
+{
+  "purpose": "production",
+  "total_users": 80000,
+  "concurrent_users": 1500,
+  "monthly_growth_gb": 50,
+  "ha_required": true,
+  "downtime_acceptable": false,
+  "target": "private_cloud",
+  "network": "standard",
+  "compliance": "dpdp",
+  "sso_required": true,
+  "cors_origin": "https://govux.gov.in"
+}

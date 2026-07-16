@@ -37,12 +37,27 @@ Gunicorn (multi-worker) + `next build && next start`, **two** Redis instances
 (durable AOF-persisted queue vs. LRU cache), health checks, resource limits,
 non-root API, a **worker fleet**, and **migrations applied on boot**.
 
+### 3.0 Guided setup (recommended first step)
+
+Not sure how to size it? Run the wizard — it asks a few business questions,
+recommends a topology (Small / Medium / Enterprise / HA), and **generates a secure
+`.env` (secrets auto-created), Helm values, and a handoff summary**:
+
+```bash
+cd platform
+python3 scripts/govux-setup.py                 # interactive
+# or, non-interactively (CI/DevOps):
+python3 scripts/govux-setup.py --answers scripts/setup-answers.example.json --out deploy-out
+```
+
+Its `.env` feeds §3.1, and its `helm-values.yaml` feeds §3.3.
+
 ### 3.1 Validate prerequisites, then configure secrets
 
 ```bash
 cd platform
 ./scripts/preinstall-check.sh --prod     # blocks on missing docker/ports/secrets
-cp .env.example .env
+cp .env.example .env                     # or use the wizard's deploy-out/.env
 # edit .env — set REAL values (see §4). The API will NOT boot without them.
 ```
 

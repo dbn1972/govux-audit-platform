@@ -58,3 +58,7 @@ crash.log
 # Ansible real (non-example) inventory & vars
 platform/deploy/ansible/inventory.ini
 platform/deploy/ansible/group_vars/all.yml
+
+# Guided-setup output (contains generated secrets)
+deploy-out/
+platform/deploy-out/

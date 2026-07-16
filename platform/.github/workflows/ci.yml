@@ -91,6 +91,19 @@ jobs:
             --set ingress.enabled=true --set api.autoscaling.enabled=true \
             --set worker.autoscaling.enabled=true > /dev/null
 
+  wizard:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: platform } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Guided-setup — recommend + generate (non-interactive)
+        run: |
+          python3 scripts/govux-setup.py --answers scripts/setup-answers.example.json --dry-run
+          python3 scripts/govux-setup.py --answers scripts/setup-answers.example.json --out /tmp/o
+          test -f /tmp/o/.env && test -f /tmp/o/SETUP_SUMMARY.md && test -f /tmp/o/helm-values.yaml
+
   terraform:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: platform/deploy/terraform } }

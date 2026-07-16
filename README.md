@@ -81,10 +81,13 @@ docker compose exec api pytest                  # backend suite (≥80% gate)
 
 ```bash
 cd platform
-./scripts/preinstall-check.sh --prod    # validate prerequisites + secrets first
-cp .env.example .env                     # then set REAL secrets (the API refuses to boot without them)
-docker compose -f docker-compose.prod.yml --env-file .env up -d
+python3 scripts/govux-setup.py          # guided: sizes the deployment + generates a secure .env
+./scripts/preinstall-check.sh --prod    # validate prerequisites + secrets
+docker compose -f docker-compose.prod.yml --env-file deploy-out/.env up -d
 ```
+
+Prefer to configure by hand? `cp .env.example .env`, set real secrets, and use `--env-file .env`.
+For Kubernetes, the wizard also emits `helm-values.yaml` — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 Runs Gunicorn (multi-worker) + `next start`, a **split & AOF-persisted** Redis (durable queue vs. cache), health checks, resource limits, and **migrations on boot**. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
