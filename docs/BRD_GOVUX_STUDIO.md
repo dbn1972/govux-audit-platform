@@ -86,9 +86,12 @@ The officer provides: department/organisation name, site purpose, **number of pa
 
 ### 7.2 Generation (FR-2)
 The platform calls Claude with the **GovUX Studio generation prompt** (Appendix A), producing exactly N pages as a JSON map `{filename: html}`. Every page:
+- **conforms to the official UX4G Design System 3.0** ([ux4g.gov.in](https://ux4g.gov.in)) — its real tokens (brand purple `#4a2bc2`, saffron `#f70`, green `#080`; text `#171717`/`#525252`; surfaces `#fff`/`#fafafa`/`#f5f5f5`; 4px base radius), typography (`Noto Sans` body, `Schibsted Grotesk` headings, full Indic Noto families), and component patterns. Tokens are emitted as CSS custom properties so the output mirrors the design system;
 - shares a common **government masthead** (tricolour strip, Emblem of India, "Government of India / <Ministry>") and **mandatory GIGW footer** (Home, Sitemap, Website Policies, Privacy Policy, Terms, Copyright, Hyperlinking Policy, Accessibility Statement, Help, Contact, RTI, Feedback, **Last Updated** date);
 - shares a consistent primary **navigation that cross-links every page** via relative links;
 - includes skip-to-content, a language switcher, and text-size controls.
+
+> **Design-system conformance is a first-class acceptance criterion**, not decoration: the UX4G 3.0 tokens above were extracted from the live design system and are the palette/type contract the generator must use — it may not invent its own colours or fonts.
 
 ### 7.3 Scoring & the ≥ 80 loop (FR-3)
 Each generated page set is scored by the **existing deterministic engine** (Playwright + axe-core + Lighthouse + GIGW + cookie/overlay integrity). If overall < 80:
@@ -184,6 +187,7 @@ This is the same Generator/Evaluator discipline that keeps the platform honest e
 4. The download is a self-contained `.zip` that renders offline with no external requests.
 5. The generated output passes the platform's **integrity** checks (no hidden-element stuffing, no overlays).
 6. The deterministic score path is unchanged — no LLM in scoring.
+7. **UX4G 3.0 conformance:** the prototype uses the UX4G brand/text/surface tokens and `Noto Sans`/`Schibsted Grotesk` type stacks (emitted as CSS custom properties) — no invented palette or fonts.
 
 ---
 
