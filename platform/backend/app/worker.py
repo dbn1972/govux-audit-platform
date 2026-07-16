@@ -220,7 +220,8 @@ def process(task_id: str, payload: dict):
                 remediation=g.remediation, confidence="automated"))
 
         # --- legal compliance verdict, SEPARATE from the band (gap G1) ---
-        comp = compliance_verdict(score.categories, critical_a11y, reviewed=False)
+        comp = compliance_verdict(score.categories, critical_a11y, reviewed=False,
+                                  integrity_flagged=bool(result.get("integrity_flagged")))
         audit.compliance_status = comp.status
         audit.method = comp.method
         audit.confidence = comp.confidence

@@ -3,6 +3,10 @@
     "204",
     "422"
   ],
+  "DELETE /v1/auth/me": [
+    "200",
+    "422"
+  ],
   "DELETE /v1/schedules/{schedule_id}": [
     "204",
     "422"
@@ -50,6 +54,10 @@
     "422"
   ],
   "GET /v1/auth/me": [
+    "200",
+    "422"
+  ],
+  "GET /v1/auth/me/export": [
     "200",
     "422"
   ],

@@ -84,3 +84,27 @@ def test_me_owner_is_not_steward(client, db):
     tok = security.issue_access_token(str(u.id), u.role, str(dev.id))
     m = client.get("/v1/auth/me", headers={"Authorization": f"Bearer {tok}"}).json()
     assert m["role"] == "owner" and m["is_steward"] is False
+
+
+def test_dpdp_export_returns_pii_and_is_logged(client, ctx, db):
+    from app import models
+    r = client.get("/v1/auth/me/export", headers=ctx["headers"])
+    assert r.status_code == 200
+    body = r.json()
+    assert body["profile"]["email"] == ctx["user"].email
+    assert "devices" in body and "activity" in body and "audits_requested" in body
+    db.expire_all()
+    assert db.query(models.AuditLog).filter(models.AuditLog.action == "dpdp_export").count() >= 1
+
+
+def test_dpdp_erase_anonymises_and_deletes_devices(client, ctx, db):
+    from app import models
+    uid = ctx["user"].id
+    r = client.delete("/v1/auth/me", headers=ctx["headers"])
+    assert r.status_code == 200 and r.json()["status"] == "erased"
+    db.expire_all()
+    u = db.get(models.User, uid)
+    assert u.email.startswith("erased-") and u.email.endswith("@erased.nic.in")
+    assert u.is_active is False and u.display_name is None
+    assert db.query(models.Device).filter(models.Device.user_id == uid).count() == 0
+    assert db.query(models.Session).filter(models.Session.user_id == uid).count() == 0

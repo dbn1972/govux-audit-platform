@@ -111,6 +111,7 @@ def compliance_verdict(
     category_scores: dict[str, float],
     critical_a11y_count: int = 0,
     reviewed: bool = False,
+    integrity_flagged: bool = False,
 ) -> ComplianceResult:
     """Hard legal verdict, separate from the UX band (gap G1).
 
@@ -124,6 +125,16 @@ def compliance_verdict(
     a11y = category_scores.get("accessibility", 0.0)
     method = "expert_reviewed" if reviewed else "automated"
     confidence = "expert_verified" if reviewed else "automated_only"
+
+    # Accessibility overlays / stuffed-but-hidden mandatory elements are "compliance
+    # theater": they can inflate an automated score while masking (or worsening) the
+    # real experience. Such a site can never be certified 'compliant' — cap it at
+    # partially_compliant regardless of the numbers, and name why.
+    if integrity_flagged and not (critical_a11y_count > 0 or a11y < COMPLIANCE_A11Y_FAIL):
+        return ComplianceResult(
+            "partially_compliant", method, confidence,
+            reason="integrity flag — an accessibility overlay or hidden/stuffed elements were "
+                   "detected; automated remediation masks rather than fixes the markup")
 
     if critical_a11y_count > 0 or a11y < COMPLIANCE_A11Y_FAIL:
         return ComplianceResult(

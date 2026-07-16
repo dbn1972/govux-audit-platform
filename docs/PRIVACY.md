@@ -74,13 +74,18 @@ operator-configured outbound calls:
 The operating body, as Data Fiduciary, must honour access, correction, and
 erasure requests. Platform support:
 
-- **Access/correction:** a `super_admin` can view and edit user records.
+- **Access (self-service):** any user can download everything the platform holds
+  about them from **Settings → Data & privacy → Download my data**
+  (`GET /v1/auth/me/export`) — profile, devices, sessions, requests and activity,
+  minus secrets. The export is itself audit-logged.
+- **Correction:** a `super_admin` can view and edit user records.
 - **Session control:** users self-manage trusted devices (revoke individually or
   "sign out all others").
-- **Erasure:** user and associated records can be removed via administrative
-  database operation; operators should document this in their SOP. *(A
-  self-service export/erasure endpoint is on the roadmap — see
-  [ROADMAP](../README.md#project-status).)*
+- **Erasure (self-service):** **Settings → Data & privacy → Delete my account**
+  (`DELETE /v1/auth/me`) removes personal data — the account is anonymised, device
+  keys and sessions are deleted, and IPs on the user's activity log are cleared.
+  Audit records are retained as a lawful-purpose record of who audited a public
+  site, but stripped of PII. The erasure is audit-logged.
 - **Grievance:** publish a Grievance Officer contact in the instance privacy
   notice, per the DPDP Act.
 

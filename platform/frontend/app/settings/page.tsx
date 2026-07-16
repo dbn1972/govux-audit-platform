@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
-import { api } from "@/lib/api";
+import { api, setToken } from "@/lib/api";
 
 export default function Settings() {
   // Security screen: never show fabricated sessions — load real ones, and on
@@ -35,6 +35,33 @@ export default function Settings() {
     setErr("");
     try { await api.revokeDevice(id); setDevices((d) => (d || []).filter((x) => x.id !== id)); }
     catch (e: any) { setErr(e?.message || "Could not revoke that device. Please try again."); }
+  }
+
+  const [dpdpBusy, setDpdpBusy] = useState(false);
+  const [dpdpMsg, setDpdpMsg] = useState("");
+
+  async function downloadData() {
+    setDpdpBusy(true); setDpdpMsg("");
+    try {
+      const data = await api.exportMyData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "my-govux-data.json"; a.click();
+      URL.revokeObjectURL(url);
+      setDpdpMsg("✓ Your data was downloaded.");
+    } catch (e: any) { setDpdpMsg("✗ " + (e?.message || "Export failed.")); }
+    finally { setDpdpBusy(false); }
+  }
+
+  async function eraseAccount() {
+    if (!confirm("Permanently erase your account and personal data? Your audit records are kept but anonymised. This cannot be undone.")) return;
+    setDpdpBusy(true); setDpdpMsg("");
+    try {
+      await api.eraseMyData();
+      setToken(null);
+      window.location.assign("/login");
+    } catch (e: any) { setDpdpMsg("✗ " + (e?.message || "Could not erase your data.")); setDpdpBusy(false); }
   }
 
   async function revokeOthers() {
@@ -104,6 +131,19 @@ export default function Settings() {
                 </div>
               ))}
               <p className="text-secondary small mb-0 mt-2">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
+            </div></div>
+
+            <div className="card shadow-sm mt-3"><div className="card-body">
+              <h2 className="h6">Data &amp; privacy <span className="badge text-bg-primary-subtle ms-1">DPDP</span></h2>
+              <p className="text-secondary small">Under the Digital Personal Data Protection Act, you can access
+                and erase the personal data we hold about you.</p>
+              <div className="d-flex flex-column gap-2">
+                <button className="btn btn-outline-secondary btn-sm" onClick={downloadData} disabled={dpdpBusy}>
+                  <i className="bi bi-download me-1" />Download my data (JSON)</button>
+                <button className="btn btn-outline-danger btn-sm" onClick={eraseAccount} disabled={dpdpBusy}>
+                  <i className="bi bi-trash me-1" />Delete my account &amp; data</button>
+              </div>
+              {dpdpMsg && <div className="small mt-2 text-secondary">{dpdpMsg}</div>}
             </div></div>
           </div>
         </div>

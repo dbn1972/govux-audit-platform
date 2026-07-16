@@ -40,6 +40,8 @@ export const api = {
     req("/v1/auth/otp/verify", { method: "POST",
       body: JSON.stringify({ email, code, device_pubkey, trust_device }) }),
   me: () => req("/v1/auth/me"),
+  exportMyData: () => req("/v1/auth/me/export"),
+  eraseMyData: () => req("/v1/auth/me", { method: "DELETE" }),
   devices: () => req("/v1/auth/devices"),
   scanRequests: () => req("/v1/scan-requests"),
   createScanRequest: (domain_id: string, requested_pages: number, reason?: string) =>

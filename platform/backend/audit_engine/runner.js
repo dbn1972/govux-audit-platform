@@ -165,18 +165,52 @@ async function trust(page, resp) {
   return { score: clamp(score), findings };
 }
 
-// ---------- accessibility overlay detection (gap G10) ----------
+// ---------- integrity: overlays + gaming detection (gap G10 + anti-gaming) ----------
+// Two kinds of "accessibility/compliance theater" that inflate an automated score
+// without helping real users: (a) third-party accessibility OVERLAY widgets, which
+// the disability community rejects because they mask the markup instead of fixing
+// it; (b) mandatory GIGW elements that are present in the DOM (so a crawler counts
+// them) but HIDDEN from users (display:none / visibility:hidden / aria-hidden /
+// zero-size) — i.e. stuffed to pass the check. Either flags the audit's integrity.
 async function overlays(page) {
-  const found = await page.evaluate(() => {
-    const sigs = ["accessibe", "acsb", "userway", "equalweb", "audioeye",
-                  "user-way", "adally", "maxaccess"];
+  const sig = await page.evaluate(() => {
+    const sigs = ["accessibe", "acsb", "userway", "user-way", "equalweb", "audioeye",
+                  "adally", "maxaccess", "max-access", "accessify", "recite-me", "reciteme",
+                  "usercentrics-a11y", "textrol", "allyable", "accessibilityjs", "eqio"];
     const html = document.documentElement.outerHTML.toLowerCase();
-    return sigs.filter(s => html.includes(s));
+    const overlay = sigs.filter(s => html.includes(s));
+
+    // hidden-but-present "mandatory" links (classic crawler-stuffing)
+    const terms = ["accessibility", "privacy", "sitemap", "rti", "contact", "help"];
+    const hidden = [];
+    for (const a of Array.from(document.querySelectorAll("a"))) {
+      const label = (a.textContent || "").trim().toLowerCase();
+      if (!terms.some(t => label.includes(t))) continue;
+      const cs = getComputedStyle(a);
+      const r = a.getBoundingClientRect();
+      const invisible = cs.display === "none" || cs.visibility === "hidden" ||
+        parseFloat(cs.opacity) === 0 || a.getAttribute("aria-hidden") === "true" ||
+        (r.width <= 1 && r.height <= 1);
+      if (invisible && !hidden.includes(label)) hidden.push(label);
+    }
+    return { overlay, hidden: hidden.slice(0, 6) };
   });
-  if (!found.length) return { findings: [] };
-  return { findings: [{ category: "accessibility", severity: "high", guideline: "Overlay-policy",
-    title: `Accessibility overlay detected (${found[0]}) — remediate the markup, don't mask it`,
-    effort: "high" }] };
+
+  const findings = [];
+  let integrity = false;
+  if (sig.overlay.length) {
+    integrity = true;
+    findings.push({ category: "accessibility", severity: "high", guideline: "Integrity-overlay",
+      title: `Accessibility overlay detected (${sig.overlay[0]}) — it masks the markup instead of fixing it; remove it and remediate the page`,
+      effort: "high" });
+  }
+  if (sig.hidden.length) {
+    integrity = true;
+    findings.push({ category: "gigw", severity: "high", guideline: "Integrity-gaming",
+      title: `Mandatory element(s) present but hidden from users (${sig.hidden.join(", ")}) — looks stuffed to pass a check, not to help citizens`,
+      effort: "medium" });
+  }
+  return { findings, integrity };
 }
 
 // ---------- usability heuristics ----------
@@ -311,7 +345,7 @@ async function auditLoaded(page, url, resp) {
   const page_score = Math.round((a11y.score + g.score + c.score + t.score) / 4);
   return { url, status: resp ? "analysed" : "error", a11y: a11y.score, gigw: g.score,
     content: c.score, trust: t.score, page_score, issue_count: findings.length,
-    findings, links: links.same, pdfs: links.pdfs, script: c.script };
+    integrity: !!o.integrity, findings, links: links.same, pdfs: links.pdfs, script: c.script };
 }
 
 // navigate to a crawled page, then audit it (best-effort)
@@ -413,6 +447,10 @@ async function main() {
   process.stdout.write(JSON.stringify({
     url, categories, cwv: perf.cwv, findings, pages,
     pages_total: pages.length, documents,
+    // anti-gaming: an overlay widget or hidden-stuffed mandatory element on any
+    // audited page flags the audit's integrity so the compliance verdict can
+    // refuse to certify "accessibility theater".
+    integrity_flagged: pageResults.some(r => r.integrity),
     // Evidence signal for the worker's coverage-confidence gate: if the home
     // page never loaded (WAF/geo-block/timeout) or nothing was analysed, the
     // category fillers above are meaningless and MUST NOT become a GovUX band.

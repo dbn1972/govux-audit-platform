@@ -10,6 +10,7 @@ from ..database import get_db
 from ..config import settings
 from .. import models
 from ..deps import current_user, require_role
+from ..services import audit_log
 
 router = APIRouter(prefix="/v1/scan-requests", tags=["quota"])
 
@@ -77,5 +78,7 @@ def decide_request(req_id: str, body: Decision,
     r.status = body.status
     r.decided_by = admin.id
     r.decided_at = datetime.now(timezone.utc)
+    audit_log.record(db, admin.id, f"scan_request_{body.status}", target=str(r.id),
+                     detail={"requested_pages": r.requested_pages})
     db.commit()
     return {"id": str(r.id), "status": r.status}

@@ -45,6 +45,18 @@ export default function Report({ params }: { params: { id: string } }) {
           <Link href={`/audits/${params.id}/issues`} className="btn btn-primary">See prioritised issues →</Link>
         </div>
 
+        {(r.findings || []).some((f: any) => String(f.guideline || "").startsWith("Integrity")) && (
+          <div className="alert alert-warning d-flex gap-2" role="alert">
+            <i className="bi bi-shield-exclamation" aria-hidden="true" />
+            <div>
+              <b>Integrity flag — possible “accessibility theater”.</b> An accessibility overlay widget
+              and/or mandatory elements hidden from users were detected. These can inflate an automated
+              score without helping citizens, so this audit <b>cannot be certified compliant</b>. See the
+              flagged issues below.
+            </div>
+          </div>
+        )}
+
         <div className="row g-3 mb-3">
           <div className="col-lg-8"><div className="card shadow-sm h-100"><div className="card-body d-flex gap-4 align-items-center flex-wrap">
             <div className="text-center">
