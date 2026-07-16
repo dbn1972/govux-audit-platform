@@ -10,7 +10,7 @@ const NAV = [
   ]},
   { group: "Audits", items: [
     ["New Audit", "/audits/new", "bi-play-circle"],
-    ["Report", "/report", "bi-file-earmark-text"],
+    ["Sample Report", "/report", "bi-file-earmark-text"],
   ]},
   { group: "Assess", items: [
     ["Manual Review", "/review", "bi-check2-square"],

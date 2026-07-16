@@ -10,8 +10,13 @@ const cats: [string, number, number, string][] = [
 export default function Report() {
   return (
     <div className="container py-4">
-      <h1 className="h3">Audit report — ncsc.dop.gov.in</h1>
-      <p className="text-secondary small">Task a1b2-9c3d · Engine v3.2 · GIGW 3.0 · WCAG 2.2 AA · UX4G · CWV</p>
+      <div className="alert alert-info d-flex align-items-center gap-2 py-2" role="note">
+        <i className="bi bi-info-circle" aria-hidden="true" />
+        <span><b>Sample report.</b> This is an illustrative example of what a GovUX report looks like — not a
+          real audit. Run one from <a href="/audits/new">New Audit</a> to see your own results.</span>
+      </div>
+      <h1 className="h3">Sample audit report — example.gov.in</h1>
+      <p className="text-secondary small">Illustrative data · Engine v3.2 · GIGW 3.0 · WCAG 2.2 AA · UX4G · CWV</p>
 
       <div className="card shadow-sm mb-3"><div className="card-body d-flex gap-4 align-items-center flex-wrap">
         <div className="text-center">
@@ -35,10 +40,9 @@ export default function Report() {
             </div>
           ))}
           <hr />
-          <div className="d-flex gap-2 flex-wrap">
-            <a href="/report/issues" className="btn btn-primary">See prioritised issues →</a>
-            <a href="/report/compatibility" className="btn btn-outline-secondary">Responsiveness &amp; compatibility</a>
-            <a href="/report/compare" className="btn btn-outline-secondary">Compare &amp; page coverage</a>
+          <div className="d-flex gap-2 flex-wrap align-items-center">
+            <a href="/audits/new" className="btn btn-primary">▶ Run a real audit →</a>
+            <span className="text-secondary small">Prioritised issues, compatibility and page-coverage views appear on a real report.</span>
           </div>
         </div>
       </div>
