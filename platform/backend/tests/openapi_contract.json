@@ -110,6 +110,14 @@
     "200",
     "422"
   ],
+  "GET /v1/public/showcase/{slug}": [
+    "200",
+    "422"
+  ],
+  "GET /v1/public/showcase/{slug}/{filename}": [
+    "200",
+    "422"
+  ],
   "GET /v1/public/stats": [
     "200",
     "422"
@@ -134,6 +142,10 @@
     "200",
     "422"
   ],
+  "GET /v1/studio/tenants": [
+    "200",
+    "422"
+  ],
   "GET /v1/studio/{run_id}": [
     "200",
     "422"
@@ -155,6 +167,10 @@
     "422"
   ],
   "PATCH /v1/scan-requests/{req_id}": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/studio/tenants/{org_id}": [
     "200",
     "422"
   ],
@@ -211,6 +227,10 @@
   ],
   "POST /v1/studio": [
     "202",
+    "422"
+  ],
+  "POST /v1/studio/{run_id}/publish": [
+    "200",
     "422"
   ]
 }

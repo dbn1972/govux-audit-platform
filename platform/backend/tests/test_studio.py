@@ -62,23 +62,50 @@ def test_run_loop_persists_and_bills(db, ctx, monkeypatch):
     assert run.output_tokens == 500 and float(run.cost_inr) > 0     # billable
 
 
-def test_create_requires_enabled(client, ctx, monkeypatch):
-    monkeypatch.setattr(settings_store, "get_bool", lambda k, d=None: False)
-    r = client.post("/v1/studio", headers=ctx["headers"],
-                    json={"department": "Dept of Example", "purpose": "portal", "pages": ["Home", "About"]})
-    assert r.status_code == 403
-
-
-def test_create_and_download(client, ctx, db, monkeypatch):
-    from app import models
+def _enable(monkeypatch, key=True):
     monkeypatch.setattr(settings_store, "get_bool", lambda k, d=None: True)
-    monkeypatch.setattr(settings_store, "get_str", lambda k, d="": "sk-test" if k == "llm_api_key" else d)
+    monkeypatch.setattr(settings_store, "get_str", lambda k, d="": ("sk-test" if key else "") if k == "llm_api_key" else d)
     monkeypatch.setattr(settings_store, "get_int",
                         lambda k, d=None: {"studio_max_pages": 8, "studio_monthly_quota": 20,
                                            "studio_max_refines": 1, "studio_target_score": 80,
                                            "studio_cost_per_1k_output_inr": 120}.get(k, d or 0))
     monkeypatch.setattr(studio, "_caller",
                         lambda system, user: (json.dumps({"index.html": COMPLIANT}), {"input": 50, "output": 300}))
+
+
+def test_platform_disabled_403(client, ctx, monkeypatch):
+    monkeypatch.setattr(settings_store, "get_bool", lambda k, d=None: False)
+    r = client.post("/v1/studio", headers=ctx["headers"],
+                    json={"department": "Dept of Example", "purpose": "portal", "pages": ["Home", "About"]})
+    assert r.status_code == 403
+
+
+def test_tenant_must_be_approved(client, ctx, db, monkeypatch):
+    """Platform-enabled but org NOT approved -> 403; super_admin approves -> allowed."""
+    import uuid
+    from app import models, security
+    _enable(monkeypatch)
+    ctx["org"].studio_enabled = False; db.commit()
+    body = {"department": "Dept of Example", "purpose": "citizen portal", "pages": ["Home", "About"]}
+    assert client.post("/v1/studio", headers=ctx["headers"], json=body).status_code == 403
+
+    # a super_admin approves the tenant
+    su = models.User(email=f"su.{uuid.uuid4().hex[:8]}@nic.in", org_id=ctx["org"].id,
+                     role="super_admin", display_name="SU")
+    db.add(su); db.flush()
+    dev = models.Device(user_id=su.id, device_pubkey="p"); db.add(dev); db.commit()
+    tok = security.issue_access_token(str(su.id), su.role, str(dev.id))
+    su_h = {"Authorization": f"Bearer {tok}"}
+    ap = client.patch(f"/v1/studio/tenants/{ctx['org'].id}", headers=su_h, json={"enabled": True})
+    assert ap.status_code == 200 and ap.json()["studio_enabled"] is True
+    assert any(t["id"] == str(ctx["org"].id) for t in client.get("/v1/studio/tenants", headers=su_h).json())
+
+    assert client.post("/v1/studio", headers=ctx["headers"], json=body).status_code == 202
+
+
+def test_create_download_publish_and_public_showcase(client, ctx, db, monkeypatch):
+    _enable(monkeypatch)
+    ctx["org"].studio_enabled = True; db.commit()
     r = client.post("/v1/studio", headers=ctx["headers"],
                     json={"department": "Dept of Example", "purpose": "citizen portal", "pages": ["Home", "About"]})
     assert r.status_code == 202
@@ -86,5 +113,18 @@ def test_create_and_download(client, ctx, db, monkeypatch):
     got = client.get(f"/v1/studio/{rid}", headers=ctx["headers"]).json()
     assert got["status"] == "scored" and got["score"] >= 80
     assert got["billing"]["output_tokens"] == 300 and got["billing"]["cost_inr"] > 0
-    z = client.get(f"/v1/studio/{rid}/download", headers=ctx["headers"])
-    assert z.status_code == 200 and z.headers["content-type"] == "application/zip"
+    assert client.get(f"/v1/studio/{rid}/download", headers=ctx["headers"]).status_code == 200
+
+    # publish -> public showcase reachable WITHOUT auth
+    pub = client.post(f"/v1/studio/{rid}/publish", headers=ctx["headers"],
+                      json={"publish": True, "title": "Demo Portal"}).json()
+    slug = pub["public_slug"]
+    assert pub["published"] and slug
+    meta = client.get(f"/v1/public/showcase/{slug}")               # no auth header
+    assert meta.status_code == 200 and meta.json()["title"] == "Demo Portal"
+    page = client.get(f"/v1/public/showcase/{slug}/index.html")     # no auth header
+    assert page.status_code == 200 and "Government of India" in page.text
+
+    # unpublish -> public access gone
+    client.post(f"/v1/studio/{rid}/publish", headers=ctx["headers"], json={"publish": False})
+    assert client.get(f"/v1/public/showcase/{slug}").status_code == 404

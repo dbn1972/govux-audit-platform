@@ -84,6 +84,15 @@ def refine(pages: dict, findings: list, inputs: dict) -> tuple[dict, dict]:
     return _parse_pages(text), usage
 
 
+def sanitize(html: str) -> str:
+    """Make a generated page self-contained + safe before preview/publish:
+    drop external src/href, inline event handlers, and external scripts."""
+    html = re.sub(r'\s(?:src|href)\s*=\s*["\']https?://[^"\']*["\']', ' data-removed="external"', html, flags=re.I)
+    html = re.sub(r'\son\w+\s*=\s*["\'][^"\']*["\']', '', html, flags=re.I)
+    html = re.sub(r'<script\b[^>]*\bsrc\s*=[^>]*>\s*</script>', '', html, flags=re.I)
+    return html
+
+
 def cost_inr(output_tokens: int) -> float:
     paise = settings_store.get_int("studio_cost_per_1k_output_inr", 120)
     return round(output_tokens / 1000.0 * paise / 100.0, 2)

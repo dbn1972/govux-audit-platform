@@ -108,4 +108,9 @@ export const api = {
       { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });
     return r.blob();
   },
+  studioPublish: (id: string, publish: boolean, title?: string) =>
+    req(`/v1/studio/${id}/publish`, { method: "POST", body: JSON.stringify({ publish, title }) }),
+  studioTenants: () => req("/v1/studio/tenants"),
+  studioSetTenant: (orgId: string, enabled: boolean) =>
+    req(`/v1/studio/tenants/${orgId}`, { method: "PATCH", body: JSON.stringify({ enabled }) }),
 };

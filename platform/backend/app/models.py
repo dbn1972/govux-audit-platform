@@ -38,6 +38,7 @@ class Organisation(Base):
     org_type = Column(OrgType, nullable=False)
     parent_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"))
     state_code = Column(Text)
+    studio_enabled = Column(Boolean, nullable=False, default=False)   # Studio entitlement (super_admin)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -327,5 +328,9 @@ class StudioRun(Base):
     output_tokens = Column(Integer, nullable=False, default=0)
     cost_inr = Column(Numeric(10, 2), nullable=False, default=0)
     error = Column(Text)
+    published = Column(Boolean, nullable=False, default=False)
+    public_slug = Column(Text, unique=True)
+    published_at = Column(DateTime(timezone=True))
+    title = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     finished_at = Column(DateTime(timezone=True))

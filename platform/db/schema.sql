@@ -26,6 +26,7 @@ CREATE TABLE organisations (
     org_type     org_type NOT NULL,
     parent_id    UUID REFERENCES organisations(id),
     state_code   TEXT,                              -- for state/UT segmentation
+    studio_enabled BOOLEAN NOT NULL DEFAULT false,  -- GovUX Studio entitlement (super_admin approved)
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX idx_org_parent ON organisations(parent_id);
@@ -342,7 +343,12 @@ CREATE TABLE IF NOT EXISTS studio_runs (
     output_tokens INTEGER NOT NULL DEFAULT 0,
     cost_inr      NUMERIC(10,2) NOT NULL DEFAULT 0,
     error         TEXT,
+    published     BOOLEAN NOT NULL DEFAULT false,   -- public showcase
+    public_slug   TEXT UNIQUE,
+    published_at  TIMESTAMPTZ,
+    title         TEXT,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
     finished_at   TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS idx_studio_org_time ON studio_runs(org_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_studio_slug ON studio_runs(public_slug) WHERE published;

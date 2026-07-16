@@ -34,6 +34,7 @@ const NAV: NavGroup[] = [
     ["League Table", "/admin/league", "bi-trophy"],
     ["Alerts", "/admin/alerts", "bi-bell"],
     ["Standards & Rules", "/admin/standards", "bi-sliders"],
+    ["Studio Access", "/admin/studio-access", "bi-key"],
     ["Configuration", "/admin/config", "bi-gear-wide-connected"],
     ["Methodology", "/admin/methodology", "bi-diagram-3"],
   ]},
