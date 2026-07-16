@@ -1,0 +1,14 @@
+GovUX Audit Platform
+Copyright (c) 2026 National e-Governance / MeitY and contributors.
+
+This product is licensed under the terms in the LICENSE file at the root of this
+repository.
+
+This product includes third-party open-source software. A summary of those
+components and their licenses is in docs/THIRD_PARTY_LICENSES.md. A complete,
+machine-readable Software Bill of Materials (SBOM, CycloneDX) — including
+transitive dependencies — can be generated with scripts/generate-sbom.sh and is
+described in docs/SBOM.md.
+
+Trademarks (e.g. "GIGW", "UX4G", government emblems) are the property of their
+respective owners and are used for identification/interoperability only.
