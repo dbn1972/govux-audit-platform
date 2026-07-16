@@ -42,3 +42,6 @@ platform/backend/audit_engine/sweep_*/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Diagnostic bundles (support scratch output)
+platform/govux-diagnostics-*

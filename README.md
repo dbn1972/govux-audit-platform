@@ -80,8 +80,10 @@ docker compose exec api pytest                  # backend suite (≥80% gate)
 ## Quick start (production)
 
 ```bash
-cp .env.example .env        # then set REAL secrets (the API refuses to boot without them)
-docker compose -f platform/docker-compose.prod.yml --env-file .env up -d
+cd platform
+./scripts/preinstall-check.sh --prod    # validate prerequisites + secrets first
+cp .env.example .env                     # then set REAL secrets (the API refuses to boot without them)
+docker compose -f docker-compose.prod.yml --env-file .env up -d
 ```
 
 Runs Gunicorn (multi-worker) + `next start`, a **split & AOF-persisted** Redis (durable queue vs. cache), health checks, resource limits, and **migrations on boot**. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).

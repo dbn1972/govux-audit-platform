@@ -37,9 +37,11 @@ Gunicorn (multi-worker) + `next build && next start`, **two** Redis instances
 (durable AOF-persisted queue vs. LRU cache), health checks, resource limits,
 non-root API, a **worker fleet**, and **migrations applied on boot**.
 
-### 3.1 Configure secrets
+### 3.1 Validate prerequisites, then configure secrets
 
 ```bash
+cd platform
+./scripts/preinstall-check.sh --prod     # blocks on missing docker/ports/secrets
 cp .env.example .env
 # edit .env — set REAL values (see §4). The API will NOT boot without them.
 ```
@@ -52,9 +54,11 @@ python -c "import secrets; print(secrets.token_urlsafe(48))"
 ### 3.2 Launch
 
 ```bash
-docker compose -f platform/docker-compose.prod.yml --env-file .env up -d
-docker compose -f platform/docker-compose.prod.yml ps      # all healthy?
+# from the platform/ directory
+docker compose -f docker-compose.prod.yml --env-file .env up -d
+docker compose -f docker-compose.prod.yml ps               # all healthy?
 curl -s http://<host>:8000/healthz                          # {"status":"ok"}
+./scripts/diagnostic-bundle.sh -f docker-compose.prod.yml   # capture a support snapshot anytime
 ```
 
 Migrations run automatically via `entrypoint.sh` (`alembic upgrade head`) before
