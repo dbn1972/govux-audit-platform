@@ -226,3 +226,34 @@ def test_worker_ml_advisory(client, ctx, verified_domain, db, monkeypatch):
 def test_remediation_missing_task(client, ctx):
     assert client.get(f"/v1/audits/{uuid.uuid4()}/remediation",
                       headers=ctx["headers"]).status_code == 404
+
+
+def test_list_audits_org_fenced(client, ctx, verified_domain, db, monkeypatch):
+    """GET /v1/audits returns the org's audits; another org never sees them."""
+    from app import worker, security
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+        "url": url, "categories": {k: 70 for k in
+            ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+        "cwv": {}, "findings": []})
+    r = client.post("/v1/audits", headers=ctx["headers"],
+                    json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r["task_id"], {"domain": verified_domain.url})
+
+    lst = client.get("/v1/audits", headers=ctx["headers"])
+    assert lst.status_code == 200
+    row = next((a for a in lst.json() if a["task_id"] == r["task_id"]), None)
+    assert row is not None
+    assert row["domain"] == verified_domain.url and row["status"] == "completed"
+
+    # a different organisation must not see it (same fence as the per-audit routes)
+    org2 = models.Organisation(name="Other Dept", org_type="department")
+    db.add(org2); db.flush()
+    u2 = models.User(email=f"o.{uuid.uuid4().hex[:8]}@nic.in", org_id=org2.id,
+                     display_name="Other", role="programme_admin")
+    db.add(u2); db.flush()
+    dev2 = models.Device(user_id=u2.id, device_pubkey="pk2")
+    db.add(dev2); db.commit()
+    tok2 = security.issue_access_token(str(u2.id), u2.role, str(dev2.id))
+    other = client.get("/v1/audits", headers={"Authorization": f"Bearer {tok2}"})
+    assert other.status_code == 200
+    assert r["task_id"] not in [a["task_id"] for a in other.json()]

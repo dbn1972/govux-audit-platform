@@ -97,6 +97,25 @@ def submit_audit(body: AuditCreate, user: models.User = Depends(current_user),
     return AuditAccepted(task_id=str(audit.id), status_url=f"/v1/audits/{audit.id}")
 
 
+@router.get("/audits")
+def list_audits(user: models.User = Depends(current_user), db: Session = Depends(get_db),
+                limit: int = 50, offset: int = 0):
+    """Every audit across the officer's organisation (super_admin: all), newest
+    first. Org-fenced exactly like the per-audit endpoints — an officer never
+    sees another organisation's audits. Paginated for large estates."""
+    limit = max(1, min(limit, 100))
+    q = (db.query(models.Audit, models.Domain)
+           .join(models.Domain, models.Audit.domain_id == models.Domain.id))
+    if user.role != "super_admin":
+        q = q.filter(models.Domain.org_id == user.org_id)
+    rows = (q.order_by(desc(models.Audit.created_at))
+              .offset(max(0, offset)).limit(limit).all())
+    return [{"task_id": str(a.id), "domain": d.url, "status": a.status,
+             "score": float(a.overall_score) if a.overall_score else None,
+             "band": a.band, "compliance_status": a.compliance_status,
+             "date": a.created_at} for a, d in rows]
+
+
 @router.get("/audits/{task_id}", response_model=AuditStatus)
 def audit_status(task_id: str, user: models.User = Depends(current_user),
                  db: Session = Depends(get_db)):

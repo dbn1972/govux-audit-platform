@@ -15,16 +15,19 @@ vi.mock("next/link", () => ({ default: ({ href, children }: any) => <a href={Str
 const listDomains = vi.fn();
 const submitAudit = vi.fn();
 const auditStatus = vi.fn();
+const listAudits = vi.fn();
 vi.mock("@/lib/api", () => ({
   api: {
     listDomains: (...a: any[]) => listDomains(...a),
     submitAudit: (...a: any[]) => submitAudit(...a),
     auditStatus: (...a: any[]) => auditStatus(...a),
+    listAudits: (...a: any[]) => listAudits(...a),
   },
 }));
 
 import NewAudit from "@/app/audits/new/page";
 import Running from "@/app/audits/[id]/page";
+import Audits from "@/app/audits/page";
 
 describe("New Audit — real domains, real ids", () => {
   beforeEach(() => { push.mockReset(); listDomains.mockReset(); submitAudit.mockReset();
@@ -63,6 +66,31 @@ describe("New Audit — real domains, real ids", () => {
     render(<NewAudit />);
     expect(await screen.findByText(/no verified domains yet/i)).toBeInTheDocument();
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+  });
+});
+
+describe("Audit history list", () => {
+  beforeEach(() => listAudits.mockReset());
+
+  it("lists audits: completed rows link to the report, unreachable rows show no score", async () => {
+    listAudits.mockResolvedValue([
+      { task_id: "a1", domain: "posts.gov.in", status: "completed", score: 72, band: "B",
+        compliance_status: "partially_compliant", date: "2026-07-10T10:00:00Z" },
+      { task_id: "a2", domain: "blocked.gov.in", status: "insufficient_evidence", score: null,
+        band: null, compliance_status: null, date: "2026-07-11T10:00:00Z" },
+    ]);
+    render(<Audits />);
+    expect(await screen.findByText("posts.gov.in")).toBeInTheDocument();
+    expect(screen.getByText("72")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /View report/i })).toHaveAttribute("href", "/audits/a1/report");
+    // the unreachable audit shows the honest "no score" chip, not a fabricated number
+    expect(screen.getByText(/no score — site unreachable/i)).toBeInTheDocument();
+  });
+
+  it("shows an empty state with a call to action when there are no audits", async () => {
+    listAudits.mockResolvedValue([]);
+    render(<Audits />);
+    expect(await screen.findByText(/Run your first audit/i)).toBeInTheDocument();
   });
 });
 

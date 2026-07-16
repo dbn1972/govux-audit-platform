@@ -10,6 +10,7 @@ const NAV = [
   ]},
   { group: "Audits", items: [
     ["New Audit", "/audits/new", "bi-play-circle"],
+    ["Audit History", "/audits", "bi-clock-history"],
     ["Sample Report", "/report", "bi-file-earmark-text"],
   ]},
   { group: "Assess", items: [
@@ -36,13 +37,19 @@ const NAV = [
 
 /** The navigation list — shared by the desktop rail and the mobile drawer. */
 function NavList({ path, onNavigate }: { path: string; onNavigate?: () => void }) {
+  // Longest-prefix wins so only one item highlights: on /audits/new, "New Audit"
+  // is active, not the shorter "/audits" (Audit History) that also prefix-matches.
+  const hrefs = NAV.flatMap(g => g.items.map(([, href]) => href as string));
+  const activeHref = hrefs
+    .filter(h => path === h || path.startsWith(h + "/"))
+    .sort((a, b) => b.length - a.length)[0];
   return (
     <nav aria-label="Primary">
       {NAV.map(g => (
         <div key={g.group}>
           <div className="text-secondary text-uppercase fw-bold px-2 pt-3 pb-1" style={{ fontSize: 10.5, letterSpacing: ".04em" }}>{g.group}</div>
           {g.items.map(([label, href, icon]) => {
-            const active = path === href || path.startsWith(href + "/");
+            const active = href === activeHref;
             return (
               <Link key={href} href={href} onClick={onNavigate}
                 aria-current={active ? "page" : undefined}

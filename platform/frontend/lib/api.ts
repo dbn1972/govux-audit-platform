@@ -44,6 +44,7 @@ export const api = {
   listDomains: () => req("/v1/domains"),
   submitAudit: (domain_id: string) =>
     req("/v1/audits", { method: "POST", body: JSON.stringify({ domain_id }) }),
+  listAudits: () => req("/v1/audits"),
   auditStatus: (taskId: string) => req(`/v1/audits/${taskId}`),
   auditReport: (taskId: string) => req(`/v1/audits/${taskId}/report`),
   reviewAudit: (taskId: string, approved: boolean, notes?: string) =>
