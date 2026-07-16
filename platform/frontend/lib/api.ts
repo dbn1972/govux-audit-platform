@@ -94,4 +94,18 @@ export const api = {
   testEmail: (to: string) =>
     req("/v1/admin/config/test-email", { method: "POST", body: JSON.stringify({ to }) }),
   adminMetrics: () => req("/v1/admin/config/metrics-summary"),
+  // GovUX Studio
+  studioCreate: (body: any) => req("/v1/studio", { method: "POST", body: JSON.stringify(body) }),
+  listStudio: () => req("/v1/studio"),
+  studioGet: (id: string) => req(`/v1/studio/${id}`),
+  studioPreview: async (id: string, file: string): Promise<string> => {
+    const r = await fetch(`/api/v1/studio/${id}/preview/${file}`,
+      { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });
+    return r.ok ? r.text() : "";
+  },
+  studioDownload: async (id: string): Promise<Blob> => {
+    const r = await fetch(`/api/v1/studio/${id}/download`,
+      { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });
+    return r.blob();
+  },
 };

@@ -323,3 +323,26 @@ CREATE INDEX IF NOT EXISTS idx_scanreq_domain       ON scan_requests(domain_id);
 CREATE INDEX IF NOT EXISTS idx_scanreq_decider      ON scan_requests(decided_by);
 CREATE INDEX IF NOT EXISTS idx_audit_completed_score
     ON audits(overall_score DESC) WHERE status = 'completed';
+
+-- ---------- GovUX Studio (AI prototype generator) ----------
+-- One row per generation run. Org-fenced; billable (token counts + cost). The
+-- LLM only generates the pages; the deterministic studio auditor scores them.
+CREATE TABLE IF NOT EXISTS studio_runs (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id        UUID NOT NULL REFERENCES organisations(id),
+    requested_by  UUID REFERENCES users(id),
+    status        TEXT NOT NULL DEFAULT 'generating',    -- generating | scored | failed
+    inputs        JSONB NOT NULL DEFAULT '{}'::jsonb,
+    pages         JSONB,                                  -- {filename: html}
+    overall_score NUMERIC(5,2),
+    band          TEXT,
+    iterations    INTEGER NOT NULL DEFAULT 0,
+    findings      JSONB,
+    input_tokens  INTEGER NOT NULL DEFAULT 0,
+    output_tokens INTEGER NOT NULL DEFAULT 0,
+    cost_inr      NUMERIC(10,2) NOT NULL DEFAULT 0,
+    error         TEXT,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    finished_at   TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_studio_org_time ON studio_runs(org_id, created_at DESC);

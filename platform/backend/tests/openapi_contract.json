@@ -130,6 +130,22 @@
     "200",
     "422"
   ],
+  "GET /v1/studio": [
+    "200",
+    "422"
+  ],
+  "GET /v1/studio/{run_id}": [
+    "200",
+    "422"
+  ],
+  "GET /v1/studio/{run_id}/download": [
+    "200",
+    "422"
+  ],
+  "GET /v1/studio/{run_id}/preview/{filename}": [
+    "200",
+    "422"
+  ],
   "PATCH /v1/admin/config": [
     "200",
     "422"
@@ -191,6 +207,10 @@
   ],
   "POST /v1/schedules": [
     "201",
+    "422"
+  ],
+  "POST /v1/studio": [
+    "202",
     "422"
   ]
 }

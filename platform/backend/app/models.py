@@ -308,3 +308,24 @@ class RankingPublication(Base):
     methodology_version = Column(Text, nullable=False)
     published_at = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class StudioRun(Base):
+    """GovUX Studio — one AI prototype-generation run (org-fenced, billable)."""
+    __tablename__ = "studio_runs"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    requested_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    status = Column(Text, nullable=False, default="generating")   # generating | scored | failed
+    inputs = Column(JSONB, nullable=False, default=dict)
+    pages = Column(JSONB)                                          # {filename: html}
+    overall_score = Column(Numeric(5, 2))
+    band = Column(Text)
+    iterations = Column(Integer, nullable=False, default=0)
+    findings = Column(JSONB)
+    input_tokens = Column(Integer, nullable=False, default=0)
+    output_tokens = Column(Integer, nullable=False, default=0)
+    cost_inr = Column(Numeric(10, 2), nullable=False, default=0)
+    error = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    finished_at = Column(DateTime(timezone=True))

@@ -13,6 +13,7 @@ const NAV: NavGroup[] = [
   { group: "Audits", items: [
     ["New Audit", "/audits/new", "bi-play-circle"],
     ["Audit History", "/audits", "bi-clock-history"],
+    ["Design Studio", "/studio", "bi-magic"],
     ["Sample Report", "/report", "bi-file-earmark-text"],
   ]},
   { group: "Assess", items: [
