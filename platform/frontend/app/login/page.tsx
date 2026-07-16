@@ -16,7 +16,7 @@ async function deviceKey(): Promise<string> {
 export default function Login() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
-  const [email, setEmail] = useState("d.nayak@nic.in");
+  const [email, setEmail] = useState("");   // empty → placeholder guides; a pre-filled apex (@nic.in) would fail GOV
   const [code, setCode] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);

@@ -1,0 +1,177 @@
+{
+  "DELETE /v1/auth/devices/{device_id}": [
+    "204",
+    "422"
+  ],
+  "DELETE /v1/schedules/{schedule_id}": [
+    "204",
+    "422"
+  ],
+  "GET /healthz": [
+    "200"
+  ],
+  "GET /metrics": [
+    "200"
+  ],
+  "GET /v1/admin/config": [
+    "200",
+    "422"
+  ],
+  "GET /v1/admin/config/metrics-summary": [
+    "200",
+    "422"
+  ],
+  "GET /v1/audits/{task_id}": [
+    "200",
+    "422"
+  ],
+  "GET /v1/audits/{task_id}/documents": [
+    "200",
+    "422"
+  ],
+  "GET /v1/audits/{task_id}/remediation": [
+    "200",
+    "422"
+  ],
+  "GET /v1/audits/{task_id}/report": [
+    "200",
+    "422"
+  ],
+  "GET /v1/audits/{task_id}/trend": [
+    "200",
+    "422"
+  ],
+  "GET /v1/auth/devices": [
+    "200",
+    "422"
+  ],
+  "GET /v1/ci/gate": [
+    "200",
+    "422"
+  ],
+  "GET /v1/discovery": [
+    "200",
+    "422"
+  ],
+  "GET /v1/domains": [
+    "200",
+    "422"
+  ],
+  "GET /v1/domains/{domain_id}/audits": [
+    "200",
+    "422"
+  ],
+  "GET /v1/domains/{domain_id}/compare": [
+    "200",
+    "422"
+  ],
+  "GET /v1/guidelines": [
+    "200",
+    "422"
+  ],
+  "GET /v1/ministries": [
+    "200",
+    "422"
+  ],
+  "GET /v1/national": [
+    "200",
+    "422"
+  ],
+  "GET /v1/public/captcha": [
+    "200"
+  ],
+  "GET /v1/public/queue": [
+    "200"
+  ],
+  "GET /v1/public/scan/{scan_id}": [
+    "200",
+    "422"
+  ],
+  "GET /v1/public/scan/{scan_id}/pdf": [
+    "200",
+    "422"
+  ],
+  "GET /v1/public/stats": [
+    "200",
+    "422"
+  ],
+  "GET /v1/rankings": [
+    "200",
+    "422"
+  ],
+  "GET /v1/scan-requests": [
+    "200",
+    "422"
+  ],
+  "GET /v1/schedules": [
+    "200",
+    "422"
+  ],
+  "GET /v1/states": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/admin/config": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/findings/{finding_id}": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/scan-requests/{req_id}": [
+    "200",
+    "422"
+  ],
+  "POST /v1/admin/config/test-email": [
+    "200",
+    "422"
+  ],
+  "POST /v1/audits": [
+    "202",
+    "422"
+  ],
+  "POST /v1/audits/{task_id}/review": [
+    "200",
+    "422"
+  ],
+  "POST /v1/auth/otp/request": [
+    "202",
+    "422"
+  ],
+  "POST /v1/auth/otp/verify": [
+    "200",
+    "422"
+  ],
+  "POST /v1/auth/refresh": [
+    "200"
+  ],
+  "POST /v1/bulk-scans": [
+    "202",
+    "422"
+  ],
+  "POST /v1/discovery/scan": [
+    "200",
+    "422"
+  ],
+  "POST /v1/domains": [
+    "201",
+    "422"
+  ],
+  "POST /v1/domains/{domain_id}/verify": [
+    "200",
+    "422"
+  ],
+  "POST /v1/public/scan": [
+    "202",
+    "422"
+  ],
+  "POST /v1/scan-requests": [
+    "201",
+    "422"
+  ],
+  "POST /v1/schedules": [
+    "201",
+    "422"
+  ]
+}
