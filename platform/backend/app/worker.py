@@ -256,8 +256,9 @@ def process(task_id: str, payload: dict):
         except Exception as exc:
             print("ml advisory error:", exc)
 
-        # a completed audit changes the national/rankings aggregates -> drop their cache
-        for _pfx in ("national", "rankings", "ministries", "states"):
+        # a completed audit changes the national/rankings aggregates AND each org's
+        # domain list (latest score/band) -> drop their caches
+        for _pfx in ("national", "rankings", "ministries", "states", "domains"):
             cache.invalidate_prefix(_pfx)
         queue.set_status(task_id, "completed",
                          {"overall_score": score.overall, "band": score.band,

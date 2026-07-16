@@ -83,8 +83,8 @@ describe("Audit history list", () => {
     expect(await screen.findByText("posts.gov.in")).toBeInTheDocument();
     expect(screen.getByText("72")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /View report/i })).toHaveAttribute("href", "/audits/a1/report");
-    // the unreachable audit shows the honest "no score" chip, not a fabricated number
-    expect(screen.getByText(/no score — site unreachable/i)).toBeInTheDocument();
+    // the unreachable audit shows the honest "no score" badge, not a fabricated number
+    expect(screen.getByText("no score")).toBeInTheDocument();
   });
 
   it("shows an empty state with a call to action when there are no audits", async () => {

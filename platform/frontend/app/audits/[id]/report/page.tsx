@@ -7,7 +7,15 @@ import { api } from "@/lib/api";
 const NAMES: Record<string, [string, number]> = {
   accessibility: ["Accessibility", 22], usability: ["Usability & UX", 17],
   gigw: ["GIGW 3.0", 15], design: ["Design / UX4G", 11], performance: ["Performance/CWV", 12],
-  responsiveness: ["Responsiveness & Compat.", 10], content: ["Content quality", 7], trust: ["Trust & security", 6],
+  responsiveness: ["Responsiveness", 10], content: ["Content quality", 7], trust: ["Trust & security", 6],
+};
+const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "");
+// CWV lab thresholds (good/needs/poor)
+const cwvJudge = (metric: string, v: number | null) => {
+  if (v == null) return ["—", "#5c636a"];
+  if (metric === "lcp") return v <= 2500 ? ["Good", "#15803d"] : v <= 4000 ? ["Needs work", "#b45309"] : ["Poor", "#b91c1c"];
+  if (metric === "cls") return v <= 0.1 ? ["Good", "#15803d"] : v <= 0.25 ? ["Needs work", "#b45309"] : ["Poor", "#b91c1c"];
+  return v <= 200 ? ["Good", "#15803d"] : v <= 500 ? ["Needs work", "#b45309"] : ["Poor", "#b91c1c"];
 };
 // AA-safe semantic palette (≥4.5:1 on white) — mirrors lib/score.ts
 const bandColor: Record<string, string> = { A: "#15803d", B: "#0f766e", C: "#b45309", D: "#c2410c", E: "#b91c1c" };
@@ -26,12 +34,16 @@ export default function Report({ params }: { params: { id: string } }) {
   return (
     <AppShell>
       <div className="container-fluid p-4" style={{ maxWidth: 1240 }}>
-        <div className="d-flex align-items-center mb-1">
-          <h1 className="h3 mb-0">Audit report</h1>
+        <div className="d-flex align-items-center flex-wrap gap-2 mb-1">
+          <div>
+            <h1 className="h3 mb-0" style={{ color: "var(--ux-navy)" }}>{r.domain || "Audit report"}</h1>
+            <div className="text-secondary small">
+              Audit report{r.date ? ` · ${fmtDate(r.date)}` : ""}{r.engine_version ? ` · Engine ${r.engine_version}` : ""}
+            </div>
+          </div>
           <Link href={`/review?audit=${params.id}`} className="btn btn-outline-secondary ms-auto">Certify (expert review)</Link>
-          <Link href={`/audits/${params.id}/issues`} className="btn btn-primary ms-2">See prioritised issues →</Link>
+          <Link href={`/audits/${params.id}/issues`} className="btn btn-primary">See prioritised issues →</Link>
         </div>
-        <p className="text-secondary small">Task {params.id}</p>
 
         <div className="row g-3 mb-3">
           <div className="col-lg-8"><div className="card shadow-sm h-100"><div className="card-body d-flex gap-4 align-items-center flex-wrap">
@@ -39,10 +51,19 @@ export default function Report({ params }: { params: { id: string } }) {
               <div className="score-value">{r.overall_score}</div>
               <span className="badge" style={{ background: bandColor[r.band] + "22", color: bandColor[r.band] }}>Band {r.band}</span>
             </div>
-            <p className="mb-0 text-secondary flex-grow-1" style={{ minWidth: 220 }}>
-              Weighted across 8 categories.
-              {r.guardrail_active && <> A critical failure has activated the <b>guard-rail</b>, capping the band until fixed.</>}
-            </p>
+            <div className="flex-grow-1" style={{ minWidth: 220 }}>
+              <p className="mb-2 text-secondary">
+                Weighted across 8 categories.
+                {r.guardrail_active && <> A critical failure has activated the <b>guard-rail</b>, capping the band until fixed.</>}
+              </p>
+              {r.compliance?.status && (
+                <div className="small">
+                  <span className="text-secondary">Compliance verdict: </span>
+                  <span className="badge text-bg-secondary-subtle">{String(r.compliance.status).replace(/_/g, " ")}</span>
+                  <span className="text-secondary"> · {r.compliance.method === "automated" ? "automated evidence" : r.compliance.method}</span>
+                </div>
+              )}
+            </div>
           </div></div></div>
           <div className="col-lg-4"><div className="card shadow-sm h-100"><div className="card-body">
             <h2 className="h6">Issues by severity</h2>
@@ -55,12 +76,29 @@ export default function Report({ params }: { params: { id: string } }) {
           </div></div></div>
         </div>
 
+        {r.cwv && (r.cwv.lcp_ms != null || r.cwv.cls != null) && (
+          <div className="row g-3 mb-3">
+            {[["Largest Contentful Paint", "lcp", r.cwv.lcp_ms != null ? (r.cwv.lcp_ms / 1000).toFixed(1) + "s" : null, r.cwv.lcp_ms],
+              ["Cumulative Layout Shift", "cls", r.cwv.cls != null ? r.cwv.cls : null, r.cwv.cls != null ? r.cwv.cls * 1000 : null],
+              ["Interaction to Next Paint", "inp", r.cwv.inp_ms != null ? r.cwv.inp_ms + "ms" : null, r.cwv.inp_ms]].map(([label, key, disp, raw]) => {
+              const [verdict, col] = cwvJudge(key as string, raw as number | null);
+              return (
+                <div className="col-6 col-md-4" key={key as string}><div className="card shadow-sm h-100"><div className="card-body py-3">
+                  <div className="text-secondary small">{label}</div>
+                  <div className="fs-4 fw-bold" style={{ color: col }}>{disp ?? "—"}</div>
+                  <div className="small fw-semibold" style={{ color: col }}>{verdict}</div>
+                </div></div></div>
+              );
+            })}
+          </div>
+        )}
+
         <div className="card shadow-sm"><div className="card-header bg-white fw-semibold">Category sub-scores</div><div className="card-body">
           {r.categories.map((c: any) => {
             const [label, wt] = NAMES[c.category] || [c.category, c.weight];
             return (
               <div className="d-flex align-items-center gap-3 my-2" key={c.category}>
-                <div style={{ width: 200, fontSize: 14 }}>{label} <span className="text-secondary small">· {wt}%</span></div>
+                <div style={{ width: 210, flexShrink: 0, fontSize: 14 }}>{label} <span className="text-secondary small">· {wt}%</span></div>
                 <div className="score-bar flex-grow-1"><i style={{ width: `${c.score}%`, background: barColor(c.score) }} /></div>
                 <b style={{ width: 40, textAlign: "right", color: barColor(c.score) }}>{Math.round(c.score)}</b>
               </div>

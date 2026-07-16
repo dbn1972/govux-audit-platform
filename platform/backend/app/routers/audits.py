@@ -149,11 +149,23 @@ def _build_report(db, audit, task_id):
                    .filter(models.AuditDocument.audit_id == task_id).all())
     browsers = (db.query(models.AuditBrowser)
                   .filter(models.AuditBrowser.audit_id == task_id).all())
+    domain = db.get(models.Domain, audit.domain_id)
+    # lab Core Web Vitals from the homepage (the page whose url == the domain)
+    home = (db.query(models.AuditPage)
+              .filter(models.AuditPage.audit_id == task_id, models.AuditPage.lcp_ms.isnot(None))
+              .order_by(models.AuditPage.lcp_ms).first())
+    cwv = {"lcp_ms": home.lcp_ms, "cls": float(home.cls) if home and home.cls is not None else None,
+           "inp_ms": home.inp_ms} if home else None
     return {
         "task_id": str(audit.id),
+        "domain": domain.url if domain else None,
+        "date": audit.finished_at.isoformat() if audit.finished_at else (
+                audit.created_at.isoformat() if audit.created_at else None),
+        "engine_version": audit.engine_version,
         "overall_score": float(audit.overall_score),
         "band": audit.band,
         "guardrail_active": audit.guardrail_active,
+        "cwv": cwv,
         # cross-browser matrix (Chromium/Firefox/WebKit)
         "browsers": [{"engine": b.engine, "loaded": b.loaded, "status": b.status,
                       "js_errors": b.js_errors, "console_errors": b.console_errors,

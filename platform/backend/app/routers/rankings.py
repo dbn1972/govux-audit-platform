@@ -39,7 +39,11 @@ def _latest_completed_subq(db: Session):
                 models.Audit.overall_score.label("score"),
                 models.Audit.band.label("band"),
                 rn)
-              .filter(models.Audit.status == "completed").subquery())
+              # a "completed" audit can still lack a score (e.g. legacy rows); a
+              # roll-up/league must rank on a real number, not a NULL that sorts
+              # NULLS-FIRST to the top of a DESC order.
+              .filter(models.Audit.status == "completed",
+                      models.Audit.overall_score.isnot(None)).subquery())
     return db.query(ranked).filter(ranked.c.rn == 1).subquery()
 
 

@@ -5,6 +5,12 @@ import { api } from "@/lib/api";
 
 // Runtime configuration — admin-editable email provider, CAPTCHA, rate limits,
 // scan parameters. Changes take effect live (no redeploy).
+// Enumerated settings render as dropdowns (not free text) so a typo can't break delivery.
+const OPTIONS: Record<string, string[]> = {
+  email_provider: ["console", "smtp", "api"],
+  captcha_provider: ["builtin", "turnstile", "recaptcha"],
+};
+
 export default function ConfigAdmin() {
   const [cats, setCats] = useState<any[]>([]);
   const [edits, setEdits] = useState<Record<string, any>>({});
@@ -123,6 +129,11 @@ export default function ConfigAdmin() {
                       ) : s.secret ? (
                         <input className="form-control" type="password" placeholder="•••••• (leave blank to keep)"
                           onChange={e => change(s.key, e.target.value)} />
+                      ) : OPTIONS[s.key] ? (
+                        <select className="form-select" value={val ?? ""}
+                          onChange={e => change(s.key, e.target.value)}>
+                          {OPTIONS[s.key].map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
                       ) : (
                         <input className="form-control" type={s.type === "int" ? "number" : "text"}
                           value={val ?? ""} onChange={e => change(s.key, e.target.value)} />

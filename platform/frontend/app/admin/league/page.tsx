@@ -39,16 +39,18 @@ export default function League() {
         <div className="row g-3">
           <div className="col-lg-8"><div className="card shadow-sm">
             <div className="card-header bg-white fw-semibold">Ranking — {cat}</div>
-            <div className="table-responsive"><table className="table table-hover align-middle mb-0">
+            <div className="table-responsive"><table className="table table-hover align-middle mb-0 gx-responsive">
               <thead className="table-light"><tr><th>#</th><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
               <tbody>
                 {rows == null && <tr><td colSpan={4} className="text-center py-4"><span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" /></td></tr>}
                 {rows?.length === 0 && !err && <tr><td colSpan={4} className="text-secondary text-center py-4">No audited domains in this segment yet.</td></tr>}
                 {(rows || []).map((r, i) => (
-                <tr key={r.url}><td>{i + 1}</td>
-                  <td className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{r.url}</td>
-                  <td className="fw-bold">{r.score}</td>
-                  <td><span className="badge" style={{ background: bandBg[r.band] + "22", color: bandBg[r.band] }}>{r.band}</span></td></tr>
+                <tr key={r.url}><td data-label="Rank">{i + 1}</td>
+                  <td data-label="Domain" className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{r.url}</td>
+                  <td data-label="Score" className="fw-bold">{r.score ?? "—"}</td>
+                  <td data-label="Band">{r.band
+                    ? <span className="badge" style={{ background: bandBg[r.band] + "22", color: bandBg[r.band] }}>{r.band}</span>
+                    : <span className="text-secondary">—</span>}</td></tr>
               ))}</tbody>
             </table></div>
           </div></div>

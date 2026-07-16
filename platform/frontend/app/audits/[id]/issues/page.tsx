@@ -35,19 +35,21 @@ export default function Issues({ params }: { params: { id: string } }) {
         </div>
 
         <div className="card shadow-sm"><div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light"><tr><th>Issue</th><th>Category</th><th>Guideline</th><th>Severity</th><th>Effort</th></tr></thead>
+          <table className="table table-hover align-middle mb-0 gx-responsive">
+            <thead className="table-light"><tr><th>Issue &amp; how to fix</th><th>Category</th><th>Guideline</th><th>Severity</th></tr></thead>
             <tbody>
               {shown.map((f, i) => (
                 <tr key={i}>
-                  <td className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{f.title || f.guideline}</td>
-                  <td><span className="badge text-bg-primary-subtle">{f.category}</span></td>
-                  <td className="text-secondary small">{f.guideline}</td>
-                  <td><span className={`badge ${SEV[f.severity as keyof typeof SEV] || "text-bg-light"}`}>{f.severity}</span></td>
-                  <td className="text-secondary small">{f.effort || "—"}</td>
+                  <td data-label="Issue">
+                    <div className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{f.title || f.guideline}</div>
+                    {f.remediation && <div className="text-secondary small mt-1">↳ {f.remediation}</div>}
+                  </td>
+                  <td data-label="Category"><span className="badge text-bg-primary-subtle">{f.category}</span></td>
+                  <td data-label="Guideline" className="text-secondary small">{f.guideline}</td>
+                  <td data-label="Severity"><span className={`badge ${SEV[f.severity as keyof typeof SEV] || "text-bg-light"}`}>{f.severity}</span></td>
                 </tr>
               ))}
-              {!shown.length && <tr><td colSpan={5} className="text-center text-secondary py-4">No issues in this filter.</td></tr>}
+              {!shown.length && <tr><td colSpan={4} className="text-center text-secondary py-4">No issues in this filter.</td></tr>}
             </tbody>
           </table>
         </div></div>
