@@ -99,7 +99,7 @@ Runs Gunicorn (multi-worker) + `next start`, a **split & AOF-persisted** Redis (
 | 👤 Government users (officers, assessors, admins) | [**User Manual**](docs/USER_MANUAL.md) |
 | 🚀 Operators / DevOps | [**Deployment Guide**](docs/DEPLOYMENT.md) · [**Operations Runbook**](docs/OPERATIONS.md) · [Production Readiness](docs/PRODUCTION_READINESS.md) · [Upgrade Guide](docs/UPGRADING.md) |
 | 🏛️ Architecture | [**High-Level Design (HLD)**](docs/HLD.md) · [**Low-Level Design (LLD)**](docs/LLD.md) |
-| 🧪 Proposed features | [**BRD — GovUX Studio (AI prototype generator)**](docs/BRD_GOVUX_STUDIO.md) |
+| 🧪 Proposed features | [**BRD — GovUX Studio (AI prototype generator)**](docs/BRD_GOVUX_STUDIO.md) · [**BRD — Integrity Engine (anti-gaming)**](docs/BRD_INTEGRITY_ENGINE.md) |
 | 🧑‍💻 Engineers | [Architecture Notes](platform/docs/ARCHITECTURE.md) · [API](platform/docs/API.md) · [Data Access](platform/docs/DATA_ACCESS.md) · [Coding Standards](platform/docs/CODING_STANDARDS.md) · [Gotchas](platform/docs/GOTCHAS.md) |
 | 📊 Methodology | [Scoring & Validation](platform/docs/SCORING_VALIDATION.md) |
 | 🔐 Security & privacy | [Security Policy](SECURITY.md) · [Security Architecture & Threat Model](docs/SECURITY_ARCHITECTURE.md) · [Privacy & Data Protection (DPDP)](docs/PRIVACY.md) |
