@@ -14,9 +14,10 @@ from datetime import datetime, timezone
 from .database import SessionLocal
 from .config import settings
 from . import models
+from sqlalchemy import desc
 from .services import queue, cache
 from .services.scoring import compute_score, compliance_verdict, CATEGORY_WEIGHTS
-from .services import crux, remediation, pdf_audit, ml_anomaly, design_cv
+from .services import crux, remediation, pdf_audit, ml_anomaly, design_cv, integrity, settings_store
 
 ENGINE = os.path.join(os.path.dirname(__file__), "..", "audit_engine", "runner.js")
 COMPAT = os.path.join(os.path.dirname(__file__), "..", "audit_engine", "compat.js")
@@ -219,9 +220,23 @@ def process(task_id: str, payload: dict):
                 effort=f.get("effort"), title=f.get("title"),
                 remediation=g.remediation, confidence="automated"))
 
+        # --- Integrity Engine (anti-gaming) — detects gaming from the findings +
+        #     an implausible jump vs the previous audit. Caps the verdict, never
+        #     the deterministic score. Feature-flagged. ---
+        prev = (db.query(models.Audit)
+                  .filter(models.Audit.domain_id == audit.domain_id,
+                          models.Audit.status == "completed",
+                          models.Audit.overall_score.isnot(None),
+                          models.Audit.id != audit.id)
+                  .order_by(desc(models.Audit.created_at)).first())
+        integ = integrity.assess(engine_findings, float(score.overall),
+                                 float(prev.overall_score) if prev else None,
+                                 enabled=settings_store.get_bool("integrity_enabled", True))
+        audit.integrity = integ
+
         # --- legal compliance verdict, SEPARATE from the band (gap G1) ---
         comp = compliance_verdict(score.categories, critical_a11y, reviewed=False,
-                                  integrity_flagged=bool(result.get("integrity_flagged")))
+                                  integrity_flagged=integ["flagged"])
         audit.compliance_status = comp.status
         audit.method = comp.method
         audit.confidence = comp.confidence

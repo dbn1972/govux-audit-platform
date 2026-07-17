@@ -228,6 +228,22 @@ def test_remediation_missing_task(client, ctx):
                       headers=ctx["headers"]).status_code == 404
 
 
+def test_integrity_flags_gaming_and_caps_verdict(client, ctx, verified_domain, db, monkeypatch):
+    """An engine overlay finding -> audit.integrity.flagged and a capped verdict."""
+    from app import worker
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+        "url": url, "categories": {k: 92 for k in
+            ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+        "cwv": {}, "findings": [{"category": "accessibility", "severity": "high",
+                                 "guideline": "Integrity-overlay", "title": "Accessibility overlay detected"}]})
+    r = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r["task_id"], {"domain": verified_domain.url})
+    rep = client.get(f"/v1/audits/{r['task_id']}/report", headers=ctx["headers"]).json()
+    assert rep["integrity"]["flagged"] is True
+    assert any(t["key"] == "accessibility-overlay" for t in rep["integrity"]["techniques"])
+    assert rep["compliance"]["status"] != "compliant"     # gaming caps the verdict
+
+
 def test_remediation_ai_enrichment_opt_in(client, ctx, verified_domain, db, monkeypatch):
     """?enrich=1 adds advisory LLM guidance when enabled; deterministic guidance stays."""
     from app import worker

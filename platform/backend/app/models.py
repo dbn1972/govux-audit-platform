@@ -137,6 +137,7 @@ class Audit(Base):
     confidence = Column(Text, nullable=False, default="automated_only")
     field_data = Column(JSONB)            # CrUX real-user metrics (G4)
     anomaly_score = Column(Numeric(6, 3))  # advisory ML — NOT in the score path
+    integrity = Column(JSONB)              # Integrity Engine (anti-gaming) — caps verdict, NOT the score
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     started_at = Column(DateTime(timezone=True))
     finished_at = Column(DateTime(timezone=True))

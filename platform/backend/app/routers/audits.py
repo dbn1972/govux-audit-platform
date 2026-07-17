@@ -175,6 +175,8 @@ def _build_report(db, audit, task_id):
         # legal verdict reported alongside — never folded into the band (G1)
         "compliance": {"status": audit.compliance_status, "method": audit.method,
                        "confidence": audit.confidence},
+        # Integrity Engine (anti-gaming) — caps the verdict, never the score
+        "integrity": audit.integrity,
         "field_data": audit.field_data,
         "pages_total": audit.pages_total,
         "coverage": (audit.scope or {}).get("coverage"),

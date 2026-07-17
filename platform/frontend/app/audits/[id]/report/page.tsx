@@ -45,6 +45,17 @@ export default function Report({ params }: { params: { id: string } }) {
           <Link href={`/audits/${params.id}/issues`} className="btn btn-primary">See prioritised issues →</Link>
         </div>
 
+        {r.integrity?.flagged && (
+          <div className="alert alert-danger mt-2" role="alert">
+            <b>⚠ Integrity check — possible gaming detected.</b> The compliance verdict is capped pending human review.
+            The GovUX score itself is unchanged.
+            <ul className="mb-0 mt-1 small">
+              {r.integrity.techniques.map((t: any) => <li key={t.key}>{t.label}</li>)}
+              {r.integrity.jump && <li>Score rose {r.integrity.jump.from} → {r.integrity.jump.to} with no matching change.</li>}
+            </ul>
+          </div>
+        )}
+
         {(r.findings || []).some((f: any) => String(f.guideline || "").startsWith("Integrity")) && (
           <div className="alert alert-warning d-flex gap-2" role="alert">
             <i className="bi bi-shield-exclamation" aria-hidden="true" />

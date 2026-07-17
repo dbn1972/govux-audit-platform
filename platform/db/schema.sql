@@ -126,6 +126,7 @@ CREATE TABLE audits (
     confidence     TEXT NOT NULL DEFAULT 'automated_only',
     field_data     JSONB,                            -- CrUX real-user metrics blended into performance (gap G4)
     anomaly_score  NUMERIC(6,3),                     -- advisory ML (IsolationForest); NOT in the score path
+    integrity      JSONB,                            -- Integrity Engine result (anti-gaming); caps verdict, NOT the score
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     started_at     TIMESTAMPTZ,
     finished_at    TIMESTAMPTZ

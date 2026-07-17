@@ -42,6 +42,9 @@ SCHEMA: list[dict] = [
     {"key": "metrics_token", "type": "str", "category": "Monitoring / Prometheus", "label": "/metrics bearer token (blank = open scrape)", "default": "", "secret": True},
     {"key": "cache_ttl_seconds", "type": "int", "category": "Monitoring / Prometheus", "label": "Dashboard cache TTL (seconds)", "default": 120},
 
+    # Integrity Engine (anti-gaming) — detects gaming; caps the verdict, never the score.
+    {"key": "integrity_enabled", "type": "bool", "category": "Integrity (anti-gaming)", "label": "Detect gaming (overlays, hidden elements, improbable jumps) and cap the compliance verdict", "default": True},
+
     # Advisory AI — enriches remediation guidance only; NEVER affects the score.
     {"key": "llm_enabled", "type": "bool", "category": "Advisory AI (remediation)", "label": "Enrich remediation with an LLM (advisory — never affects the score)", "default": False},
     {"key": "llm_provider", "type": "str", "category": "Advisory AI (remediation)", "label": "Provider (anthropic)", "default": "anthropic"},
