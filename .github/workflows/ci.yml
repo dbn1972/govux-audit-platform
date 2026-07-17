@@ -7,6 +7,9 @@ name: GovUX CI
 on:
   push: { branches: [main] }
   pull_request:
+  schedule:
+    - cron: "0 2 * * *"      # nightly full run (incl. the heavy e2e job)
+  workflow_dispatch:          # run the full suite on demand from the Actions tab
 
 jobs:
   backend:
@@ -84,6 +87,10 @@ jobs:
       - run: npm run build          # next build
 
   e2e:
+    # Heavy: builds the whole stack + 3 Playwright browsers (~20-30 CI-min).
+    # To conserve private-repo Actions minutes it runs ONLY nightly or on demand,
+    # not on every push/PR. Trigger manually from the Actions tab ("Run workflow").
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     # Pinned to jammy: Playwright 1.44's `install --with-deps` package list
     # predates ubuntu-24.04 (noble) and its apt step fails there.
     runs-on: ubuntu-22.04
