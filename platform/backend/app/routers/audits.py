@@ -5,7 +5,7 @@ of domains belonging to their own organisation (super_admin sees all). Cross-org
 access returns 404 (not 403) so it never confirms that a task_id exists.
 """
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
 from sqlalchemy import desc, text
 from sqlalchemy.orm import Session
@@ -15,7 +15,8 @@ from ..config import settings
 from .. import models
 from ..deps import current_user
 from ..schemas import AuditCreate, AuditAccepted, AuditStatus, BulkScanCreate
-from ..services import queue, remediation, ml_priority, cache, settings_store, llm_advisor
+from ..services import (queue, remediation, ml_priority, cache, settings_store,
+                        llm_advisor, evidence_pack)
 from ..services import scoring
 from ..services.scoring import CATEGORY_WEIGHTS
 
@@ -279,7 +280,8 @@ def review_audit(task_id: str, body: ReviewDecision,
             "non_compliant", "expert_reviewed", "expert_verified",
             reason=body.notes or "expert review found blocking issues")
 
-    audit.is_reviewed = True
+    # reviewed-ness is persisted via method="expert_reviewed" (audits has no
+    # is_reviewed column — that flag lives on findings)
     audit.compliance_status = comp.status
     audit.method = comp.method
     audit.confidence = comp.confidence
@@ -291,6 +293,32 @@ def review_audit(task_id: str, body: ReviewDecision,
     return {"task_id": task_id, "is_reviewed": True,
             "compliance": {"status": comp.status, "method": comp.method,
                            "confidence": comp.confidence, "reason": comp.reason}}
+
+
+@router.get("/audits/{task_id}/evidence")
+def audit_evidence(task_id: str, user: models.User = Depends(current_user),
+                   db: Session = Depends(get_db)):
+    """STQC evidence pack (G12): a ZIP of the audit's machine- and human-readable
+    evidence plus the org's external-assessment ledger — everything a department
+    submits alongside an STQC certification request. Deterministic, org-fenced."""
+    audit = _owned_audit(db, task_id, user, require_completed=True)
+    report = _build_report(db, audit, task_id)
+    domain = db.get(models.Domain, audit.domain_id)
+    # ledger rows for this domain, plus the org-wide ones not tied to a domain
+    rows = (db.query(models.ExternalAssessment)
+              .filter(models.ExternalAssessment.org_id == domain.org_id,
+                      (models.ExternalAssessment.domain_id == audit.domain_id)
+                      | (models.ExternalAssessment.domain_id.is_(None)))
+              .order_by(models.ExternalAssessment.created_at).all())
+    assessments = [{"kind": a.kind, "title": a.title, "agency": a.agency,
+                    "assessed_on": a.assessed_on.isoformat() if a.assessed_on else None,
+                    "outcome": a.outcome, "summary": a.summary,
+                    "report_ref": a.report_ref} for a in rows]
+    blob = evidence_pack.build(report, assessments,
+                               reviewed=(audit.method == "expert_reviewed"))
+    return Response(content=blob, media_type="application/zip",
+                    headers={"Content-Disposition":
+                             f'attachment; filename="govux-evidence-{task_id}.zip"'})
 
 
 @router.get("/audits/{task_id}/trend")

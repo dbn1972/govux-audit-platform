@@ -28,6 +28,10 @@
     "200",
     "422"
   ],
+  "GET /v1/assessments": [
+    "200",
+    "422"
+  ],
   "GET /v1/audits": [
     "200",
     "422"
@@ -37,6 +41,10 @@
     "422"
   ],
   "GET /v1/audits/{task_id}/documents": [
+    "200",
+    "422"
+  ],
+  "GET /v1/audits/{task_id}/evidence": [
     "200",
     "422"
   ],
@@ -176,6 +184,10 @@
   ],
   "POST /v1/admin/config/test-email": [
     "200",
+    "422"
+  ],
+  "POST /v1/assessments": [
+    "201",
     "422"
   ],
   "POST /v1/audits": [

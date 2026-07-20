@@ -2,8 +2,8 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import (
-    Column, Text, Boolean, Integer, BigInteger, Numeric, ForeignKey, DateTime, func,
-    CheckConstraint,
+    Column, Text, Boolean, Integer, BigInteger, Numeric, ForeignKey, DateTime, Date,
+    func, CheckConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET, ENUM
 from .database import Base
@@ -335,3 +335,22 @@ class StudioRun(Base):
     title = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     finished_at = Column(DateTime(timezone=True))
+
+
+class ExternalAssessment(Base):
+    """Manual-assurance ledger (G9/G11/G13): VAPT, native-app a11y, lived-experience
+    panel and STQC certification records that automation cannot produce. Advisory
+    evidence only — never feeds the deterministic score path (rule #1)."""
+    __tablename__ = "external_assessments"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    domain_id = Column(UUID(as_uuid=True), ForeignKey("domains.id"))
+    kind = Column(Text, nullable=False)      # vapt | native_app_a11y | lived_experience_panel | stqc_certification | other
+    title = Column(Text, nullable=False)
+    agency = Column(Text)                    # who performed it (CERT-In empanelled, STQC lab, panel org)
+    assessed_on = Column(Date)
+    outcome = Column(Text, nullable=False, default="in_progress")  # passed | failed | partial | in_progress
+    summary = Column(Text)
+    report_ref = Column(Text)                # file no. / URL / certificate id of the external report
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

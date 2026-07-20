@@ -18,6 +18,7 @@ const NAV: NavGroup[] = [
   ]},
   { group: "Assess", items: [
     ["Manual Review", "/review", "bi-check2-square"],
+    ["External Assessments", "/assessments", "bi-shield-check"],
     ["Guideline Library", "/library", "bi-book"],
   ]},
   { group: "Account", items: [

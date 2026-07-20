@@ -41,7 +41,18 @@ export default function Report({ params }: { params: { id: string } }) {
               Audit report{r.date ? ` · ${fmtDate(r.date)}` : ""}{r.engine_version ? ` · Engine ${r.engine_version}` : ""}
             </div>
           </div>
-          <Link href={`/review?audit=${params.id}`} className="btn btn-outline-secondary ms-auto">Certify (expert review)</Link>
+          <button type="button" className="btn btn-outline-secondary ms-auto"
+            onClick={async () => {
+              const blob = await api.evidencePack(params.id);
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(blob);
+              a.download = `govux-evidence-${params.id}.zip`;
+              a.click();
+              URL.revokeObjectURL(a.href);
+            }}>
+            <i className="bi bi-file-earmark-zip me-1" aria-hidden="true" />Evidence pack (STQC)
+          </button>
+          <Link href={`/review?audit=${params.id}`} className="btn btn-outline-secondary">Certify (expert review)</Link>
           <Link href={`/audits/${params.id}/issues`} className="btn btn-primary">See prioritised issues →</Link>
         </div>
 

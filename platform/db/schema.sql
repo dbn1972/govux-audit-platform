@@ -353,3 +353,25 @@ CREATE TABLE IF NOT EXISTS studio_runs (
 );
 CREATE INDEX IF NOT EXISTS idx_studio_org_time ON studio_runs(org_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_studio_slug ON studio_runs(public_slug) WHERE published;
+
+-- ---------- External assessments (G9 / G11 / G13 manual-assurance ledger) ----------
+-- Records of assurance work automation cannot produce: CERT-In empanelled VAPT,
+-- native mobile-app accessibility audits, lived-experience (disabled-user) panel
+-- reviews and STQC certification outcomes. Advisory evidence only — surfaced in
+-- the evidence pack and compliance views, never part of the deterministic score.
+CREATE TABLE IF NOT EXISTS external_assessments (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id       UUID NOT NULL REFERENCES organisations(id),
+    domain_id    UUID REFERENCES domains(id),
+    kind         TEXT NOT NULL,                     -- vapt | native_app_a11y | lived_experience_panel | stqc_certification | other
+    title        TEXT NOT NULL,
+    agency       TEXT,                              -- who performed it (CERT-In empanelled firm, STQC lab, panel org)
+    assessed_on  DATE,
+    outcome      TEXT NOT NULL DEFAULT 'in_progress',   -- passed | failed | partial | in_progress
+    summary      TEXT,
+    report_ref   TEXT,                              -- file no. / URL / certificate id of the external report
+    created_by   UUID REFERENCES users(id),
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_extassess_org_time ON external_assessments(org_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_extassess_domain   ON external_assessments(domain_id);

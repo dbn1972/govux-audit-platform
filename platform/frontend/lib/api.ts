@@ -110,6 +110,16 @@ export const api = {
   },
   studioPublish: (id: string, publish: boolean, title?: string) =>
     req(`/v1/studio/${id}/publish`, { method: "POST", body: JSON.stringify({ publish, title }) }),
+  // manual-assurance ledger (G9/G11/G13) + STQC evidence pack (G12)
+  listAssessments: (kind?: string) => req(`/v1/assessments${kind ? `?kind=${kind}` : ""}`),
+  createAssessment: (body: any) =>
+    req("/v1/assessments", { method: "POST", body: JSON.stringify(body) }),
+  evidencePack: async (taskId: string): Promise<Blob> => {
+    const r = await fetch(`/api/v1/audits/${taskId}/evidence`,
+      { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });
+    if (!r.ok) throw new Error("Evidence pack not ready");
+    return r.blob();
+  },
   studioTenants: () => req("/v1/studio/tenants"),
   studioSetTenant: (orgId: string, enabled: boolean) =>
     req(`/v1/studio/tenants/${orgId}`, { method: "PATCH", body: JSON.stringify({ enabled }) }),
