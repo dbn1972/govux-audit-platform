@@ -54,6 +54,32 @@ def test_status_and_report_lifecycle(client, ctx, verified_domain, db, monkeypat
     assert any(f["severity"] == "critical" for f in rep["findings"])
 
 
+def test_unreachable_site_yields_insufficient_evidence_not_a_band(
+        client, ctx, verified_domain, db, monkeypatch):
+    """Coverage-confidence gate: a site the engine couldn't capture (home
+    unreachable / zero pages analysed) must NOT be scored — no band, no false
+    verdict. This is the umang.gov.in case: unreachable -> all-60 fillers."""
+    from app import worker
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+        "url": url,
+        # fillers the engine emits when nothing loaded — must be ignored
+        "categories": {"accessibility": 60, "usability": 60, "gigw": 60, "design": 70,
+                       "performance": 60, "responsiveness": 60, "content": 60, "trust": 60},
+        "cwv": {}, "findings": [], "pages": [], "pages_total": 0,
+        "evidence": {"home_reachable": False, "pages_analysed": 0, "pages_total": 0},
+    })
+    sub = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)})
+    tid = sub.json()["task_id"]
+    worker.process(tid, {"domain": verified_domain.url})
+
+    st = client.get(f"/v1/audits/{tid}", headers=ctx["headers"]).json()
+    assert st["status"] == "insufficient_evidence"
+    assert st["overall_score"] is None
+    assert st["band"] is None
+    # the report is not "ready" for an unscored audit
+    assert client.get(f"/v1/audits/{tid}/report", headers=ctx["headers"]).status_code == 409
+
+
 def test_history_and_compare(client, ctx, verified_domain, db, monkeypatch):
     from app import worker
     monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
@@ -200,3 +226,76 @@ def test_worker_ml_advisory(client, ctx, verified_domain, db, monkeypatch):
 def test_remediation_missing_task(client, ctx):
     assert client.get(f"/v1/audits/{uuid.uuid4()}/remediation",
                       headers=ctx["headers"]).status_code == 404
+
+
+def test_integrity_flags_gaming_and_caps_verdict(client, ctx, verified_domain, db, monkeypatch):
+    """An engine overlay finding -> audit.integrity.flagged and a capped verdict."""
+    from app import worker
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+        "url": url, "categories": {k: 92 for k in
+            ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+        "cwv": {}, "findings": [{"category": "accessibility", "severity": "high",
+                                 "guideline": "Integrity-overlay", "title": "Accessibility overlay detected"}]})
+    r = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r["task_id"], {"domain": verified_domain.url})
+    rep = client.get(f"/v1/audits/{r['task_id']}/report", headers=ctx["headers"]).json()
+    assert rep["integrity"]["flagged"] is True
+    assert any(t["key"] == "accessibility-overlay" for t in rep["integrity"]["techniques"])
+    assert rep["compliance"]["status"] != "compliant"     # gaming caps the verdict
+
+
+def test_remediation_ai_enrichment_opt_in(client, ctx, verified_domain, db, monkeypatch):
+    """?enrich=1 adds advisory LLM guidance when enabled; deterministic guidance stays."""
+    from app import worker
+    from app.services import llm_advisor
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+        "url": url, "categories": {k: 70 for k in
+            ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+        "cwv": {}, "findings": [{"category": "trust", "severity": "medium", "guideline": "Security",
+                                 "title": "Missing security header: HSTS", "effort": "low"}]})
+    r = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r["task_id"], {"domain": verified_domain.url})
+
+    # default: no AI, deterministic remediation present
+    base = client.get(f"/v1/audits/{r['task_id']}/remediation", headers=ctx["headers"]).json()
+    assert base["ai_available"] is False
+    assert base["items"] and base["items"][0].get("remediation")
+    assert "remediation_ai" not in base["items"][0]
+
+    # enable Advisory AI + inject a fake model, then opt in
+    monkeypatch.setattr(llm_advisor, "is_enabled", lambda: True)
+    monkeypatch.setattr(llm_advisor, "enrich", lambda f, b, h: "AI: enable HSTS on your web server")
+    enr = client.get(f"/v1/audits/{r['task_id']}/remediation?enrich=1", headers=ctx["headers"]).json()
+    assert enr["ai_available"] is True
+    assert any(str(it.get("remediation_ai", "")).startswith("AI:") for it in enr["items"])
+
+
+def test_list_audits_org_fenced(client, ctx, verified_domain, db, monkeypatch):
+    """GET /v1/audits returns the org's audits; another org never sees them."""
+    from app import worker, security
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+        "url": url, "categories": {k: 70 for k in
+            ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+        "cwv": {}, "findings": []})
+    r = client.post("/v1/audits", headers=ctx["headers"],
+                    json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r["task_id"], {"domain": verified_domain.url})
+
+    lst = client.get("/v1/audits", headers=ctx["headers"])
+    assert lst.status_code == 200
+    row = next((a for a in lst.json() if a["task_id"] == r["task_id"]), None)
+    assert row is not None
+    assert row["domain"] == verified_domain.url and row["status"] == "completed"
+
+    # a different organisation must not see it (same fence as the per-audit routes)
+    org2 = models.Organisation(name="Other Dept", org_type="department")
+    db.add(org2); db.flush()
+    u2 = models.User(email=f"o.{uuid.uuid4().hex[:8]}@nic.in", org_id=org2.id,
+                     display_name="Other", role="programme_admin")
+    db.add(u2); db.flush()
+    dev2 = models.Device(user_id=u2.id, device_pubkey="pk2")
+    db.add(dev2); db.commit()
+    tok2 = security.issue_access_token(str(u2.id), u2.role, str(dev2.id))
+    other = client.get("/v1/audits", headers={"Authorization": f"Bearer {tok2}"})
+    assert other.status_code == 200
+    assert r["task_id"] not in [a["task_id"] for a in other.json()]

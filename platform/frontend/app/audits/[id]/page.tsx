@@ -5,6 +5,8 @@ import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
 const STATES = ["queued", "crawling", "analyzing", "scoring", "completed"];
+// terminal states that must stop the poll loop (else the UI spins forever)
+const TERMINAL = new Set(["completed", "failed", "insufficient_evidence", "cancelled"]);
 
 export default function Running({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<any>({ status: "queued", pages_done: 0, pages_total: 0 });
@@ -16,7 +18,7 @@ export default function Running({ params }: { params: { id: string } }) {
       try {
         const s = await api.auditStatus(params.id);
         if (!stop) setStatus(s);
-        if (!stop && s.status !== "completed" && s.status !== "failed") setTimeout(tick, 2000);
+        if (!stop && !TERMINAL.has(s.status)) setTimeout(tick, 2000);
       } catch { if (!stop) setTimeout(tick, 3000); }
     };
     tick();
@@ -53,6 +55,16 @@ export default function Running({ params }: { params: { id: string } }) {
           </div>
         ) : status.status === "failed" ? (
           <div className="alert alert-danger">Audit failed. It will be retried automatically (dead-letter after N).</div>
+        ) : status.status === "insufficient_evidence" ? (
+          <div className="alert alert-warning">
+            <b>We couldn’t capture this site, so no score was issued.</b>
+            <div className="small mt-1">
+              The home page was unreachable from the audit network — usually a timeout, a WAF, or a
+              geo-block on non-Indian traffic. A score is deliberately withheld rather than guessed from
+              incomplete evidence. Confirm the site is reachable (and allowlists our audit IPs), then run it again.
+            </div>
+            <Link href="/audits/new" className="btn btn-outline-secondary btn-sm mt-2">Try another audit →</Link>
+          </div>
         ) : (
           <div className="card shadow-sm"><div className="card-body">
             <div className="d-flex align-items-center gap-2">

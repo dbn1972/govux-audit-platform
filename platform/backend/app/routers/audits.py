@@ -5,7 +5,7 @@ of domains belonging to their own organisation (super_admin sees all). Cross-org
 access returns 404 (not 403) so it never confirms that a task_id exists.
 """
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
 from sqlalchemy import desc, text
 from sqlalchemy.orm import Session
@@ -15,7 +15,8 @@ from ..config import settings
 from .. import models
 from ..deps import current_user
 from ..schemas import AuditCreate, AuditAccepted, AuditStatus, BulkScanCreate
-from ..services import queue, remediation, ml_priority, cache, settings_store
+from ..services import (queue, remediation, ml_priority, cache, settings_store,
+                        llm_advisor, evidence_pack)
 from ..services import scoring
 from ..services.scoring import CATEGORY_WEIGHTS
 
@@ -97,6 +98,25 @@ def submit_audit(body: AuditCreate, user: models.User = Depends(current_user),
     return AuditAccepted(task_id=str(audit.id), status_url=f"/v1/audits/{audit.id}")
 
 
+@router.get("/audits")
+def list_audits(user: models.User = Depends(current_user), db: Session = Depends(get_db),
+                limit: int = 50, offset: int = 0):
+    """Every audit across the officer's organisation (super_admin: all), newest
+    first. Org-fenced exactly like the per-audit endpoints — an officer never
+    sees another organisation's audits. Paginated for large estates."""
+    limit = max(1, min(limit, 100))
+    q = (db.query(models.Audit, models.Domain)
+           .join(models.Domain, models.Audit.domain_id == models.Domain.id))
+    if user.role != "super_admin":
+        q = q.filter(models.Domain.org_id == user.org_id)
+    rows = (q.order_by(desc(models.Audit.created_at))
+              .offset(max(0, offset)).limit(limit).all())
+    return [{"task_id": str(a.id), "domain": d.url, "status": a.status,
+             "score": float(a.overall_score) if a.overall_score else None,
+             "band": a.band, "compliance_status": a.compliance_status,
+             "date": a.created_at} for a, d in rows]
+
+
 @router.get("/audits/{task_id}", response_model=AuditStatus)
 def audit_status(task_id: str, user: models.User = Depends(current_user),
                  db: Session = Depends(get_db)):
@@ -130,11 +150,23 @@ def _build_report(db, audit, task_id):
                    .filter(models.AuditDocument.audit_id == task_id).all())
     browsers = (db.query(models.AuditBrowser)
                   .filter(models.AuditBrowser.audit_id == task_id).all())
+    domain = db.get(models.Domain, audit.domain_id)
+    # lab Core Web Vitals from the homepage (the page whose url == the domain)
+    home = (db.query(models.AuditPage)
+              .filter(models.AuditPage.audit_id == task_id, models.AuditPage.lcp_ms.isnot(None))
+              .order_by(models.AuditPage.lcp_ms).first())
+    cwv = {"lcp_ms": home.lcp_ms, "cls": float(home.cls) if home and home.cls is not None else None,
+           "inp_ms": home.inp_ms} if home else None
     return {
         "task_id": str(audit.id),
+        "domain": domain.url if domain else None,
+        "date": audit.finished_at.isoformat() if audit.finished_at else (
+                audit.created_at.isoformat() if audit.created_at else None),
+        "engine_version": audit.engine_version,
         "overall_score": float(audit.overall_score),
         "band": audit.band,
         "guardrail_active": audit.guardrail_active,
+        "cwv": cwv,
         # cross-browser matrix (Chromium/Firefox/WebKit)
         "browsers": [{"engine": b.engine, "loaded": b.loaded, "status": b.status,
                       "js_errors": b.js_errors, "console_errors": b.console_errors,
@@ -144,6 +176,8 @@ def _build_report(db, audit, task_id):
         # legal verdict reported alongside — never folded into the band (G1)
         "compliance": {"status": audit.compliance_status, "method": audit.method,
                        "confidence": audit.confidence},
+        # Integrity Engine (anti-gaming) — caps the verdict, never the score
+        "integrity": audit.integrity,
         "field_data": audit.field_data,
         "pages_total": audit.pages_total,
         "coverage": (audit.scope or {}).get("coverage"),
@@ -163,9 +197,13 @@ def _build_report(db, audit, task_id):
 
 
 @router.get("/audits/{task_id}/remediation")
-def audit_remediation(task_id: str, user: models.User = Depends(current_user),
+def audit_remediation(task_id: str, enrich: bool = False,
+                      user: models.User = Depends(current_user),
                       db: Session = Depends(get_db)):
-    """Impact x effort prioritised fix list with advisory guidance (gap G5)."""
+    """Impact x effort prioritised fix list with advisory guidance (gap G5).
+
+    `enrich=1` adds plain-language LLM 'how to fix' guidance per item when an
+    admin has enabled Advisory AI — strictly advisory, never touches the score."""
     _owned_audit(db, task_id, user)
     findings = (db.query(models.Finding).filter(models.Finding.audit_id == task_id).all())
     items = [{"id": str(f.id), "category": f.category, "severity": f.severity,
@@ -184,8 +222,15 @@ def audit_remediation(task_id: str, user: models.User = Depends(current_user),
         for it in items:
             it["ml_priority"] = mp.get(it["id"])
 
-    return {"task_id": task_id, "items": items,
-            "ordering": "deterministic impact×effort; ml_priority is an advisory XGBoost overlay"}
+    # advisory LLM overlay — opt-in, bounded to the top items, out of the score path.
+    ai_available = llm_advisor.is_enabled()
+    if enrich and ai_available:
+        for it in items[:10]:
+            it["remediation_ai"] = llm_advisor.enrich(it, it.get("remediation", ""), it.get("code_hint", ""))
+
+    return {"task_id": task_id, "items": items, "ai_available": ai_available,
+            "ordering": "deterministic impact×effort; ml_priority is an advisory XGBoost overlay; "
+                        "remediation_ai (if present) is an advisory LLM overlay — none affect the score"}
 
 
 @router.get("/audits/{task_id}/documents")
@@ -235,7 +280,8 @@ def review_audit(task_id: str, body: ReviewDecision,
             "non_compliant", "expert_reviewed", "expert_verified",
             reason=body.notes or "expert review found blocking issues")
 
-    audit.is_reviewed = True
+    # reviewed-ness is persisted via method="expert_reviewed" (audits has no
+    # is_reviewed column — that flag lives on findings)
     audit.compliance_status = comp.status
     audit.method = comp.method
     audit.confidence = comp.confidence
@@ -247,6 +293,32 @@ def review_audit(task_id: str, body: ReviewDecision,
     return {"task_id": task_id, "is_reviewed": True,
             "compliance": {"status": comp.status, "method": comp.method,
                            "confidence": comp.confidence, "reason": comp.reason}}
+
+
+@router.get("/audits/{task_id}/evidence")
+def audit_evidence(task_id: str, user: models.User = Depends(current_user),
+                   db: Session = Depends(get_db)):
+    """STQC evidence pack (G12): a ZIP of the audit's machine- and human-readable
+    evidence plus the org's external-assessment ledger — everything a department
+    submits alongside an STQC certification request. Deterministic, org-fenced."""
+    audit = _owned_audit(db, task_id, user, require_completed=True)
+    report = _build_report(db, audit, task_id)
+    domain = db.get(models.Domain, audit.domain_id)
+    # ledger rows for this domain, plus the org-wide ones not tied to a domain
+    rows = (db.query(models.ExternalAssessment)
+              .filter(models.ExternalAssessment.org_id == domain.org_id,
+                      (models.ExternalAssessment.domain_id == audit.domain_id)
+                      | (models.ExternalAssessment.domain_id.is_(None)))
+              .order_by(models.ExternalAssessment.created_at).all())
+    assessments = [{"kind": a.kind, "title": a.title, "agency": a.agency,
+                    "assessed_on": a.assessed_on.isoformat() if a.assessed_on else None,
+                    "outcome": a.outcome, "summary": a.summary,
+                    "report_ref": a.report_ref} for a in rows]
+    blob = evidence_pack.build(report, assessments,
+                               reviewed=(audit.method == "expert_reviewed"))
+    return Response(content=blob, media_type="application/zip",
+                    headers={"Content-Disposition":
+                             f'attachment; filename="govux-evidence-{task_id}.zip"'})
 
 
 @router.get("/audits/{task_id}/trend")

@@ -1,0 +1,12 @@
+# Copy to group_vars/all.yml and ENCRYPT with ansible-vault:
+#   ansible-vault encrypt platform/deploy/ansible/group_vars/all.yml
+# Generate secrets: python -c "import secrets;print(secrets.token_urlsafe(48))"
+
+postgres_user: govux
+postgres_db: govux
+postgres_password: "REPLACE-strong-db-password"
+
+govux_jwt_secret: "REPLACE-strong-value"          # signs tokens + OTP/refresh HMACs
+govux_secret_key: "REPLACE-DIFFERENT-strong-value" # encrypts secrets at rest; MUST differ
+govux_cors_origins: "https://govux.gov.in"
+govux_crux_api_key: ""                             # optional

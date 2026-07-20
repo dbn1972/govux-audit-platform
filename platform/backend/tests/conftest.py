@@ -22,6 +22,9 @@ class FakeRedis:
         self.exp: dict[str, int] = {}
         self.hashes: dict[str, dict] = {}
 
+    def ping(self):
+        return True
+
     def get(self, k):
         return self.store.get(k)
 

@@ -10,7 +10,7 @@ from ..config import settings
 from .. import models, security
 from ..schemas import OtpRequest, OtpVerify, TokenPair, DeviceOut
 from ..deps import current_user
-from ..services import ratelimit, captcha, authguard, settings_store
+from ..services import ratelimit, captcha, authguard, settings_store, audit_log
 from ..services import email as email_svc
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
@@ -24,6 +24,77 @@ def _client_ip(request: Request) -> str | None:
         return host
     except (ValueError, TypeError):
         return None
+
+
+@router.get("/me")
+def me(user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    """The signed-in identity, role and entitlements — so the UI can tailor the
+    navigation and surface quotas instead of showing dead-ends."""
+    is_steward = user.role in ("programme_admin", "super_admin")
+    free_pages = settings_store.get_int("free_registered_pages", settings.free_registered_pages)
+    org = db.get(models.Organisation, user.org_id) if user.org_id else None
+    return {
+        "id": str(user.id), "email": user.email, "display_name": user.display_name,
+        "role": user.role, "is_steward": is_steward,
+        "org_id": str(user.org_id) if user.org_id else None,
+        "org_name": org.name if org else None,
+        "entitlements": {
+            "unlimited_audits": True,
+            "free_pages_per_audit": free_pages,
+            "can_request_larger_crawl": True,
+        },
+    }
+
+
+@router.get("/me/export")
+def export_my_data(request: Request, user: models.User = Depends(current_user),
+                   db: Session = Depends(get_db)):
+    """DPDP right to access — return every piece of personal data the platform
+    holds about the signed-in user (no secrets: token/OTP hashes are excluded).
+    The export itself is logged, since it extracts PII."""
+    devices = db.query(models.Device).filter(models.Device.user_id == user.id).all()
+    sessions = db.query(models.Session).filter(models.Session.user_id == user.id).all()
+    reqs = db.query(models.ScanRequest).filter(models.ScanRequest.user_id == user.id).all()
+    logs = (db.query(models.AuditLog).filter(models.AuditLog.actor_id == user.id)
+              .order_by(desc(models.AuditLog.created_at)).limit(500).all())
+    audits = db.query(models.Audit).filter(models.Audit.requested_by == user.id).all()
+    audit_log.record(db, user.id, "dpdp_export", ip=_client_ip(request))
+    db.commit()
+    return {
+        "profile": {"id": str(user.id), "email": user.email, "display_name": user.display_name,
+                    "role": user.role, "created_at": user.created_at, "last_login_at": user.last_login_at},
+        "devices": [{"label": d.label, "user_agent": d.user_agent, "last_ip": str(d.last_ip) if d.last_ip else None,
+                     "last_location": d.last_location, "last_active_at": d.last_active_at} for d in devices],
+        "sessions": [{"created_at": s.created_at, "expires_at": s.expires_at,
+                      "revoked_at": s.revoked_at} for s in sessions],
+        "scan_requests": [{"requested_pages": r.requested_pages, "reason": r.reason,
+                           "status": r.status, "created_at": r.created_at} for r in reqs],
+        "activity": [{"action": lg.action, "target": lg.target,
+                      "ip": str(lg.ip) if lg.ip else None, "at": lg.created_at} for lg in logs],
+        "audits_requested": [{"id": str(a.id), "status": a.status, "created_at": a.created_at} for a in audits],
+    }
+
+
+@router.delete("/me")
+def erase_my_data(request: Request, user: models.User = Depends(current_user),
+                  db: Session = Depends(get_db)):
+    """DPDP right to erasure — remove the user's personal data. Audit records are
+    retained (a lawful-purpose record of who audited a public site) but stripped
+    of PII: the account is anonymised, sessions and device keys are deleted, and
+    IPs on the user's activity log are cleared. Irreversible."""
+    uid = user.id
+    db.query(models.Session).filter(models.Session.user_id == uid).delete()
+    db.query(models.Device).filter(models.Device.user_id == uid).delete()
+    for lg in db.query(models.AuditLog).filter(models.AuditLog.actor_id == uid).all():
+        lg.ip = None
+    # anonymise: keep the row (FKs from audits) but drop identifiers. The tombstone
+    # email stays gov-domain-valid (DB CHECK) and unique via the user id.
+    user.email = f"erased-{uid}@erased.nic.in"
+    user.display_name = None
+    user.is_active = False
+    audit_log.record(db, None, "dpdp_erase", target=str(uid), ip=_client_ip(request))
+    db.commit()
+    return {"status": "erased", "message": "Your personal data has been removed. This device is now signed out."}
 
 
 @router.post("/otp/request", status_code=202)

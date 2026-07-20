@@ -97,13 +97,13 @@ export default function ScanLanding() {
         <div className="container d-flex align-items-center justify-content-between py-1" style={{ fontSize: 12.5 }}>
           <span className="d-flex align-items-center gap-2">
             <span aria-hidden>🇮🇳</span> <b>Government of India</b>
-            <span className="text-secondary d-none d-sm-inline">| Ministry of Electronics &amp; Information Technology</span>
+            <span className="d-none d-sm-inline" style={{ color: "#b9c4d6" }}>| Ministry of Electronics &amp; Information Technology</span>
           </span>
           <span className="d-flex align-items-center gap-3">
             <span className="btn-group" role="group" aria-label="Text size">
-              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1" }} onClick={() => setFontScale(s => Math.min(140, s + 10))} aria-label="Increase text size">A+</button>
-              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1" }} onClick={() => setFontScale(100)} aria-label="Reset text size">A</button>
-              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1" }} onClick={() => setFontScale(s => Math.max(80, s - 10))} aria-label="Decrease text size">A−</button>
+              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1", minWidth: 30, minHeight: 24 }} onClick={() => setFontScale(s => Math.min(140, s + 10))} aria-label="Increase text size">A+</button>
+              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1", minWidth: 30, minHeight: 24 }} onClick={() => setFontScale(100)} aria-label="Reset text size">A</button>
+              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1", minWidth: 30, minHeight: 24 }} onClick={() => setFontScale(s => Math.max(80, s - 10))} aria-label="Decrease text size">A−</button>
             </span>
             <span className="d-none d-sm-inline">English ▾</span>
           </span>

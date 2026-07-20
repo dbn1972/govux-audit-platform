@@ -39,11 +39,20 @@ export const api = {
   verifyOtp: (email: string, code: string, device_pubkey: string, trust_device = true) =>
     req("/v1/auth/otp/verify", { method: "POST",
       body: JSON.stringify({ email, code, device_pubkey, trust_device }) }),
+  me: () => req("/v1/auth/me"),
+  exportMyData: () => req("/v1/auth/me/export"),
+  eraseMyData: () => req("/v1/auth/me", { method: "DELETE" }),
   devices: () => req("/v1/auth/devices"),
+  scanRequests: () => req("/v1/scan-requests"),
+  createScanRequest: (domain_id: string, requested_pages: number, reason?: string) =>
+    req("/v1/scan-requests", { method: "POST", body: JSON.stringify({ domain_id, requested_pages, reason }) }),
+  decideScanRequest: (id: string, status: "approved" | "rejected") =>
+    req(`/v1/scan-requests/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
   revokeDevice: (id: string) => req(`/v1/auth/devices/${id}`, { method: "DELETE" }),
   listDomains: () => req("/v1/domains"),
   submitAudit: (domain_id: string) =>
     req("/v1/audits", { method: "POST", body: JSON.stringify({ domain_id }) }),
+  listAudits: () => req("/v1/audits"),
   auditStatus: (taskId: string) => req(`/v1/audits/${taskId}`),
   auditReport: (taskId: string) => req(`/v1/audits/${taskId}/report`),
   reviewAudit: (taskId: string, approved: boolean, notes?: string) =>
@@ -67,7 +76,8 @@ export const api = {
   bulkScan: (scope: string) =>
     req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),
   // gap-closure endpoints
-  remediation: (taskId: string) => req(`/v1/audits/${taskId}/remediation`),
+  remediation: (taskId: string, enrich = false) =>
+    req(`/v1/audits/${taskId}/remediation${enrich ? "?enrich=1" : ""}`),
   auditDocuments: (taskId: string) => req(`/v1/audits/${taskId}/documents`),
   schedules: () => req("/v1/schedules"),
   createSchedule: (domain_id: string, cadence: string) =>
@@ -84,4 +94,33 @@ export const api = {
   testEmail: (to: string) =>
     req("/v1/admin/config/test-email", { method: "POST", body: JSON.stringify({ to }) }),
   adminMetrics: () => req("/v1/admin/config/metrics-summary"),
+  // GovUX Studio
+  studioCreate: (body: any) => req("/v1/studio", { method: "POST", body: JSON.stringify(body) }),
+  listStudio: () => req("/v1/studio"),
+  studioGet: (id: string) => req(`/v1/studio/${id}`),
+  studioPreview: async (id: string, file: string): Promise<string> => {
+    const r = await fetch(`/api/v1/studio/${id}/preview/${file}`,
+      { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });
+    return r.ok ? r.text() : "";
+  },
+  studioDownload: async (id: string): Promise<Blob> => {
+    const r = await fetch(`/api/v1/studio/${id}/download`,
+      { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });
+    return r.blob();
+  },
+  studioPublish: (id: string, publish: boolean, title?: string) =>
+    req(`/v1/studio/${id}/publish`, { method: "POST", body: JSON.stringify({ publish, title }) }),
+  // manual-assurance ledger (G9/G11/G13) + STQC evidence pack (G12)
+  listAssessments: (kind?: string) => req(`/v1/assessments${kind ? `?kind=${kind}` : ""}`),
+  createAssessment: (body: any) =>
+    req("/v1/assessments", { method: "POST", body: JSON.stringify(body) }),
+  evidencePack: async (taskId: string): Promise<Blob> => {
+    const r = await fetch(`/api/v1/audits/${taskId}/evidence`,
+      { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });
+    if (!r.ok) throw new Error("Evidence pack not ready");
+    return r.blob();
+  },
+  studioTenants: () => req("/v1/studio/tenants"),
+  studioSetTenant: (orgId: string, enabled: boolean) =>
+    req(`/v1/studio/tenants/${orgId}`, { method: "PATCH", body: JSON.stringify({ enabled }) }),
 };

@@ -12,7 +12,7 @@ CREATE TYPE user_role      AS ENUM ('owner','contributor','assessor','programme_
 CREATE TYPE org_type       AS ENUM ('ministry','department','state','ut','psu','other');
 CREATE TYPE verify_method  AS ENUM ('dns_txt','file_upload','sso_mapping');
 CREATE TYPE verify_status  AS ENUM ('pending','verified','failed');
-CREATE TYPE audit_status   AS ENUM ('queued','crawling','analyzing','scoring','completed','partial','failed','cancelled');
+CREATE TYPE audit_status   AS ENUM ('queued','crawling','analyzing','scoring','completed','partial','failed','cancelled','insufficient_evidence');
 CREATE TYPE page_status    AS ENUM ('discovered','analysed','timed_out','skipped','error');
 CREATE TYPE severity       AS ENUM ('critical','high','medium','low');
 CREATE TYPE finding_state  AS ENUM ('open','in_progress','resolved','not_applicable');
@@ -26,6 +26,7 @@ CREATE TABLE organisations (
     org_type     org_type NOT NULL,
     parent_id    UUID REFERENCES organisations(id),
     state_code   TEXT,                              -- for state/UT segmentation
+    studio_enabled BOOLEAN NOT NULL DEFAULT false,  -- GovUX Studio entitlement (super_admin approved)
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX idx_org_parent ON organisations(parent_id);
@@ -125,6 +126,7 @@ CREATE TABLE audits (
     confidence     TEXT NOT NULL DEFAULT 'automated_only',
     field_data     JSONB,                            -- CrUX real-user metrics blended into performance (gap G4)
     anomaly_score  NUMERIC(6,3),                     -- advisory ML (IsolationForest); NOT in the score path
+    integrity      JSONB,                            -- Integrity Engine result (anti-gaming); caps verdict, NOT the score
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     started_at     TIMESTAMPTZ,
     finished_at    TIMESTAMPTZ
@@ -323,3 +325,53 @@ CREATE INDEX IF NOT EXISTS idx_scanreq_domain       ON scan_requests(domain_id);
 CREATE INDEX IF NOT EXISTS idx_scanreq_decider      ON scan_requests(decided_by);
 CREATE INDEX IF NOT EXISTS idx_audit_completed_score
     ON audits(overall_score DESC) WHERE status = 'completed';
+
+-- ---------- GovUX Studio (AI prototype generator) ----------
+-- One row per generation run. Org-fenced; billable (token counts + cost). The
+-- LLM only generates the pages; the deterministic studio auditor scores them.
+CREATE TABLE IF NOT EXISTS studio_runs (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id        UUID NOT NULL REFERENCES organisations(id),
+    requested_by  UUID REFERENCES users(id),
+    status        TEXT NOT NULL DEFAULT 'generating',    -- generating | scored | failed
+    inputs        JSONB NOT NULL DEFAULT '{}'::jsonb,
+    pages         JSONB,                                  -- {filename: html}
+    overall_score NUMERIC(5,2),
+    band          TEXT,
+    iterations    INTEGER NOT NULL DEFAULT 0,
+    findings      JSONB,
+    input_tokens  INTEGER NOT NULL DEFAULT 0,
+    output_tokens INTEGER NOT NULL DEFAULT 0,
+    cost_inr      NUMERIC(10,2) NOT NULL DEFAULT 0,
+    error         TEXT,
+    published     BOOLEAN NOT NULL DEFAULT false,   -- public showcase
+    public_slug   TEXT UNIQUE,
+    published_at  TIMESTAMPTZ,
+    title         TEXT,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    finished_at   TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_studio_org_time ON studio_runs(org_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_studio_slug ON studio_runs(public_slug) WHERE published;
+
+-- ---------- External assessments (G9 / G11 / G13 manual-assurance ledger) ----------
+-- Records of assurance work automation cannot produce: CERT-In empanelled VAPT,
+-- native mobile-app accessibility audits, lived-experience (disabled-user) panel
+-- reviews and STQC certification outcomes. Advisory evidence only — surfaced in
+-- the evidence pack and compliance views, never part of the deterministic score.
+CREATE TABLE IF NOT EXISTS external_assessments (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id       UUID NOT NULL REFERENCES organisations(id),
+    domain_id    UUID REFERENCES domains(id),
+    kind         TEXT NOT NULL,                     -- vapt | native_app_a11y | lived_experience_panel | stqc_certification | other
+    title        TEXT NOT NULL,
+    agency       TEXT,                              -- who performed it (CERT-In empanelled firm, STQC lab, panel org)
+    assessed_on  DATE,
+    outcome      TEXT NOT NULL DEFAULT 'in_progress',   -- passed | failed | partial | in_progress
+    summary      TEXT,
+    report_ref   TEXT,                              -- file no. / URL / certificate id of the external report
+    created_by   UUID REFERENCES users(id),
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_extassess_org_time ON external_assessments(org_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_extassess_domain   ON external_assessments(domain_id);

@@ -37,10 +37,27 @@ Gunicorn (multi-worker) + `next build && next start`, **two** Redis instances
 (durable AOF-persisted queue vs. LRU cache), health checks, resource limits,
 non-root API, a **worker fleet**, and **migrations applied on boot**.
 
-### 3.1 Configure secrets
+### 3.0 Guided setup (recommended first step)
+
+Not sure how to size it? Run the wizard — it asks a few business questions,
+recommends a topology (Small / Medium / Enterprise / HA), and **generates a secure
+`.env` (secrets auto-created), Helm values, and a handoff summary**:
 
 ```bash
-cp .env.example .env
+cd platform
+python3 scripts/govux-setup.py                 # interactive
+# or, non-interactively (CI/DevOps):
+python3 scripts/govux-setup.py --answers scripts/setup-answers.example.json --out deploy-out
+```
+
+Its `.env` feeds §3.1, and its `helm-values.yaml` feeds §3.3.
+
+### 3.1 Validate prerequisites, then configure secrets
+
+```bash
+cd platform
+./scripts/preinstall-check.sh --prod     # blocks on missing docker/ports/secrets
+cp .env.example .env                     # or use the wizard's deploy-out/.env
 # edit .env — set REAL values (see §4). The API will NOT boot without them.
 ```
 
@@ -52,14 +69,64 @@ python -c "import secrets; print(secrets.token_urlsafe(48))"
 ### 3.2 Launch
 
 ```bash
-docker compose -f platform/docker-compose.prod.yml --env-file .env up -d
-docker compose -f platform/docker-compose.prod.yml ps      # all healthy?
+# from the platform/ directory
+docker compose -f docker-compose.prod.yml --env-file .env up -d
+docker compose -f docker-compose.prod.yml ps               # all healthy?
 curl -s http://<host>:8000/healthz                          # {"status":"ok"}
+./scripts/diagnostic-bundle.sh -f docker-compose.prod.yml   # capture a support snapshot anytime
 ```
 
 Migrations run automatically via `entrypoint.sh` (`alembic upgrade head`) before
 the API starts. To seed reference data (guideline library etc.) run your seed step
 once against the production DB.
+
+### 3.3 Kubernetes (Helm) — medium/large & enterprise
+
+A Helm chart mirrors the production compose (API + worker fleet + scheduler +
+public-worker + web, migrate-on-install hook, health probes, HPA hooks). It expects
+**pre-built images** and **external** Postgres/Redis/S3.
+
+```bash
+helm install govux platform/deploy/helm/govux \
+  --namespace govux --create-namespace \
+  --set image.registry=registry.gov.in/ \
+  --set secrets.jwtSecret="$(python -c 'import secrets;print(secrets.token_urlsafe(48))')" \
+  --set secrets.secretKey="$(python -c 'import secrets;print(secrets.token_urlsafe(48))')" \
+  --set secrets.databaseUrl='postgresql+psycopg://USER:PASS@HOST:5432/govux' \
+  --set config.redisUrl='redis://redis:6379/0' \
+  --set config.cacheRedisUrl='redis://redis-cache:6379/0' \
+  --set ingress.enabled=true --set ingress.host=govux.gov.in
+```
+
+Full values, upgrade/rollback, and autoscaling guidance:
+[`platform/deploy/helm/govux/README.md`](../platform/deploy/helm/govux/README.md).
+CI lints and renders the chart on every PR.
+
+### 3.5 Offline / air-gapped
+
+For restricted-network or air-gapped enclaves, build a self-contained bundle on a
+connected machine and install it offline (no online dependency; images carried in the
+bundle, integrity-checked, `pull_policy: never`):
+
+```bash
+cd platform && TAG=1.1 ./scripts/build-airgap-bundle.sh    # -> govux-airgap-1.1.tar.gz
+# transfer into the enclave, then: tar -xzf ... && cp .env.example .env && ./load-and-run.sh
+```
+
+Full procedure + guarantees: [`platform/deploy/AIRGAP.md`](../platform/deploy/AIRGAP.md).
+
+### 3.4 Automation (Terraform / Ansible)
+
+Both are provided as first-class, CI-validated starters:
+
+- **Terraform** ([`platform/deploy/terraform`](../platform/deploy/terraform)) — deploys the
+  Helm chart to an existing cluster via the `helm`+`kubernetes` providers; Terraform owns
+  the Secret and enforces the JWT/master-key invariant at plan time. `terraform init &&
+  terraform apply`. CI runs `fmt -check` + `validate`.
+- **Ansible** ([`platform/deploy/ansible`](../platform/deploy/ansible)) — installs Docker,
+  fetches the source, renders a vault-encrypted `.env`, runs the pre-install validator,
+  launches the Compose stack, and waits for `/healthz`. `ansible-playbook -i inventory.ini
+  deploy.yml --ask-vault-pass`. CI runs `--syntax-check` + `ansible-lint` (production profile).
 
 ## 4. Required environment variables
 

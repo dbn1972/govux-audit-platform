@@ -63,7 +63,7 @@ def verify_frontend():
         if "export default" not in t: problems.append("no default export")
         # every authed page mounts the shell; login/report/public-scan are exceptions
         authed = not route.endswith(("/login",))
-        if authed and route not in ("/report", "/scan") and "AppShell" not in t:
+        if authed and route not in ("/report", "/scan", "/showcase/[slug]") and "AppShell" not in t:
             problems.append("no AppShell")
         # data pages should call the api
         if any(k in route for k in ("/audits/", "/domains", "/settings", "/admin", "/library")) \

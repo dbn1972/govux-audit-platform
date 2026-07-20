@@ -2,6 +2,7 @@
 import re
 import secrets
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
@@ -35,8 +36,32 @@ def list_domains(user: models.User = Depends(current_user), db: Session = Depend
 
     def _load():
         rows = db.query(models.Domain).filter(models.Domain.org_id == user.org_id).all()
-        return [{"id": str(d.id), "url": d.url, "verify_status": d.verify_status,
-                 "category": d.service_category} for d in rows]
+        # enrich each domain with its latest *scored* audit so the table shows the
+        # outcome (score/band/when), not just verification status.
+        latest: dict = {}
+        ids = [d.id for d in rows]
+        if ids:
+            rn = func.row_number().over(partition_by=models.Audit.domain_id,
+                                        order_by=desc(models.Audit.created_at)).label("rn")
+            ranked = (db.query(models.Audit.domain_id.label("did"),
+                               models.Audit.overall_score.label("score"),
+                               models.Audit.band.label("band"),
+                               models.Audit.created_at.label("ts"), rn)
+                        .filter(models.Audit.domain_id.in_(ids),
+                                models.Audit.status == "completed",
+                                models.Audit.overall_score.isnot(None)).subquery())
+            for did, score, band, ts in (db.query(ranked.c.did, ranked.c.score, ranked.c.band, ranked.c.ts)
+                                           .filter(ranked.c.rn == 1).all()):
+                latest[did] = (float(score), band, ts.isoformat() if ts else None)
+        out = []
+        for d in rows:
+            ls = latest.get(d.id)
+            out.append({"id": str(d.id), "url": d.url, "verify_status": d.verify_status,
+                        "category": d.service_category,
+                        "latest_score": ls[0] if ls else None,
+                        "latest_band": ls[1] if ls else None,
+                        "last_audited_at": ls[2] if ls else None})
+        return out
     return cache.get_or_set(_domains_key(user.org_id), ttl, _load)
 
 

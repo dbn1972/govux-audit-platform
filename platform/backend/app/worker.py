@@ -14,9 +14,10 @@ from datetime import datetime, timezone
 from .database import SessionLocal
 from .config import settings
 from . import models
+from sqlalchemy import desc
 from .services import queue, cache
 from .services.scoring import compute_score, compliance_verdict, CATEGORY_WEIGHTS
-from .services import crux, remediation, pdf_audit, ml_anomaly, design_cv
+from .services import crux, remediation, pdf_audit, ml_anomaly, design_cv, integrity, settings_store
 
 ENGINE = os.path.join(os.path.dirname(__file__), "..", "audit_engine", "runner.js")
 COMPAT = os.path.join(os.path.dirname(__file__), "..", "audit_engine", "compat.js")
@@ -146,6 +147,36 @@ def process(task_id: str, payload: dict):
         if result.get("coverage"):
             audit.scope = {**(audit.scope or {}), "coverage": result["coverage"]}
 
+        # --- coverage-confidence gate (never score a site we couldn't capture) ---
+        # If the home page never loaded (timeout / WAF / geo-block) or no page was
+        # analysed, the engine's category values are fillers, not evidence. Emitting
+        # a GovUX band from them produces a false verdict (the umang.gov.in case:
+        # unreachable -> all-60 fillers -> a bogus "Band D"). Refuse: mark the audit
+        # `insufficient_evidence` with no band, and stop before scoring.
+        ev = result.get("evidence") or {}
+        if not ev.get("home_reachable", True) or ev.get("pages_analysed", 1) == 0:
+            audit.status = "insufficient_evidence"
+            audit.overall_score = None
+            audit.band = None
+            audit.compliance_status = "not_assessed"
+            audit.method = "automated"
+            audit.pages_total = result.get("pages_total") or 0
+            audit.pages_done = 0
+            db.add(models.Finding(
+                audit_id=audit.id, category="trust", severity="high",
+                guideline_id="Evidence",
+                title=("Home page could not be captured — the site was unreachable from "
+                       "the audit network (timeout / WAF / geo-block). No GovUX score is "
+                       "issued without real evidence."),
+                remediation=("Confirm the site is reachable and allowlists the audit "
+                             "egress IPs, then re-run the audit."),
+                confidence="automated"))
+            audit.finished_at = datetime.now(timezone.utc)
+            db.commit()
+            queue.set_status(task_id, "insufficient_evidence")
+            os.path.exists(shot) and os.remove(shot)
+            return
+
         # --- deterministic CV design score (replaces the hardcoded design: 70) ---
         try:
             cv = design_cv.score_from_path(shot)
@@ -189,8 +220,23 @@ def process(task_id: str, payload: dict):
                 effort=f.get("effort"), title=f.get("title"),
                 remediation=g.remediation, confidence="automated"))
 
+        # --- Integrity Engine (anti-gaming) — detects gaming from the findings +
+        #     an implausible jump vs the previous audit. Caps the verdict, never
+        #     the deterministic score. Feature-flagged. ---
+        prev = (db.query(models.Audit)
+                  .filter(models.Audit.domain_id == audit.domain_id,
+                          models.Audit.status == "completed",
+                          models.Audit.overall_score.isnot(None),
+                          models.Audit.id != audit.id)
+                  .order_by(desc(models.Audit.created_at)).first())
+        integ = integrity.assess(engine_findings, float(score.overall),
+                                 float(prev.overall_score) if prev else None,
+                                 enabled=settings_store.get_bool("integrity_enabled", True))
+        audit.integrity = integ
+
         # --- legal compliance verdict, SEPARATE from the band (gap G1) ---
-        comp = compliance_verdict(score.categories, critical_a11y, reviewed=False)
+        comp = compliance_verdict(score.categories, critical_a11y, reviewed=False,
+                                  integrity_flagged=integ["flagged"])
         audit.compliance_status = comp.status
         audit.method = comp.method
         audit.confidence = comp.confidence
@@ -226,8 +272,9 @@ def process(task_id: str, payload: dict):
         except Exception as exc:
             print("ml advisory error:", exc)
 
-        # a completed audit changes the national/rankings aggregates -> drop their cache
-        for _pfx in ("national", "rankings", "ministries", "states"):
+        # a completed audit changes the national/rankings aggregates AND each org's
+        # domain list (latest score/band) -> drop their caches
+        for _pfx in ("national", "rankings", "ministries", "states", "domains"):
             cache.invalidate_prefix(_pfx)
         queue.set_status(task_id, "completed",
                          {"overall_score": score.overall, "band": score.band,

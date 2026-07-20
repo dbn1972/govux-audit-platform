@@ -80,10 +80,14 @@ docker compose exec api pytest                  # backend suite (≥80% gate)
 ## Quick start (production)
 
 ```bash
-cp .env.example .env        # then set REAL secrets (the API refuses to boot without them)
-cp .env.example .env        # EDIT .env and set REAL secrets (API refuses to boot without them)
-docker compose -f platform/docker-compose.prod.yml --env-file .env up -d
+cd platform
+python3 scripts/govux-setup.py          # guided: sizes the deployment + generates a secure .env
+./scripts/preinstall-check.sh --prod    # validate prerequisites + secrets
+docker compose -f docker-compose.prod.yml --env-file deploy-out/.env up -d
 ```
+
+Prefer to configure by hand? `cp .env.example .env`, set real secrets, and use `--env-file .env`.
+For Kubernetes, the wizard also emits `helm-values.yaml` — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 Runs Gunicorn (multi-worker) + `next start`, a **split & AOF-persisted** Redis (durable queue vs. cache), health checks, resource limits, and **migrations on boot**. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
@@ -91,11 +95,15 @@ Runs Gunicorn (multi-worker) + `next start`, a **split & AOF-persisted** Redis (
 
 | Audience | Document |
 |---|---|
+| ⬇️ Installing it | [**Installation Guide**](INSTALL.md) · [**Dependency Manifest**](docs/DEPENDENCIES.md) · [Configuration Reference](docs/CONFIGURATION.md) |
 | 👤 Government users (officers, assessors, admins) | [**User Manual**](docs/USER_MANUAL.md) |
-| 🚀 Operators / DevOps | [**Deployment Guide**](docs/DEPLOYMENT.md) · [**Operations Runbook**](docs/OPERATIONS.md) |
-| 🧑‍💻 Engineers | [Architecture](platform/docs/ARCHITECTURE.md) · [API](platform/docs/API.md) · [Data Access](platform/docs/DATA_ACCESS.md) · [Coding Standards](platform/docs/CODING_STANDARDS.md) · [Gotchas](platform/docs/GOTCHAS.md) |
+| 🚀 Operators / DevOps | [**Deployment Guide**](docs/DEPLOYMENT.md) · [**Operations Runbook**](docs/OPERATIONS.md) · [Production Readiness](docs/PRODUCTION_READINESS.md) · [Upgrade Guide](docs/UPGRADING.md) |
+| 🏛️ Architecture | [**High-Level Design (HLD)**](docs/HLD.md) · [**Low-Level Design (LLD)**](docs/LLD.md) |
+| 🧪 Proposed features | [**BRD — GovUX Studio (AI prototype generator)**](docs/BRD_GOVUX_STUDIO.md) · [**BRD — Integrity Engine (anti-gaming)**](docs/BRD_INTEGRITY_ENGINE.md) |
+| 🧑‍💻 Engineers | [Architecture Notes](platform/docs/ARCHITECTURE.md) · [API](platform/docs/API.md) · [Data Access](platform/docs/DATA_ACCESS.md) · [Coding Standards](platform/docs/CODING_STANDARDS.md) · [Gotchas](platform/docs/GOTCHAS.md) |
 | 📊 Methodology | [Scoring & Validation](platform/docs/SCORING_VALIDATION.md) |
-| 🔐 Security | [Security Policy](SECURITY.md) |
+| 🔐 Security & privacy | [Security Policy](SECURITY.md) · [Security Architecture & Threat Model](docs/SECURITY_ARCHITECTURE.md) · [Privacy & Data Protection (DPDP)](docs/PRIVACY.md) |
+| ⚖️ Legal & governance | [Third-Party Licenses](docs/THIRD_PARTY_LICENSES.md) · [SBOM](docs/SBOM.md) · [Versioning & Support Policy](docs/VERSIONING.md) · [Support](SUPPORT.md) |
 | 🤝 Contributors | [Contributing](CONTRIBUTING.md) · [Code of Conduct](CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md) |
 
 ## Tech stack

@@ -61,3 +61,50 @@ def test_protected_requires_token(client):
 def test_bad_token_rejected(client):
     r = client.get("/v1/auth/devices", headers={"Authorization": "Bearer not.a.jwt"})
     assert r.status_code == 401
+
+
+def test_me_returns_role_and_entitlements(client, ctx):
+    r = client.get("/v1/auth/me", headers=ctx["headers"])
+    assert r.status_code == 200
+    m = r.json()
+    assert m["email"] == ctx["user"].email
+    assert m["role"] == "programme_admin" and m["is_steward"] is True
+    assert m["entitlements"]["free_pages_per_audit"] >= 1
+    assert m["entitlements"]["unlimited_audits"] is True
+
+
+def test_me_owner_is_not_steward(client, db):
+    import uuid
+    from app import models, security
+    org = models.Organisation(name="Min X", org_type="ministry")
+    db.add(org); db.flush()
+    u = models.User(email=f"owner.{uuid.uuid4().hex[:8]}@nic.in", org_id=org.id, display_name="Owner X", role="owner")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    tok = security.issue_access_token(str(u.id), u.role, str(dev.id))
+    m = client.get("/v1/auth/me", headers={"Authorization": f"Bearer {tok}"}).json()
+    assert m["role"] == "owner" and m["is_steward"] is False
+
+
+def test_dpdp_export_returns_pii_and_is_logged(client, ctx, db):
+    from app import models
+    r = client.get("/v1/auth/me/export", headers=ctx["headers"])
+    assert r.status_code == 200
+    body = r.json()
+    assert body["profile"]["email"] == ctx["user"].email
+    assert "devices" in body and "activity" in body and "audits_requested" in body
+    db.expire_all()
+    assert db.query(models.AuditLog).filter(models.AuditLog.action == "dpdp_export").count() >= 1
+
+
+def test_dpdp_erase_anonymises_and_deletes_devices(client, ctx, db):
+    from app import models
+    uid = ctx["user"].id
+    r = client.delete("/v1/auth/me", headers=ctx["headers"])
+    assert r.status_code == 200 and r.json()["status"] == "erased"
+    db.expire_all()
+    u = db.get(models.User, uid)
+    assert u.email.startswith("erased-") and u.email.endswith("@erased.nic.in")
+    assert u.is_active is False and u.display_name is None
+    assert db.query(models.Device).filter(models.Device.user_id == uid).count() == 0
+    assert db.query(models.Session).filter(models.Session.user_id == uid).count() == 0

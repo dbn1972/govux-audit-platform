@@ -55,12 +55,18 @@ export default function National() {
           </div></div>
           <div className="col-lg-5"><div className="card shadow-sm h-100">
             <div className="card-header bg-white fw-semibold">Top performers</div>
-            <div className="table-responsive"><table className="table table-hover align-middle mb-0">
+            <div className="table-responsive"><table className="table table-hover align-middle mb-0 gx-responsive">
               <thead className="table-light"><tr><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
-              <tbody>{(d.league || []).map((r: any) => (
-                <tr key={r.url}><td className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{r.url}</td>
-                  <td className="fw-bold">{r.score}</td>
-                  <td><span className="badge" style={{ background: bandBg[r.band] + "22", color: bandBg[r.band] }}>{r.band}</span></td></tr>
+              <tbody>
+                {(d.league || []).length === 0 && (
+                  <tr><td colSpan={3} className="text-secondary text-center py-3">No scored audits yet.</td></tr>
+                )}
+                {(d.league || []).map((r: any) => (
+                <tr key={r.url}><td data-label="Domain" className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{r.url}</td>
+                  <td data-label="Score" className="fw-bold">{r.score ?? "—"}</td>
+                  <td data-label="Band">{r.band
+                    ? <span className="badge" style={{ background: bandBg[r.band] + "22", color: bandBg[r.band] }}>{r.band}</span>
+                    : <span className="text-secondary">—</span>}</td></tr>
               ))}</tbody>
             </table></div>
           </div></div>

@@ -108,3 +108,13 @@ def test_golden_set_regression():
         r = scoring.compute_score(cats)
         assert abs(r.overall - exp_overall) < 0.15, f"{cats} -> {r.overall}, expected {exp_overall}"
         assert r.band == exp_band
+
+
+def test_integrity_flag_caps_compliance_below_compliant():
+    from app.services.scoring import compliance_verdict
+    good = {"accessibility": 95, "trust": 90}
+    assert compliance_verdict(good, 0, reviewed=True).status == "compliant"
+    flagged = compliance_verdict(good, 0, reviewed=True, integrity_flagged=True)
+    assert flagged.status == "partially_compliant" and "integrity" in flagged.reason
+    # a genuine critical failure still dominates
+    assert compliance_verdict({"accessibility": 20}, 1, integrity_flagged=True).status == "non_compliant"

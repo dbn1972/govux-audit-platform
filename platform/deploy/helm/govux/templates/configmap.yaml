@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "govux.fullname" . }}-config
+  labels: {{- include "govux.labels" . | nindent 4 }}
+data:
+  corsOrigins: {{ .Values.config.corsOrigins | quote }}
+  redisUrl: {{ .Values.config.redisUrl | quote }}
+  cacheRedisUrl: {{ .Values.config.cacheRedisUrl | quote }}

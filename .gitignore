@@ -39,3 +39,30 @@ platform/backend/audit_engine/sweep_*/
 
 # Office temp lock files
 ~$*
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Diagnostic bundles (support scratch output)
+platform/govux-diagnostics-*
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+
+# Ansible real (non-example) inventory & vars
+platform/deploy/ansible/inventory.ini
+platform/deploy/ansible/group_vars/all.yml
+
+# Guided-setup output (contains generated secrets)
+deploy-out/
+platform/deploy-out/
+
+# Air-gapped bundles (large; contain images)
+platform/govux-airgap-*
+govux-airgap-*

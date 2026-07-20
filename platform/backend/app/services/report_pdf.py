@@ -28,7 +28,10 @@ def _bandcol(b):
     return {"A": GREEN, "B": GREEN, "C": AMBER, "D": RED, "E": RED}.get(b, MUTED)
 
 
-def build(scan: dict) -> bytes:
+def build(scan: dict, variant: str = "public") -> bytes:
+    # variant "public" = free single-page scan; "evidence" = summary sheet inside
+    # the STQC evidence pack for a full authenticated audit (G12)
+    ev = variant == "evidence"
     st = getSampleStyleSheet()
     def S(n, **k): return ParagraphStyle(n, parent=st["Normal"], **k)
     body = S("body", fontSize=9.5, leading=13, textColor=colors.HexColor("#22272e"))
@@ -37,8 +40,8 @@ def build(scan: dict) -> bytes:
     cellB = S("cellB", fontName="Helvetica-Bold", fontSize=8.6, leading=11)
     story = []
 
-    story.append(Paragraph("GOVUX AUDIT PLATFORM &nbsp;·&nbsp; Free website scan", S("eb", fontName="Helvetica-Bold", fontSize=8, textColor=MUTED, spaceAfter=6)))
-    story.append(Paragraph("Website Scan Report", S("t", fontName="Helvetica-Bold", fontSize=17, textColor=NAVY, leading=21, spaceAfter=5)))
+    story.append(Paragraph("GOVUX AUDIT PLATFORM &nbsp;·&nbsp; " + ("Audit evidence pack" if ev else "Free website scan"), S("eb", fontName="Helvetica-Bold", fontSize=8, textColor=MUTED, spaceAfter=6)))
+    story.append(Paragraph("Audit Evidence Summary" if ev else "Website Scan Report", S("t", fontName="Helvetica-Bold", fontSize=17, textColor=NAVY, leading=21, spaceAfter=5)))
     story.append(Paragraph(f"{escape(str(scan.get('url','')))} &nbsp;·&nbsp; {scan.get('date','')}", S("u", fontName="Helvetica-Bold", fontSize=11, textColor=colors.HexColor("#22272e"), spaceAfter=3)))
     story.append(Paragraph(f"Checked against GIGW 3.0, WCAG 2.2 AA and Core Web Vitals · this URL has been "
                  f"scanned <b>{scan.get('scan_count', 1)}</b> time(s) on GovUX.", small))
@@ -96,14 +99,19 @@ def build(scan: dict) -> bytes:
         ("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white, colors.HexColor("#fafbfc")])]))
     story.append(ft); story.append(Spacer(1, 12))
 
-    story.append(Paragraph("This is a free single-page automated scan. Automated testing catches ~30–40% of "
-        "accessibility issues; a full audit adds a multi-page crawl and expert review. Register with a "
-        "government email to scan up to 10 pages and save reports.", small))
+    if ev:
+        story.append(Paragraph("Summary sheet of a full automated audit — see report.json in this pack for the "
+            "complete evidence. Automated testing catches ~30–40% of accessibility issues; the legal compliance "
+            "verdict is reported separately and reaches 'compliant' only after expert review.", small))
+    else:
+        story.append(Paragraph("This is a free single-page automated scan. Automated testing catches ~30–40% of "
+            "accessibility issues; a full audit adds a multi-page crawl and expert review. Register with a "
+            "government email to scan up to 10 pages and save reports.", small))
 
     def footer(cv, doc):
         cv.saveState(); cv.setStrokeColor(LINE); cv.setLineWidth(0.5); cv.line(18*mm, 13*mm, 192*mm, 13*mm)
         cv.setFont("Helvetica", 7.3); cv.setFillColor(MUTED)
-        cv.drawString(18*mm, 9*mm, "GovUX Audit Platform · free scan · MeitY / NIC")
+        cv.drawString(18*mm, 9*mm, "GovUX Audit Platform · " + ("evidence pack" if ev else "free scan") + " · MeitY / NIC")
         cv.drawRightString(192*mm, 9*mm, f"Page {doc.page}")
         cv.restoreState()
 

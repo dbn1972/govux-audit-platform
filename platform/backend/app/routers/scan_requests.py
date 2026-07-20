@@ -10,6 +10,7 @@ from ..database import get_db
 from ..config import settings
 from .. import models
 from ..deps import current_user, require_role
+from ..services import audit_log
 
 router = APIRouter(prefix="/v1/scan-requests", tags=["quota"])
 
@@ -53,7 +54,14 @@ def list_requests(user: models.User = Depends(current_user), db: Session = Depen
     if user.role not in ("programme_admin", "super_admin"):
         q = q.filter(models.ScanRequest.user_id == user.id)     # own only
     rows = q.order_by(desc(models.ScanRequest.created_at)).limit(100).all()
-    return [{"id": str(r.id), "user_id": str(r.user_id), "domain_id": str(r.domain_id) if r.domain_id else None,
+    # resolve requester + domain to names so the approvals UI shows who/what, not UUIDs
+    uids = {r.user_id for r in rows}
+    dids = {r.domain_id for r in rows if r.domain_id}
+    users = {u.id: u.email for u in db.query(models.User).filter(models.User.id.in_(uids)).all()} if uids else {}
+    doms = {d.id: d.url for d in db.query(models.Domain).filter(models.Domain.id.in_(dids)).all()} if dids else {}
+    return [{"id": str(r.id), "user_id": str(r.user_id), "user_email": users.get(r.user_id),
+             "domain_id": str(r.domain_id) if r.domain_id else None,
+             "domain_url": doms.get(r.domain_id) if r.domain_id else None,
              "requested_pages": r.requested_pages, "reason": r.reason, "status": r.status,
              "created_at": r.created_at} for r in rows]
 
@@ -70,5 +78,7 @@ def decide_request(req_id: str, body: Decision,
     r.status = body.status
     r.decided_by = admin.id
     r.decided_at = datetime.now(timezone.utc)
+    audit_log.record(db, admin.id, f"scan_request_{body.status}", target=str(r.id),
+                     detail={"requested_pages": r.requested_pages})
     db.commit()
     return {"id": str(r.id), "status": r.status}

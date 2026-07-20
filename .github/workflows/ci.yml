@@ -1,0 +1,205 @@
+name: GovUX CI
+
+# NOTE: GitHub Actions only runs workflows found in the repository-root
+# `.github/workflows/`. The application lives under `platform/`, so every job
+# below is repo-root-relative and points into `platform/…`.
+
+on:
+  push: { branches: [main] }
+  pull_request:
+  schedule:
+    - cron: "0 2 * * *"      # nightly full run (incl. the heavy e2e job)
+  workflow_dispatch:          # run the full suite on demand from the Actions tab
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: pgvector/pgvector:pg16   # schema.sql CREATE EXTENSION vector
+        env: { POSTGRES_USER: govux, POSTGRES_PASSWORD: govux, POSTGRES_DB: govux }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U govux" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    defaults: { run: { working-directory: platform/backend } }
+    env:
+      GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@localhost:5432/govux
+      GOVUX_REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Run pytest with coverage gate (>=80%)
+        run: pytest
+
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: pgvector/pgvector:pg16   # schema.sql CREATE EXTENSION vector
+        env: { POSTGRES_USER: govux, POSTGRES_PASSWORD: govux, POSTGRES_DB: govux }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U govux" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    defaults: { run: { working-directory: platform/backend } }
+    env:
+      GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@localhost:5432/govux
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - name: Migration round-trip (apply → reverse → re-apply must all succeed)
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
+
+  screens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Screen-by-screen verification
+        run: python3 platform/scripts/verify_screens.py
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: platform/frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      # Regenerate the lockfile on the CI platform: the committed one is authored
+      # on arm64 and omits the x64 rollup optional dep (npm/cli#4828).
+      - run: rm -f package-lock.json && npm install
+      - run: npm run test          # vitest
+      - run: npm run build          # next build
+
+  e2e:
+    # Heavy: builds the whole stack + 3 Playwright browsers (~20-30 CI-min).
+    # To conserve private-repo Actions minutes it runs ONLY nightly or on demand,
+    # not on every push/PR. Trigger manually from the Actions tab ("Run workflow").
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # Pinned to jammy: Playwright 1.44's `install --with-deps` package list
+    # predates ubuntu-24.04 (noble) and its apt step fails there.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Boot the full stack (api · db · redis · web · workers)
+        working-directory: platform
+        run: docker compose up -d --build
+      - name: Wait for web + api to become ready
+        run: |
+          ok=0
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8000/healthz >/dev/null \
+               && curl -sf http://localhost:3000/login >/dev/null; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1 || { echo "stack did not become ready"; exit 1; }
+      - name: Seed demo data (report/rankings fixtures)
+        working-directory: platform
+        run: docker compose exec -T api python -m app.seed || true
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      # Run Playwright from an ISOLATED dir: platform/frontend/node_modules is
+      # owned by the compose `web` container (root) and is unwritable here, plus
+      # the E2E specs only need @playwright/test + axe — not the app's deps.
+      - name: Prepare isolated Playwright runner + browsers
+        run: |
+          mkdir -p /tmp/e2e
+          cp -r platform/frontend/e2e /tmp/e2e/e2e
+          cp platform/frontend/playwright.config.ts /tmp/e2e/
+          cd /tmp/e2e
+          npm init -y >/dev/null
+          npm install -D @playwright/test@1.44.0 @axe-core/playwright@^4.9.1
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Cross-browser E2E — a11y (axe) · responsive reflow · public flows
+        working-directory: /tmp/e2e
+        env:
+          E2E_BASE_URL: "http://localhost:3000"
+          CI: "true"
+        run: npx playwright test
+      - name: Dump stack logs on failure
+        if: failure()
+        working-directory: platform
+        run: docker compose logs --tail=200
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: /tmp/e2e/playwright-report
+          if-no-files-found: ignore
+
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - name: Lint + render the Helm chart
+        run: |
+          helm lint platform/deploy/helm/govux
+          helm template govux platform/deploy/helm/govux \
+            --set secrets.jwtSecret=ci-jwt --set secrets.secretKey=ci-key \
+            --set secrets.databaseUrl=postgresql://u:p@h/db \
+            --set ingress.enabled=true --set api.autoscaling.enabled=true \
+            --set worker.autoscaling.enabled=true > /dev/null
+
+  wizard:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: platform } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Guided-setup — recommend + generate (non-interactive)
+        run: |
+          python3 scripts/govux-setup.py --answers scripts/setup-answers.example.json --dry-run
+          python3 scripts/govux-setup.py --answers scripts/setup-answers.example.json --out /tmp/o
+          test -f /tmp/o/.env && test -f /tmp/o/SETUP_SUMMARY.md && test -f /tmp/o/helm-values.yaml
+      - name: Air-gap bundle scaffolding + integrity
+        run: |
+          bash scripts/build-airgap-bundle.sh --skip-images --out=/tmp/ag
+          ( cd /tmp/ag && sha256sum -c SHA256SUMS )
+
+  terraform:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: platform/deploy/terraform } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check
+      - run: terraform init -backend=false
+      - run: terraform validate
+
+  ansible:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: platform/deploy/ansible } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install ansible-core ansible-lint
+      - run: ansible-playbook --syntax-check -i inventory.example.ini deploy.yml
+      - run: ansible-lint deploy.yml
+
+  engine:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: platform/backend/audit_engine } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: node --check runner.js && node --check gigw-rules.js

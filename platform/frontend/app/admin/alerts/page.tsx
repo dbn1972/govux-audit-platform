@@ -16,6 +16,11 @@ export default function Alerts() {
       <div className="container-fluid p-4">
         <h1 className="h3">Exception alerts</h1>
         <p className="text-secondary small">Where quality is at risk — so the programme office can intervene early.</p>
+        <div className="alert alert-info d-flex align-items-center gap-2 py-2" role="note">
+          <i className="bi bi-info-circle" aria-hidden="true" />
+          <span><b>Preview.</b> This view shows illustrative alerts. Live estate figures are on the
+            <a href="/admin/national"> National Dashboard</a> and <a href="/admin/league"> League Table</a>.</span>
+        </div>
         <div className="row g-3 mb-3">
           {[["Band E domains", 174, "#dc3545"], ["Regressed this month", 38, "#fd7e14"],
             ["Never audited", "1,360", "#ffc107"], ["New critical spikes", 12, "#dc3545"]].map(([l, v, c]) => (

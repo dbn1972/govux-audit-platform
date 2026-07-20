@@ -1,0 +1,23 @@
+# Copy to terraform.tfvars and set real values (keep secrets out of version control).
+kubeconfig_path = "~/.kube/config"
+kube_context    = "govux-prod"
+namespace       = "govux"
+
+image_registry = "registry.gov.in/"
+image_tag      = "1.1"
+
+# Secrets — generate: python -c "import secrets;print(secrets.token_urlsafe(48))"
+jwt_secret   = "REPLACE-with-strong-value"
+secret_key   = "REPLACE-with-DIFFERENT-strong-value"
+database_url = "postgresql+psycopg://USER:PASS@managed-pg:5432/govux"
+crux_api_key = ""
+
+# External data stores (managed)
+redis_url       = "rediss://managed-queue:6379/0"
+cache_redis_url = "rediss://managed-cache:6379/0"
+cors_origins    = "https://govux.gov.in"
+
+api_replicas    = 2
+worker_replicas = 3
+ingress_enabled = true
+ingress_host    = "govux.gov.in"

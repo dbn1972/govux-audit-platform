@@ -2,7 +2,8 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import (
-    Column, Text, Boolean, Integer, BigInteger, Numeric, ForeignKey, DateTime, func,
+    Column, Text, Boolean, Integer, BigInteger, Numeric, ForeignKey, DateTime, Date,
+    func, CheckConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET, ENUM
 from .database import Base
@@ -19,7 +20,8 @@ OrgType = ENUM("ministry", "department", "state", "ut", "psu", "other", name="or
 VerifyMethod = ENUM("dns_txt", "file_upload", "sso_mapping", name="verify_method")
 VerifyStatus = ENUM("pending", "verified", "failed", name="verify_status")
 AuditStatus = ENUM("queued", "crawling", "analyzing", "scoring", "completed",
-                   "partial", "failed", "cancelled", name="audit_status")
+                   "partial", "failed", "cancelled", "insufficient_evidence",
+                   name="audit_status")
 PageStatus = ENUM("discovered", "analysed", "timed_out", "skipped", "error",
                   name="page_status")
 PublishMode = ENUM("internal", "public", name="publish_mode")
@@ -36,11 +38,17 @@ class Organisation(Base):
     org_type = Column(OrgType, nullable=False)
     parent_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"))
     state_code = Column(Text)
+    studio_enabled = Column(Boolean, nullable=False, default=False)   # Studio entitlement (super_admin)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class User(Base):
     __tablename__ = "users"
+    # gov-only access (invariant #4) enforced at the DB layer too — kept in sync
+    # with db/schema.sql's chk_gov_email so an ORM-built schema has it as well.
+    __table_args__ = (
+        CheckConstraint(r"email ~* '[@.](gov|nic)\.in$'", name="chk_gov_email"),
+    )
     id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
     email = Column(Text, unique=True, nullable=False)
     org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"))
@@ -93,6 +101,10 @@ class Session(Base):
 
 class Domain(Base):
     __tablename__ = "domains"
+    # gov-only access (invariant #4) at the DB layer, in sync with db/schema.sql.
+    __table_args__ = (
+        CheckConstraint(r"url ~* '(\.gov\.in|\.nic\.in)$'", name="chk_gov_domain"),
+    )
     id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
     org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
     url = Column(Text, unique=True, nullable=False)
@@ -125,6 +137,7 @@ class Audit(Base):
     confidence = Column(Text, nullable=False, default="automated_only")
     field_data = Column(JSONB)            # CrUX real-user metrics (G4)
     anomaly_score = Column(Numeric(6, 3))  # advisory ML — NOT in the score path
+    integrity = Column(JSONB)              # Integrity Engine (anti-gaming) — caps verdict, NOT the score
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     started_at = Column(DateTime(timezone=True))
     finished_at = Column(DateTime(timezone=True))
@@ -296,4 +309,48 @@ class RankingPublication(Base):
     approved_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     methodology_version = Column(Text, nullable=False)
     published_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class StudioRun(Base):
+    """GovUX Studio — one AI prototype-generation run (org-fenced, billable)."""
+    __tablename__ = "studio_runs"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    requested_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    status = Column(Text, nullable=False, default="generating")   # generating | scored | failed
+    inputs = Column(JSONB, nullable=False, default=dict)
+    pages = Column(JSONB)                                          # {filename: html}
+    overall_score = Column(Numeric(5, 2))
+    band = Column(Text)
+    iterations = Column(Integer, nullable=False, default=0)
+    findings = Column(JSONB)
+    input_tokens = Column(Integer, nullable=False, default=0)
+    output_tokens = Column(Integer, nullable=False, default=0)
+    cost_inr = Column(Numeric(10, 2), nullable=False, default=0)
+    error = Column(Text)
+    published = Column(Boolean, nullable=False, default=False)
+    public_slug = Column(Text, unique=True)
+    published_at = Column(DateTime(timezone=True))
+    title = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    finished_at = Column(DateTime(timezone=True))
+
+
+class ExternalAssessment(Base):
+    """Manual-assurance ledger (G9/G11/G13): VAPT, native-app a11y, lived-experience
+    panel and STQC certification records that automation cannot produce. Advisory
+    evidence only — never feeds the deterministic score path (rule #1)."""
+    __tablename__ = "external_assessments"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    domain_id = Column(UUID(as_uuid=True), ForeignKey("domains.id"))
+    kind = Column(Text, nullable=False)      # vapt | native_app_a11y | lived_experience_panel | stqc_certification | other
+    title = Column(Text, nullable=False)
+    agency = Column(Text)                    # who performed it (CERT-In empanelled, STQC lab, panel org)
+    assessed_on = Column(Date)
+    outcome = Column(Text, nullable=False, default="in_progress")  # passed | failed | partial | in_progress
+    summary = Column(Text)
+    report_ref = Column(Text)                # file no. / URL / certificate id of the external report
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())

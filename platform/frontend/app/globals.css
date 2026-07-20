@@ -20,6 +20,48 @@ body { background: var(--bs-body-bg); }
 /* score ring number */
 .score-value { font-size: 44px; font-weight: 800; color: var(--ux-navy); line-height: 1; }
 
+/* --- Responsive data tables ---------------------------------------------------
+   Data tables clip on phones (off-screen columns behind a horizontal scroll).
+   Add class `gx-responsive` to a <table> and `data-label="Header"` to each <td>;
+   below 640px the table reflows into stacked cards, one row per card, with the
+   header shown as an inline label. Desktop is unchanged. */
+@media (max-width: 640px) {
+  .gx-responsive thead { display: none; }
+  .gx-responsive, .gx-responsive tbody, .gx-responsive tr, .gx-responsive td { display: block; width: 100%; }
+  .gx-responsive tr {
+    border: 1px solid var(--bs-border-color); border-radius: .6rem;
+    margin-bottom: .6rem; padding: .15rem .1rem; background: #fff;
+  }
+  .gx-responsive td {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    border: 0; padding: .4rem .8rem; text-align: right;
+  }
+  .gx-responsive td::before {
+    content: attr(data-label); font-weight: 600; color: #5c636a;
+    text-align: left; margin-right: auto;
+  }
+  .gx-responsive td:empty, .gx-responsive td[data-label=""]:empty { display: none; }
+}
+
+/* --- AA-safe muted text ------------------------------------------------------
+   Bootstrap's default secondary/muted grey (#6c757d) is only 4.44:1 on the
+   #f8f9fa page ground — just under WCAG 2.2 AA (4.5:1). Darken it to #5c636a
+   (~5.3:1 on light) so every `.text-secondary` / `.text-muted` clears AA. On
+   dark grounds, use an explicit light colour at the element (never these). */
+.text-secondary, .text-muted { color: #5c636a !important; }
+:root { --bs-secondary-color: #5c636a; --bs-tertiary-color: #5c636a; }
+
+/* `.btn-outline-secondary` renders its label in #6c757d (4.44:1 resting) and
+   fills to #6c757d on hover (white text → 4.44:1). Both miss AA — darken the
+   button's colour tokens to #5c636a so resting and hover states clear 4.5:1. */
+.btn-outline-secondary {
+  --bs-btn-color: #5c636a;
+  --bs-btn-hover-bg: #5c636a;
+  --bs-btn-hover-border-color: #5c636a;
+  --bs-btn-active-bg: #5c636a;
+  --bs-btn-active-border-color: #5c636a;
+}
+
 /* --- AA-safe "subtle" badges -------------------------------------------------
    `text-bg-*-subtle` isn't a real Bootstrap utility, so those badges rendered
    with a light ground and near-invisible text (e.g. the old "Minor"/"Pending").

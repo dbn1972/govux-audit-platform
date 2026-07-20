@@ -138,3 +138,41 @@ def queue_state(db: Session = Depends(get_db)):
     return {"waiting": len(rows),
             "queue": [{"host": s.host, "status": s.status, "position": i}
                       for i, s in enumerate(rows)]}
+
+
+# ---------- GovUX Studio public showcase (published prototypes, no auth) ----------
+from fastapi.responses import HTMLResponse   # noqa: E402
+from ..services import studio as _studio      # noqa: E402
+
+_SHOW_CSP = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:"
+
+
+def _published(db, slug):
+    r = (db.query(models.StudioRun)
+           .filter(models.StudioRun.public_slug == slug, models.StudioRun.published == True)  # noqa: E712
+           .first())
+    if not r:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Showcase not found")
+    return r
+
+
+@router.get("/showcase/{slug}")
+def showcase_meta(slug: str, db: Session = Depends(get_db)):
+    r = _published(db, slug)
+    return {"slug": slug, "title": r.title or (r.inputs or {}).get("department"),
+            "department": (r.inputs or {}).get("department"),
+            "purpose": (r.inputs or {}).get("purpose"),
+            "score": float(r.overall_score) if r.overall_score else None, "band": r.band,
+            "files": list((r.pages or {}).keys())}
+
+
+@router.get("/showcase/{slug}/{filename}", response_class=HTMLResponse)
+def showcase_page(slug: str, filename: str, db: Session = Depends(get_db)):
+    r = _published(db, slug)
+    html = (r.pages or {}).get(filename)
+    if html is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Page not found")
+    # these HTML pages are meant to be framed by our own showcase gallery (same
+    # origin) — override the global X-Frame-Options: DENY so the iframe renders.
+    return HTMLResponse(_studio.sanitize(html),
+                        headers={"Content-Security-Policy": _SHOW_CSP, "X-Frame-Options": "SAMEORIGIN"})

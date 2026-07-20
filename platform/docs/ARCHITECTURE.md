@@ -66,5 +66,10 @@ auto-discovery → `services/scheduler`, `services/discovery`, `/v1/schedules`, 
 G3 PDF/document a11y → `services/pdf_audit`; G4 CrUX field data → `services/crux`; G5 remediation +
 CI gate + webhook → `services/remediation`, `/v1/ci/gate`; G6 multilingual → `services/language`,
 `audit_engine/lang.js`; G7 multi-page crawl → `audit_engine/runner.js` → `audit_pages`; G8 broken-link
-QA; G10 overlay detection + `/admin/methodology`. Not built: G9 native-app a11y, G11 lived-experience
-panel, G12 STQC evidence pack, G13 deep VAPT.
+QA; G10 overlay detection + `/admin/methodology`; G12 STQC evidence pack → `services/evidence_pack`
+(`GET /v1/audits/{id}/evidence`, deterministic ZIP: report.json/findings.csv/compliance-statement/
+methodology/summary.pdf); G9 native-app a11y, G11 lived-experience panel, G13 deep VAPT → not
+automatable, closed as the manual-assurance ledger `external_assessments` (`/v1/assessments`,
+`routers/assessments.py`, frontend `/assessments`) — externally performed assessments recorded by
+assessors, surfaced in the evidence pack; never in the score path, never upgrades the verdict
+(only `POST /audits/{id}/review` does).

@@ -41,6 +41,24 @@ SCHEMA: list[dict] = [
     {"key": "metrics_enabled", "type": "bool", "category": "Monitoring / Prometheus", "label": "Expose /metrics for Prometheus", "default": True},
     {"key": "metrics_token", "type": "str", "category": "Monitoring / Prometheus", "label": "/metrics bearer token (blank = open scrape)", "default": "", "secret": True},
     {"key": "cache_ttl_seconds", "type": "int", "category": "Monitoring / Prometheus", "label": "Dashboard cache TTL (seconds)", "default": 120},
+
+    # Integrity Engine (anti-gaming) — detects gaming; caps the verdict, never the score.
+    {"key": "integrity_enabled", "type": "bool", "category": "Integrity (anti-gaming)", "label": "Detect gaming (overlays, hidden elements, improbable jumps) and cap the compliance verdict", "default": True},
+
+    # Advisory AI — enriches remediation guidance only; NEVER affects the score.
+    {"key": "llm_enabled", "type": "bool", "category": "Advisory AI (remediation)", "label": "Enrich remediation with an LLM (advisory — never affects the score)", "default": False},
+    {"key": "llm_provider", "type": "str", "category": "Advisory AI (remediation)", "label": "Provider (anthropic)", "default": "anthropic"},
+    {"key": "llm_model", "type": "str", "category": "Advisory AI (remediation)", "label": "Model", "default": "claude-haiku-4-5-20251001"},
+    {"key": "llm_api_key", "type": "str", "category": "Advisory AI (remediation)", "label": "API key", "default": "", "secret": True},
+
+    # GovUX Studio (AI prototype generator) — configurable + billable. Reuses the
+    # Advisory-AI provider/key above for the actual model calls.
+    {"key": "studio_enabled", "type": "bool", "category": "GovUX Studio", "label": "Enable GovUX Studio (AI prototype generator)", "default": False},
+    {"key": "studio_max_pages", "type": "int", "category": "GovUX Studio", "label": "Max pages per run", "default": 8},
+    {"key": "studio_max_refines", "type": "int", "category": "GovUX Studio", "label": "Max refine iterations toward score ≥ 80", "default": 4},
+    {"key": "studio_target_score", "type": "int", "category": "GovUX Studio", "label": "Target GovUX score", "default": 80},
+    {"key": "studio_monthly_quota", "type": "int", "category": "GovUX Studio", "label": "Runs per organisation / month (0 = unlimited)", "default": 20},
+    {"key": "studio_cost_per_1k_output_inr", "type": "int", "category": "GovUX Studio", "label": "Billing rate — INR (paise) per 1K output tokens", "default": 120},
 ]
 BY_KEY = {s["key"]: s for s in SCHEMA}
 
