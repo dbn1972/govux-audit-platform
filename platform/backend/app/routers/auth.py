@@ -103,12 +103,13 @@ def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db
     if not security.is_gov_email(email):
         raise HTTPException(status.HTTP_403_FORBIDDEN,
                             "Only .gov.in or .nic.in email addresses are allowed")
-    # throttle OTP requests per IP (stops OTP-spam / enumeration)
-    ip = _client_ip(request) or "unknown"
-    limit = settings_store.get_int("otp_request_ip_limit", settings.otp_request_ip_limit)
-    if ratelimit.hit(f"otp-req:{ip}", 3600) > limit:
-        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
-                            "Too many OTP requests. Please wait before trying again.")
+    # throttle OTP requests per IP (stops OTP-spam / enumeration in production)
+    if settings.env == "production":
+        ip = _client_ip(request) or "unknown"
+        limit = settings_store.get_int("otp_request_ip_limit", settings.otp_request_ip_limit)
+        if ratelimit.hit(f"otp-req:{ip}", 3600) > limit:
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
+                                "Too many OTP requests. Please wait before trying again.")
     code = security.new_otp()
     otp = models.OtpCode(
         email=email, code_hash=security.hash_secret(code),
