@@ -88,7 +88,7 @@ def register_domain(body: DomainCreate, user: models.User = Depends(current_user
     tld = "nic.in" if url.endswith("nic.in") else "gov.in"
     d = models.Domain(org_id=user.org_id, url=url, tld=tld,
                       service_category=body.service_category, size_class=body.size_class,
-                      verify_status="verified", verify_token="govux-verify=" + secrets.token_hex(8),
+                      verify_status="pending", verify_token="govux-verify=" + secrets.token_hex(8),
                       created_by=user.id)
     db.add(d)
     db.commit()
