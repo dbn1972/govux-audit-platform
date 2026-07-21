@@ -118,7 +118,12 @@ def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db
     db.add(otp)
     db.commit()
     email_svc.send_otp(email, code)   # provider chosen at runtime via admin config
-    return {"message": "OTP sent", "email": email}
+    # In dev mode, include the OTP in the response so it's visible in the browser
+    # console / network tab (never in production — this would leak the auth factor)
+    resp = {"message": "OTP sent", "email": email}
+    if settings.env != "production":
+        resp["dev_otp"] = code
+    return resp
 
 
 @router.post("/otp/verify", response_model=TokenPair)

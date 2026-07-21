@@ -25,7 +25,12 @@ export default function Login() {
     if (busy) return;
     if (!GOV.test(email.trim())) { setErr("Must end in .gov.in or .nic.in"); return; }
     setErr(""); setBusy(true);
-    try { await api.requestOtp(email.trim()); setStep(2); }
+    try {
+      const res = await api.requestOtp(email.trim());
+      // In dev mode the API returns the OTP in the response — show it in console
+      if (res?.dev_otp) console.log(`%c[DEV] OTP: ${res.dev_otp}`, "color:green;font-size:18px;font-weight:bold");
+      setStep(2);
+    }
     catch (e: any) { setErr(e.message); }
     finally { setBusy(false); }
   }

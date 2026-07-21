@@ -1,4 +1,6 @@
 """Central configuration (env-driven)."""
+from __future__ import annotations
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -7,7 +9,14 @@ class Settings(BaseSettings):
     engine_version: str = "v3.2"
     env: str = "dev"                             # "production" enables fail-fast checks
     # browser origins allowed to call the credentialed API (CSV via GOVUX_CORS_ORIGINS)
-    cors_origins: tuple[str, ...] = ("http://localhost:3000",)
+    cors_origins: list[str] = ["http://localhost:3000"]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def _parse_cors(cls, v):
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
 
     database_url: str = "postgresql+psycopg://govux:govux@db:5432/govux"
     redis_url: str = "redis://redis:6379/0"                    # durable queue + status
@@ -28,7 +37,14 @@ class Settings(BaseSettings):
     refresh_ttl_seconds: int = 60 * 60 * 24 * 60  # 60 days
     otp_ttl_seconds: int = 5 * 60                 # 5 min
     otp_max_attempts: int = 5
-    allowed_email_suffixes: tuple[str, ...] = (".gov.in", ".nic.in")
+    allowed_email_suffixes: list[str] = [".gov.in", ".nic.in"]
+
+    @field_validator("allowed_email_suffixes", mode="before")
+    @classmethod
+    def _parse_email_suffixes(cls, v):
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
 
     # queue
     audit_stream: str = "govux:audits"
@@ -47,7 +63,14 @@ class Settings(BaseSettings):
     public_scan_stream: str = "govux:public"
     public_consumer_group: str = "public-workers"
     free_registered_pages: int = 10        # registered users may scan up to this many pages
-    free_scan_suffixes: tuple[str, ...] = (".gov.in", ".nic.in")  # SSRF/abuse guard
+    free_scan_suffixes: list[str] = [".gov.in", ".nic.in"]  # SSRF/abuse guard
+
+    @field_validator("free_scan_suffixes", mode="before")
+    @classmethod
+    def _parse_scan_suffixes(cls, v):
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
 
     # abuse control — free scanner (per IP) + sign-in brute force (per account)
     scan_ip_limit: int = 3                 # free scans/IP before a CAPTCHA is required

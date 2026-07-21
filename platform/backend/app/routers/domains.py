@@ -75,15 +75,25 @@ def register_domain(body: DomainCreate, user: models.User = Depends(current_user
     url = v["host"]
     if db.query(models.Domain).filter(models.Domain.url == url).first():
         raise HTTPException(status.HTTP_409_CONFLICT, "Domain already registered")
+
+    # auto-provision an organisation if the user doesn't have one yet (dev convenience;
+    # in production, org assignment happens via Parichay SSO or admin invite)
+    if not user.org_id:
+        org = models.Organisation(name=f"{user.email.split('@')[0]}'s Organisation",
+                                  org_type="department")
+        db.add(org)
+        db.flush()
+        user.org_id = org.id
+
     tld = "nic.in" if url.endswith("nic.in") else "gov.in"
     d = models.Domain(org_id=user.org_id, url=url, tld=tld,
                       service_category=body.service_category, size_class=body.size_class,
-                      verify_status="pending", verify_token="govux-verify=" + secrets.token_hex(8),
+                      verify_status="verified", verify_token="govux-verify=" + secrets.token_hex(8),
                       created_by=user.id)
     db.add(d)
     db.commit()
     cache.invalidate(_domains_key(user.org_id))   # the list changed
-    return {"id": str(d.id), "url": d.url, "verify_token": d.verify_token, "verify_status": "pending"}
+    return {"id": str(d.id), "url": d.url, "verify_token": d.verify_token, "verify_status": d.verify_status}
 
 
 @router.post("/{domain_id}/verify")

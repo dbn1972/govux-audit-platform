@@ -21,7 +21,7 @@ def is_gov_email(email: str) -> bool:
 
 # ---------- hashing (OTP + refresh tokens stored only as hashes) ----------
 def _hash(value: str) -> str:
-    return hmac.new(settings.jwt_secret.encode(), value.encode(), hashlib.sha256).hexdigest()
+    return hmac.HMAC(settings.jwt_secret.encode(), value.encode(), hashlib.sha256).hexdigest()
 
 
 def hash_secret(value: str) -> str:
