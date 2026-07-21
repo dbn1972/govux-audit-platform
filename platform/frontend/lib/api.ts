@@ -50,8 +50,8 @@ export const api = {
     req(`/v1/scan-requests/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
   revokeDevice: (id: string) => req(`/v1/auth/devices/${id}`, { method: "DELETE" }),
   listDomains: () => req("/v1/domains"),
-  submitAudit: (domain_id: string) =>
-    req("/v1/audits", { method: "POST", body: JSON.stringify({ domain_id }) }),
+  submitAudit: (domain_id: string, depth: number = 10) =>
+    req("/v1/audits", { method: "POST", body: JSON.stringify({ domain_id, depth }) }),
   listAudits: () => req("/v1/audits"),
   auditStatus: (taskId: string) => req(`/v1/audits/${taskId}`),
   auditReport: (taskId: string) => req(`/v1/audits/${taskId}/report`),

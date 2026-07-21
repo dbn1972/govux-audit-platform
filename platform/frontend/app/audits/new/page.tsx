@@ -18,6 +18,7 @@ export default function NewAudit() {
   const router = useRouter();
   const [domains, setDomains] = useState<Domain[] | null>(null);
   const [domainId, setDomainId] = useState("");
+  const [depth, setDepth] = useState(10);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [freePages, setFreePages] = useState(10);
@@ -46,7 +47,7 @@ export default function NewAudit() {
     if (!domainId || busy) return;
     setBusy(true); setErr("");
     try {
-      const res = await api.submitAudit(domainId);   // -> 202 { task_id }
+      const res = await api.submitAudit(domainId, depth);   // -> 202 { task_id }
       router.push(`/audits/${res.task_id}`);
     } catch (e: any) {
       setErr(e?.message || "Could not start the audit. Please try again.");
@@ -100,6 +101,16 @@ export default function NewAudit() {
               )}
               {!noDomains && domains != null && (
                 <div className="mt-3 pt-3 border-top">
+                  <label className="form-label fw-semibold" htmlFor="audit-depth">Pages to crawl</label>
+                  <div className="d-flex align-items-center gap-2 mb-3">
+                    {[1, 2, 5, 10].map((n) => (
+                      <button key={n} type="button"
+                        className={`btn btn-sm ${depth === n ? "btn-primary" : "btn-outline-secondary"}`}
+                        onClick={() => setDepth(n)}>
+                        {n} {n === 1 ? "page" : "pages"}
+                      </button>
+                    ))}
+                  </div>
                   <div className="d-flex align-items-center flex-wrap gap-2">
                     <span className="badge text-bg-primary-subtle">Covers up to {freePages} pages · free</span>
                     <span className="text-secondary small">Unlimited audits on your verified domains.</span>

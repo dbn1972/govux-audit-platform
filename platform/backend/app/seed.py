@@ -15,11 +15,14 @@ def seed():
     Base.metadata.create_all(engine)   # dev convenience; use schema.sql/Alembic in prod
     db = SessionLocal()
     try:
-        if db.query(models.Organisation).first():
-            print("already seeded"); return
+        if db.query(models.User).filter(models.User.email == "steward@indiapost.gov.in").first():
+            print("already seeded")
+            return
 
-        org = models.Organisation(name="Department of Posts (India Post)", org_type="department")
-        db.add(org); db.flush()
+        org = db.query(models.Organisation).first()
+        if not org:
+            org = models.Organisation(name="Department of Posts (India Post)", org_type="department")
+            db.add(org); db.flush()
 
         owner = models.User(email="d.nayak@indiapost.gov.in", org_id=org.id,
                             display_name="D. Nayak", role="owner")

@@ -66,8 +66,7 @@ async def _unhandled(request: Request, exc: Exception):
     """Never leak a stack trace to the client. Log it (with the request id) and
     return a friendly, referenceable message so support can trace the incident."""
     rid = getattr(request.state, "request_id", "-")
-    log.error("unhandled error on %s %s: %r", request.method, request.url.path, exc,
-              extra={"request_id": rid})
+    log.error("unhandled error on %s %s [%s]: %r", request.method, request.url.path, rid, exc)
     return JSONResponse(status_code=500, headers={"X-Request-ID": rid},
                         content={"detail": "An unexpected error occurred. "
                                  f"Please try again — reference {rid} if it persists.",

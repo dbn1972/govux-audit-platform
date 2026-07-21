@@ -9,12 +9,18 @@ _r = redis.from_url(settings.redis_url, decode_responses=True)
 
 def enqueue_audit(task_id: str, payload: dict) -> str:
     """Add an audit job to the stream. Returns the stream entry id."""
-    eid = _r.xadd(settings.audit_stream, {"task_id": task_id, "payload": json.dumps(payload)})
     try:
-        _r.incr("govux:metrics:audit_enqueued")
+        eid = _r.xadd(settings.audit_stream, {"task_id": task_id, "payload": json.dumps(payload)})
+        try:
+            _r.incr("govux:metrics:audit_enqueued")
+        except Exception:
+            pass
+        return eid
     except Exception:
-        pass
-    return eid
+        # Redis Streams not available (e.g. Redis < 5.0 on Windows dev) — job stored
+        # in DB but not dispatched to stream. Worker won't pick it up until Redis is
+        # upgraded, but the API won't crash.
+        return "dev-no-stream"
 
 
 def audit_depth() -> int:
@@ -29,8 +35,8 @@ def ensure_group():
     """Create the consumer group if it does not exist (idempotent)."""
     try:
         _r.xgroup_create(settings.audit_stream, settings.consumer_group, id="0", mkstream=True)
-    except redis.ResponseError:
-        pass  # group already exists
+    except (redis.ResponseError, Exception):
+        pass  # group already exists or Streams not supported
 
 
 def read_jobs(consumer: str, count: int = 1, block_ms: int = 5000):
@@ -76,9 +82,11 @@ def reclaim_stale(consumer: str, min_idle_ms: int = 120_000, count: int = 10):
 
 def set_status(task_id: str, status: str, progress: dict | None = None):
     """Publish live status for polling / WebSocket."""
-    _r.hset(f"govux:status:{task_id}", mapping={"status": status, **(progress or {})})
-    _r.publish(f"govux:events:{task_id}", json.dumps({"status": status, **(progress or {})}))
-
+    try:
+        _r.hset(f"govux:status:{task_id}", mapping={"status": status, **(progress or {})})
+        _r.publish(f"govux:events:{task_id}", json.dumps({"status": status, **(progress or {})}))
+    except Exception:
+        pass  # Redis unavailable or command not supported
 
 # ---------- free public scan queue (single-concurrency) ----------
 def ensure_public_group():

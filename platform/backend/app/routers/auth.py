@@ -103,12 +103,13 @@ def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db
     if not security.is_gov_email(email):
         raise HTTPException(status.HTTP_403_FORBIDDEN,
                             "Only .gov.in or .nic.in email addresses are allowed")
-    # throttle OTP requests per IP (stops OTP-spam / enumeration)
-    ip = _client_ip(request) or "unknown"
-    limit = settings_store.get_int("otp_request_ip_limit", settings.otp_request_ip_limit)
-    if ratelimit.hit(f"otp-req:{ip}", 3600) > limit:
-        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
-                            "Too many OTP requests. Please wait before trying again.")
+    # throttle OTP requests per IP (stops OTP-spam / enumeration in production)
+    if settings.env == "production":
+        ip = _client_ip(request) or "unknown"
+        limit = settings_store.get_int("otp_request_ip_limit", settings.otp_request_ip_limit)
+        if ratelimit.hit(f"otp-req:{ip}", 3600) > limit:
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
+                                "Too many OTP requests. Please wait before trying again.")
     code = security.new_otp()
     otp = models.OtpCode(
         email=email, code_hash=security.hash_secret(code),
@@ -118,7 +119,12 @@ def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db
     db.add(otp)
     db.commit()
     email_svc.send_otp(email, code)   # provider chosen at runtime via admin config
-    return {"message": "OTP sent", "email": email}
+    # In dev mode, include the OTP in the response so it's visible in the browser
+    # console / network tab (never in production — this would leak the auth factor)
+    resp = {"message": "OTP sent", "email": email}
+    if settings.env != "production":
+        resp["dev_otp"] = code
+    return resp
 
 
 @router.post("/otp/verify", response_model=TokenPair)
