@@ -162,6 +162,8 @@ services:
   web:
     build: ./frontend
     command: ["sh", "-c", "npm run build && npm run start"]   # production build (no dev server)
+    ports:
+      - "3000:3000"
     environment:
       GOVUX_API_URL: http://api:8000
       NODE_ENV: production
