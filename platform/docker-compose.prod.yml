@@ -89,6 +89,8 @@ services:
       redis: { condition: service_healthy }
       redis-cache: { condition: service_healthy }
       minio: { condition: service_healthy }
+    volumes:
+      - ./db:/db:ro
     restart: always
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/readyz').status==200 else 1)"]
