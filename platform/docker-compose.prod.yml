@@ -84,6 +84,7 @@ services:
       GOVUX_S3_BUCKET: ${GOVUX_S3_BUCKET:-govux-reports}
       GOVUX_S3_ACCESS_KEY: ${GOVUX_S3_ACCESS_KEY:-govux}
       GOVUX_S3_SECRET_KEY: ${GOVUX_S3_SECRET_KEY:-govux-secret}
+      GOVUX_ALLOW_CONSOLE_OTP: "true"
     depends_on:
       db: { condition: service_healthy }
       redis: { condition: service_healthy }

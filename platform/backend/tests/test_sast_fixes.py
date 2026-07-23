@@ -55,6 +55,14 @@ def test_otp_printed_in_dev(monkeypatch, capsys):
     assert ok is True and "313131" in out    # dev convenience preserved
 
 
+def test_otp_logged_in_production_with_allow_env(monkeypatch, capsys):
+    monkeypatch.setenv("GOVUX_ALLOW_CONSOLE_OTP", "true")
+    monkeypatch.setattr(email.settings, "env", "production")
+    ok = email.send_otp("officer@nic.in", "777777")
+    out = capsys.readouterr().out
+    assert ok is True and "777777" in out
+
+
 # ── SAST-006 ────────────────────────────────────────────────────────────────
 def test_metrics_requires_token_in_production(client, monkeypatch):
     monkeypatch.setattr(settings, "env", "production")

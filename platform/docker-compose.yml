@@ -30,6 +30,7 @@ services:
     environment:
       GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
       GOVUX_REDIS_URL: redis://redis:6379/0
+      GOVUX_ALLOW_CONSOLE_OTP: "true"
     ports: ["8000:8000"]
     depends_on: [db, redis]
     volumes:

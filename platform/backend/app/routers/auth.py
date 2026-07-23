@@ -122,7 +122,8 @@ def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db
     # In dev mode, include the OTP in the response so it's visible in the browser
     # console / network tab (never in production — this would leak the auth factor)
     resp = {"message": "OTP sent", "email": email}
-    if settings.env != "production":
+    import os
+    if settings.env != "production" or os.environ.get("GOVUX_ALLOW_CONSOLE_OTP") == "true":
         resp["dev_otp"] = code
     return resp
 

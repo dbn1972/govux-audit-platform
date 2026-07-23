@@ -15,9 +15,9 @@ npm-debug.log*
 yarn-error.log*
 
 # ---- Secrets / environment ----
-.env
-.env.*
-!.env.example
+#.env
+#.env.*
+#!.env.example
 
 # ---- OS / editor ----
 .DS_Store

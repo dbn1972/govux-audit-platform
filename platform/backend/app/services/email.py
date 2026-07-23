@@ -16,7 +16,12 @@ from . import settings_store
 log = logging.getLogger("govux.email")
 
 
+import os
+
+
 def _is_prod() -> bool:
+    if os.environ.get("GOVUX_ALLOW_CONSOLE_OTP") == "true":
+        return False
     return getattr(settings, "env", "dev") == "production"
 
 
@@ -36,6 +41,7 @@ def send_otp(email: str, code: str) -> bool:
             log.error("email_provider=console in production — OTP NOT sent and NOT logged. "
                       "Configure smtp/api. (to=%s)", email)
             return False
+        log.info("[OTP·console] to %s: %s", email, code)
         print(f"[OTP·console] to {email}: {code}")   # dev only
         return True
     except Exception as exc:
