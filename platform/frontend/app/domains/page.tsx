@@ -15,11 +15,29 @@ const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString() : "
 export default function Domains() {
   const [rows, setRows] = useState<Domain[] | null>(null);
   const [err, setErr] = useState("");
+  const [isSteward, setIsSteward] = useState(false);
+
   useEffect(() => {
     api.listDomains()
       .then((d) => setRows(d || []))
       .catch((e) => { setErr(e?.message || "Could not load your domains."); setRows([]); });
+    api.me()
+      .then((u) => setIsSteward(!!u?.is_steward))
+      .catch(() => {});
   }, []);
+
+  async function forceVerify(id: string) {
+    setErr("");
+    try {
+      const res = await api.verifyDomain(id, "sso_mapping");
+      if (res?.verify_status === "verified") {
+        setRows((rs) => (rs || []).map((d) => d.id === id ? { ...d, verify_status: "verified" } : d));
+      }
+    } catch (e: any) {
+      setErr(e?.message || "Could not force verify domain.");
+    }
+  }
+
   return (
     <AppShell>
       <div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
@@ -57,7 +75,16 @@ export default function Domains() {
                     <td data-label="Last audited" className="text-secondary small">{fmtDate(d.last_audited_at)}</td>
                     <td data-label="">{d.verify_status === "verified"
                       ? <Link href={`/audits/new?domain=${d.id}`} className="btn btn-sm btn-link">Audit →</Link>
-                      : <Link href="/domains/new" className="btn btn-sm btn-link">Verify →</Link>}</td>
+                      : (
+                        <div className="d-flex align-items-center gap-2">
+                          <Link href="/domains/new" className="btn btn-sm btn-link p-0">Verify →</Link>
+                          {isSteward && (
+                            <button className="btn btn-sm btn-outline-primary py-0 px-2" style={{ fontSize: 12 }} onClick={() => forceVerify(d.id)}>
+                              Force Verify
+                            </button>
+                          )}
+                        </div>
+                      )}</td>
                   </tr>
                 ))}
               </tbody>

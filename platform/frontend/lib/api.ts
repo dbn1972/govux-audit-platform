@@ -60,8 +60,8 @@ export const api = {
       body: JSON.stringify({ approved, notes }) }),
   registerDomain: (url: string, category?: string) =>
     req("/v1/domains", { method: "POST", body: JSON.stringify({ url, service_category: category }) }),
-  verifyDomain: (id: string) =>
-    req(`/v1/domains/${id}/verify`, { method: "POST", body: JSON.stringify({ method: "dns_txt" }) }),
+  verifyDomain: (id: string, method: string = "dns_txt") =>
+    req(`/v1/domains/${id}/verify`, { method: "POST", body: JSON.stringify({ method }) }),
   guidelines: (family?: string) => req(`/v1/guidelines${family ? `?family=${family}` : ""}`),
   updateFinding: (id: string, state: string) =>
     req(`/v1/findings/${id}`, { method: "PATCH", body: JSON.stringify({ state, is_reviewed: true }) }),
