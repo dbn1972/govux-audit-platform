@@ -34,6 +34,11 @@ class RoleUpdate(BaseModel):
     role: str
 
 
+class InvitationCreate(BaseModel):
+    email: EmailStr
+    role: str = "contributor"
+
+
 class DeviceOut(BaseModel):
     id: str
     label: Optional[str]

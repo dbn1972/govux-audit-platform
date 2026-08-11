@@ -52,6 +52,21 @@ a11y<50 ⇒ `non_compliant`; automated-only ⇒ at most `partially_compliant`; `
 Responsiveness now blends 60% no-horizontal-overflow + 40% WCAG 2.5.8 tap-target size (controls ≥24px,
 checked at mobile width) — see `audit_engine/runner.js` `responsiveness()`.
 
+## Crawler etiquette (`audit_engine/robots.js`)
+The engine identifies itself as `GovUXBot` (Googlebot-style: real browser token + `(compatible;
+GovUXBot/1.0; +<BOT_URL>)`) and honours robots.txt properly — Disallow/Allow with `*`/`$`,
+most-specific User-agent group wins, longest-match with Allow winning ties. Unit-tested in
+`robots.test.js` (dependency-free, runs in CI without Playwright).
+- **The homepage is exempt** from Disallow: it is the explicit, owner-verified audit target.
+  Everything *discovered* (sitemap + nav links) is filtered, as are same-origin broken-link probes.
+- **Crawl-delay is honoured in full**, not capped. `MAX_TOTAL_DELAY_MS` bounds total wait instead,
+  so a slow-rate site is sampled on fewer pages (`coverage.limited_by_crawl_delay`) rather than
+  crawled faster than it asked.
+- **Disclosure has a cost**: some government WAFs block self-identifying bots (measured:
+  `www.india.gov.in` → 403 disclosed, 200 undisclosed). The fix is for the operator to allow-list
+  `GovUXBot`; `evidence.blocked_hint` says exactly that. `GOVUX_UA_DISCLOSE=0` is an explicit
+  operator escape hatch — never an automatic retry-in-disguise.
+
 ## Conventions
 - Python: FastAPI + SQLAlchemy 2.0; Pydantic v2 schemas in `schemas.py` drive OpenAPI. Add a router in
   `routers/`, include it in `main.py`. Use `Depends(current_user)` / `require_role(...)`.

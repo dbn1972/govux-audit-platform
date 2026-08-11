@@ -74,6 +74,39 @@ export default function Settings() {
     finally { setTeamBusyId(null); }
   }
 
+  // Invitations — the only way to get a SECOND person into an organisation.
+  // Without this, every new sign-in started org-less and the first domain it
+  // registered auto-created a separate one-person org.
+  const [invites, setInvites] = useState<any[] | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("contributor");
+  const [inviteMsg, setInviteMsg] = useState("");
+  const [inviteBusy, setInviteBusy] = useState(false);
+
+  function loadInvites() {
+    api.listInvitations().then((i) => setInvites(i || [])).catch(() => setInvites([]));
+  }
+  useEffect(loadInvites, []);
+
+  async function sendInvite(e: React.FormEvent) {
+    e.preventDefault();
+    setInviteBusy(true); setInviteMsg("");
+    try {
+      await api.createInvitation(inviteEmail.trim().toLowerCase(), inviteRole);
+      setInviteMsg(`✓ Invitation sent to ${inviteEmail.trim()}.`);
+      setInviteEmail("");
+      loadInvites();
+    } catch (e: any) { setInviteMsg("✗ " + (e?.message || "Could not send that invitation.")); }
+    finally { setInviteBusy(false); }
+  }
+
+  async function revokeInvite(id: string, email: string) {
+    if (!confirm(`Revoke the invitation for ${email}?`)) return;
+    setInviteMsg("");
+    try { await api.revokeInvitation(id); setInvites((i) => (i || []).filter((x) => x.id !== id)); }
+    catch (e: any) { setInviteMsg("✗ " + (e?.message || "Could not revoke that invitation.")); }
+  }
+
   // Notification preferences persist per-device (no server endpoint yet) so the
   // toggles actually remember a choice rather than resetting on every visit.
   const [prefs, setPrefs] = useState<Record<string, boolean>>({});
@@ -219,6 +252,66 @@ export default function Settings() {
                 ? "Only a super_admin can grant a steward role (programme_admin/super_admin)."
                 : "Only an owner or admin can change team roles."}
             </div>
+          </div></div>
+        </div>
+
+        <div className="row g-3 mb-3">
+          <div className="col-lg-12"><div className="card shadow-sm">
+            <div className="card-header bg-white fw-semibold">Invite a colleague</div>
+            <div className="card-body">
+              <p className="text-secondary small">
+                Invited colleagues join <b>this</b> organisation when they first sign in, so you
+                share the same domains, audits and reports. Only .gov.in / .nic.in addresses can
+                be invited.
+              </p>
+              {canManageTeam ? (
+                <form className="d-flex flex-wrap gap-2 align-items-start" onSubmit={sendInvite}>
+                  <input type="email" required className="form-control form-control-sm"
+                    style={{ maxWidth: 300 }} placeholder="colleague@ministry.gov.in"
+                    aria-label="Colleague's government email address"
+                    value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
+                  <select className="form-select form-select-sm" style={{ maxWidth: 180 }}
+                    aria-label="Role to invite them as"
+                    value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
+                    {ROLES.filter((r) => canGrantSteward
+                      || !(r === "programme_admin" || r === "super_admin"))
+                      .map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                  <button className="btn btn-primary btn-sm" disabled={inviteBusy}>
+                    {inviteBusy ? "Sending…" : "Send invitation"}</button>
+                </form>
+              ) : (
+                <div className="text-secondary small">Only an owner or admin can invite colleagues.</div>
+              )}
+              {inviteMsg && <div className="small mt-2 text-secondary">{inviteMsg}</div>}
+            </div>
+
+            {invites != null && invites.length > 0 && (
+              <div className="table-responsive"><table className="table table-sm align-middle mb-0">
+                <thead className="table-light">
+                  <tr><th>Pending invitation</th><th>Role</th><th>Expires</th><th></th></tr>
+                </thead>
+                <tbody>
+                  {invites.map((i) => (
+                    <tr key={i.id}>
+                      <td className="small">{i.email}</td>
+                      <td><span className="badge text-bg-light">{i.role}</span></td>
+                      <td className="small">
+                        {i.expired
+                          ? <span className="text-danger">Expired</span>
+                          : new Date(i.expires_at).toLocaleDateString()}
+                      </td>
+                      <td className="text-end">
+                        {canManageTeam && (
+                          <button className="btn btn-sm btn-outline-danger"
+                            onClick={() => revokeInvite(i.id, i.email)}>Revoke</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table></div>
+            )}
           </div></div>
         </div>
 

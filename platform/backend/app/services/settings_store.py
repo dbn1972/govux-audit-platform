@@ -37,6 +37,16 @@ SCHEMA: list[dict] = [
     {"key": "smtp_port", "type": "int", "category": "Email / OTP delivery", "label": "SMTP port", "default": 587},
     {"key": "smtp_user", "type": "str", "category": "Email / OTP delivery", "label": "SMTP user", "default": ""},
     {"key": "smtp_password", "type": "str", "category": "Email / OTP delivery", "label": "SMTP password", "default": "", "secret": True},
+    # Notifications — nothing outside sign-in OTPs was ever sent before these
+    # existed, so a "continuous monitoring" platform never told anyone anything.
+    {"key": "notify_enabled", "type": "bool", "category": "Notifications", "label": "Send notification emails (master switch)", "default": True},
+    {"key": "notify_audit_complete", "type": "bool", "category": "Notifications", "label": "Email the requester when an audit completes", "default": True},
+    {"key": "notify_audit_failed", "type": "bool", "category": "Notifications", "label": "Email the requester when an audit fails", "default": True},
+    {"key": "notify_regression", "type": "bool", "category": "Notifications", "label": "Email org admins when a score drops ≥ 5 points", "default": True},
+    {"key": "notify_scan_request", "type": "bool", "category": "Notifications", "label": "Email on larger-crawl requests and decisions", "default": True},
+    {"key": "public_base_url", "type": "str", "category": "Notifications", "label": "Public base URL used in emailed links", "default": "http://localhost:3000"},
+    {"key": "invite_ttl_days", "type": "int", "category": "Notifications", "label": "Invitation validity (days)", "default": 14},
+
     # Monitoring / Prometheus
     {"key": "metrics_enabled", "type": "bool", "category": "Monitoring / Prometheus", "label": "Expose /metrics for Prometheus", "default": True},
     {"key": "metrics_token", "type": "str", "category": "Monitoring / Prometheus", "label": "/metrics bearer token (blank = open scrape)", "default": "", "secret": True},

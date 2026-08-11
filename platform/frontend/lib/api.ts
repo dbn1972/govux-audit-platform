@@ -57,6 +57,10 @@ export const api = {
   listTeam: () => req("/v1/auth/team"),
   updateTeamRole: (userId: string, role: string) =>
     req(`/v1/auth/team/${userId}/role`, { method: "PATCH", body: JSON.stringify({ role }) }),
+  listInvitations: () => req("/v1/auth/invitations"),
+  createInvitation: (email: string, role: string) =>
+    req("/v1/auth/invitations", { method: "POST", body: JSON.stringify({ email, role }) }),
+  revokeInvitation: (id: string) => req(`/v1/auth/invitations/${id}`, { method: "DELETE" }),
   exportMyData: () => req("/v1/auth/me/export"),
   eraseMyData: () => req("/v1/auth/me", { method: "DELETE" }),
   devices: () => req("/v1/auth/devices"),
@@ -101,6 +105,8 @@ export const api = {
     const s = qs.toString();
     return req(`/v1/organisations${s ? `?${s}` : ""}`);
   },
+  importRegistry: (csv: string, dry_run: boolean) =>
+    req("/v1/admin/registry/import", { method: "POST", body: JSON.stringify({ csv, dry_run }) }),
   auditTrend: (taskId: string) => req(`/v1/audits/${taskId}/trend`),
   bulkScan: (scope: string) =>
     req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),

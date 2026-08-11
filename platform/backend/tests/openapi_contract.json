@@ -3,6 +3,10 @@
     "204",
     "422"
   ],
+  "DELETE /v1/auth/invitations/{invite_id}": [
+    "204",
+    "422"
+  ],
   "DELETE /v1/auth/me": [
     "200",
     "422"
@@ -69,6 +73,10 @@
     "422"
   ],
   "GET /v1/auth/devices": [
+    "200",
+    "422"
+  ],
+  "GET /v1/auth/invitations": [
     "200",
     "422"
   ],
@@ -206,6 +214,10 @@
     "200",
     "422"
   ],
+  "POST /v1/admin/registry/import": [
+    "200",
+    "422"
+  ],
   "POST /v1/assessments": [
     "201",
     "422"
@@ -216,6 +228,10 @@
   ],
   "POST /v1/audits/{task_id}/review": [
     "200",
+    "422"
+  ],
+  "POST /v1/auth/invitations": [
+    "201",
     "422"
   ],
   "POST /v1/auth/logout": [

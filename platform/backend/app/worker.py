@@ -17,7 +17,8 @@ from . import models
 from sqlalchemy import desc
 from .services import queue, cache
 from .services.scoring import compute_score, compliance_verdict, CATEGORY_WEIGHTS
-from .services import crux, remediation, pdf_audit, ml_anomaly, design_cv, integrity, settings_store
+from .services import (crux, remediation, pdf_audit, ml_anomaly, design_cv, integrity,
+                       settings_store, notify)
 
 ENGINE = os.path.join(os.path.dirname(__file__), "..", "audit_engine", "runner.js")
 COMPAT = os.path.join(os.path.dirname(__file__), "..", "audit_engine", "compat.js")
@@ -281,6 +282,11 @@ def process(task_id: str, payload: dict):
                          {"overall_score": score.overall, "band": score.band,
                           "compliance_status": comp.status})
 
+        # --- tell the humans (requester + org admins on a regression) ---
+        # notify.* swallows its own errors; a mail relay outage must never turn a
+        # completed audit into a failed one
+        notify.audit_completed(db, audit, domain)
+
         # --- CI/CD webhook notification (gap G5) ---
         webhook = (audit.scope or {}).get("webhook_url")
         if webhook:
@@ -295,6 +301,9 @@ def process(task_id: str, payload: dict):
         audit = db.get(models.Audit, task_id)
         if audit:
             audit.status = "failed"; db.commit()
+            dom = db.get(models.Domain, audit.domain_id)
+            if dom:
+                notify.audit_failed(db, audit, dom, str(exc))
         queue.set_status(task_id, "failed", {"error": str(exc)[:200]})
         raise
     finally:

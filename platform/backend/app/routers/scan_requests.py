@@ -10,7 +10,7 @@ from ..database import get_db
 from ..config import settings
 from .. import models
 from ..deps import current_user, require_role
-from ..services import audit_log
+from ..services import audit_log, notify
 
 router = APIRouter(prefix="/v1/scan-requests", tags=["quota"])
 
@@ -40,11 +40,15 @@ def create_request(body: RequestCreate, user: models.User = Depends(current_user
     if body.requested_pages <= settings.free_registered_pages:
         raise HTTPException(status.HTTP_400_BAD_REQUEST,
                             f"Up to {settings.free_registered_pages} pages need no approval.")
-    if not db.get(models.Domain, body.domain_id):
+    domain = db.get(models.Domain, body.domain_id)
+    if not domain:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
     r = models.ScanRequest(user_id=user.id, domain_id=body.domain_id,
                            requested_pages=body.requested_pages, reason=body.reason, status="pending")
     db.add(r); db.commit()
+    # a request nobody is told about sits in /admin/approvals forever, silently
+    # blocking the requester (notify swallows its own errors)
+    notify.scan_request_raised(db, r, domain, user)
     return {"id": str(r.id), "status": "pending", "requested_pages": r.requested_pages}
 
 
@@ -81,4 +85,7 @@ def decide_request(req_id: str, body: Decision,
     audit_log.record(db, admin.id, f"scan_request_{body.status}", target=str(r.id),
                      detail={"requested_pages": r.requested_pages})
     db.commit()
+    dom = db.get(models.Domain, r.domain_id) if r.domain_id else None
+    if dom:
+        notify.scan_request_decided(db, r, dom)
     return {"id": str(r.id), "status": r.status}

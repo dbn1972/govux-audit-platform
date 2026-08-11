@@ -354,3 +354,25 @@ class ExternalAssessment(Base):
     report_ref = Column(Text)                # file no. / URL / certificate id of the external report
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Invitation(Base):
+    """Lets a colleague join an EXISTING organisation. Before this, users.org_id
+    started NULL and the first domain registration auto-created a one-person org,
+    so a ministry's second user could never reach the first user's domains.
+    Consumed by `verify_otp` the first time the invited address signs in."""
+    __tablename__ = "invitations"
+    # mirrors db/schema.sql chk_gov_invite_email — invariant #4 at the DB layer
+    __table_args__ = (
+        CheckConstraint(r"email ~* '[@.](gov|nic)\.in$'", name="chk_gov_invite_email"),
+    )
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    email = Column(Text, nullable=False)
+    role = Column(UserRole, nullable=False, default="contributor")
+    invited_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    status = Column(Text, nullable=False, default="pending")   # pending | accepted | revoked
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    accepted_at = Column(DateTime(timezone=True))
+    accepted_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

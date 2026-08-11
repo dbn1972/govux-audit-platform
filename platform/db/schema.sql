@@ -375,3 +375,29 @@ CREATE TABLE IF NOT EXISTS external_assessments (
 );
 CREATE INDEX IF NOT EXISTS idx_extassess_org_time ON external_assessments(org_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_extassess_domain   ON external_assessments(domain_id);
+
+-- ---------- invitations (join an EXISTING organisation) ----------
+-- Without this, every first sign-in produced its own single-person organisation
+-- (users.org_id starts NULL and domains.register auto-provisioned one), so two
+-- colleagues from the same ministry could never share domains or audits.
+-- An invite is consumed by verify_otp when the invited address first signs in.
+CREATE TABLE IF NOT EXISTS invitations (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id       UUID NOT NULL REFERENCES organisations(id),
+    email        CITEXT NOT NULL,
+    role         user_role NOT NULL DEFAULT 'contributor',
+    invited_by   UUID REFERENCES users(id),
+    status       TEXT NOT NULL DEFAULT 'pending',   -- pending | accepted | revoked
+    expires_at   TIMESTAMPTZ NOT NULL,
+    accepted_at  TIMESTAMPTZ,
+    accepted_by  UUID REFERENCES users(id),
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- same gov-only invariant as users.chk_gov_email: you cannot invite a
+    -- non-government address into an organisation
+    CONSTRAINT chk_gov_invite_email CHECK (email ~* '[@.](gov|nic)\.in$')
+);
+-- at most ONE live invite per address: a second invite must revoke/replace the
+-- first, otherwise which org the invitee lands in depends on row order
+CREATE UNIQUE INDEX IF NOT EXISTS uq_invite_pending_email
+    ON invitations(email) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_invite_org_time ON invitations(org_id, created_at DESC);

@@ -14,10 +14,17 @@ import { chromium } from "playwright";
 import { AxeBuilder } from "@axe-core/playwright";
 import { gigwChecks } from "./gigw-rules.js";
 import { detectScript, isIndic, langMatchesScript, readability } from "./lang.js";
+import { UA, UA_DISCLOSED, BOT_TOKEN, BOT_URL, parseRobots, robotsAllows, pathOf } from "./robots.js";
 
 const clamp = (n, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
-const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-           "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
+// Budget for time spent WAITING between page loads. We honour whatever
+// Crawl-delay a site asks for rather than capping the delay itself — halving a
+// legitimate `Crawl-delay: 10` would mean claiming to respect the directive
+// while crawling twice as fast as requested. Instead the budget bounds the
+// TOTAL wait, so a slow-rate site is sampled on fewer pages (and says so in
+// `coverage`), and a typo'd `Crawl-delay: 3600` degrades to homepage-only
+// instead of hanging the audit for an hour.
+const MAX_TOTAL_DELAY_MS = 120000;
 const MAX_CRAWL = 25;        // pages fully audited (bounded for runtime) — Phase-1 informational portals
 const MAX_LINKCHECK = 30;    // links probed for broken-link QA
 const MAX_DOCS = 12;
@@ -291,10 +298,13 @@ async function fetchText(context, u) {
 }
 const locs = (xml) => [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map(m => m[1]);
 
-// robots.txt sitemaps + /sitemap.xml, recursing one level into a <sitemapindex>
+// robots.txt sitemaps + /sitemap.xml, recursing one level into a <sitemapindex>.
+// Returns the parsed exclusion rules alongside the URLs so main() can filter the
+// crawl set without fetching robots.txt a second time.
 async function sitemapPages(context, origin) {
   const out = new Set();
   const robots = await fetchText(context, origin + "/robots.txt");
+  const rules = parseRobots(robots);
   const smUrls = [...robots.matchAll(/sitemap:\s*(\S+)/gi)].map(m => m[1]);
   if (!smUrls.length) smUrls.push(origin + "/sitemap.xml");
   for (const sm of smUrls.slice(0, 5)) {
@@ -311,7 +321,7 @@ async function sitemapPages(context, origin) {
     }
     if (out.size > 500) break;
   }
-  return [...out];
+  return { urls: [...out], rules };
 }
 
 // pick a diverse sample across distinct top-level path sections (so a big portal
@@ -431,6 +441,9 @@ async function main() {
   if (input.screenshotPath)
     await home.screenshot({ path: input.screenshotPath, type: "jpeg", quality: 70 }).catch(() => {});
 
+  // a WAF/auth wall rejecting us outright — reported, never worked around
+  const blockedStatus = resp && [401, 403, 429].includes(resp.status()) ? resp.status() : null;
+
   // audit the homepage in place (it demonstrably loaded) — never re-navigate it,
   // so a WAF throttling the crawl burst can't zero out the primary result
   const homeResult = await auditLoaded(home, url, resp);
@@ -441,20 +454,38 @@ async function main() {
 
   // ---- build the crawl set: sitemap (robots + index) + homepage nav links,
   //      then a diverse sample across site sections (Phase-1 informational portals) ----
-  const fromSitemap = await sitemapPages(context, origin);
-  const pool = [...new Set([...fromSitemap, ...homeLinks.same])]
+  const { urls: fromSitemap, rules: robotsRules } = await sitemapPages(context, origin);
+  const candidates = [...new Set([...fromSitemap, ...homeLinks.same])]
     .filter(u => u !== url && !/\.(pdf|jpg|png|zip|doc|xls)/i.test(u));
-  const extra = diversify(pool, Math.max(0, depth - 1));
+  // Honour the operator's exclusions. The homepage itself is exempt: it is the
+  // explicit, owner-verified audit target, and a report that silently covered
+  // zero pages would be worse than useless. Everything we DISCOVER, though, is
+  // ours only by inference — so robots.txt decides.
+  const pool = candidates.filter(u => robotsAllows(robotsRules, pathOf(u)));
+  const excluded = candidates.length - pool.length;
+
+  // respect Crawl-delay in full when the site asks for one, floored at our own
+  // 400ms politeness delay; the total-wait budget then decides how many pages
+  // we can still afford to visit at that rate
+  const crawlDelayMs = Math.max(400, (robotsRules.crawlDelay || 0) * 1000);
+  const affordable = Math.floor(MAX_TOTAL_DELAY_MS / crawlDelayMs);
+  const pageBudget = Math.min(Math.max(0, depth - 1), affordable);
+  const extra = diversify(pool, pageBudget);
+  const rateLimited = pageBudget < Math.min(pool.length, depth - 1);
 
   const pageResults = [homeResult];
   for (const p of extra) {
     try { pageResults.push(await auditPage(context, p)); }
     catch { pageResults.push({ url: p, status: "error", page_score: 0, issue_count: 0, findings: [], pdfs: [] }); }
-    await sleep(400);   // politeness: don't hammer the origin / trip its WAF
+    await sleep(crawlDelayMs);   // politeness: don't hammer the origin / trip its WAF
   }
 
-  // broken-link QA + document discovery across everything we saw
-  const allLinks = [...new Set(pageResults.flatMap(r => r.links || []))];
+  // broken-link QA + document discovery across everything we saw. Same-origin
+  // probes are requests to the audited site too, so they honour robots.txt as
+  // well; off-origin links can't be checked against their own robots without a
+  // fetch per host, so they are left alone.
+  const allLinks = [...new Set(pageResults.flatMap(r => r.links || []))]
+    .filter(u => !u.startsWith(origin) || robotsAllows(robotsRules, pathOf(u)));
   const brokenFindings = await brokenLinks(context, allLinks);
   const documents = [...new Set(pageResults.flatMap(r => r.pdfs || []))].slice(0, MAX_DOCS);
 
@@ -494,9 +525,27 @@ async function main() {
     // page never loaded (WAF/geo-block/timeout) or nothing was analysed, the
     // category fillers above are meaningless and MUST NOT become a GovUX band.
     evidence: { home_reachable: !!resp, pages_analysed: ok.length,
-                pages_total: pages.length },
+                pages_total: pages.length,
+                // A disclosed crawler gets blocked by some government WAFs. Say so
+                // explicitly: without this, "403" surfaces as an unexplained
+                // near-empty audit and looks like an engine fault rather than an
+                // allow-listing problem the operator can actually fix.
+                home_status: resp ? resp.status() : null,
+                crawler_disclosed: UA_DISCLOSED,
+                blocked: blockedStatus != null,
+                blocked_hint: blockedStatus == null ? undefined
+                  : `The site returned HTTP ${blockedStatus} to our crawler. `
+                    + (UA_DISCLOSED
+                       ? `Ask the operator to allow-list the "${BOT_TOKEN}" user-agent (${BOT_URL}).`
+                       : "Crawler disclosure is disabled (GOVUX_UA_DISCLOSE=0); the block is IP- or rate-based.") },
     coverage: { sitemap_urls: fromSitemap.length, discovered: pool.length + 1,
-                pages_audited: pages.length, sampling: "diversified across site sections" },
+                pages_audited: pages.length, sampling: "diversified across site sections",
+                // stated openly so a low page count is explainable rather than
+                // looking like the crawler simply failed
+                robots_excluded: excluded, crawl_delay_ms: crawlDelayMs,
+                // true when the site's own Crawl-delay, not our depth setting,
+                // is what limited coverage
+                limited_by_crawl_delay: rateLimited },
   }));
 }
 
