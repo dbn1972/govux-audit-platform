@@ -7,8 +7,8 @@
 Score any `.gov.in` / `.nic.in` site against **GIGW 3.0**, **WCAG 2.2 AA**, **UX4G**, and **Core Web Vitals** — into a single, defensible **0–100 GovUX Score**.
 
 [![CI](https://github.com/dbn1972/govux-audit-platform/actions/workflows/ci.yml/badge.svg)](../../actions)
-![Tests](https://img.shields.io/badge/tests-181%20passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
+![Tests](https://img.shields.io/badge/tests-221%20passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen)
 ![Security](https://img.shields.io/badge/SAST-85%2F100-success)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)

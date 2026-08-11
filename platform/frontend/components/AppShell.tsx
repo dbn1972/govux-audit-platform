@@ -30,6 +30,7 @@ const NAV: NavGroup[] = [
     ["Bulk Scan", "/admin/bulk-scan", "bi-collection"],
     ["Continuous Monitoring", "/admin/monitoring", "bi-arrow-repeat"],
     ["Estate Discovery", "/admin/discovery", "bi-search"],
+    ["Organisations", "/admin/organisations", "bi-diagram-2"],
     ["Ministries", "/admin/ministries", "bi-building"],
     ["States & UTs", "/admin/states", "bi-map"],
     ["League Table", "/admin/league", "bi-trophy"],

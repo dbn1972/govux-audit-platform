@@ -29,9 +29,9 @@ platform/
     scheduler entry: python -m app.services.scheduler   (continuous monitoring)
     seed.py                     # python -m app.seed
     audit_engine/               # Node: runner.js, gigw-rules.js, lang.js
-    tests/                      # pytest (82 tests, 80% gate in pytest.ini)
+    tests/                      # pytest (221 tests across 36 files, 80% gate in pytest.ini)
     migrations/                 # Alembic (0001 loads schema.sql; 0002 gap-closure)
-  frontend/app/                 # 27 routes (App Router); owner + /admin/* steward
+  frontend/app/                 # 36 routes (App Router); owner + /admin/* steward
     components/AppShell.tsx  lib/api.ts  lib/score.ts  app/ux4g-theme.css
   scripts/verify_screens.py
   docker-compose.yml            # db, redis, api(:8000), worker, scheduler, web(:3000)

@@ -42,7 +42,7 @@
 19. [Authentication and session design](#19-authentication-and-session-design)
 20. [The audit pipeline](#20-the-audit-pipeline)
 21. [The Node audit engine](#21-the-node-audit-engine)
-22. [Frontend architecture](#22-frontend-architecture)
+22. [Information architecture and frontend](#22-information-architecture-and-frontend)
 23. [Failure modes](#23-failure-modes)
 24. [Scale envelope](#24-scale-envelope)
 
@@ -81,7 +81,7 @@
 | **API version** | `1.1`, all routes under `/v1` |
 | **Spec of record** | `GovUX_Audit_Platform_BRD_v1.1_Consolidated.docx` (repo root) |
 | **Size** | ~9,300 lines Python · ~4,400 lines TypeScript/TSX · 851 lines Node engine · 377-line SQL schema |
-| **Surface** | 64 HTTP endpoints (61 in 12 routers + 3 ops) · 36 frontend routes · 22 tables · 10 enums · 11 migrations |
+| **Surface** | 69 HTTP endpoints (66 in 12 routers + 3 ops) · 36 frontend routes · 22 tables · 10 enums · 11 migrations |
 | **Tests** | 221 backend tests across 36 files, hard `--cov-fail-under=80` gate; Vitest component tests; Playwright + axe e2e |
 | **Licence** | See `LICENSE` and `NOTICE` at repo root |
 
@@ -177,11 +177,16 @@ system — authentication is gov-email OTP only (§19).
 | `programme_admin` | MeitY/NIC programme steward | National dashboard, rankings, ministry and state league tables, auto-discovery scan and review, quota-request approval, runtime configuration, `/metrics` summary, alerts. |
 | `super_admin` | Platform operator | Everything, plus GovUX Studio tenant entitlement (`GET/PATCH /v1/studio/tenants`) — the only role that can switch `organisations.studio_enabled`. |
 
-**Role assignment gotcha that matters when recreating this:** OTP verification only ever creates
-new users with role `owner`. There is no self-service role elevation and no admin UI for it. Any
-non-owner account must be inserted into `users` directly (or promoted via SQL). This is
-deliberate — role escalation on a government platform should not be a click — but it means a
-fresh install has no `programme_admin` until you make one.
+**Role assignment.** OTP verification only ever creates new users with role `owner` — there is no
+self-service elevation at sign-in. Within an org, roles are managed from **`/settings`** via
+`GET /v1/auth/team` and `PATCH /v1/auth/team/{target_id}/role`.
+
+**The bootstrap gotcha that matters when recreating this:** because sign-in only ever mints
+`owner`, and team-role management is org-scoped, **a fresh install has no `programme_admin` or
+`super_admin` at all** — and no in-product path to create the first one. The first elevated
+account must be inserted or promoted directly in `users` via SQL. This is deliberate (platform-wide
+privilege should not be self-service), but it will stop a from-scratch rebuild dead at the point
+where you first try to open `/admin/national`.
 
 **Standing dev/test accounts** (one per role, org "GovUX QA Sandbox", `org_type = other`):
 `owner@gov.in`, `contributor@gov.in`, `assessor@gov.in`, `programme_admin@gov.in`,
@@ -891,13 +896,16 @@ HttpOnly refresh cookie).
 | GET | `/readyz` | Readiness — checks Postgres and Redis. **503** when not ready. Orchestrators must poll this, not `/healthz`. |
 | GET | `/metrics` | Prometheus. Toggleable via `app_settings.metrics_enabled`; bearer token via `metrics_token`. **In production a token is mandatory** — an open `/metrics` leaks queue and DB internals. |
 
-### `auth` — `/v1/auth` (9)
+### `auth` — `/v1/auth` (12)
 
 | Method | Path | Access |
 |---|---|---|
 | GET | `/me` | authenticated |
 | GET | `/me/export` | authenticated — DPDP data portability |
 | DELETE | `/me` | authenticated — DPDP erasure |
+| PATCH | `/organisation` | authenticated — edit own org name / state code |
+| GET | `/team` | authenticated — org-scoped member list |
+| PATCH | `/team/{target_id}/role` | authenticated — **org-scoped role management** (§3) |
 | POST | `/otp/request` | public → **202** |
 | POST | `/otp/verify` | public → `TokenPair` + sets `govux_rt` cookie |
 | POST | `/refresh` | refresh cookie → `TokenPair` |
@@ -926,9 +934,12 @@ HttpOnly refresh cookie).
 | GET | `/domains/{domain_id}/compare` | Compare runs |
 | POST | `/bulk-scans` | **202** — estate scan, sets `batch_id` |
 
-### `rankings` — `/v1` (4) · all `require_role("programme_admin", "super_admin")`
+### `rankings` — `/v1` (6) · all `require_role("programme_admin", "super_admin")`
 
-`GET /national` · `GET /rankings` · `GET /ministries` · `GET /states`
+`GET /national` · `GET /rankings` · `GET /ministries` · `GET /states` · `GET /alerts` ·
+`GET /organisations` (searchable, paginated org directory with domain counts; deliberately
+**not** cached — search/pagination produces too many distinct query shapes for cache-aside to pay
+off. New, uncommitted — see §33.4.)
 
 ### `library` — `/v1` (2)
 
@@ -956,7 +967,7 @@ HttpOnly refresh cookie).
 
 `GET ""` · `PATCH ""` · `POST /test-email` · `GET /metrics-summary`
 
-### `studio` — `/v1/studio` (7)
+### `studio` — `/v1/studio` (8)
 
 `GET /tenants` **(super_admin)** · `PATCH /tenants/{org_id}` **(super_admin)** · `POST ""` **202** ·
 `GET ""` · `GET /{run_id}` · `POST /{run_id}/publish` · `GET /{run_id}/preview/{filename}` (HTML) ·
@@ -965,6 +976,10 @@ HttpOnly refresh cookie).
 ### `assessments` — `/v1/assessments` (2)
 
 `POST ""` **201** · `GET ""`
+
+**Router totals** (authoritative, counted from the `@router.` decorators): `audits` 12 · `auth` 12 ·
+`studio` 8 · `public` 8 · `rankings` 6 · `monitoring` 5 · `admin_config` 4 · `domains` 3 ·
+`scan_requests` 3 · `assessments` 2 · `library` 2 · `ci` 1 = **66**, plus 3 ops routes = **69 paths**.
 
 **Contract testing:** the OpenAPI document is snapshotted in `backend/tests/openapi_contract.json`
 and asserted by `test_openapi_contract.py`. Changing an endpoint shape without updating the
@@ -1165,23 +1180,194 @@ image must install **all three** browser engines for `compat.js` to work.
 
 ---
 
-## 22. Frontend architecture
+## 22. Information architecture and frontend
 
 Next.js 14.2.3 App Router, TypeScript, React 18.3.1.
 
-### 22.1 Routes (36)
+### 22.1 The IA spine
 
-**Public/auth:** `/login`, `/scan`, `/report`, `/showcase/[slug]`
+The information architecture is **declared in one place**: the `NAV` constant at the top of
+`frontend/components/AppShell.tsx`. It is a list of groups, each holding `[label, href, icon]`
+tuples, with an optional `steward: true` flag on the group. Everything else — the desktop rail,
+the mobile drawer, active-item highlighting, and the deep-link guard — is derived from it.
 
-**Officer:** `/dashboard`, `/domains`, `/domains/new`, `/audits`, `/audits/new`, `/audits/[id]`
-and its sub-views `compare`, `compatibility`, `documents`, `issues`, `remediation`, `report`,
-`trends`; `/library`, `/review`, `/assessments`, `/settings`, `/studio`
+That single-source property is the important architectural point: **you cannot add a screen to
+the navigation without also adding it to the route guard**, because both read the same array.
 
-**Programme admin (`/admin/*`):** `alerts`, `approvals`, `bulk-scan`, `config`, `discovery`,
-`league`, `methodology`, `ministries`, `monitoring`, `national`, `standards`, `states`,
-`studio-access`
+**Five groups, 24 navigable destinations:**
 
-### 22.2 Design system
+| Group | Label | Route | Purpose |
+|---|---|---|---|
+| **Workspace** | Dashboard | `/dashboard` | Landing view; domain portfolio and latest scores |
+| | My Domains | `/domains` | Registered domains and verification state |
+| **Audits** | New Audit | `/audits/new` | Submit a run (depth, devices, browsers) |
+| | Audit History | `/audits` | All runs for the org |
+| | Design Studio | `/studio` | GovUX Studio prototype generator |
+| | Sample Report | `/report` | Static exemplar report — onboarding aid |
+| **Assess** | Manual Review | `/review` | Assessor queue; the path to `compliant` |
+| | External Assessments | `/assessments` | Manual-assurance ledger (G9/G11/G13) |
+| | Guideline Library | `/library` | WCAG / GIGW / UX4G / CWV reference |
+| **Account** | Team & Settings | `/settings` | Org profile, team roles, devices, DPDP export/erase |
+| | *Sign out* | — | A button, not a link — calls `POST /v1/auth/logout` |
+| **Steward (MeitY/NIC)** *(steward-only)* | National Dashboard | `/admin/national` | Estate-wide rollup |
+| | Approvals | `/admin/approvals` | Page-quota escalation queue |
+| | Bulk Scan | `/admin/bulk-scan` | Batch estate scans |
+| | Continuous Monitoring | `/admin/monitoring` | Schedules |
+| | Estate Discovery | `/admin/discovery` | Unregistered-domain discovery |
+| | Organisations | `/admin/organisations` | Org directory *(new, uncommitted — §33.4)* |
+| | Ministries | `/admin/ministries` | Ministry league |
+| | States & UTs | `/admin/states` | State/UT league |
+| | League Table | `/admin/league` | Segmented rankings |
+| | Alerts | `/admin/alerts` | Regression and anomaly alerts |
+| | Standards & Rules | `/admin/standards` | Rule configuration |
+| | Studio Access | `/admin/studio-access` | Tenant entitlement (`super_admin`) |
+| | Configuration | `/admin/config` | Runtime settings, SMTP test, metrics |
+| | Methodology | `/admin/methodology` | Published methodology (G10 transparency) |
+
+**The other 12 routes are deliberately not in navigation** — 36 routes total, 24 in the rail:
+
+| Route | Reached from |
+|---|---|
+| `/login` | Unauthenticated entry point; redirect target on unrecoverable 401 |
+| `/scan` | Public entry point — the free scanner, no account needed |
+| `/showcase/[slug]` | Public link to a published Studio prototype |
+| `/domains/new` | Action button on `/domains` |
+| `/audits/[id]` | Drill-down from `/audits` or `/dashboard` |
+| `/audits/[id]/{compare,compatibility,documents,issues,remediation,report,trends}` | Tabs within the audit hub (§22.5) |
+
+The split is the IA in miniature: **the rail is for standing destinations, not for object
+instances or actions.** A specific audit is not a nav item; it is somewhere you arrive.
+
+### 22.2 Role gating and deep-link defence
+
+Two derived constants do the work:
+
+```ts
+const STEWARD_PREFIXES = NAV.filter(g => g.steward).flatMap(g => g.items.map(([, h]) => h));
+const isStewardRoute = (path) => STEWARD_PREFIXES.some(h => path === h || path.startsWith(h + "/"));
+```
+
+- **Hiding:** `NavList` filters out steward groups when `!isSteward`, so a non-steward never sees
+  the group.
+- **Guarding:** `denied = !!me && !me.is_steward && isStewardRoute(path)` — a non-steward who
+  types or bookmarks `/admin/national` gets the `AccessDenied` card **instead of** `children`.
+  Hiding a link is not access control; this is the second half.
+- **Source of truth:** `is_steward` is computed **server-side** in `GET /v1/auth/me`
+  (`user.role in ("programme_admin", "super_admin")`) and returned as a boolean. The frontend never
+  parses role strings, so the role→steward mapping cannot drift between client and server.
+
+**This is defence in depth, not the security boundary.** The real enforcement is
+`require_role(...)` on the API (§18). The client guard exists so a non-steward sees a clean
+"access denied" rather than a screen full of failed requests.
+
+**Active-item resolution** uses longest-prefix-wins: on `/audits/new`, both `/audits/new` and
+`/audits` prefix-match, and sorting matches by descending length ensures only "New Audit"
+highlights. Without it two nav items light up at once.
+
+### 22.3 URL taxonomy
+
+Consistent and predictable, which is most of what an IA has to be:
+
+| Pattern | Meaning | Examples |
+|---|---|---|
+| `/<collection>` | List view | `/domains`, `/audits`, `/assessments` |
+| `/<collection>/new` | Create action | `/domains/new`, `/audits/new` |
+| `/<collection>/[id]` | Instance hub | `/audits/[id]` |
+| `/<collection>/[id]/<facet>` | A view *of* that instance | `/audits/[id]/issues` |
+| `/admin/<area>` | Steward console, flat | `/admin/national`, `/admin/league` |
+| `/<public>` | Unauthenticated | `/login`, `/scan`, `/report`, `/showcase/[slug]` |
+
+The steward console is deliberately **flat** (`/admin/*`, no nesting). Its 14 areas are peers, not
+a hierarchy, and flattening keeps every one of them one click from the rail.
+
+### 22.4 Screen → endpoint map
+
+What each screen actually calls. This is the contract between the two halves of the system, and
+the fastest way to orient in either direction.
+
+| Route | API calls |
+|---|---|
+| `/login` | `requestOtp`, `verifyOtp` |
+| `/dashboard` | `listDomains` |
+| `/domains` | `listDomains` |
+| `/domains/new` | `registerDomain`, `verifyDomain` |
+| `/audits` | `listAudits`, `me` |
+| `/audits/new` | `listDomains`, `me`, `submitAudit`, `createScanRequest` |
+| `/audits/[id]` | `auditStatus` |
+| `/audits/[id]/report` | `auditReport`, `evidencePack` |
+| `/audits/[id]/issues` | `auditReport`, `remediation` |
+| `/audits/[id]/remediation` | `remediation` |
+| `/audits/[id]/documents` | `auditDocuments` |
+| `/audits/[id]/compatibility` | `auditReport` |
+| `/audits/[id]/compare` | `compare` |
+| `/audits/[id]/trends` | `auditTrend` |
+| `/review` | `auditStatus`, `reviewAudit` |
+| `/assessments` | `listAssessments`, `createAssessment`, `listDomains`, `me` |
+| `/library` | `guidelines` |
+| `/studio` | `listStudio`, `studioCreate`, `studioGet`, `studioPreview`, `studioPublish`, `studioDownload` |
+| `/settings` | `me`, `listTeam`, `updateTeamRole`, `updateOrganisation`, `devices`, `revokeDevice`, `exportMyData`, `eraseMyData` |
+| `/admin/national` | `national` |
+| `/admin/league` | `rankings` |
+| `/admin/ministries` | `ministries` |
+| `/admin/states` | `states` |
+| `/admin/alerts` | `alerts` |
+| `/admin/organisations` | `organisations` |
+| `/admin/approvals` | `scanRequests`, `decideScanRequest` |
+| `/admin/bulk-scan` | `bulkScan` |
+| `/admin/monitoring` | `schedules`, `createSchedule`, `deleteSchedule`, `listDomains` |
+| `/admin/discovery` | `discovered`, `discoveryScan` |
+| `/admin/studio-access` | `studioTenants`, `studioSetTenant` |
+| `/admin/config` | `adminConfig`, `updateConfig`, `adminMetrics`, `testEmail` |
+| `/admin/methodology`, `/admin/standards`, `/report` | *(none — static content)* |
+| `/scan`, `/showcase/[slug]` | *(raw `fetch` to `/api/v1/public/*` — see §22.6)* |
+
+### 22.5 The audit detail hub
+
+`/audits/[id]` is the only place in the product with real depth, and it is a **hub with facets**
+rather than one long page:
+
+```
+/audits/[id]              status + summary (polls while the run is in flight)
+  ├── /report             full report, evidence-pack download
+  ├── /issues             findings, filterable by severity/category
+  ├── /remediation        advisory guidance, ranked by points recoverable
+  ├── /documents          PDF/Office accessibility (G3)
+  ├── /compatibility      cross-browser matrix (Chromium/Firefox/WebKit)
+  ├── /compare            this run vs a previous run
+  └── /trends             score history for the domain
+```
+
+Each facet fetches only its own data — `/documents` calls `auditDocuments`, not the full report —
+so the expensive report payload is not paid for on every tab. The exceptions are `/issues` and
+`/compatibility`, which read from `auditReport` because their data is embedded in it.
+
+### 22.6 Two client paths, deliberately
+
+- **Authenticated screens** go through `lib/api.ts` exclusively: in-memory access token, silent
+  refresh, `AuthError`, redirect-to-login.
+- **Public screens** (`/scan`, `/showcase/[slug]`) call `fetch("/api/v1/public/...")` **directly**,
+  bypassing `lib/api.ts` entirely.
+
+This is intentional. The public surface must work with no token, must never attach an
+`Authorization` header, and must never trigger the 401 → refresh → redirect-to-`/login` behaviour
+that `lib/api.ts` exists to provide. Routing anonymous traffic through the authenticated client
+would bounce citizens to a sign-in page they have no account for.
+
+### 22.7 The responsive shell
+
+One `AppShell`, two presentations, switching at Bootstrap's `lg` breakpoint:
+
+- **≥ lg:** a 236px sticky left rail (`position: sticky; top: 60px; height: calc(100vh - 60px)`,
+  self-scrolling), hamburger hidden.
+- **< lg:** rail hidden; a hamburger opens an off-canvas drawer (280px, max 82vw) with a backdrop.
+
+The drawer implements the full contract that `role="dialog" aria-modal="true"` implies — body
+scroll lock, Escape to close, focus moved to the close button on open, Tab trapped within the
+panel, focus restored to the hamburger on close, and auto-close on route change. That is WCAG
+2.4.3 and 4.1.2, and it is written out longhand because an accessibility auditing platform whose
+own menu traps keyboard users is not a product anyone should ship.
+
+### 22.8 Design system
 
 UX4G Design System 3.0 is built on **Bootstrap 5**, so the frontend uses Bootstrap component
 classes directly (`container`, `row`/`col`, `card`, `btn btn-primary`, `form-control`,
@@ -1194,7 +1380,7 @@ Load order in `app/layout.tsx` is significant: `bootstrap.min.css` → `ux4g-the
 → `globals.css`. Font via `next/font` (Inter); production should swap to the exact UX4G font and
 add **Noto Sans** for Indic scripts.
 
-### 22.3 Shared modules
+### 22.9 Shared modules
 
 - **`components/AppShell.tsx`** — the shell every authenticated page wraps in. Owns navigation
   (role-aware), the sign-out control, and the idle-timeout policy (19-minute warning dialog,
@@ -1204,7 +1390,7 @@ add **Noto Sans** for Indic scripts.
 - **`lib/score.ts`** — band/colour/formatting helpers, kept in one place so the band mapping cannot
   drift between screens.
 
-### 22.4 The screen contract
+### 22.10 The screen contract
 
 `platform/scripts/verify_screens.py` asserts every route renders and is reachable from `AppShell`
 navigation. **Every new screen must use `AppShell`, fetch through `lib/api.ts`, appear in nav, and
@@ -1710,17 +1896,34 @@ settled.
 Recorded honestly so a reader — human or AI — does not trust a stale claim. Accurate as of
 2026-08-11, branch `amanmittal`.
 
-### 33.1 Documentation that has drifted from the code
+### 33.1 Documentation drift — found and **fixed on 2026-08-11**
 
-| File | Says | Actually |
+Five stale claims were corrected. Recorded here because the drift pattern will recur.
+
+| File | Said | Corrected to |
 |---|---|---|
-| `docs/BRD_GOVUX_STUDIO.md` | "Status: Proposed — **not yet implemented**" | **Implemented.** `services/studio.py`, `services/studio_audit.py`, `routers/studio.py` (7 endpoints), `app/prompts/studio_generate.md`, `studio_runs` table, migrations `0008`/`0009`, frontend `/studio` and `/admin/studio-access`, `test_studio.py`. |
-| `docs/BRD_INTEGRITY_ENGINE.md` | "Status: Proposed — **not yet implemented**" | **Implemented.** `services/integrity.py`, `audits.integrity` column, migration `0010`, wired into `worker.process` and `compliance_verdict`, `test_integrity.py`. |
-| `README.md` | "a **starter**… the frontend is a scaffold with representative pages. Extend the 22 prototype screens into React routes" | The frontend has **36 App Router routes**, an `AppShell`, idle-timeout policy, e2e and component tests. The prototype extension is done. |
-| `platform/docs/ARCHITECTURE.md` | "82 tests", "27 routes" | **221 tests**, **36 routes**. |
+| `docs/BRD_GOVUX_STUDIO.md` | "Status: Proposed — **not yet implemented**" | "**Implemented**", plus a new §0 *Implementation map* pointing at `services/studio.py`, `services/studio_audit.py`, `routers/studio.py` (8 endpoints), the `studio_runs` table, migrations `0008`/`0009` and `test_studio.py`. |
+| `docs/BRD_INTEGRITY_ENGINE.md` | "Status: Proposed — **not yet implemented**" | "**Implemented**", plus a §0 *Implementation map* pointing at `services/integrity.py`, `audits.integrity`, migration `0010`, the `worker.process` wiring and `test_integrity.py`. |
+| `platform/README.md` | "a **starter**… the frontend is a scaffold with representative pages. Extend the 22 prototype screens into React routes" | Real status: 12 routers / 66 endpoints, 221 tests, **36 App Router routes**. The `prototype/` screens are named as the historical design reference they now are. |
+| `README.md` (root) | Badges: `tests-181 passing`, `coverage-89%` | `tests-221 passing`, `coverage-92%`. |
+| `platform/docs/ARCHITECTURE.md` | "82 tests", "27 routes" | "221 tests across 36 files", "36 routes". |
 
-These four status lines are the most misleading artefacts in the repository — an agent reading
-them would rebuild features that already exist. Fixing them is a small, worthwhile follow-up.
+**The lesson worth keeping:** every one of these was a *count* or a *status word* — the two things
+that go stale fastest and that no test guards. Prose describing behaviour had not drifted at all.
+Prefer "see §X" over restating a number, and when a number must be restated, expect to re-verify it.
+
+### 33.1a Errors this pass corrected in PRODUCT.md itself
+
+Found while building the IA (§22), and worth recording as a caution about grep-derived counts:
+
+- **Endpoint count was wrong.** An unanchored `grep` undercounted; the authoritative
+  `^@router\.` count is **66**, not 61. `auth` has **12** endpoints (not 9) and `rankings` **6**
+  (not 4).
+- **`GET /v1/auth/team` and `PATCH /v1/auth/team/{target_id}/role` were missed entirely** — so the
+  original claim in §3 that there is "no admin UI" for role assignment was **wrong**. Org-scoped
+  role management exists at `/settings`. The genuine constraint is narrower and is now stated
+  correctly: no in-product path exists to create the *first* `programme_admin`/`super_admin`.
+- `PATCH /v1/auth/organisation` and `GET /v1/alerts` were also missing from §18.
 
 ### 33.2 Known open defects
 
@@ -1745,7 +1948,9 @@ Recorded so they are not re-debated:
 
 ### 33.4 In-flight uncommitted work
 
-Branch `amanmittal`, four modified files (+174/−29):
+Branch `amanmittal`. Two independent workstreams are in progress.
+
+**1. Refresh-token race fix** (+174/−29)
 
 - `app/config.py` — adds `refresh_reuse_grace_seconds: int = 10`.
 - `app/routers/auth.py` — rewrites `POST /refresh` as an **atomic claim** (`UPDATE … WHERE
@@ -1753,8 +1958,25 @@ Branch `amanmittal`, four modified files (+174/−29):
   described in §19.4, distinguishing self-rotation (`rotated_at == revoked_at`) from a theft
   cascade or explicit sign-out.
 - `tests/test_auth.py`, `tests/test_security_hardening.py` — cover the concurrent-refresh race, the
-  grace window boundary, and the requirement that logged-out and cascade-killed sessions stay dead
+  grace-window boundary, and the requirement that logged-out and cascade-killed sessions stay dead
   inside the grace window.
+
+**2. Organisation directory** (new feature, spans four files)
+
+- `app/routers/rankings.py` (+37) — `GET /v1/organisations`: searchable (`q` ILIKE on name),
+  filterable (`org_type`), paginated (`limit` capped at 200, `offset`), returning each org with a
+  `domain_count` from a grouped subquery. `programme_admin`/`super_admin` only. Deliberately
+  **not cached** — search and pagination generate too many distinct query shapes for cache-aside
+  to pay off, and an indexed `ILIKE` plus a join over ~1–2k rows is already fast.
+- `frontend/app/admin/organisations/page.tsx` — **untracked**, the consuming screen.
+- `frontend/lib/api.ts` — adds `api.organisations(...)`.
+- `frontend/components/AppShell.tsx` — adds the "Organisations" nav entry to the Steward group.
+
+The stated motivation in the code comment: org data was previously reachable only as a side effect
+of the Studio-access tenants screen — not a real directory, and `super_admin`-only.
+
+Also modified: `tests/openapi_contract.json` and `tests/test_rankings_library.py` (the contract
+snapshot and tests for the new endpoint).
 
 The most recent commit (`31b4783`) added logout, the idle timeout and the sign-out UI.
 
@@ -1807,6 +2029,8 @@ When two places disagree, this is which one wins.
 | What does the engine measure? | `platform/backend/audit_engine/runner.js`. |
 | What is the audit pipeline order? | `platform/backend/app/worker.py: process()`. |
 | Which routes exist? | `platform/frontend/app/**/page.tsx`, gated by `scripts/verify_screens.py`. |
+| What is the navigation / information architecture? | The `NAV` constant in `platform/frontend/components/AppShell.tsx` — it drives the rail, the drawer, active-item highlighting **and** the steward deep-link guard. Documented in §22. |
+| Who counts as a steward? | `GET /v1/auth/me` returns `is_steward`, computed server-side. The frontend never parses role strings. |
 | What are the product invariants? | `CLAUDE.md` (root) and §6 of this file. |
 | What was the original requirement? | `GovUX_Audit_Platform_BRD_v1.1_Consolidated.docx`. |
 | What is actually built right now? | §33 of this file. |

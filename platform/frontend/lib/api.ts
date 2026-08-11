@@ -92,6 +92,15 @@ export const api = {
   ministries: () => req("/v1/ministries"),
   states: () => req("/v1/states"),
   alerts: () => req("/v1/alerts"),
+  organisations: (p: { q?: string; org_type?: string; limit?: number; offset?: number } = {}) => {
+    const qs = new URLSearchParams();
+    if (p.q) qs.set("q", p.q);
+    if (p.org_type) qs.set("org_type", p.org_type);
+    if (p.limit != null) qs.set("limit", String(p.limit));
+    if (p.offset != null) qs.set("offset", String(p.offset));
+    const s = qs.toString();
+    return req(`/v1/organisations${s ? `?${s}` : ""}`);
+  },
   auditTrend: (taskId: string) => req(`/v1/audits/${taskId}/trend`),
   bulkScan: (scope: string) =>
     req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),

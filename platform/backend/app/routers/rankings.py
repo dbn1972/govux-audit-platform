@@ -220,3 +220,40 @@ def _alerts(db: Session):
         "critical_spike_count": spike_count,
         "alerts": items,
     }
+
+
+@router.get("/organisations")
+def organisations(q: str | None = None, org_type: str | None = None,
+                  limit: int = 50, offset: int = 0,
+                  db: Session = Depends(get_db),
+                  user=Depends(require_role("programme_admin", "super_admin"))):
+    """Searchable, paginated directory of every organisation on the platform.
+    Previously the only place this data was reachable at all was as a side
+    effect of the Studio-access (tenants) screen — not a real directory, and
+    restricted to super_admin only. Not cached: search/pagination gives too
+    many distinct query shapes for cache-aside to pay off, and an indexed
+    ILIKE + join over ~1-2k rows is already fast."""
+    limit = max(1, min(limit, 200))
+    offset = max(0, offset)
+
+    base = db.query(models.Organisation)
+    if q:
+        base = base.filter(models.Organisation.name.ilike(f"%{q}%"))
+    if org_type:
+        base = base.filter(models.Organisation.org_type == org_type)
+    total = base.count()
+
+    domain_counts = (db.query(models.Domain.org_id, func.count(models.Domain.id).label("n"))
+                       .group_by(models.Domain.org_id).subquery())
+    rows = (base.outerjoin(domain_counts, domain_counts.c.org_id == models.Organisation.id)
+                .add_columns(func.coalesce(domain_counts.c.n, 0).label("domain_count"))
+                .order_by(models.Organisation.name)
+                .offset(offset).limit(limit).all())
+
+    return {
+        "total": total,
+        "items": [{"id": str(o.id), "name": o.name, "org_type": o.org_type,
+                   "state_code": o.state_code, "domain_count": int(n),
+                   "studio_enabled": bool(o.studio_enabled),
+                   "created_at": o.created_at} for o, n in rows],
+    }

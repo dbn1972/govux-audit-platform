@@ -6,7 +6,28 @@
 | **Version** | 1.0 (Draft for approval) |
 | **Owner** | GovUX Audit Platform — Product |
 | **Related** | [Scoring & Validation](../platform/docs/SCORING_VALIDATION.md) · [Security Architecture](SECURITY_ARCHITECTURE.md) · [HLD](HLD.md) · [LLD](LLD.md) |
-| **Status** | Proposed — not yet implemented |
+| **Status** | **Implemented** (as of 2026-08-11) — see “Implementation map” below |
+
+---
+
+## 0. Implementation map
+
+This BRD was written as a proposal and has since been **built**. The requirements below are
+retained as the statement of intent; this table is where each one now lives in the code.
+
+| Area | Implementation |
+|---|---|
+| Detection + assessment | `platform/backend/app/services/integrity.py` — `assess(findings, overall, previous_overall, enabled)` |
+| Overlay / stuffing detection in the engine | `platform/backend/audit_engine/runner.js` — `overlays()` |
+| Persistence | `audits.integrity` (JSONB); migration `0010_integrity` |
+| Pipeline wiring | `platform/backend/app/worker.py` — runs after scoring, before the compliance verdict |
+| Effect on the verdict | `services/scoring.py` — `compliance_verdict(..., integrity_flagged=True)` caps at `partially_compliant` with a stated reason |
+| Feature flag | `app_settings` key `integrity_enabled` (default `true`) |
+| Tests | `platform/backend/tests/test_integrity.py` |
+
+The governing constraint held: **the Integrity Engine caps the compliance verdict and routes to
+human review; it never changes the deterministic score.** A penalty the audited party cannot see
+and reproduce would be indefensible on challenge. See `PRODUCT.md` §4.4.
 
 ---
 

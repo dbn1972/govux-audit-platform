@@ -112,6 +112,10 @@
     "200",
     "422"
   ],
+  "GET /v1/organisations": [
+    "200",
+    "422"
+  ],
   "GET /v1/public/captcha": [
     "200"
   ],

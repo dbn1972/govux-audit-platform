@@ -1,11 +1,16 @@
-# GovUX Audit Platform — starter repository
+# GovUX Audit Platform — `platform/`
 
-A runnable, architecture-complete scaffold implementing **BRD v1.1**: a self-service
-UX & compliance audit engine for `.gov.in` / `.nic.in` websites.
+The runnable implementation of **BRD v1.1**: a self-service UX & compliance audit
+engine for `.gov.in` / `.nic.in` websites.
 
-> This is a **starter**: the database and backend core are production-shaped; the
-> frontend is a scaffold with the design system + representative pages. Extend the
-> 22 prototype screens (`../prototype/`) into React routes as you build.
+> **Status:** the backend, audit engine and frontend are all built out — 12 routers /
+> 61 endpoints, 22 tables, 221 backend tests at a ≥80% coverage gate, and **36 App
+> Router routes** covering the officer workspace and the `/admin/*` steward console.
+> The original 22 static screens in `../prototype/` are the historical design
+> reference; they have been superseded by the React routes under `frontend/app/`.
+>
+> For the complete product specification — invariants, scoring model, data model,
+> information architecture and a from-scratch rebuild plan — see **[`../PRODUCT.md`](../PRODUCT.md)**.
 
 ## Run it
 
