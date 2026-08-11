@@ -203,13 +203,16 @@ def _alerts(db: Session):
                       "detail": "Likely unreviewed content/template changes"})
     if never_audited_count:
         pct = round(100 * never_audited_count / domains_total) if domains_total else 0
+        one = never_audited_count == 1
         items.append({"severity": "medium",
-                      "title": f"{never_audited_count} known domain"
-                               f"{'s' if never_audited_count != 1 else ''} have never been audited",
+                      "title": f"{never_audited_count} known domain{'' if one else 's'} "
+                               f"{'has' if one else 'have'} never been audited",
                       "detail": f"{pct}% of the national register"})
     if spike_count:
+        one = spike_count == 1
         items.append({"severity": "critical",
-                      "title": f"{spike_count} domain{'s' if spike_count != 1 else ''} show a spike "
+                      "title": f"{spike_count} domain{'' if one else 's'} "
+                               f"{'shows' if one else 'show'} a spike "
                                "in critical accessibility failures",
                       "detail": "Guard-rail triggered — capped at Band C"})
 
