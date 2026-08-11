@@ -3,12 +3,76 @@ import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api, setToken } from "@/lib/api";
 
+// States & UTs roll-up (/admin/states) groups by this code — short, so it fits
+// the compact tile grid there. No canonical list existed anywhere before this.
+const STATES: [string, string][] = [
+  ["AP", "Andhra Pradesh"], ["AR", "Arunachal Pradesh"], ["AS", "Assam"], ["BR", "Bihar"],
+  ["CG", "Chhattisgarh"], ["GA", "Goa"], ["GJ", "Gujarat"], ["HR", "Haryana"],
+  ["HP", "Himachal Pradesh"], ["JH", "Jharkhand"], ["KA", "Karnataka"], ["KL", "Kerala"],
+  ["MP", "Madhya Pradesh"], ["MH", "Maharashtra"], ["MN", "Manipur"], ["ML", "Meghalaya"],
+  ["MZ", "Mizoram"], ["NL", "Nagaland"], ["OD", "Odisha"], ["PB", "Punjab"],
+  ["RJ", "Rajasthan"], ["SK", "Sikkim"], ["TN", "Tamil Nadu"], ["TG", "Telangana"],
+  ["TR", "Tripura"], ["UP", "Uttar Pradesh"], ["UK", "Uttarakhand"], ["WB", "West Bengal"],
+  ["AN", "Andaman & Nicobar Islands"], ["CH", "Chandigarh"],
+  ["DN", "Dadra & Nagar Haveli and Daman & Diu"], ["DL", "Delhi (NCT)"],
+  ["JK", "Jammu & Kashmir"], ["LA", "Ladakh"], ["LD", "Lakshadweep"], ["PY", "Puducherry"],
+];
+
 export default function Settings() {
   // Security screen: never show fabricated sessions — load real ones, and on
   // failure show an error rather than placeholder devices that look real.
   const [devices, setDevices] = useState<any[] | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // Organisation settings — can edit if owner/programme_admin/super_admin (the
+  // API enforces this; canEditOrg just hides the Save action for lesser roles).
+  const [orgName, setOrgName] = useState("");
+  const [orgState, setOrgState] = useState("");
+  const [canEditOrg, setCanEditOrg] = useState(false);
+  const [orgBusy, setOrgBusy] = useState(false);
+  const [orgMsg, setOrgMsg] = useState("");
+  useEffect(() => {
+    api.me().then((m) => {
+      setOrgName(m?.org_name || "");
+      setOrgState(m?.org_state_code || "");
+      setCanEditOrg(["owner", "programme_admin", "super_admin"].includes(m?.role));
+    }).catch(() => {});
+  }, []);
+  async function saveOrg() {
+    setOrgBusy(true); setOrgMsg("");
+    try {
+      await api.updateOrganisation({ name: orgName, state_code: orgState });
+      setOrgMsg("✓ Saved.");
+    } catch (e: any) { setOrgMsg("✗ " + (e?.message || "Could not save.")); }
+    finally { setOrgBusy(false); }
+  }
+
+  // Team & roles — was DB-edit-only before this. canManageTeam mirrors the
+  // API's own check; canGrantSteward further restricts who may hand out
+  // programme_admin/super_admin (only an existing super_admin).
+  const ROLES = ["owner", "contributor", "assessor", "programme_admin", "super_admin"];
+  const [team, setTeam] = useState<any[] | null>(null);
+  const [teamErr, setTeamErr] = useState("");
+  const [myRole, setMyRole] = useState("");
+  const [teamBusyId, setTeamBusyId] = useState<string | null>(null);
+  const canManageTeam = ["owner", "programme_admin", "super_admin"].includes(myRole);
+  const canGrantSteward = myRole === "super_admin";
+
+  useEffect(() => {
+    api.me().then((m) => setMyRole(m?.role || "")).catch(() => {});
+    api.listTeam().then((t) => setTeam(t || []))
+      .catch((e: any) => { setTeamErr(e?.message || "Could not load your team."); setTeam([]); });
+  }, []);
+
+  async function changeRole(userId: string, role: string) {
+    setTeamBusyId(userId); setTeamErr("");
+    try {
+      await api.updateTeamRole(userId, role);
+      setTeam((t) => (t || []).map((m) => (m.id === userId ? { ...m, role } : m)));
+    } catch (e: any) { setTeamErr(e?.message || "Could not change that role."); }
+    finally { setTeamBusyId(null); }
+  }
 
   // Notification preferences persist per-device (no server endpoint yet) so the
   // toggles actually remember a choice rather than resetting on every visit.
@@ -82,6 +146,82 @@ export default function Settings() {
       <div className="container-fluid p-4">
         <h1 className="h3">Team &amp; settings</h1>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
+
+        <div className="row g-3 mb-3">
+          <div className="col-lg-6"><div className="card shadow-sm"><div className="card-body">
+            <h2 className="h6">Organisation</h2>
+            <div className="mb-2">
+              <label className="form-label small fw-semibold" htmlFor="org-name">Name</label>
+              <input id="org-name" className="form-control form-control-sm" value={orgName}
+                onChange={(e) => setOrgName(e.target.value)} disabled={!canEditOrg} />
+            </div>
+            <div className="mb-2">
+              <label className="form-label small fw-semibold" htmlFor="org-state">State / UT</label>
+              <select id="org-state" className="form-select form-select-sm" value={orgState}
+                onChange={(e) => setOrgState(e.target.value)} disabled={!canEditOrg}>
+                <option value="">— Not set —</option>
+                {STATES.map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
+              </select>
+              <div className="form-text">Feeds the national States &amp; UTs roll-up.</div>
+            </div>
+            {canEditOrg ? (
+              <button className="btn btn-primary btn-sm" onClick={saveOrg} disabled={orgBusy}>
+                {orgBusy ? "Saving…" : "Save"}</button>
+            ) : (
+              <div className="text-secondary small">Only an owner or admin can edit organisation settings.</div>
+            )}
+            {orgMsg && <div className="small mt-2 text-secondary">{orgMsg}</div>}
+          </div></div></div>
+
+          <div className="col-lg-6"><div className="card shadow-sm h-100">
+            <div className="card-header bg-white fw-semibold">Team members</div>
+            {teamErr && <div className="alert alert-warning m-2 mb-0 py-1 small" role="alert">{teamErr}</div>}
+            <div className="table-responsive"><table className="table table-sm align-middle mb-0">
+              <thead className="table-light"><tr><th>Member</th><th>Role</th><th></th></tr></thead>
+              <tbody>
+                {team == null && (
+                  <tr><td colSpan={3} className="text-center py-3">
+                    <span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" />
+                  </td></tr>
+                )}
+                {team?.length === 0 && !teamErr && (
+                  <tr><td colSpan={3} className="text-secondary text-center py-3">No team members found.</td></tr>
+                )}
+                {(team || []).map((m) => {
+                  const stewardOnly = m.role === "programme_admin" || m.role === "super_admin";
+                  const editable = canManageTeam && !m.is_you && (canGrantSteward || !stewardOnly);
+                  return (
+                    <tr key={m.id}>
+                      <td className="small">{m.display_name || m.email}
+                        {m.is_you && <span className="badge text-bg-secondary-subtle ms-1">you</span>}</td>
+                      <td>
+                        {editable ? (
+                          <select className="form-select form-select-sm" value={m.role}
+                            disabled={teamBusyId === m.id}
+                            onChange={(e) => changeRole(m.id, e.target.value)}>
+                            {ROLES.filter((r) => canGrantSteward || !(r === "programme_admin" || r === "super_admin")
+                                       || r === m.role).map((r) => <option key={r} value={r}>{r}</option>)}
+                          </select>
+                        ) : (
+                          <span className="badge text-bg-light">{m.role}</span>
+                        )}
+                      </td>
+                      <td>{teamBusyId === m.id && <span className="spinner-border spinner-border-sm text-secondary" role="status" aria-label="Saving" />}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table></div>
+            <div className="card-footer bg-white small text-secondary">
+              {canGrantSteward
+                ? "As a super_admin you can grant any role, including programme_admin/super_admin."
+                : canManageTeam
+                ? "Only a super_admin can grant a steward role (programme_admin/super_admin)."
+                : "Only an owner or admin can change team roles."}
+            </div>
+          </div></div>
+        </div>
+
         <div className="row g-3">
           <div className="col-lg-8">
             <div className="card shadow-sm">

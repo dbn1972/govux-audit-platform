@@ -46,7 +46,7 @@ describe("New Audit — real domains, real ids", () => {
     await screen.findByRole("combobox");           // domains loaded
     await userEvent.click(screen.getByRole("button", { name: /Submit/i }));
 
-    await waitFor(() => expect(submitAudit).toHaveBeenCalledWith("uuid-verified-1"));
+    await waitFor(() => expect(submitAudit).toHaveBeenCalledWith("uuid-verified-1", 10));
     expect(push).toHaveBeenCalledWith("/audits/task-xyz");
   });
 
@@ -60,7 +60,7 @@ describe("New Audit — real domains, real ids", () => {
     render(<NewAudit />);
     await screen.findByRole("combobox");
     await userEvent.click(screen.getByRole("button", { name: /Submit/i }));
-    await waitFor(() => expect(submitAudit).toHaveBeenCalledWith("uuid-verified-2"));
+    await waitFor(() => expect(submitAudit).toHaveBeenCalledWith("uuid-verified-2", 10));
   });
 
   it("shows a register-and-verify prompt when there are no verified domains", async () => {

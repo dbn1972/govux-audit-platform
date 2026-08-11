@@ -107,3 +107,32 @@ def read_public(consumer: str, count: int = 1, block_ms: int = 5000):
 
 def ack_public(entry_id: str):
     _r.xack(settings.public_scan_stream, settings.public_consumer_group, entry_id)
+
+
+# ---------- public-scan crash recovery (mirrors reclaim_stale above) ----------
+PUBLIC_MAX_DELIVERIES = 3
+PUBLIC_DLQ_STREAM = settings.public_scan_stream + ":dlq"
+
+
+def reclaim_stale_public(consumer: str, min_idle_ms: int = 120_000, count: int = 10):
+    """Reclaim public-scan jobs whose owning worker died mid-run (idle in the
+    PEL past `min_idle_ms`) back to `consumer`. Without this the single-
+    concurrency free scanner has no crash recovery at all: one dead process
+    mid-scan stalls every scan behind it forever."""
+    try:
+        res = _r.xautoclaim(settings.public_scan_stream, settings.public_consumer_group, consumer,
+                            min_idle_time=min_idle_ms, start_id="0-0", count=count)
+    except redis.ResponseError:
+        return []
+    claimed = res[1] if isinstance(res, (list, tuple)) and len(res) >= 2 else []
+    live = []
+    for entry_id, data in claimed:
+        pend = _r.xpending_range(settings.public_scan_stream, settings.public_consumer_group,
+                                 min=entry_id, max=entry_id, count=1)
+        deliveries = int(pend[0]["times_delivered"]) if pend else 1
+        if deliveries > PUBLIC_MAX_DELIVERIES:
+            _r.xadd(PUBLIC_DLQ_STREAM, {**data, "dlq_reason": "max-deliveries", "src_id": str(entry_id)})
+            _r.xack(settings.public_scan_stream, settings.public_consumer_group, entry_id)
+        else:
+            live.append((entry_id, data))
+    return live

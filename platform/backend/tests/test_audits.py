@@ -25,9 +25,38 @@ def test_submit_is_idempotent(client, ctx, verified_domain):
     assert a.json()["task_id"] == b.json()["task_id"]   # no duplicate concurrent run
 
 
+def test_requested_depth_reaches_the_engine(client, ctx, verified_domain, monkeypatch):
+    """worker.py used to drop the caller's depth entirely and always run the
+    engine's own 25-page default, making the free-tier quota and the
+    scan-request approval flow decorative. It must reach run_engine()."""
+    from app import worker
+    seen = {}
+
+    def _capture(url, screenshot_path=None, depth=None):
+        seen["depth"] = depth
+        return {"url": url,
+                "categories": {"accessibility": 80, "usability": 70, "gigw": 75, "design": 70,
+                               "performance": 65, "responsiveness": 60, "content": 62, "trust": 90},
+                "cwv": {"lcp_ms": 2000, "cls": 0.05}, "findings": []}
+    monkeypatch.setattr(worker, "run_engine", _capture)
+
+    sub = client.post("/v1/audits", headers=ctx["headers"],
+                      json={"domain_id": str(verified_domain.id), "depth": 3})
+    task_id = sub.json()["task_id"]
+    worker.process(task_id, {"domain": verified_domain.url, "scope": {"depth": 3}})
+
+    assert seen["depth"] == 3
+
+
+def test_depth_below_one_is_rejected(client, ctx, verified_domain):
+    r = client.post("/v1/audits", headers=ctx["headers"],
+                    json={"domain_id": str(verified_domain.id), "depth": 0})
+    assert r.status_code == 422
+
+
 def test_status_and_report_lifecycle(client, ctx, verified_domain, db, monkeypatch):
     from app import worker
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url,
         "categories": {"accessibility": 40, "usability": 70, "gigw": 80, "design": 70,
                        "performance": 65, "responsiveness": 60, "content": 62, "trust": 90},
@@ -60,7 +89,7 @@ def test_unreachable_site_yields_insufficient_evidence_not_a_band(
     unreachable / zero pages analysed) must NOT be scored — no band, no false
     verdict. This is the umang.gov.in case: unreachable -> all-60 fillers."""
     from app import worker
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url,
         # fillers the engine emits when nothing loaded — must be ignored
         "categories": {"accessibility": 60, "usability": 60, "gigw": 60, "design": 70,
@@ -82,7 +111,7 @@ def test_unreachable_site_yields_insufficient_evidence_not_a_band(
 
 def test_history_and_compare(client, ctx, verified_domain, db, monkeypatch):
     from app import worker
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url, "categories": {k: 70 for k in
             ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
         "cwv": {}, "findings": []})
@@ -92,10 +121,94 @@ def test_history_and_compare(client, ctx, verified_domain, db, monkeypatch):
     hist = client.get(f"/v1/domains/{verified_domain.id}/audits", headers=ctx["headers"])
     assert hist.status_code == 200 and len(hist.json()) >= 1
 
-    cmp = client.get(f"/v1/domains/{verified_domain.id}/compare",
-                     headers=ctx["headers"], params={"frm": r1["task_id"], "to": r1["task_id"]})
+    # explicitly comparing an audit against itself -> zero delta, no new/resolved
+    cmp = client.get(f"/v1/audits/{r1['task_id']}/compare",
+                     headers=ctx["headers"], params={"against": r1["task_id"]})
     assert cmp.status_code == 200
-    assert cmp.json()["overall_delta"] == 0
+    body = cmp.json()
+    assert body["has_baseline"] is True
+    assert body["overall_delta"] == 0
+    assert body["new_issues"] == [] and body["resolved_issues"] == []
+
+
+def test_compare_with_no_prior_audit_reports_no_baseline(client, ctx, verified_domain, monkeypatch):
+    from app import worker
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
+        "url": url, "categories": {k: 70 for k in
+            ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+        "cwv": {}, "findings": []})
+    r1 = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r1["task_id"], {"domain": verified_domain.url})
+
+    # no `against` -> auto-picks the prior completed audit; there is none yet
+    r = client.get(f"/v1/audits/{r1['task_id']}/compare", headers=ctx["headers"])
+    assert r.status_code == 200
+    assert r.json() == {"has_baseline": False,
+                        "message": "No earlier completed audit for this domain yet — "
+                                   "run another audit later to see a comparison."}
+
+
+def test_compare_defaults_to_the_most_recent_prior_audit_with_real_diffs(
+        client, ctx, verified_domain, monkeypatch):
+    """The real feature this screen replaced fake data with: score delta, new
+    vs resolved findings by guideline, and per-page score deltas matched by URL
+    — auto-selecting the domain's previous completed audit with no `against`."""
+    from app import worker
+
+    def engine_v1(url, screenshot_path=None, depth=None):
+        return {"url": url, "categories": {k: 60 for k in
+                    ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+                "cwv": {}, "findings": [
+                    {"category": "accessibility", "severity": "high", "guideline": "WCAG1.1.1",
+                     "title": "Missing alt text", "effort": "low"},
+                    {"category": "accessibility", "severity": "medium", "guideline": "WCAG1.4.3",
+                     "title": "Low contrast", "effort": "medium"}],
+                "pages": [{"url": url, "status": "analysed", "page_score": 55},
+                          {"url": url + "apply", "status": "analysed", "page_score": 40}],
+                "pages_total": 2, "evidence": {"home_reachable": True, "pages_analysed": 2, "pages_total": 2}}
+
+    def engine_v2(url, screenshot_path=None, depth=None):
+        return {"url": url, "categories": {k: 80 for k in
+                    ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+                "cwv": {}, "findings": [
+                    {"category": "accessibility", "severity": "medium", "guideline": "WCAG1.4.3",
+                     "title": "Low contrast", "effort": "medium"},
+                    {"category": "accessibility", "severity": "low", "guideline": "WCAG2.4.4",
+                     "title": "Ambiguous link text", "effort": "low"}],
+                "pages": [{"url": url, "status": "analysed", "page_score": 75},
+                          {"url": url + "new-page", "status": "analysed", "page_score": 90}],
+                "pages_total": 2, "evidence": {"home_reachable": True, "pages_analysed": 2, "pages_total": 2}}
+
+    monkeypatch.setattr(worker, "run_engine", engine_v1)
+    r1 = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r1["task_id"], {"domain": verified_domain.url})
+
+    monkeypatch.setattr(worker, "run_engine", engine_v2)
+    r2 = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(r2["task_id"], {"domain": verified_domain.url})
+
+    r = client.get(f"/v1/audits/{r2['task_id']}/compare", headers=ctx["headers"])
+    assert r.status_code == 200
+    body = r.json()
+    assert body["has_baseline"] is True
+    assert body["from_audit"]["task_id"] == r1["task_id"]
+    assert body["to_audit"]["task_id"] == r2["task_id"]
+
+    # ml_anomaly may legitimately add its own "ML-ADVISORY" finding to either
+    # run depending on the trained model's baseline — real behaviour, not
+    # something this test controls, so only assert on the WCAG findings.
+    new_ids = {i["guideline_id"] for i in body["new_issues"] if i["guideline_id"].startswith("WCAG")}
+    resolved_ids = {i["guideline_id"] for i in body["resolved_issues"] if i["guideline_id"].startswith("WCAG")}
+    assert new_ids == {"WCAG2.4.4"}          # only in the newer run
+    assert resolved_ids == {"WCAG1.1.1"}     # only in the older run
+    # WCAG1.4.3 persisted in both -> neither new nor resolved
+    assert "WCAG1.4.3" not in new_ids and "WCAG1.4.3" not in resolved_ids
+
+    by_url = {p["url"]: p for p in body["pages"]}
+    home = by_url[verified_domain.url]
+    assert home["score"] == 75 and home["delta"] == 20 and home["new_page"] is False
+    assert by_url[verified_domain.url + "new-page"]["new_page"] is True
+    assert by_url[verified_domain.url + "apply"]["status"] == "not_recrawled"
 
 
 def test_bulk_scan_enqueues(client, ctx, verified_domain):
@@ -115,7 +228,7 @@ def test_worker_full_pipeline(client, ctx, verified_domain, db, monkeypatch):
     from app import worker
     from app.services import pdf_audit, crux, design_cv, ml_priority
 
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url,
         "categories": {"accessibility": 80, "usability": 70, "gigw": 75, "design": 70,
                        "performance": 90, "responsiveness": 80, "content": 60, "trust": 85},
@@ -203,7 +316,7 @@ def test_worker_ml_advisory(client, ctx, verified_domain, db, monkeypatch):
     """The advisory anomaly model adds a finding + anomaly_score, out of the score path."""
     from app import worker
     from app.services import ml_anomaly
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url, "categories": {k: 70 for k in
             ["accessibility","usability","gigw","design","performance","responsiveness","content","trust"]},
         "cwv": {}, "findings": []})
@@ -231,7 +344,7 @@ def test_remediation_missing_task(client, ctx):
 def test_integrity_flags_gaming_and_caps_verdict(client, ctx, verified_domain, db, monkeypatch):
     """An engine overlay finding -> audit.integrity.flagged and a capped verdict."""
     from app import worker
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url, "categories": {k: 92 for k in
             ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
         "cwv": {}, "findings": [{"category": "accessibility", "severity": "high",
@@ -248,7 +361,7 @@ def test_remediation_ai_enrichment_opt_in(client, ctx, verified_domain, db, monk
     """?enrich=1 adds advisory LLM guidance when enabled; deterministic guidance stays."""
     from app import worker
     from app.services import llm_advisor
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url, "categories": {k: 70 for k in
             ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
         "cwv": {}, "findings": [{"category": "trust", "severity": "medium", "guideline": "Security",
@@ -273,7 +386,7 @@ def test_remediation_ai_enrichment_opt_in(client, ctx, verified_domain, db, monk
 def test_list_audits_org_fenced(client, ctx, verified_domain, db, monkeypatch):
     """GET /v1/audits returns the org's audits; another org never sees them."""
     from app import worker, security
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url, "categories": {k: 70 for k in
             ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
         "cwv": {}, "findings": []})

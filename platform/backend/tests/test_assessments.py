@@ -64,7 +64,7 @@ def test_org_fencing(client, ctx, db, verified_domain):
 
 def test_evidence_pack(client, ctx, verified_domain, db, monkeypatch):
     from app import worker
-    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None: {
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
         "url": url,
         "categories": {"accessibility": 95, "usability": 85, "gigw": 90, "design": 80,
                        "performance": 88, "responsiveness": 90, "content": 82, "trust": 91},

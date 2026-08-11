@@ -39,11 +39,15 @@ export default function Audits() {
   const [filter, setFilter] = useState("");
   const [q, setQ] = useState("");
   const [limit, setLimit] = useState(PAGE);
+  // only super_admin sees cross-org data here (GET /v1/audits org-fences everyone
+  // else, including programme_admin) — the label must match, not just "is a steward"
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   useEffect(() => {
     api.listAudits()
       .then((d) => setRows(d || []))
       .catch((e: any) => { setErr(e?.message || "Could not load your audits."); setRows([]); });
+    api.me().then((m) => setIsSuperAdmin(m?.role === "super_admin")).catch(() => {});
   }, []);
 
   const filtered = useMemo(() => (rows || []).filter(
@@ -62,7 +66,7 @@ export default function Audits() {
         <div>
           <h1 className="h3 mb-0">Audit history</h1>
           <div className="text-secondary small">
-            {rows == null ? "Loading…" : `${filtered.length} of ${rows.length} audit(s) across your organisation`}
+            {rows == null ? "Loading…" : `${filtered.length} of ${rows.length} audit(s) across ${isSuperAdmin ? "all organisations" : "your organisation"}`}
           </div>
         </div>
         <Link href="/audits/new" className="btn btn-primary ms-auto">▶ New audit</Link>

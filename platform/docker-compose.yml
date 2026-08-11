@@ -12,7 +12,11 @@ services:
 
   redis:
     image: redis:7
+    # persist so an incidental restart doesn't drop in-flight queue messages
+    # while their DB rows stay 'queued' forever (matches docker-compose.prod.yml)
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
     ports: ["6379:6379"]
+    volumes: ["redisdata:/data"]
 
   # S3-compatible object storage for registered-user report PDFs
   minio:
@@ -25,7 +29,9 @@ services:
     volumes: ["miniodata:/data"]
 
   api:
-    build: ./backend
+    build:
+      context: ./backend
+      target: dev
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     environment:
       GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
@@ -37,7 +43,9 @@ services:
       - ./db:/db:ro
 
   worker:
-    build: ./backend
+    build:
+      context: ./backend
+      target: dev
     command: python -m app.worker
     environment:
       GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
@@ -49,7 +57,9 @@ services:
 
   # continuous, scheduled estate monitoring (gap G2): submits due audits on cadence
   scheduler:
-    build: ./backend
+    build:
+      context: ./backend
+      target: dev
     command: python -m app.services.scheduler
     environment:
       GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
@@ -60,7 +70,9 @@ services:
 
   # free public single-URL scanner — single-concurrency worker (one scan at a time)
   public-worker:
-    build: ./backend
+    build:
+      context: ./backend
+      target: dev
     command: python -m app.public_worker
     environment:
       GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
@@ -80,3 +92,4 @@ services:
 volumes:
   pgdata:
   miniodata:
+  redisdata:

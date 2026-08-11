@@ -124,8 +124,38 @@ def test_expert_review_rejection_is_non_compliant(db, client, ctx):
     assert r.json()["compliance"]["status"] == "non_compliant"
 
 
-def test_refresh_reuse_revokes_whole_family(db, client):
+def test_refresh_reuse_within_grace_is_tolerated_not_treated_as_theft(db, client):
+    """A just-rotated token replayed immediately (e.g. two components racing
+    off the same stale cookie right after a reload) is a benign race, not
+    theft — see settings.refresh_reuse_grace_seconds. Reuse detection with no
+    grace period at all used to kill the legitimate session too."""
     org = _org(db, "Dept RT")
+    u, dev = _user(db, org)
+    fam = security.new_family_id()
+    rt1 = security.new_refresh_token()
+    _session(db, u, dev, rt1, fam)
+    db.commit()
+
+    # first refresh rotates rt1 -> rt2 (rt1 now revoked)
+    r1 = client.post("/v1/auth/refresh", cookies={"govux_rt": rt1})
+    assert r1.status_code == 200
+    rt2 = r1.cookies.get("govux_rt")
+    assert rt2 and rt2 != rt1
+
+    # replaying rt1 moments later (well inside the grace window) still succeeds
+    r2 = client.post("/v1/auth/refresh", cookies={"govux_rt": rt1})
+    assert r2.status_code == 200
+    # and the sibling minted for the original rt2 holder still works too
+    assert client.post("/v1/auth/refresh", cookies={"govux_rt": rt2}).status_code == 200
+
+
+def test_refresh_reuse_outside_grace_revokes_whole_family(db, client, monkeypatch):
+    """Reuse of a dead credential OUTSIDE the grace window is the real theft
+    signal and must still kill the whole family."""
+    from app.config import settings
+    monkeypatch.setattr(settings, "refresh_reuse_grace_seconds", 0)
+
+    org = _org(db, "Dept RT2")
     u, dev = _user(db, org)
     fam = security.new_family_id()
     rt1 = security.new_refresh_token()

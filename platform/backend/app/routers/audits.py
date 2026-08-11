@@ -347,20 +347,73 @@ def audit_history(domain_id: str, user: models.User = Depends(current_user),
             for a in rows]
 
 
-@router.get("/domains/{domain_id}/compare")
-def compare(domain_id: str, frm: str, to: str,
-            user: models.User = Depends(current_user), db: Session = Depends(get_db)):
-    _owned_domain(db, domain_id, user)
-    a, b = db.get(models.Audit, frm), db.get(models.Audit, to)
-    # both snapshots must belong to the (owned) domain being compared
-    if not a or not b or str(a.domain_id) != str(domain_id) or str(b.domain_id) != str(domain_id):
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Snapshot not found")
-    fa = {f.guideline_id for f in db.query(models.Finding).filter(models.Finding.audit_id == frm)}
-    fb = {f.guideline_id for f in db.query(models.Finding).filter(models.Finding.audit_id == to)}
+@router.get("/audits/{task_id}/compare")
+def compare_audit(task_id: str, against: str | None = None,
+                  user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    """Diff this audit against a prior snapshot of the same domain: score delta,
+    new/resolved findings, and real per-page coverage (matched by URL) — not the
+    illustrative placeholder the compare screen used to show. Defaults to the
+    most recent completed audit before this one; pass `against` to pick another."""
+    to_audit = _owned_audit(db, task_id, user, require_completed=True)
+
+    if against:
+        from_audit = _owned_audit(db, against, user, require_completed=True)
+        if str(from_audit.domain_id) != str(to_audit.domain_id):
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Snapshots must be for the same domain")
+    else:
+        from_audit = (db.query(models.Audit)
+                        .filter(models.Audit.domain_id == to_audit.domain_id,
+                                models.Audit.status == "completed",
+                                models.Audit.created_at < to_audit.created_at)
+                        .order_by(desc(models.Audit.created_at)).first())
+        if not from_audit:
+            return {"has_baseline": False,
+                    "message": "No earlier completed audit for this domain yet — "
+                               "run another audit later to see a comparison."}
+
+    fa = {(f.guideline_id, f.title) for f in
+          db.query(models.Finding).filter(models.Finding.audit_id == from_audit.id) if f.guideline_id}
+    fb = {(f.guideline_id, f.title) for f in
+          db.query(models.Finding).filter(models.Finding.audit_id == to_audit.id) if f.guideline_id}
+    fa_ids, fb_ids = {g for g, _ in fa}, {g for g, _ in fb}
+    new_issues = sorted(({"guideline_id": g, "title": t} for g, t in fb if g not in fa_ids),
+                        key=lambda x: x["guideline_id"])
+    resolved_issues = sorted(({"guideline_id": g, "title": t} for g, t in fa if g not in fb_ids),
+                             key=lambda x: x["guideline_id"])
+
+    # per-page coverage, matched by URL between the two runs (real audit_pages data)
+    pages_from = {p.url: p for p in
+                 db.query(models.AuditPage).filter(models.AuditPage.audit_id == from_audit.id)}
+    pages_to = {p.url: p for p in
+               db.query(models.AuditPage).filter(models.AuditPage.audit_id == to_audit.id)}
+    page_rows = []
+    for url in sorted(set(pages_from) | set(pages_to)):
+        cur, prev = pages_to.get(url), pages_from.get(url)
+        if cur:
+            delta = (float(cur.page_score) - float(prev.page_score)
+                     if prev and cur.page_score is not None and prev.page_score is not None else None)
+            page_rows.append({"url": url, "status": cur.status,
+                              "score": float(cur.page_score) if cur.page_score is not None else None,
+                              "delta": delta, "new_page": prev is None})
+        else:
+            # page existed in the earlier run but wasn't recrawled this time
+            page_rows.append({"url": url, "status": "not_recrawled",
+                              "score": float(prev.page_score) if prev.page_score is not None else None,
+                              "delta": None, "new_page": False})
+    analysed = sum(1 for p in page_rows if p["status"] == "analysed")
+
     return {
-        "overall_delta": float(b.overall_score or 0) - float(a.overall_score or 0),
-        "new_issues": sorted(fb - fa),
-        "resolved_issues": sorted(fa - fb),
+        "has_baseline": True,
+        "from_audit": {"task_id": str(from_audit.id), "date": from_audit.created_at,
+                       "score": float(from_audit.overall_score) if from_audit.overall_score else None},
+        "to_audit": {"task_id": str(to_audit.id), "date": to_audit.created_at,
+                    "score": float(to_audit.overall_score) if to_audit.overall_score else None},
+        "overall_delta": float(to_audit.overall_score or 0) - float(from_audit.overall_score or 0),
+        "new_issues": new_issues,
+        "resolved_issues": resolved_issues,
+        "pages": page_rows,
+        "pages_analysed": analysed,
+        "pages_total": len(page_rows),
     }
 
 

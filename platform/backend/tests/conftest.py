@@ -1,18 +1,37 @@
-"""Test fixtures. Runs against the Postgres test DB (docker compose service),
-with the Redis Streams queue monkeypatched to no-ops so no broker is needed.
+"""Test fixtures. Runs against the same Postgres server as dev/CI (docker
+compose service), but entirely inside its own `pytest` SCHEMA rather than
+`public` — the app's tables, and dev data alongside them, are untouched.
+Redis Streams is monkeypatched to no-ops so no broker is needed.
 
     docker compose up -d db
     GOVUX_DATABASE_URL=postgresql+psycopg://govux:govux@localhost:5432/govux \\
       pytest
+
+Previously this ran directly against `public`: every run created real rows
+(users, audits, public_scans, …) in the actual dev database, and teardown
+only ever cancelled leftover audits — nothing else was ever cleaned up. That
+is how the dev DB accumulated hundreds of stray `x.<hex>@nic.in` users and,
+concretely, orphaned "queued" public_scans that inflated the free-scanner's
+queue-position count for real users. `update_execution_options` mutates the
+shared `engine` object in place, so every `SessionLocal()` anywhere in the
+app — however it was imported — picks up the schema redirect automatically.
 """
 import uuid
 import pytest
+from sqlalchemy import text
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.database import Base, engine, SessionLocal
 from app import models, security
 from app.services import queue, cache, url_validate
+
+TEST_SCHEMA = "pytest"
+with engine.connect() as _conn:
+    _conn.execute(text(f'DROP SCHEMA IF EXISTS "{TEST_SCHEMA}" CASCADE'))
+    _conn.execute(text(f'CREATE SCHEMA "{TEST_SCHEMA}"'))
+    _conn.commit()
+engine.update_execution_options(schema_translate_map={None: TEST_SCHEMA})
 
 
 class FakeRedis:
@@ -85,18 +104,8 @@ class FakeRedis:
 def _schema():
     Base.metadata.create_all(engine)
     yield
-    # tests run against the shared dev DB with the queue monkeypatched, so any
-    # audit they leave in 'queued' would block real audits of the same domain
-    # forever (the idempotency guard in POST /v1/audits returns it instead of
-    # enqueueing). Cancel them on the way out.
-    s = SessionLocal()
-    try:
-        (s.query(models.Audit)
-          .filter(models.Audit.status.in_(["queued", "crawling", "analyzing", "scoring"]))
-          .update({models.Audit.status: "cancelled"}, synchronize_session=False))
-        s.commit()
-    finally:
-        s.close()
+    # nothing to clean up: this run's data lives entirely in TEST_SCHEMA, which
+    # the next run drops and recreates from scratch on import (see above)
 
 
 @pytest.fixture(autouse=True)

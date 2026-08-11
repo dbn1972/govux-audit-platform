@@ -1,4 +1,6 @@
 """National roll-up & segmented rankings (steward view)."""
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
@@ -130,3 +132,91 @@ def _states(db: Session):
               .order_by(desc(func.avg(latest.c.score))).all())
     return {"states": [{"code": sc, "avg_score": round(float(a), 1), "domains": int(c)}
                        for sc, c, a in rows]}
+
+
+@router.get("/alerts")
+def alerts(db: Session = Depends(get_db),
+          user=Depends(require_role("programme_admin", "super_admin"))):
+    """Exception alerts — where quality is at risk, for early intervention.
+    Was illustrative placeholder data; now computed from real audits."""
+    return cache.get_or_set(cache.cache_key("alerts"), _ttl(), lambda: _alerts(db))
+
+
+def _alerts(db: Session):
+    now = datetime.now(timezone.utc)
+    month_ago = now - timedelta(days=30)
+
+    # like _latest_completed_subq, but ranks EVERY completed audit per domain (not
+    # just rn==1) so rn==2 gives us "the one before the latest" for regressions,
+    # and carries guardrail_active/created_at which the shared helper doesn't.
+    rn = func.row_number().over(
+        partition_by=models.Audit.domain_id,
+        order_by=desc(models.Audit.created_at)).label("rn")
+    ranked = (db.query(
+                models.Audit.domain_id.label("did"),
+                models.Audit.overall_score.label("score"),
+                models.Audit.band.label("band"),
+                models.Audit.guardrail_active.label("guardrail_active"),
+                models.Audit.created_at.label("created_at"),
+                rn)
+              .filter(models.Audit.status == "completed",
+                      models.Audit.overall_score.isnot(None)).subquery())
+    latest = db.query(ranked).filter(ranked.c.rn == 1).subquery()
+    previous = db.query(ranked).filter(ranked.c.rn == 2).subquery()
+
+    domains_total = db.query(func.count(models.Domain.id)).scalar() or 0
+    band_e_count = db.query(func.count(latest.c.did)).filter(latest.c.band == "E").scalar() or 0
+    never_audited_count = (db.query(func.count(models.Domain.id))
+                             .filter(~models.Domain.id.in_(db.query(latest.c.did))).scalar() or 0)
+    spike_count = (db.query(func.count(latest.c.did))
+                    .filter(latest.c.guardrail_active.is_(True)).scalar() or 0)
+
+    drop = (previous.c.score - latest.c.score)
+    regressed = (db.query(models.Domain.url, latest.c.score, previous.c.score)
+                   .join(latest, latest.c.did == models.Domain.id)
+                   .join(previous, previous.c.did == models.Domain.id)
+                   .filter(latest.c.created_at >= month_ago, drop >= 5)
+                   .order_by(desc(drop)).all())
+    worst = regressed[0] if regressed else None
+
+    items = []
+    if band_e_count:
+        top_org = (db.query(models.Organisation.name, func.avg(latest.c.score))
+                     .join(models.Domain, models.Domain.org_id == models.Organisation.id)
+                     .join(latest, latest.c.did == models.Domain.id)
+                     .filter(latest.c.band == "E")
+                     .group_by(models.Organisation.name)
+                     .order_by(func.count(latest.c.did).desc()).first())
+        detail = (f"Highest concentration in {top_org[0]} · avg {round(float(top_org[1]))}"
+                  if top_org else "See the League Table for detail.")
+        items.append({"severity": "critical",
+                      "title": f"{band_e_count} domain{'s' if band_e_count != 1 else ''} "
+                               "fell into Band E (critical risk)", "detail": detail})
+    if worst:
+        items.append({"severity": "high",
+                      "title": f"{worst[0]} dropped {float(worst[2]) - float(worst[1]):.0f} points",
+                      "detail": "Since its previous audit"})
+    if regressed:
+        n = len(regressed)
+        items.append({"severity": "high",
+                      "title": f"{n} domain{'s' if n != 1 else ''} regressed ≥ 5 points this month",
+                      "detail": "Likely unreviewed content/template changes"})
+    if never_audited_count:
+        pct = round(100 * never_audited_count / domains_total) if domains_total else 0
+        items.append({"severity": "medium",
+                      "title": f"{never_audited_count} known domain"
+                               f"{'s' if never_audited_count != 1 else ''} have never been audited",
+                      "detail": f"{pct}% of the national register"})
+    if spike_count:
+        items.append({"severity": "critical",
+                      "title": f"{spike_count} domain{'s' if spike_count != 1 else ''} show a spike "
+                               "in critical accessibility failures",
+                      "detail": "Guard-rail triggered — capped at Band C"})
+
+    return {
+        "band_e_count": band_e_count,
+        "regressed_count": len(regressed),
+        "never_audited_count": never_audited_count,
+        "critical_spike_count": spike_count,
+        "alerts": items,
+    }

@@ -63,9 +63,6 @@ export default function Login() {
               {err && <div className="text-danger small mt-1" role="alert">✗ {err}</div>}
               <button className="btn btn-primary w-100 mt-3" onClick={sendOtp} disabled={busy}>
                 {busy ? "Sending…" : "Send OTP"}</button>
-              <div className="text-center text-secondary my-3 small">or</div>
-              <a href="/api/v1/auth/sso" className="btn btn-outline-secondary w-100">
-                <i className="bi bi-shield-lock me-2" />Continue with Parichay SSO</a>
             </>
           ) : (
             <>

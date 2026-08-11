@@ -1,14 +1,14 @@
 """Authentication: gov-email OTP + device-bound rotating sessions."""
 import ipaddress
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, Request, status
-from sqlalchemy import desc
+from sqlalchemy import desc, update
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..config import settings
 from .. import models, security
-from ..schemas import OtpRequest, OtpVerify, TokenPair, DeviceOut
+from ..schemas import OtpRequest, OtpVerify, TokenPair, DeviceOut, OrganisationUpdate, RoleUpdate
 from ..deps import current_user
 from ..services import ratelimit, captcha, authguard, settings_store, audit_log
 from ..services import email as email_svc
@@ -43,7 +43,78 @@ def me(user: models.User = Depends(current_user), db: Session = Depends(get_db))
             "free_pages_per_audit": free_pages,
             "can_request_larger_crawl": True,
         },
+        "org_state_code": org.state_code if org else None,
     }
+
+
+@router.patch("/organisation")
+def update_organisation(body: OrganisationUpdate, user: models.User = Depends(current_user),
+                        db: Session = Depends(get_db)):
+    """Edit the caller's own organisation's name / state-UT tag. Gap: previously
+    nothing ever set `state_code`, so the national States & UTs roll-up could
+    never show anything. Restricted to org-admin-ish roles, not every member —
+    contributor/assessor can view but shouldn't rename the organisation."""
+    if user.role not in ("owner", "programme_admin", "super_admin"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN,
+                            "Updating organisation settings requires an owner or admin role")
+    if not user.org_id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No organisation on this account")
+    org = db.get(models.Organisation, user.org_id)
+    if not org:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No organisation on this account")
+    if body.name is not None:
+        org.name = body.name
+    if body.state_code is not None:
+        org.state_code = body.state_code or None   # "" clears the tag
+    db.commit()
+    return {"org_id": str(org.id), "org_name": org.name, "org_state_code": org.state_code}
+
+
+ALL_ROLES = ("owner", "contributor", "assessor", "programme_admin", "super_admin")
+STEWARD_ROLES = ("programme_admin", "super_admin")
+
+
+@router.get("/team")
+def list_team(user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    """The caller's own organisation's members, for the role-management screen.
+    Previously the only way to grant assessor (or any non-default role) was a
+    direct database edit — there was no UI or endpoint for it at all."""
+    if not user.org_id:
+        return []
+    members = (db.query(models.User).filter(models.User.org_id == user.org_id)
+                 .order_by(models.User.email).all())
+    return [{"id": str(m.id), "email": m.email, "display_name": m.display_name,
+             "role": m.role, "last_login_at": m.last_login_at, "is_you": m.id == user.id}
+            for m in members]
+
+
+@router.patch("/team/{target_id}/role")
+def update_team_role(target_id: str, body: RoleUpdate, user: models.User = Depends(current_user),
+                     db: Session = Depends(get_db)):
+    if user.role not in ("owner", "programme_admin", "super_admin"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN,
+                            "Managing team roles requires an owner or admin role")
+    if body.role not in ALL_ROLES:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"Unknown role '{body.role}'")
+    target = db.get(models.User, target_id)
+    # 404 (not 403) on a cross-org hit — never confirm another org's user exists
+    if not target or not user.org_id or target.org_id != user.org_id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Team member not found")
+    if target.id == user.id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST,
+                            "You can't change your own role — ask another admin")
+    # granting steward-level oversight (programme_admin/super_admin) is a
+    # platform-wide privilege escalation, not a local team-management action —
+    # only an existing super_admin may hand it out
+    if body.role in STEWARD_ROLES and user.role != "super_admin":
+        raise HTTPException(status.HTTP_403_FORBIDDEN,
+                            "Only a super_admin can grant a steward role (programme_admin/super_admin)")
+    target.role = body.role
+    db.commit()
+    audit_log.record(db, user.id, "team_role_change", target=str(target.id),
+                     detail={"new_role": body.role})
+    db.commit()
+    return {"id": str(target.id), "email": target.email, "role": target.role}
 
 
 @router.get("/me/export")
@@ -204,36 +275,69 @@ def refresh_token(request: Request, response: Response, db: Session = Depends(ge
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "No refresh token")
     rt_hash = security.hash_secret(rt)
     now = datetime.now(timezone.utc)
-    # look up by hash REGARDLESS of revoked state so we can detect token reuse
-    sess = (db.query(models.Session)
-              .filter(models.Session.refresh_token_hash == rt_hash).first())
-    if not sess:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid session")
-    if sess.revoked_at is not None:
-        # a rotated (already-superseded) token was replayed => token theft. Kill the
-        # whole session family so neither attacker nor victim can keep using it.
-        db.query(models.Session).filter(
-            models.Session.family_id == sess.family_id,
-            models.Session.revoked_at.is_(None)).update(
-                {models.Session.revoked_at: now}, synchronize_session=False)
-        db.commit()
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Session revoked — please sign in again")
-    if sess.expires_at < now:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Session expired")
 
-    user = db.get(models.User, sess.user_id)
-    # rotate: revoke the presented token and mint a fresh one in the SAME family, so a
-    # later replay of the old token is detectable as reuse (branch above).
-    sess.revoked_at = now
-    sess.rotated_at = now
+    # Atomically claim this token for rotation: the WHERE clause means Postgres
+    # serialises concurrent UPDATEs on the same row, so only ONE of several
+    # parallel refresh calls presenting the same cookie (e.g. two components
+    # both hitting a stale access token right after a page reload) can flip
+    # revoked_at here. Without this, a plain read-then-write let every racer
+    # "win", each minting its own rotation — and the next one to present the
+    # now-already-revoked original token tripped reuse-detection below and
+    # killed the whole family, including the sibling sessions just issued.
+    claimed = db.execute(
+        update(models.Session)
+        .where(models.Session.refresh_token_hash == rt_hash,
+               models.Session.revoked_at.is_(None))
+        .values(revoked_at=now, rotated_at=now)
+        .returning(models.Session.user_id, models.Session.device_id,
+                   models.Session.family_id)
+    ).first()
+
+    if claimed:
+        user_id, device_id, family_id = claimed
+    else:
+        # Didn't win the claim: either this token doesn't exist, is expired, or
+        # was already rotated (by us, moments ago, or genuinely reused/stolen).
+        sess = (db.query(models.Session)
+                  .filter(models.Session.refresh_token_hash == rt_hash).first())
+        if not sess:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid session")
+        if sess.expires_at < now:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Session expired")
+        if sess.revoked_at is None:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid session")   # lost the claim race unexpectedly
+        # A row's revocation can come from three places: our own rotation
+        # (revoked_at == rotated_at, set together above), a family-wide theft
+        # cascade (sets only revoked_at), or an explicit sign-out / device
+        # revoke (also sets only revoked_at). Grace forgiveness must apply
+        # ONLY to the first case — a logged-out or cascade-killed session must
+        # stay dead no matter how recently that happened.
+        grace = timedelta(seconds=settings.refresh_reuse_grace_seconds)
+        rotated_this_row = sess.rotated_at == sess.revoked_at
+        if not rotated_this_row or now - sess.revoked_at > grace:
+            # Genuine reuse of a dead credential (theft signal), or a session
+            # ended some other way. Kill the whole family: neither an attacker
+            # nor the legitimate holder of a stolen token continue.
+            db.query(models.Session).filter(
+                models.Session.family_id == sess.family_id,
+                models.Session.revoked_at.is_(None)).update(
+                    {models.Session.revoked_at: now}, synchronize_session=False)
+            db.commit()
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Session revoked — please sign in again")
+        # Rotated moments ago by a concurrent request: a benign race, not
+        # theft. Rotate again from this same lineage so the caller still gets
+        # a valid session instead of being forced to sign in again.
+        user_id, device_id, family_id = sess.user_id, sess.device_id, sess.family_id
+
+    user = db.get(models.User, user_id)
     new_rt = security.new_refresh_token()
     db.add(models.Session(
-        user_id=sess.user_id, device_id=sess.device_id,
+        user_id=user_id, device_id=device_id,
         refresh_token_hash=security.hash_secret(new_rt),
-        family_id=sess.family_id, expires_at=security.refresh_expiry()))
+        family_id=family_id, expires_at=security.refresh_expiry()))
     db.commit()
 
-    access = security.issue_access_token(str(user.id), user.role, str(sess.device_id))
+    access = security.issue_access_token(str(user.id), user.role, str(device_id))
     response.set_cookie("govux_rt", new_rt, httponly=True, secure=True,
                         samesite="strict", max_age=settings.refresh_ttl_seconds, path="/")
     return TokenPair(access_token=access, expires_in=settings.access_ttl_seconds)
@@ -261,7 +365,8 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
 
 @router.get("/devices", response_model=list[DeviceOut])
 def list_devices(user: models.User = Depends(current_user), db: Session = Depends(get_db)):
-    devices = db.query(models.Device).filter(models.Device.user_id == user.id).all()
+    devices = (db.query(models.Device).filter(models.Device.user_id == user.id)
+                 .order_by(desc(models.Device.last_active_at)).all())
     return [DeviceOut(id=str(d.id), label=d.label, last_location=d.last_location,
                       last_active_at=d.last_active_at, trusted=d.trusted) for d in devices]
 

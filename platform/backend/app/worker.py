@@ -138,7 +138,8 @@ def process(task_id: str, payload: dict):
 
         # --- run the deterministic engine (real checks) ---
         shot = f"/tmp/govux_shot_{task_id}.jpg"
-        result = run_engine(payload.get("domain") or domain.url, screenshot_path=shot)
+        depth = (payload.get("scope") or {}).get("depth")
+        result = run_engine(payload.get("domain") or domain.url, screenshot_path=shot, depth=depth)
         audit.status = "analyzing"; db.commit(); queue.set_status(task_id, "analyzing")
 
         categories = dict(result["categories"])
@@ -274,7 +275,7 @@ def process(task_id: str, payload: dict):
 
         # a completed audit changes the national/rankings aggregates AND each org's
         # domain list (latest score/band) -> drop their caches
-        for _pfx in ("national", "rankings", "ministries", "states", "domains"):
+        for _pfx in ("national", "rankings", "ministries", "states", "domains", "alerts"):
             cache.invalidate_prefix(_pfx)
         queue.set_status(task_id, "completed",
                          {"overall_score": score.overall, "band": score.band,

@@ -25,6 +25,15 @@ class TokenPair(BaseModel):
     # refresh token is set as an HttpOnly cookie, not returned in the body
 
 
+class OrganisationUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=2, max_length=200)
+    state_code: Optional[str] = Field(None, max_length=8)
+
+
+class RoleUpdate(BaseModel):
+    role: str
+
+
 class DeviceOut(BaseModel):
     id: str
     label: Optional[str]
@@ -37,7 +46,10 @@ class DeviceOut(BaseModel):
 # ---------- audits ----------
 class AuditCreate(BaseModel):
     domain_id: str
-    depth: int = 10          # free tier; >10 needs admin approval (scan_requests)
+    # free tier; >10 needs admin approval (scan_requests). >=1: the engine's JS
+    # side falls back to its 25-page default on a falsy depth (0), so 0 must
+    # never reach it looking like "unset".
+    depth: int = Field(10, ge=1)
     devices: list[str] = ["desktop", "mobile"]
     browsers: list[str] = ["chromium", "firefox", "webkit"]
     webhook_url: Optional[str] = None
@@ -90,4 +102,4 @@ class BulkScanCreate(BaseModel):
     mode: str = Field("auto_discover", description="auto_discover | list")
     domains: list[str] = []
     scope: str = "never_audited"
-    depth: int = 50
+    depth: int = Field(50, ge=1)   # clamped to the engine's 25-page ceiling regardless

@@ -52,6 +52,11 @@ export const api = {
       body: JSON.stringify({ email, code, device_pubkey, trust_device }) }),
   me: () => req("/v1/auth/me"),
   logout: () => req("/v1/auth/logout", { method: "POST" }),
+  updateOrganisation: (body: { name?: string; state_code?: string }) =>
+    req("/v1/auth/organisation", { method: "PATCH", body: JSON.stringify(body) }),
+  listTeam: () => req("/v1/auth/team"),
+  updateTeamRole: (userId: string, role: string) =>
+    req(`/v1/auth/team/${userId}/role`, { method: "PATCH", body: JSON.stringify({ role }) }),
   exportMyData: () => req("/v1/auth/me/export"),
   eraseMyData: () => req("/v1/auth/me", { method: "DELETE" }),
   devices: () => req("/v1/auth/devices"),
@@ -78,12 +83,15 @@ export const api = {
   updateFinding: (id: string, state: string) =>
     req(`/v1/findings/${id}`, { method: "PATCH", body: JSON.stringify({ state, is_reviewed: true }) }),
   auditHistory: (domainId: string) => req(`/v1/domains/${domainId}/audits`),
-  compare: (domainId: string, frm: string, to: string) =>
-    req(`/v1/domains/${domainId}/compare?frm=${frm}&to=${to}`),
+  // defaults to comparing against the domain's most recent prior completed
+  // audit; pass `against` (another audit's task_id) to pick a specific one
+  compare: (taskId: string, against?: string) =>
+    req(`/v1/audits/${taskId}/compare${against ? `?against=${against}` : ""}`),
   national: () => req("/v1/national"),
   rankings: (category?: string) => req(`/v1/rankings${category ? `?category=${category}` : ""}`),
   ministries: () => req("/v1/ministries"),
   states: () => req("/v1/states"),
+  alerts: () => req("/v1/alerts"),
   auditTrend: (taskId: string) => req(`/v1/audits/${taskId}/trend`),
   bulkScan: (scope: string) =>
     req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),

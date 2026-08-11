@@ -28,6 +28,10 @@
     "200",
     "422"
   ],
+  "GET /v1/alerts": [
+    "200",
+    "422"
+  ],
   "GET /v1/assessments": [
     "200",
     "422"
@@ -37,6 +41,10 @@
     "422"
   ],
   "GET /v1/audits/{task_id}": [
+    "200",
+    "422"
+  ],
+  "GET /v1/audits/{task_id}/compare": [
     "200",
     "422"
   ],
@@ -72,6 +80,10 @@
     "200",
     "422"
   ],
+  "GET /v1/auth/team": [
+    "200",
+    "422"
+  ],
   "GET /v1/ci/gate": [
     "200",
     "422"
@@ -85,10 +97,6 @@
     "422"
   ],
   "GET /v1/domains/{domain_id}/audits": [
-    "200",
-    "422"
-  ],
-  "GET /v1/domains/{domain_id}/compare": [
     "200",
     "422"
   ],
@@ -167,6 +175,14 @@
     "422"
   ],
   "PATCH /v1/admin/config": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/auth/organisation": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/auth/team/{target_id}/role": [
     "200",
     "422"
   ],
