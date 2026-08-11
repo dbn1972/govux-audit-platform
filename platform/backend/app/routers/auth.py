@@ -239,6 +239,26 @@ def refresh_token(request: Request, response: Response, db: Session = Depends(ge
     return TokenPair(access_token=access, expires_in=settings.access_ttl_seconds)
 
 
+@router.post("/logout", status_code=204)
+def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+    """Revoke this browser's session and clear its refresh cookie.
+
+    No bearer token required: a user may click Sign out after the in-memory
+    access token is already gone (e.g. right after a reload), so the refresh
+    cookie alone is what identifies the session to kill. Idempotent — signing
+    out twice, or with no active session, is a harmless no-op."""
+    rt = request.cookies.get("govux_rt")
+    if rt:
+        rt_hash = security.hash_secret(rt)
+        (db.query(models.Session)
+           .filter(models.Session.refresh_token_hash == rt_hash,
+                   models.Session.revoked_at.is_(None))
+           .update({"revoked_at": datetime.now(timezone.utc)}))
+        db.commit()
+    response.delete_cookie("govux_rt", path="/", httponly=True, secure=True, samesite="strict")
+    return Response(status_code=204)
+
+
 @router.get("/devices", response_model=list[DeviceOut])
 def list_devices(user: models.User = Depends(current_user), db: Session = Depends(get_db)):
     devices = db.query(models.Device).filter(models.Device.user_id == user.id).all()

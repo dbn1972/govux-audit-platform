@@ -198,6 +198,9 @@
     "200",
     "422"
   ],
+  "POST /v1/auth/logout": [
+    "204"
+  ],
   "POST /v1/auth/otp/request": [
     "202",
     "422"

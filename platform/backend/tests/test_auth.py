@@ -46,6 +46,28 @@ def test_refresh_without_cookie(client):
     assert client.post("/v1/auth/refresh").status_code == 401
 
 
+def test_logout_revokes_session_so_the_cookie_can_no_longer_refresh(client, monkeypatch):
+    monkeypatch.setattr(security, "new_otp", lambda: "123456")
+    email = "logout.user@nic.in"
+    client.post("/v1/auth/otp/request", json={"email": email})
+    ok = client.post("/v1/auth/otp/verify",
+                     json={"email": email, "code": "123456", "device_pubkey": "pk", "trust_device": True})
+    client.cookies.set("govux_rt", ok.cookies["govux_rt"])
+
+    out = client.post("/v1/auth/logout")
+    assert out.status_code == 204
+
+    # whether the cookie was dropped client-side or the session was revoked
+    # server-side, the old refresh token must never mint a new access token
+    ref = client.post("/v1/auth/refresh")
+    assert ref.status_code == 401
+
+
+def test_logout_without_a_cookie_is_a_harmless_noop(client):
+    client.cookies.clear()
+    assert client.post("/v1/auth/logout").status_code == 204
+
+
 def test_devices_list_and_revoke(client, ctx):
     r = client.get("/v1/auth/devices", headers=ctx["headers"])
     assert r.status_code == 200

@@ -17,7 +17,10 @@ async function req(path: string, opts: RequestInit = {}, retry = true): Promise<
     credentials: "include", // send/receive the HttpOnly refresh cookie
   });
   if (res.status === 401 && retry) {
-    // silent refresh (device-bound rotating token), then retry once
+    // silent refresh (device-bound rotating token), then retry once — this is
+    // what makes a page reload (in-memory token gone) resume the session, same
+    // as an access token expiring mid-session. Explicit sign-out (Sign out
+    // button, or the idle timeout in AppShell) is what actually ends a session.
     const r = await fetch(`/api/v1/auth/refresh`, { method: "POST", credentials: "include" });
     if (r.ok) { const d = await r.json(); setToken(d.access_token); return req(path, opts, false); }
   }
@@ -29,7 +32,15 @@ async function req(path: string, opts: RequestInit = {}, retry = true): Promise<
     }
     throw new AuthError("Your session has expired — please sign in again.");
   }
-  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
+  if (!res.ok) {
+    const detail = (await res.json().catch(() => ({}))).detail;
+    // detail is usually a string, but some endpoints (e.g. OTP lockout) send a
+    // structured object — {message, retry_after, captcha_required} — instead.
+    const msg = typeof detail === "string" ? detail
+      : detail && typeof detail === "object" && typeof detail.message === "string" ? detail.message
+      : res.statusText;
+    throw new Error(msg);
+  }
   return res.status === 204 ? null : res.json();
 }
 
@@ -40,6 +51,7 @@ export const api = {
     req("/v1/auth/otp/verify", { method: "POST",
       body: JSON.stringify({ email, code, device_pubkey, trust_device }) }),
   me: () => req("/v1/auth/me"),
+  logout: () => req("/v1/auth/logout", { method: "POST" }),
   exportMyData: () => req("/v1/auth/me/export"),
   eraseMyData: () => req("/v1/auth/me", { method: "DELETE" }),
   devices: () => req("/v1/auth/devices"),
