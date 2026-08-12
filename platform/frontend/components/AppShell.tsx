@@ -32,6 +32,7 @@ const NAV: NavGroup[] = [
     ["Estate Discovery", "/admin/discovery", "bi-search"],
     ["Organisations", "/admin/organisations", "bi-diagram-2"],
     ["Register Import", "/admin/registry", "bi-upload"],
+    ["Domain Claims", "/admin/domain-claims", "bi-shield-exclamation"],
     ["Ministries", "/admin/ministries", "bi-building"],
     ["States & UTs", "/admin/states", "bi-map"],
     ["League Table", "/admin/league", "bi-trophy"],

@@ -11,6 +11,10 @@
     "200",
     "422"
   ],
+  "DELETE /v1/domains/claims/{domain_id}": [
+    "204",
+    "422"
+  ],
   "DELETE /v1/schedules/{schedule_id}": [
     "204",
     "422"
@@ -101,6 +105,10 @@
     "422"
   ],
   "GET /v1/domains": [
+    "200",
+    "422"
+  ],
+  "GET /v1/domains/claims": [
     "200",
     "422"
   ],

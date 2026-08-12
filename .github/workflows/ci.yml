@@ -70,13 +70,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - name: Screen-by-screen verification
+      # structure + reachability in one walk: a route must render AND be
+      # linked from somewhere. /audits/[id]/compare passed the structural half
+      # for weeks while being reachable only by typing the URL.
+      - name: Screen-by-screen structure & reachability
         run: python3 platform/scripts/verify_screens.py
-      # verify_screens proves a route RENDERS; it cannot prove anyone can get
-      # there. /audits/[id]/compare passed it for weeks while being reachable
-      # only by typing the URL, as did the G3/G5 gap-closure screens.
-      - name: Every route must be reachable by clicking
-        run: python3 platform/scripts/verify_reachability.py
 
   frontend:
     # Pinned to jammy for the same reason as the e2e job below: Playwright

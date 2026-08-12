@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 // Automated accessibility gate on the two pages every user hits. Fails on any
 // critical/serious WCAG 2.2 AA violation. (Real screen-reader testing stays manual.)
-const PAGES = ["/login", "/scan"];
+const PAGES = ["/login", "/"];
 
 for (const path of PAGES) {
   test(`no critical/serious a11y violations · ${path}`, async ({ page }) => {

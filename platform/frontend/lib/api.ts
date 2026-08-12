@@ -81,8 +81,14 @@ export const api = {
       body: JSON.stringify({ approved, notes }) }),
   registerDomain: (url: string, category?: string) =>
     req("/v1/domains", { method: "POST", body: JSON.stringify({ url, service_category: category }) }),
-  verifyDomain: (id: string) =>
-    req(`/v1/domains/${id}/verify`, { method: "POST", body: JSON.stringify({ method: "dns_txt" }) }),
+  // proof method is the caller's choice: many gov teams run the web server but
+  // not the DNS zone (often held centrally by NIC), so the metafile route is the
+  // only one they can actually complete
+  verifyDomain: (id: string, method: "dns_txt" | "file_upload" = "dns_txt") =>
+    req(`/v1/domains/${id}/verify`, { method: "POST", body: JSON.stringify({ method }) }),
+  domainClaims: (contestedOnly = false) =>
+    req(`/v1/domains/claims${contestedOnly ? "?contested_only=true" : ""}`),
+  releaseClaim: (id: string) => req(`/v1/domains/claims/${id}`, { method: "DELETE" }),
   guidelines: (family?: string) => req(`/v1/guidelines${family ? `?family=${family}` : ""}`),
   updateFinding: (id: string, state: string) =>
     req(`/v1/findings/${id}`, { method: "PATCH", body: JSON.stringify({ state, is_reviewed: true }) }),

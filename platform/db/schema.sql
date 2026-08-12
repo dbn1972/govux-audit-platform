@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "vector";         -- pgvector (guideline RAG); op
 CREATE TYPE user_role      AS ENUM ('owner','contributor','assessor','programme_admin','super_admin');
 CREATE TYPE org_type       AS ENUM ('ministry','department','state','ut','psu','other');
 CREATE TYPE verify_method  AS ENUM ('dns_txt','file_upload','sso_mapping');
-CREATE TYPE verify_status  AS ENUM ('pending','verified','failed');
+CREATE TYPE verify_status  AS ENUM ('pending','verified','failed','superseded');
 CREATE TYPE audit_status   AS ENUM ('queued','crawling','analyzing','scoring','completed','partial','failed','cancelled','insufficient_evidence');
 CREATE TYPE page_status    AS ENUM ('discovered','analysed','timed_out','skipped','error');
 CREATE TYPE severity       AS ENUM ('critical','high','medium','low');
@@ -93,7 +93,13 @@ CREATE INDEX idx_session_family ON sessions(family_id);
 CREATE TABLE domains (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id         UUID NOT NULL REFERENCES organisations(id),
-    url            TEXT UNIQUE NOT NULL,             -- e.g. ncsc.dop.gov.in
+    -- NOT globally unique: several organisations may hold a PENDING claim on
+    -- the same host and race to prove ownership. A global UNIQUE made this
+    -- first-come-first-served — anyone could register a domain they did not
+    -- own, never verify it, and permanently block the real owner (409, with
+    -- no release path). Uniqueness belongs on proven ownership; see the
+    -- partial index below.
+    url            TEXT NOT NULL,                    -- e.g. ncsc.dop.gov.in
     tld            TEXT NOT NULL,                    -- gov.in | nic.in
     service_category TEXT,                           -- transactional | information | payments ...
     size_class     TEXT,                             -- large | medium | small (for segmentation)
@@ -105,6 +111,11 @@ CREATE TABLE domains (
     CONSTRAINT chk_gov_domain CHECK (url ~* '(\.gov\.in|\.nic\.in)$')
 );
 CREATE INDEX idx_domain_org ON domains(org_id);
+-- exactly ONE organisation may hold a host once ownership is proven; losing
+-- claims are marked 'superseded' so they fall out of this index
+CREATE UNIQUE INDEX uq_domain_verified_url ON domains(url) WHERE verify_status = 'verified';
+-- and one organisation cannot stack duplicate claims on the same host
+CREATE UNIQUE INDEX uq_domain_org_url ON domains(org_id, url);
 
 -- ---------- audits (each run = an async job = a dated snapshot) ----------
 CREATE TABLE audits (

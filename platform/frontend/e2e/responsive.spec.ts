@@ -7,7 +7,7 @@ const VIEWPORTS = [
   { name: "tablet", width: 768, height: 1024 },
   { name: "desktop", width: 1440, height: 900 },
 ];
-const PAGES = ["/login", "/scan", "/report"];   // public pages (no auth barrier)
+const PAGES = ["/login", "/", "/report"];   // public pages (no auth barrier)
 
 for (const vp of VIEWPORTS) {
   for (const path of PAGES) {

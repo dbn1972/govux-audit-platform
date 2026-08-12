@@ -39,6 +39,9 @@ import RegisterDomain from "@/app/domains/new/page";
 beforeEach(() => {
   [push, listDomains, registerDomain, verifyDomain].forEach((m) => m.mockReset());
   listDomains.mockResolvedValue([]);
+  verifyDomain.mockResolvedValue({ verify_status: "verified" });
+  // several tests drive /domains/new; reset the query between them
+  window.history.pushState({}, "", "/domains/new");
 });
 
 // ---------- the list --------------------------------------------------------
@@ -64,8 +67,10 @@ describe("My domains", () => {
     expect(within(pendingRow).getByText("Pending")).toBeInTheDocument();
     // never a score for something never audited — "Not audited", not a zero
     expect(within(pendingRow).getByText("Not audited")).toBeInTheDocument();
+    // must carry the id: a bare /domains/new is a blank form, and re-registering
+    // an existing domain 409s — which used to strand every pending domain
     expect(within(pendingRow).getByRole("link", { name: /Verify/ }))
-      .toHaveAttribute("href", "/domains/new");
+      .toHaveAttribute("href", "/domains/new?domain=d-new");
   });
 
   it("shows an empty state that leads somewhere useful", async () => {
@@ -114,7 +119,7 @@ describe("Register & verify a domain", () => {
     await screen.findByText("govux-verify=abc123");
 
     await userEvent.click(screen.getByRole("button", { name: /Verify now/i }));
-    await waitFor(() => expect(verifyDomain).toHaveBeenCalledWith("d-1"));
+    await waitFor(() => expect(verifyDomain).toHaveBeenCalledWith("d-1", "dns_txt"));
     expect(push).toHaveBeenCalledWith("/domains");
   });
 
@@ -131,6 +136,64 @@ describe("Register & verify a domain", () => {
     expect(await screen.findByText(/TXT record not found/)).toBeInTheDocument();
     expect(screen.getByText("govux-verify=abc123")).toBeInTheDocument();
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("resumes verification for an already-registered domain via ?domain=", async () => {
+    // The dead end this fixes: the DNS token only ever lived in this page's
+    // state, so leaving while DNS propagated lost it — and /domains sent you
+    // back to a blank form whose Register button then 409s.
+    window.history.pushState({}, "", "/domains/new?domain=d-pending");
+    listDomains.mockResolvedValue([
+      { id: "d-pending", url: "waiting.gov.in", verify_status: "pending",
+        verify_token: "govux-verify=deadbeef" },
+    ]);
+    render(<RegisterDomain />);
+
+    // straight to step 2, with the original token recovered — no re-registration
+    expect(await screen.findByText("govux-verify=deadbeef")).toBeInTheDocument();
+    expect(screen.getByText("waiting.gov.in")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Register domain/i })).not.toBeInTheDocument();
+    expect(registerDomain).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole("button", { name: /Verify now/i }));
+    await waitFor(() => expect(verifyDomain).toHaveBeenCalledWith("d-pending", "dns_txt"));
+  });
+
+  it("defaults to DNS TXT and sends that method", async () => {
+    registerDomain.mockResolvedValue({ id: "d-1", verify_token: "govux-verify=abc123" });
+    render(<RegisterDomain />);
+    await userEvent.type(screen.getByRole("textbox"), "posts.gov.in");
+    await userEvent.click(screen.getByRole("button", { name: /Register domain/i }));
+    await screen.findByText("govux-verify=abc123");
+
+    expect(screen.getByRole("radio", { name: /DNS TXT record/i })).toBeChecked();
+    await userEvent.click(screen.getByRole("button", { name: /Verify now/i }));
+    await waitFor(() => expect(verifyDomain).toHaveBeenCalledWith("d-1", "dns_txt"));
+  });
+
+  it("offers the metafile proof for teams who do not control DNS", async () => {
+    // the API has always supported file_upload; the UI hard-coded dns_txt, so
+    // anyone whose DNS zone sits centrally with NIC had no route through
+    registerDomain.mockResolvedValue({ id: "d-1", verify_token: "govux-verify=abc123" });
+    render(<RegisterDomain />);
+    await userEvent.type(screen.getByRole("textbox"), "posts.gov.in");
+    await userEvent.click(screen.getByRole("button", { name: /Register domain/i }));
+    await screen.findByText("govux-verify=abc123");
+
+    await userEvent.click(screen.getByRole("radio", { name: /File on your website/i }));
+    // instructions swap to the well-known path, for the domain being verified
+    expect(screen.getByText(/\/\.well-known\/govux-verify\.txt/)).toBeInTheDocument();
+    expect(screen.queryByText(/Add this TXT record/)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /Verify now/i }));
+    await waitFor(() => expect(verifyDomain).toHaveBeenCalledWith("d-1", "file_upload"));
+  });
+
+  it("explains itself when the resumed domain is gone", async () => {
+    window.history.pushState({}, "", "/domains/new?domain=d-missing");
+    listDomains.mockResolvedValue([]);
+    render(<RegisterDomain />);
+    expect(await screen.findByText(/no longer on your account/i)).toBeInTheDocument();
   });
 
   it("reports a duplicate registration from the server", async () => {

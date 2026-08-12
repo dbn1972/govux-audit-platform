@@ -57,7 +57,9 @@ export default function Domains() {
                     <td data-label="Last audited" className="text-secondary small">{fmtDate(d.last_audited_at)}</td>
                     <td data-label="">{d.verify_status === "verified"
                       ? <Link href={`/audits/new?domain=${d.id}`} className="btn btn-sm btn-link">Audit →</Link>
-                      : <Link href="/domains/new" className="btn btn-sm btn-link">Verify →</Link>}</td>
+                      // carry the id: a bare /domains/new is a blank form, and
+                      // re-registering an existing domain 409s
+                      : <Link href={`/domains/new?domain=${d.id}`} className="btn btn-sm btn-link">Verify →</Link>}</td>
                   </tr>
                 ))}
               </tbody>

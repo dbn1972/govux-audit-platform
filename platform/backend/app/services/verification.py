@@ -51,12 +51,14 @@ def check_metafile(host: str, token: str,
 def verify(host: str, token: str, method: str,
            resolve_txt: Optional[Callable[[str], list[str]]] = None,
            fetch_text: Optional[Callable[[str], str]] = None) -> bool:
-    """Dispatch to the chosen method. `sso_mapping` is an org-trust path handled
-    upstream (Parichay) and is treated as out-of-band success here."""
+    """Dispatch to the chosen method. Unknown methods fail closed."""
     if method == "dns_txt":
         return check_dns_txt(host, token, resolve_txt or _default_resolve_txt)
     if method == "file_upload":
         return check_metafile(host, token, fetch_text or _default_fetch_text)
-    if method == "sso_mapping":
-        return True
+    # `sso_mapping` (org trust via Parichay) is NOT implemented — the SSO
+    # integration does not exist yet. It previously returned True, which made it
+    # a self-service bypass of ownership proof for anyone who named it. Until
+    # there is a real upstream to trust, it fails closed like any other
+    # unrecognised method.
     return False

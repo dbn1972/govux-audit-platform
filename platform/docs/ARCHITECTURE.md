@@ -72,7 +72,9 @@ most-specific User-agent group wins, longest-match with Allow winning ties. Unit
   `routers/`, include it in `main.py`. Use `Depends(current_user)` / `require_role(...)`.
 - Frontend: client pages use `AppShell`; data via `lib/api.ts` (silent refresh). Bootstrap/UX4G classes
   (`btn btn-primary`, `card`, `table`, `badge`, `bi-*`), deep-blue headings via `var(--ux-navy)`.
-- Every new screen passes `scripts/verify_screens.py` and appears in `AppShell` nav.
+- Every new screen passes `scripts/verify_screens.py`, which checks structure AND that the
+  route is linked from somewhere — an unreachable page fails the build, so a new screen must
+  appear in the `AppShell` nav or be linked from another page.
 - Every new endpoint has a test in `backend/tests/` (keep coverage ≥80%).
 
 ## Gap-closure map (from GovUX_Benchmark_Gap_Analysis)
