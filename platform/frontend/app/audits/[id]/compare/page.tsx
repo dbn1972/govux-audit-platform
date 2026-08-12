@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
 type Issue = { guideline_id: string; title: string | null };
@@ -37,6 +38,7 @@ export default function Compare({ params }: { params: { id: string } }) {
   const wrap = (b: React.ReactNode) => (
     <AppShell><div className="container-fluid p-4" style={{ maxWidth: 1240 }}>
       <h1 className="h3">Compare &amp; page coverage</h1>
+      <AuditNav id={params.id} />
       <p className="text-secondary small">Diff two dated snapshots + per-page coverage.</p>
       {b}
     </div></AppShell>

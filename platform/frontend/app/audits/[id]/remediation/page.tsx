@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
 const SEV = { critical: "text-bg-danger", high: "text-bg-warning",
@@ -19,6 +20,7 @@ export default function Remediation({ params }: { params: { id: string } }) {
     <AppShell>
       <div className="container-fluid p-4">
         <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Remediation plan</h1>
+        <AuditNav id={params.id} />
         <p className="text-secondary small">
           Fixes ordered by impact × effort — highest-value, lowest-cost first. Guidance is advisory
           and never affects the score.

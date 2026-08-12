@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
+import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
 const SEV = { critical: "text-bg-danger", high: "text-bg-warning", medium: "text-bg-warning-subtle", low: "text-bg-light" } as const;
@@ -35,6 +36,7 @@ export default function Issues({ params }: { params: { id: string } }) {
     <AppShell>
       <div className="container-fluid p-4">
         <h1 className="h3">Prioritised issues</h1>
+        <AuditNav id={params.id} />
         <p className="text-secondary small">{findings.length} findings from the audit engine, ranked by severity.</p>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
 

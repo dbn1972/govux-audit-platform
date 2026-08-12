@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
 // Document (PDF/Office) accessibility results (gap G3).
@@ -20,6 +21,7 @@ export default function Documents({ params }: { params: { id: string } }) {
     <AppShell>
       <div className="container-fluid p-4">
         <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Document accessibility</h1>
+        <AuditNav id={params.id} />
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
         <p className="text-secondary small">
           Government runs on PDFs. Each linked document is checked for a tagged structure, a title and

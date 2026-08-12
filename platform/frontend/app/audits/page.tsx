@@ -127,7 +127,12 @@ export default function Audits() {
                     <td data-label="Compliance" className="text-secondary small">{a.compliance_status ? a.compliance_status.replace(/_/g, " ") : "—"}</td>
                     <td data-label="">
                       {done
-                        ? <Link href={`/audits/${a.task_id}/report`} className="btn btn-sm btn-link">View report →</Link>
+                        ? <>
+                            <Link href={`/audits/${a.task_id}/report`} className="btn btn-sm btn-link">View report →</Link>
+                            {/* the compare screen had no entry point at all — it was
+                                reachable only by typing the URL */}
+                            <Link href={`/audits/${a.task_id}/compare`} className="btn btn-sm btn-link text-secondary">Compare</Link>
+                          </>
                         : <Link href={`/audits/${a.task_id}`} className="btn btn-sm btn-link">View status →</Link>}
                     </td>
                   </tr>
