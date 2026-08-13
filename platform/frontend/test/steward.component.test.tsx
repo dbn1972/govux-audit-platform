@@ -18,11 +18,15 @@ vi.mock("@/components/AppShell", () => ({ default: ({ children }: any) => <div>{
 vi.mock("next/link", () => ({ default: ({ href, children }: any) => <a href={String(href)}>{children}</a> }));
 
 const organisations = vi.fn();
+const createOrganisation = vi.fn();
+const patchOrganisation = vi.fn();
 const alerts = vi.fn();
 const importRegistry = vi.fn();
 vi.mock("@/lib/api", () => ({
   api: {
     organisations: (...a: any[]) => organisations(...a),
+    createOrganisation: (...a: any[]) => createOrganisation(...a),
+    patchOrganisation: (...a: any[]) => patchOrganisation(...a),
     alerts: (...a: any[]) => alerts(...a),
     importRegistry: (...a: any[]) => importRegistry(...a),
   },
@@ -34,7 +38,8 @@ import Registry from "@/app/admin/registry/page";
 
 const org = (name: string, extra: any = {}) => ({
   id: name, name, org_type: "department", state_code: null,
-  domain_count: 0, studio_enabled: false, created_at: null, ...extra,
+  domain_count: 0, user_count: 0, audited_domains: 0, audit_count: 0,
+  avg_score: null, last_audited_at: null, studio_enabled: false, created_at: null, ...extra,
 });
 
 // mockReset() leaves a vi.fn() returning `undefined`, which these pages then try
@@ -42,8 +47,10 @@ const org = (name: string, extra: any = {}) => ({
 // that never stubs the call still gets a well-formed promise.
 describe("Organisations directory", () => {
   beforeEach(() => {
-    organisations.mockReset();
+    [organisations, createOrganisation, patchOrganisation].forEach((m) => m.mockReset());
     organisations.mockResolvedValue({ total: 0, items: [] });
+    createOrganisation.mockResolvedValue({});
+    patchOrganisation.mockResolvedValue({});
   });
 
   it("renders rows with the real domain count and the total range", async () => {
@@ -121,6 +128,66 @@ describe("Organisations directory", () => {
     organisations.mockImplementation(() => Promise.reject(new Error("Forbidden")));
     render(<Organisations />);
     expect(await screen.findByRole("alert")).toHaveTextContent(/Forbidden/);
+  });
+});
+
+describe("Organisation management", () => {
+  beforeEach(() => {
+    [organisations, createOrganisation, patchOrganisation].forEach((m) => m.mockReset());
+    organisations.mockResolvedValue({ total: 0, items: [] });
+    createOrganisation.mockResolvedValue({});
+    patchOrganisation.mockResolvedValue({});
+  });
+
+  it("shows activity, not just a domain count", async () => {
+    organisations.mockResolvedValue({ total: 1, items: [org("Dept of Posts", {
+      domain_count: 6, user_count: 4, audit_count: 12, audited_domains: 5,
+      avg_score: 68.1, last_audited_at: "2026-08-01T00:00:00Z" })] });
+    render(<Organisations />);
+    await screen.findByText("Dept of Posts");
+    const row = screen.getByText("Dept of Posts").closest("tr")!;
+    expect(within(row).getByText("6")).toBeInTheDocument();      // domains
+    expect(within(row).getByText("4")).toBeInTheDocument();      // users
+    expect(within(row).getByText(/12/)).toBeInTheDocument();     // audits
+    expect(within(row).getByText("68.1")).toBeInTheDocument();   // avg score
+  });
+
+  it("creates an organisation and refreshes the list", async () => {
+    render(<Organisations />);
+    await userEvent.click(screen.getByRole("button", { name: /New organisation/i }));
+    await userEvent.type(screen.getByLabelText("Name"), "Ministry of Rural Development");
+    await userEvent.selectOptions(screen.getByLabelText("Type"), "ministry");
+    await userEvent.type(screen.getByLabelText("State / UT"), "dl");
+    await userEvent.click(screen.getByRole("button", { name: /^Create$/ }));
+
+    await waitFor(() => expect(createOrganisation).toHaveBeenCalledWith({
+      name: "Ministry of Rural Development", org_type: "ministry", state_code: "DL" }));
+    expect(await screen.findByRole("status")).toHaveTextContent(/Created/);
+  });
+
+  it("surfaces a duplicate-name refusal from the server", async () => {
+    createOrganisation.mockImplementation(() =>
+      Promise.reject(new Error("An organisation with that name already exists")));
+    render(<Organisations />);
+    await userEvent.click(screen.getByRole("button", { name: /New organisation/i }));
+    await userEvent.type(screen.getByLabelText("Name"), "Dept of Posts");
+    await userEvent.click(screen.getByRole("button", { name: /^Create$/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/already exists/);
+  });
+
+  it("edits an auto-provisioned name — the reason this screen can write at all", async () => {
+    organisations.mockResolvedValue({ total: 1, items: [org("aman's Organisation")] });
+    render(<Organisations />);
+    await screen.findByText("aman's Organisation");
+    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+
+    const name = screen.getByLabelText("Name");
+    await userEvent.clear(name);
+    await userEvent.type(name, "Dept of Fisheries");
+    await userEvent.click(screen.getByRole("button", { name: /^Save$/ }));
+
+    await waitFor(() => expect(patchOrganisation).toHaveBeenCalledWith("aman's Organisation",
+      expect.objectContaining({ name: "Dept of Fisheries" })));
   });
 });
 

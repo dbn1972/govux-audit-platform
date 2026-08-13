@@ -166,3 +166,86 @@ def test_organisations_pagination(client, ctx, db):
     assert page1["total"] == 5 and page2["total"] == 5
     assert len(page1["items"]) == 2 and len(page2["items"]) == 2
     assert {i["id"] for i in page1["items"]}.isdisjoint({i["id"] for i in page2["items"]})
+
+
+# ---------- steward organisation management ---------------------------------
+def test_organisations_carry_activity_not_just_a_domain_count(client, ctx, db):
+    """A steward looking at the directory needs to know whether an organisation
+    is actually using the platform — domain count alone can't say that."""
+    from app import models as m
+    tag = uuid.uuid4().hex[:8]
+    org = m.Organisation(name=f"Active {tag}", org_type="department")
+    db.add(org); db.flush()
+    db.add(m.User(email=f"a.{uuid.uuid4().hex[:6]}@nic.in", org_id=org.id, role="owner"))
+    d = m.Domain(org_id=org.id, url=f"act{uuid.uuid4().hex[:6]}.gov.in", tld="gov.in",
+                 verify_status="verified", created_by=ctx["user"].id)
+    db.add(d); db.flush()
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    # distinct timestamps: "latest" must not depend on insertion order
+    for score, age in ((70, 2), (80, 1)):
+        db.add(m.Audit(domain_id=d.id, engine_version="t", status="completed",
+                       overall_score=score, band="B",
+                       created_at=now - timedelta(days=age)))
+    db.commit()
+
+    row = next(i for i in client.get("/v1/organisations", headers=ctx["headers"],
+                                     params={"q": tag}).json()["items"]
+               if i["name"] == f"Active {tag}")
+    assert row["domain_count"] == 1
+    assert row["user_count"] == 1
+    assert row["audit_count"] == 2          # every completed run
+    assert row["audited_domains"] == 1      # ...over one domain
+    assert row["avg_score"] == 80.0         # latest per domain, not the mean of both
+    assert row["last_audited_at"] is not None
+
+
+def test_steward_can_create_an_organisation(client, ctx, db):
+    """Organisations could previously only appear as a side effect — auto-provisioned
+    on a first domain registration, via CSV import, or from the seed script."""
+    tag = uuid.uuid4().hex[:8]
+    r = client.post("/v1/organisations", headers=ctx["headers"],
+                    json={"name": f"Ministry of {tag}", "org_type": "ministry", "state_code": "DL"})
+    assert r.status_code == 201, r.text
+    assert r.json()["org_type"] == "ministry" and r.json()["state_code"] == "DL"
+
+    # duplicate names are refused case-insensitively
+    dup = client.post("/v1/organisations", headers=ctx["headers"],
+                      json={"name": f"MINISTRY OF {tag}"})
+    assert dup.status_code == 409
+
+    assert client.post("/v1/organisations", headers=ctx["headers"],
+                       json={"name": "X", "org_type": "wizard"}).status_code == 422
+
+
+def test_steward_can_rename_any_organisation(client, ctx, db):
+    """PATCH /v1/auth/organisation only edits your OWN, so nobody could correct
+    the auto-provisioned names the platform generates for itself."""
+    from app import models as m
+    tag = uuid.uuid4().hex[:8]
+    org = m.Organisation(name=f"aman's Organisation {tag}", org_type="department")
+    db.add(org); db.commit()
+
+    r = client.patch(f"/v1/organisations/{org.id}", headers=ctx["headers"],
+                     json={"name": f"Dept of Fisheries {tag}", "org_type": "department",
+                           "state_code": "KL"})
+    assert r.status_code == 200
+    db.expire_all()
+    fresh = db.get(m.Organisation, org.id)
+    assert fresh.name == f"Dept of Fisheries {tag}" and fresh.state_code == "KL"
+
+    assert client.patch(f"/v1/organisations/{uuid.uuid4()}", headers=ctx["headers"],
+                        json={"name": "Nope"}).status_code == 404
+
+
+def test_creating_and_editing_organisations_requires_a_steward(client, db):
+    org = models.Organisation(name=f"Plain {uuid.uuid4().hex[:6]}", org_type="department")
+    db.add(org); db.flush()
+    u = models.User(email=f"o.{uuid.uuid4().hex[:6]}@nic.in", org_id=org.id, role="owner")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    from app import security
+    h = {"Authorization": f"Bearer {security.issue_access_token(str(u.id), 'owner', str(dev.id))}"}
+    assert client.post("/v1/organisations", headers=h, json={"name": "Sneaky Dept"}).status_code == 403
+    assert client.patch(f"/v1/organisations/{org.id}", headers=h,
+                        json={"name": "Renamed"}).status_code == 403

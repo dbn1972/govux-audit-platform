@@ -1,31 +1,43 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
 type Org = {
   id: string; name: string; org_type: string; state_code: string | null;
-  domain_count: number; studio_enabled: boolean; created_at: string | null;
+  domain_count: number; user_count: number; audited_domains: number;
+  audit_count: number; avg_score: number | null; last_audited_at: string | null;
+  studio_enabled: boolean; created_at: string | null;
 };
 const TYPES = ["ministry", "department", "state", "ut", "psu", "other"];
 const PAGE = 25;
+const bandColor = (s: number) =>
+  s >= 75 ? "#15803d" : s >= 60 ? "#b45309" : "#b91c1c";
+const fmt = (s: string | null) => (s ? new Date(s).toLocaleDateString() : "—");
 
 export default function Organisations() {
   const [rows, setRows] = useState<Org[] | null>(null);
   const [total, setTotal] = useState(0);
   const [err, setErr] = useState("");
+  const [msg, setMsg] = useState("");
   const [q, setQ] = useState("");
   const [orgType, setOrgType] = useState("");
   const [offset, setOffset] = useState(0);
 
-  // debounce the search box: 1,500+ orgs means a request per keystroke is waste
+  // create / edit
+  const [showNew, setShowNew] = useState(false);
+  const [form, setForm] = useState({ name: "", org_type: "department", state_code: "" });
+  const [editing, setEditing] = useState<Org | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  // debounce the search box: a request per keystroke is waste
   const [debouncedQ, setDebouncedQ] = useState("");
   useEffect(() => {
     const t = setTimeout(() => { setDebouncedQ(q); setOffset(0); }, 300);
     return () => clearTimeout(t);
   }, [q]);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     let cancelled = false;
     setErr("");
     api.organisations({ q: debouncedQ, org_type: orgType, limit: PAGE, offset })
@@ -35,17 +47,118 @@ export default function Organisations() {
       });
     return () => { cancelled = true; };   // ignore a stale response that lands late
   }, [debouncedQ, orgType, offset]);
+  useEffect(load, [load]);
+
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true); setErr(""); setMsg("");
+    try {
+      await api.createOrganisation({ ...form, state_code: form.state_code || undefined });
+      setMsg(`✓ Created ${form.name}.`);
+      setForm({ name: "", org_type: "department", state_code: "" });
+      setShowNew(false);
+      load();
+    } catch (e: any) { setErr(e?.message || "Could not create that organisation."); }
+    finally { setBusy(false); }
+  }
+
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editing) return;
+    setBusy(true); setErr(""); setMsg("");
+    try {
+      await api.patchOrganisation(editing.id, {
+        name: editing.name, org_type: editing.org_type, state_code: editing.state_code || "",
+      });
+      setMsg(`✓ Updated ${editing.name}.`);
+      setEditing(null);
+      load();
+    } catch (e: any) { setErr(e?.message || "Could not save that organisation."); }
+    finally { setBusy(false); }
+  }
 
   const from = total === 0 ? 0 : offset + 1;
   const to = Math.min(offset + PAGE, total);
 
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 1240 }}>
-        <h1 className="h3">Organisations</h1>
+      <div className="container-fluid p-4" style={{ maxWidth: 1320 }}>
+        <div className="d-flex align-items-center flex-wrap gap-2">
+          <h1 className="h3 mb-0">Organisations</h1>
+          <button className="btn btn-primary btn-sm ms-auto"
+            onClick={() => { setShowNew((v) => !v); setEditing(null); }}>
+            ＋ New organisation
+          </button>
+        </div>
         <p className="text-secondary small">
-          Every ministry, department, state body and PSU registered on the platform.
+          Every ministry, department, state body and PSU on the platform, with how much each is
+          actually using it. Organisations otherwise only appear as a side effect — auto-named
+          from whoever registers the first domain — so names can be corrected here.
         </p>
+
+        {showNew && (
+          <div className="card shadow-sm mb-3"><div className="card-body">
+            <h2 className="h6">New organisation</h2>
+            <form className="row g-2 align-items-end" onSubmit={create}>
+              <div className="col-md-5">
+                <label className="form-label small fw-semibold" htmlFor="new-name">Name</label>
+                <input id="new-name" required className="form-control form-control-sm"
+                  placeholder="Ministry of Rural Development"
+                  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label small fw-semibold" htmlFor="new-type">Type</label>
+                <select id="new-type" className="form-select form-select-sm" value={form.org_type}
+                  onChange={(e) => setForm({ ...form, org_type: e.target.value })}>
+                  {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="col-md-2">
+                <label className="form-label small fw-semibold" htmlFor="new-state">State / UT</label>
+                <input id="new-state" className="form-control form-control-sm" placeholder="KA"
+                  maxLength={8} value={form.state_code}
+                  onChange={(e) => setForm({ ...form, state_code: e.target.value.toUpperCase() })} />
+              </div>
+              <div className="col-md-2">
+                <button className="btn btn-primary btn-sm w-100" disabled={busy}>
+                  {busy ? "Creating…" : "Create"}</button>
+              </div>
+            </form>
+          </div></div>
+        )}
+
+        {editing && (
+          <div className="card shadow-sm mb-3 border-primary"><div className="card-body">
+            <h2 className="h6">Edit organisation</h2>
+            <form className="row g-2 align-items-end" onSubmit={saveEdit}>
+              <div className="col-md-5">
+                <label className="form-label small fw-semibold" htmlFor="ed-name">Name</label>
+                <input id="ed-name" required className="form-control form-control-sm"
+                  value={editing.name}
+                  onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label small fw-semibold" htmlFor="ed-type">Type</label>
+                <select id="ed-type" className="form-select form-select-sm" value={editing.org_type}
+                  onChange={(e) => setEditing({ ...editing, org_type: e.target.value })}>
+                  {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="col-md-2">
+                <label className="form-label small fw-semibold" htmlFor="ed-state">State / UT</label>
+                <input id="ed-state" className="form-control form-control-sm" maxLength={8}
+                  value={editing.state_code || ""}
+                  onChange={(e) => setEditing({ ...editing, state_code: e.target.value.toUpperCase() })} />
+              </div>
+              <div className="col-md-2 d-flex gap-1">
+                <button className="btn btn-primary btn-sm flex-grow-1" disabled={busy}>
+                  {busy ? "Saving…" : "Save"}</button>
+                <button type="button" className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setEditing(null)}>Cancel</button>
+              </div>
+            </form>
+          </div></div>
+        )}
 
         <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
           <input className="form-control form-control-sm" style={{ maxWidth: 280 }}
@@ -63,20 +176,25 @@ export default function Organisations() {
         </div>
 
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {msg && <div className="alert alert-success py-2" role="status">{msg}</div>}
 
         <div className="card shadow-sm">
           <div className="table-responsive"><table className="table table-hover align-middle mb-0">
             <thead className="table-light">
-              <tr><th>Organisation</th><th>Type</th><th>State / UT</th><th>Domains</th><th>Studio</th></tr>
+              <tr>
+                <th>Organisation</th><th>Type</th><th>State / UT</th>
+                <th>Domains</th><th>Users</th><th>Audits</th><th>Avg score</th>
+                <th>Last audit</th><th>Studio</th><th></th>
+              </tr>
             </thead>
             <tbody>
               {rows == null && (
-                <tr><td colSpan={5} className="text-center py-4">
+                <tr><td colSpan={10} className="text-center py-4">
                   <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading…
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={5} className="text-secondary text-center py-4">
+                <tr><td colSpan={10} className="text-secondary text-center py-4">
                   No organisations match this search.
                 </td></tr>
               )}
@@ -86,9 +204,23 @@ export default function Organisations() {
                   <td><span className="badge text-bg-light">{o.org_type}</span></td>
                   <td className="small">{o.state_code || <span className="text-secondary">—</span>}</td>
                   <td className="fw-bold">{o.domain_count}</td>
+                  <td>{o.user_count}</td>
+                  <td className="small">
+                    {o.audit_count
+                      ? <>{o.audit_count}<span className="text-secondary"> · {o.audited_domains} domain{o.audited_domains === 1 ? "" : "s"}</span></>
+                      : <span className="text-secondary">none</span>}
+                  </td>
+                  <td>{o.avg_score != null
+                    ? <b style={{ color: bandColor(o.avg_score) }}>{o.avg_score}</b>
+                    : <span className="text-secondary">—</span>}</td>
+                  <td className="small text-secondary">{fmt(o.last_audited_at)}</td>
                   <td>{o.studio_enabled
                     ? <span className="badge text-bg-success-subtle text-success">Enabled</span>
                     : <span className="text-secondary small">—</span>}</td>
+                  <td className="text-end">
+                    <button className="btn btn-sm btn-link"
+                      onClick={() => { setEditing(o); setShowNew(false); }}>Edit</button>
+                  </td>
                 </tr>
               ))}
             </tbody>

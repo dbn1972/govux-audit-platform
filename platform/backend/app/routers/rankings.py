@@ -1,14 +1,16 @@
 """National roll-up & segmented rankings (steward view)."""
 from datetime import datetime, timedelta, timezone
+from typing import Literal
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from .. import models
 from ..deps import require_role
-from ..services import cache, settings_store
+from ..services import cache, settings_store, audit_log
 from ..services.scoring import band_for
 
 router = APIRouter(prefix="/v1", tags=["national"])
@@ -35,7 +37,9 @@ def _latest_completed_subq(db: Session):
     """
     rn = func.row_number().over(
         partition_by=models.Audit.domain_id,
-        order_by=desc(models.Audit.created_at)).label("rn")
+        # id breaks a created_at tie: two audits stamped in the same instant
+        # would otherwise make the national roll-ups nondeterministic
+        order_by=(desc(models.Audit.created_at), desc(models.Audit.id))).label("rn")
     ranked = (db.query(
                 models.Audit.domain_id.label("did"),
                 models.Audit.overall_score.label("score"),
@@ -246,17 +250,128 @@ def organisations(q: str | None = None, org_type: str | None = None,
         base = base.filter(models.Organisation.org_type == org_type)
     total = base.count()
 
-    domain_counts = (db.query(models.Domain.org_id, func.count(models.Domain.id).label("n"))
-                       .group_by(models.Domain.org_id).subquery())
-    rows = (base.outerjoin(domain_counts, domain_counts.c.org_id == models.Organisation.id)
-                .add_columns(func.coalesce(domain_counts.c.n, 0).label("domain_count"))
-                .order_by(models.Organisation.name)
-                .offset(offset).limit(limit).all())
+    orgs = (base.order_by(models.Organisation.name).offset(offset).limit(limit).all())
+    ids = [o.id for o in orgs]
+    if not ids:
+        return {"total": total, "items": []}
+
+    # Aggregate over THIS PAGE only. Joining page-wide aggregates onto the full
+    # table would scan every org and audit to render 25 rows.
+    def _counts(col, model, extra=None):
+        qy = db.query(col, func.count(model.id)).filter(col.in_(ids))
+        if extra is not None:
+            qy = qy.filter(extra)
+        return dict(qy.group_by(col).all())
+
+    domains = _counts(models.Domain.org_id, models.Domain)
+    users = _counts(models.User.org_id, models.User, models.User.is_active.is_(True))
+
+    # audit activity: count every completed audit, but average only the LATEST
+    # per domain, so a domain audited weekly doesn't dominate its org's average
+    # (same rule as the national roll-up in _latest_completed_subq)
+    latest = _latest_completed_subq(db)
+    activity = dict()
+    rows = (db.query(models.Domain.org_id,
+                     func.count(latest.c.did),
+                     func.avg(latest.c.score))
+              .join(latest, latest.c.did == models.Domain.id)
+              .filter(models.Domain.org_id.in_(ids))
+              .group_by(models.Domain.org_id).all())
+    for org_id, audited, avg in rows:
+        activity[org_id] = (int(audited), round(float(avg), 1) if avg is not None else None)
+
+    total_audits = dict(
+        db.query(models.Domain.org_id, func.count(models.Audit.id))
+          .join(models.Audit, models.Audit.domain_id == models.Domain.id)
+          .filter(models.Domain.org_id.in_(ids), models.Audit.status == "completed")
+          .group_by(models.Domain.org_id).all())
+    last_seen = dict(
+        db.query(models.Domain.org_id, func.max(models.Audit.created_at))
+          .join(models.Audit, models.Audit.domain_id == models.Domain.id)
+          .filter(models.Domain.org_id.in_(ids), models.Audit.status == "completed")
+          .group_by(models.Domain.org_id).all())
 
     return {
         "total": total,
         "items": [{"id": str(o.id), "name": o.name, "org_type": o.org_type,
-                   "state_code": o.state_code, "domain_count": int(n),
+                   "state_code": o.state_code,
+                   "domain_count": int(domains.get(o.id, 0)),
+                   "user_count": int(users.get(o.id, 0)),
+                   "audited_domains": activity.get(o.id, (0, None))[0],
+                   "audit_count": int(total_audits.get(o.id, 0)),
+                   "avg_score": activity.get(o.id, (0, None))[1],
+                   "last_audited_at": last_seen.get(o.id),
                    "studio_enabled": bool(o.studio_enabled),
-                   "created_at": o.created_at} for o, n in rows],
+                   "created_at": o.created_at} for o in orgs],
     }
+
+
+class OrganisationCreate(BaseModel):
+    name: str = Field(..., min_length=2, max_length=200)
+    org_type: Literal["ministry", "department", "state", "ut", "psu", "other"] = "department"
+    state_code: str | None = Field(None, max_length=8)
+
+
+class OrganisationPatch(BaseModel):
+    name: str | None = Field(None, min_length=2, max_length=200)
+    org_type: Literal["ministry", "department", "state", "ut", "psu", "other"] | None = None
+    state_code: str | None = Field(None, max_length=8)
+
+
+@router.post("/organisations", status_code=201)
+def create_organisation(body: OrganisationCreate, db: Session = Depends(get_db),
+                        user=Depends(require_role("programme_admin", "super_admin"))):
+    """Onboard an organisation directly.
+
+    Until now an organisation could only appear as a side effect: auto-provisioned
+    on someone's first domain registration (producing names like
+    "aman's Organisation"), via CSV registry import, or from the seed script. A
+    steward had no way to set one up ahead of the ministry's own users arriving.
+    Same roles as the registry import, which already creates organisations."""
+    if db.query(models.Organisation).filter(
+            func.lower(models.Organisation.name) == body.name.strip().lower()).first():
+        raise HTTPException(status.HTTP_409_CONFLICT,
+                            "An organisation with that name already exists")
+    org = models.Organisation(name=body.name.strip(), org_type=body.org_type,
+                              state_code=(body.state_code or None))
+    db.add(org)
+    db.commit()
+    for pfx in ("ministries", "states"):
+        cache.invalidate_prefix(pfx)
+    audit_log.record(db, user.id, "organisation_created", target=str(org.id),
+                     detail={"name": org.name, "org_type": org.org_type})
+    db.commit()
+    return {"id": str(org.id), "name": org.name, "org_type": org.org_type,
+            "state_code": org.state_code}
+
+
+@router.patch("/organisations/{org_id}")
+def update_any_organisation(org_id: str, body: OrganisationPatch, db: Session = Depends(get_db),
+                            user=Depends(require_role("programme_admin", "super_admin"))):
+    """Steward-level edit of ANY organisation.
+
+    `PATCH /v1/auth/organisation` only ever edits the caller's own, so nobody
+    could correct the auto-provisioned names the platform generates for itself."""
+    org = db.get(models.Organisation, org_id)
+    if not org:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Organisation not found")
+    if body.name is not None:
+        clash = (db.query(models.Organisation)
+                   .filter(func.lower(models.Organisation.name) == body.name.strip().lower(),
+                           models.Organisation.id != org.id).first())
+        if clash:
+            raise HTTPException(status.HTTP_409_CONFLICT,
+                                "An organisation with that name already exists")
+        org.name = body.name.strip()
+    if body.org_type is not None:
+        org.org_type = body.org_type
+    if body.state_code is not None:
+        org.state_code = body.state_code or None      # "" clears the tag
+    db.commit()
+    for pfx in ("ministries", "states", "national"):
+        cache.invalidate_prefix(pfx)
+    audit_log.record(db, user.id, "organisation_updated", target=str(org.id),
+                     detail={"name": org.name})
+    db.commit()
+    return {"id": str(org.id), "name": org.name, "org_type": org.org_type,
+            "state_code": org.state_code}

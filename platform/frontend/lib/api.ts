@@ -113,6 +113,10 @@ export const api = {
   },
   importRegistry: (csv: string, dry_run: boolean) =>
     req("/v1/admin/registry/import", { method: "POST", body: JSON.stringify({ csv, dry_run }) }),
+  createOrganisation: (body: { name: string; org_type: string; state_code?: string }) =>
+    req("/v1/organisations", { method: "POST", body: JSON.stringify(body) }),
+  patchOrganisation: (id: string, body: { name?: string; org_type?: string; state_code?: string }) =>
+    req(`/v1/organisations/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   auditTrend: (taskId: string) => req(`/v1/audits/${taskId}/trend`),
   bulkScan: (scope: string) =>
     req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),

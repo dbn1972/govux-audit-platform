@@ -210,6 +210,10 @@
     "200",
     "422"
   ],
+  "PATCH /v1/organisations/{org_id}": [
+    "200",
+    "422"
+  ],
   "PATCH /v1/scan-requests/{req_id}": [
     "200",
     "422"
@@ -270,6 +274,10 @@
   ],
   "POST /v1/domains/{domain_id}/verify": [
     "200",
+    "422"
+  ],
+  "POST /v1/organisations": [
+    "201",
     "422"
   ],
   "POST /v1/public/scan": [
