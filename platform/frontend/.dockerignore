@@ -1,0 +1,24 @@
+# Dependencies (rebuilt inside container)
+node_modules/
+
+# Next.js build output (rebuilt in prod stage)
+.next/
+out/
+
+# Test files (not needed in production)
+e2e/
+test/
+playwright-report/
+coverage/
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Environment
+.env
+.env.*

@@ -1,0 +1,26 @@
+# Test artifacts (not needed in production images)
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+__pycache__/
+*.pyc
+
+# Environment files (secrets come from compose env)
+.env
+.env.*
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Node engine node_modules is rebuilt inside the container
+audit_engine/node_modules/
+
+# Alembic config is needed but not the pycache
+migrations/__pycache__/
+migrations/versions/__pycache__/

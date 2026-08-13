@@ -8,6 +8,7 @@ services:
     ports: ["5432:5432"]
     volumes:
       - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
       - pgdata:/var/lib/postgresql/data
 
   redis:
@@ -36,6 +37,7 @@ services:
     environment:
       GOVUX_DATABASE_URL: postgresql+psycopg://govux:govux@db:5432/govux
       GOVUX_REDIS_URL: redis://redis:6379/0
+      GOVUX_ALLOW_CONSOLE_OTP: "true"
     ports: ["8000:8000"]
     depends_on: [db, redis]
     volumes:
@@ -83,7 +85,9 @@ services:
     volumes: ["./backend:/app", "/app/audit_engine/node_modules"]
 
   web:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: dev
     command: npm run dev
     ports: ["3000:3000"]
     depends_on: [api]

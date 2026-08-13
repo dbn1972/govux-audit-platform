@@ -45,8 +45,28 @@ services:
     deploy:
       resources: { limits: { cpus: "1", memory: 768m } }
 
+  # S3-compatible object storage for registered-user report PDFs
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-govux}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-govux-secret}
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["miniodata:/data"]
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources: { limits: { cpus: "1", memory: 1g } }
+
   api:
-    build: ./backend
+    build:
+      context: ./backend
+      target: final
     # migrate on boot, then run a real multi-worker Gunicorn (no --reload)
     entrypoint: ["/app/entrypoint.sh"]
     command: ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker",
@@ -62,10 +82,18 @@ services:
       GOVUX_SECRET_KEY: ${GOVUX_SECRET_KEY}
       GOVUX_CORS_ORIGINS: ${GOVUX_CORS_ORIGINS}
       GOVUX_CRUX_API_KEY: ${GOVUX_CRUX_API_KEY:-}
+      GOVUX_S3_ENDPOINT: ${GOVUX_S3_ENDPOINT:-http://minio:9000}
+      GOVUX_S3_BUCKET: ${GOVUX_S3_BUCKET:-govux-reports}
+      GOVUX_S3_ACCESS_KEY: ${GOVUX_S3_ACCESS_KEY:-govux}
+      GOVUX_S3_SECRET_KEY: ${GOVUX_S3_SECRET_KEY:-govux-secret}
+      GOVUX_ALLOW_CONSOLE_OTP: "true"
     depends_on:
       db: { condition: service_healthy }
       redis: { condition: service_healthy }
       redis-cache: { condition: service_healthy }
+      minio: { condition: service_healthy }
+    volumes:
+      - ./db:/db:ro
     restart: always
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/readyz').status==200 else 1)"]
@@ -77,7 +105,9 @@ services:
       resources: { limits: { cpus: "1", memory: 1g } }
 
   worker:
-    build: ./backend
+    build:
+      context: ./backend
+      target: final
     command: ["python", "-m", "app.worker"]
     environment:
       GOVUX_ENV: production
@@ -87,16 +117,23 @@ services:
       GOVUX_JWT_SECRET: ${GOVUX_JWT_SECRET}
       GOVUX_SECRET_KEY: ${GOVUX_SECRET_KEY}
       GOVUX_CRUX_API_KEY: ${GOVUX_CRUX_API_KEY:-}
+      GOVUX_S3_ENDPOINT: ${GOVUX_S3_ENDPOINT:-http://minio:9000}
+      GOVUX_S3_BUCKET: ${GOVUX_S3_BUCKET:-govux-reports}
+      GOVUX_S3_ACCESS_KEY: ${GOVUX_S3_ACCESS_KEY:-govux}
+      GOVUX_S3_SECRET_KEY: ${GOVUX_S3_SECRET_KEY:-govux-secret}
     depends_on:
       db: { condition: service_healthy }
       redis: { condition: service_healthy }
+      minio: { condition: service_healthy }
     restart: always
     deploy:
       replicas: 3                             # horizontal audit fleet (consumer-per-replica)
       resources: { limits: { cpus: "2", memory: 2g } }   # 3 browser engines are heavy
 
   scheduler:
-    build: ./backend
+    build:
+      context: ./backend
+      target: final
     command: ["python", "-m", "app.services.scheduler"]
     environment:
       GOVUX_ENV: production
@@ -110,7 +147,9 @@ services:
     restart: always
 
   public-worker:
-    build: ./backend
+    build:
+      context: ./backend
+      target: final
     command: ["python", "-m", "app.public_worker"]
     environment:
       GOVUX_ENV: production
@@ -119,14 +158,22 @@ services:
       GOVUX_CACHE_REDIS_URL: redis://redis-cache:6379/0
       GOVUX_JWT_SECRET: ${GOVUX_JWT_SECRET}
       GOVUX_SECRET_KEY: ${GOVUX_SECRET_KEY}
+      GOVUX_S3_ENDPOINT: ${GOVUX_S3_ENDPOINT:-http://minio:9000}
+      GOVUX_S3_BUCKET: ${GOVUX_S3_BUCKET:-govux-reports}
+      GOVUX_S3_ACCESS_KEY: ${GOVUX_S3_ACCESS_KEY:-govux}
+      GOVUX_S3_SECRET_KEY: ${GOVUX_S3_SECRET_KEY:-govux-secret}
     depends_on:
       db: { condition: service_healthy }
       redis: { condition: service_healthy }
+      minio: { condition: service_healthy }
     restart: always
 
   web:
-    build: ./frontend
-    command: ["sh", "-c", "npm run build && npm run start"]   # production build (no dev server)
+    build:
+      context: ./frontend
+      target: prod
+    ports:
+      - "3000:3000"
     environment:
       GOVUX_API_URL: http://api:8000
       NODE_ENV: production
@@ -138,3 +185,4 @@ services:
 volumes:
   pgdata:
   redisdata:
+  miniodata:

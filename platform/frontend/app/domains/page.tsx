@@ -15,11 +15,29 @@ const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString() : "
 export default function Domains() {
   const [rows, setRows] = useState<Domain[] | null>(null);
   const [err, setErr] = useState("");
+  const [isSteward, setIsSteward] = useState(false);
+
   useEffect(() => {
     api.listDomains()
       .then((d) => setRows(d || []))
       .catch((e) => { setErr(e?.message || "Could not load your domains."); setRows([]); });
+    api.me()
+      .then((u) => setIsSteward(!!u?.is_steward))
+      .catch(() => {});
   }, []);
+
+  async function forceVerify(id: string) {
+    setErr("");
+    try {
+      const res = await api.verifyDomain(id, "sso_mapping");
+      if (res?.verify_status === "verified") {
+        setRows((rs) => (rs || []).map((d) => d.id === id ? { ...d, verify_status: "verified" } : d));
+      }
+    } catch (e: any) {
+      setErr(e?.message || "Could not force verify domain.");
+    }
+  }
+
   return (
     <AppShell>
       <div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
