@@ -64,7 +64,9 @@ services:
       resources: { limits: { cpus: "1", memory: 1g } }
 
   api:
-    build: ./backend
+    build:
+      context: ./backend
+      target: final
     # migrate on boot, then run a real multi-worker Gunicorn (no --reload)
     entrypoint: ["/app/entrypoint.sh"]
     command: ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker",
@@ -103,7 +105,9 @@ services:
       resources: { limits: { cpus: "1", memory: 1g } }
 
   worker:
-    build: ./backend
+    build:
+      context: ./backend
+      target: final
     command: ["python", "-m", "app.worker"]
     environment:
       GOVUX_ENV: production
@@ -127,7 +131,9 @@ services:
       resources: { limits: { cpus: "2", memory: 2g } }   # 3 browser engines are heavy
 
   scheduler:
-    build: ./backend
+    build:
+      context: ./backend
+      target: final
     command: ["python", "-m", "app.services.scheduler"]
     environment:
       GOVUX_ENV: production
@@ -141,7 +147,9 @@ services:
     restart: always
 
   public-worker:
-    build: ./backend
+    build:
+      context: ./backend
+      target: final
     command: ["python", "-m", "app.public_worker"]
     environment:
       GOVUX_ENV: production
@@ -161,8 +169,9 @@ services:
     restart: always
 
   web:
-    build: ./frontend
-    command: ["sh", "-c", "npm run build && npm run start"]   # production build (no dev server)
+    build:
+      context: ./frontend
+      target: prod
     ports:
       - "3000:3000"
     environment:

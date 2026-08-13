@@ -85,7 +85,9 @@ services:
     volumes: ["./backend:/app", "/app/audit_engine/node_modules"]
 
   web:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: dev
     command: npm run dev
     ports: ["3000:3000"]
     depends_on: [api]
