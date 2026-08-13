@@ -6,7 +6,29 @@
 | **Version** | 1.0 (Draft for approval) |
 | **Owner** | GovUX Audit Platform — Product |
 | **Related** | [HLD](HLD.md) · [LLD](LLD.md) · [Scoring & Validation](../platform/docs/SCORING_VALIDATION.md) · [Security Architecture](SECURITY_ARCHITECTURE.md) |
-| **Status** | Proposed — not yet implemented |
+| **Status** | **Implemented** (as of 2026-08-11) — see “Implementation map” below |
+
+---
+
+## 0. Implementation map
+
+This BRD was written as a proposal and has since been **built**. The requirements below are
+retained as the statement of intent; this table is where each one now lives in the code.
+
+| Area | Implementation |
+|---|---|
+| Generation orchestration + refine loop | `platform/backend/app/services/studio.py` |
+| Deterministic scoring of generated pages | `platform/backend/app/services/studio_audit.py` |
+| Generation prompt | `platform/backend/app/prompts/studio_generate.md` |
+| API (7 endpoints under `/v1/studio`) | `platform/backend/app/routers/studio.py` |
+| Persistence | `studio_runs` table (`db/schema.sql`); migrations `0008_studio_runs`, `0009_studio_tenant_publish` |
+| Tenant entitlement | `organisations.studio_enabled` (default `false`, `super_admin` only) |
+| Frontend | `/studio`, `/admin/studio-access`, public showcase at `/showcase/[slug]` |
+| Tests | `platform/backend/tests/test_studio.py` |
+| Model | Runtime-configured via `app_settings` (`llm_api_key`, `llm_model`); default `claude-haiku-4-5-20251001` |
+
+The governing principle held: **the LLM only generates; the deterministic engine scores.**
+Platform invariant #1 (LLM/ML-free score path) is intact. See `PRODUCT.md` §4.3.
 
 ---
 

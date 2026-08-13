@@ -49,6 +49,24 @@ def send_otp(email: str, code: str) -> bool:
         return False
 
 
+def send(to: str, subject: str, body: str) -> bool:
+    """Generic dispatch for everything that ISN'T the OTP (invitations, audit
+    notifications, ...). Unlike `send_otp` the body carries no auth factor, so
+    the console provider may safely echo it in any environment."""
+    provider = settings_store.get_str("email_provider", "console")
+    frm = settings_store.get_str("email_from", "no-reply@govux.gov.in")
+    try:
+        if provider == "smtp":
+            return _send_smtp(frm, to, subject, body)
+        if provider == "api":
+            return _send_api(to, subject, body)
+        print(f"[email·console] to {to}: {subject}\n{body}")
+        return True
+    except Exception as exc:
+        log.error("email send error: %r", exc)
+        return False
+
+
 def send_test(to: str) -> dict:
     """Send a test message via the currently-configured provider — lets an admin
     validate the email config before relying on it for OTPs."""

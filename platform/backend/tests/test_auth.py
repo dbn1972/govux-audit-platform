@@ -1,4 +1,7 @@
+import uuid
+
 from app import security
+from app.config import settings
 from app.services import queue
 
 
@@ -46,12 +49,122 @@ def test_refresh_without_cookie(client):
     assert client.post("/v1/auth/refresh").status_code == 401
 
 
+def test_concurrent_refresh_with_the_same_token_does_not_kill_the_family(client, monkeypatch):
+    """Two components racing off one stale cookie (e.g. right after a page
+    reload) both present the SAME original refresh token. Both must succeed —
+    this used to cascade-revoke the whole session family instead."""
+    monkeypatch.setattr(security, "new_otp", lambda: "123456")
+    email = f"race.{uuid.uuid4().hex[:8]}@nic.in"
+    client.post("/v1/auth/otp/request", json={"email": email})
+    ok = client.post("/v1/auth/otp/verify",
+                     json={"email": email, "code": "123456", "device_pubkey": "pk", "trust_device": True})
+    rt = ok.cookies["govux_rt"]
+
+    client.cookies.set("govux_rt", rt)
+    r1 = client.post("/v1/auth/refresh")
+    client.cookies.set("govux_rt", rt)   # present the SAME (now superseded) token again
+    r2 = client.post("/v1/auth/refresh")
+
+    assert r1.status_code == 200
+    assert r2.status_code == 200
+    assert r1.json()["access_token"] and r2.json()["access_token"]
+
+    # the session minted by the second (losing) racer must still be usable
+    client.cookies.set("govux_rt", r2.cookies["govux_rt"])
+    r3 = client.post("/v1/auth/refresh")
+    assert r3.status_code == 200
+
+
+def test_reuse_outside_the_grace_window_still_kills_the_family(client, monkeypatch):
+    """A token replayed well after its own rotation is a real theft signal —
+    the grace window must not blanket-forgive every reuse, only near-simultaneous
+    ones. Zeroing the grace window makes any reuse count as 'outside' it."""
+    monkeypatch.setattr(security, "new_otp", lambda: "123456")
+    monkeypatch.setattr(settings, "refresh_reuse_grace_seconds", 0)
+    email = f"reuse.{uuid.uuid4().hex[:8]}@nic.in"
+    client.post("/v1/auth/otp/request", json={"email": email})
+    ok = client.post("/v1/auth/otp/verify",
+                     json={"email": email, "code": "123456", "device_pubkey": "pk", "trust_device": True})
+    rt = ok.cookies["govux_rt"]
+
+    client.cookies.set("govux_rt", rt)
+    r1 = client.post("/v1/auth/refresh")
+    assert r1.status_code == 200
+    new_rt = r1.cookies["govux_rt"]
+
+    client.cookies.set("govux_rt", rt)   # replay the already-rotated token
+    r2 = client.post("/v1/auth/refresh")
+    assert r2.status_code == 401
+
+    # the legitimately-rotated sibling must be dead too — the whole family
+    client.cookies.set("govux_rt", new_rt)
+    r3 = client.post("/v1/auth/refresh")
+    assert r3.status_code == 401
+
+
+def test_logout_revokes_session_so_the_cookie_can_no_longer_refresh(client, monkeypatch):
+    monkeypatch.setattr(security, "new_otp", lambda: "123456")
+    email = f"logout.{uuid.uuid4().hex[:8]}@nic.in"
+    client.post("/v1/auth/otp/request", json={"email": email})
+    ok = client.post("/v1/auth/otp/verify",
+                     json={"email": email, "code": "123456", "device_pubkey": "pk", "trust_device": True})
+    client.cookies.set("govux_rt", ok.cookies["govux_rt"])
+
+    out = client.post("/v1/auth/logout")
+    assert out.status_code == 204
+
+    # whether the cookie was dropped client-side or the session was revoked
+    # server-side, the old refresh token must never mint a new access token
+    ref = client.post("/v1/auth/refresh")
+    assert ref.status_code == 401
+
+
+def test_logout_without_a_cookie_is_a_harmless_noop(client):
+    client.cookies.clear()
+    assert client.post("/v1/auth/logout").status_code == 204
+
+
 def test_devices_list_and_revoke(client, ctx):
     r = client.get("/v1/auth/devices", headers=ctx["headers"])
     assert r.status_code == 200
     assert any(d["id"] == str(ctx["device"].id) for d in r.json())
     rev = client.delete(f"/v1/auth/devices/{ctx['device'].id}", headers=ctx["headers"])
     assert rev.status_code == 204
+
+
+def test_devices_list_orders_most_recently_active_first(client, ctx, db):
+    from datetime import datetime, timedelta, timezone
+    from app import models
+    older = models.Device(user_id=ctx["user"].id, device_pubkey="pk-older",
+                          last_active_at=datetime.now(timezone.utc) - timedelta(days=5))
+    newer = models.Device(user_id=ctx["user"].id, device_pubkey="pk-newer",
+                          last_active_at=datetime.now(timezone.utc) - timedelta(minutes=1))
+    db.add_all([older, newer]); db.commit()
+
+    r = client.get("/v1/auth/devices", headers=ctx["headers"])
+    ids = [d["id"] for d in r.json()]
+    assert ids.index(str(newer.id)) < ids.index(str(older.id))
+
+
+def test_revoked_device_session_cannot_refresh_even_inside_the_grace_window(client, monkeypatch):
+    """Same class of bug as logout: a device-revoked session only sets
+    revoked_at, exactly like a rotation does moments before its grace window
+    check — it must not be mistaken for a benign rotation race."""
+    monkeypatch.setattr(security, "new_otp", lambda: "123456")
+    email = f"devrevoke.{uuid.uuid4().hex[:8]}@nic.in"
+    client.post("/v1/auth/otp/request", json={"email": email})
+    ok = client.post("/v1/auth/otp/verify",
+                     json={"email": email, "code": "123456", "device_pubkey": "pk", "trust_device": True})
+    access = ok.json()["access_token"]
+    devices = client.get("/v1/auth/devices", headers={"Authorization": f"Bearer {access}"}).json()
+    device_id = devices[0]["id"]
+
+    client.cookies.set("govux_rt", ok.cookies["govux_rt"])
+    rev = client.delete(f"/v1/auth/devices/{device_id}", headers={"Authorization": f"Bearer {access}"})
+    assert rev.status_code == 204
+
+    ref = client.post("/v1/auth/refresh")
+    assert ref.status_code == 401
 
 
 def test_protected_requires_token(client):
@@ -86,6 +199,50 @@ def test_me_owner_is_not_steward(client, db):
     assert m["role"] == "owner" and m["is_steward"] is False
 
 
+def test_owner_can_update_their_own_organisation(client, ctx):
+    """Gap fix: nothing ever set state_code before, so /v1/states could never
+    populate. An owner-ish role can now tag their own org with a state/UT."""
+    r = client.patch("/v1/auth/organisation", headers=ctx["headers"],
+                     json={"name": "Renamed Dept", "state_code": "KA"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["org_name"] == "Renamed Dept" and body["org_state_code"] == "KA"
+
+    m = client.get("/v1/auth/me", headers=ctx["headers"]).json()
+    assert m["org_name"] == "Renamed Dept" and m["org_state_code"] == "KA"
+
+
+def test_assessor_cannot_update_organisation(client, db):
+    import uuid
+    from app import models, security
+    org = models.Organisation(name="Org Y", org_type="department")
+    db.add(org); db.flush()
+    u = models.User(email=f"assessor.{uuid.uuid4().hex[:8]}@nic.in", org_id=org.id, role="assessor")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    tok = security.issue_access_token(str(u.id), u.role, str(dev.id))
+    r = client.patch("/v1/auth/organisation", headers={"Authorization": f"Bearer {tok}"},
+                     json={"state_code": "MH"})
+    assert r.status_code == 403
+
+
+def test_state_code_populates_the_national_states_rollup(client, ctx, verified_domain, monkeypatch):
+    from app import worker
+    monkeypatch.setattr(worker, "run_engine", lambda url, screenshot_path=None, depth=None: {
+        "url": url, "categories": {k: 70 for k in
+            ["accessibility", "usability", "gigw", "design", "performance", "responsiveness", "content", "trust"]},
+        "cwv": {}, "findings": []})
+    sub = client.post("/v1/audits", headers=ctx["headers"], json={"domain_id": str(verified_domain.id)}).json()
+    worker.process(sub["task_id"], {"domain": verified_domain.url})
+
+    client.patch("/v1/auth/organisation", headers=ctx["headers"], json={"state_code": "TN"})
+
+    r = client.get("/v1/states", headers=ctx["headers"])
+    assert r.status_code == 200
+    codes = {s["code"] for s in r.json()["states"]}
+    assert "TN" in codes
+
+
 def test_dpdp_export_returns_pii_and_is_logged(client, ctx, db):
     from app import models
     r = client.get("/v1/auth/me/export", headers=ctx["headers"])
@@ -108,3 +265,90 @@ def test_dpdp_erase_anonymises_and_deletes_devices(client, ctx, db):
     assert u.is_active is False and u.display_name is None
     assert db.query(models.Device).filter(models.Device.user_id == uid).count() == 0
     assert db.query(models.Session).filter(models.Session.user_id == uid).count() == 0
+
+
+# ---------- team / role management ------------------------------------------
+def _team_user(db, org, role, prefix):
+    from app import models, security
+    u = models.User(email=f"{prefix}.{uuid.uuid4().hex[:8]}@nic.in", org_id=org.id, role=role)
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    tok = security.issue_access_token(str(u.id), role, str(dev.id))
+    return u, {"Authorization": f"Bearer {tok}"}
+
+
+def test_owner_can_list_and_promote_a_colleague_to_assessor(client, db):
+    from app import models
+    org = models.Organisation(name="Team Org 1", org_type="department"); db.add(org); db.flush()
+    owner, owner_hdrs = _team_user(db, org, "owner", "owner")
+    colleague, _ = _team_user(db, org, "contributor", "colleague")
+
+    lst = client.get("/v1/auth/team", headers=owner_hdrs)
+    assert lst.status_code == 200
+    emails = {m["email"] for m in lst.json()}
+    assert owner.email in emails and colleague.email in emails
+
+    r = client.patch(f"/v1/auth/team/{colleague.id}/role", headers=owner_hdrs, json={"role": "assessor"})
+    assert r.status_code == 200 and r.json()["role"] == "assessor"
+
+
+def test_owner_cannot_grant_a_steward_role(client, db):
+    from app import models
+    org = models.Organisation(name="Team Org 2", org_type="department"); db.add(org); db.flush()
+    owner, owner_hdrs = _team_user(db, org, "owner", "owner")
+    colleague, _ = _team_user(db, org, "contributor", "colleague")
+
+    r = client.patch(f"/v1/auth/team/{colleague.id}/role", headers=owner_hdrs,
+                     json={"role": "programme_admin"})
+    assert r.status_code == 403
+
+
+def test_super_admin_can_grant_a_steward_role(client, db):
+    from app import models
+    org = models.Organisation(name="Team Org 3", org_type="department"); db.add(org); db.flush()
+    admin, admin_hdrs = _team_user(db, org, "super_admin", "admin")
+    colleague, _ = _team_user(db, org, "owner", "colleague")
+
+    r = client.patch(f"/v1/auth/team/{colleague.id}/role", headers=admin_hdrs,
+                     json={"role": "programme_admin"})
+    assert r.status_code == 200 and r.json()["role"] == "programme_admin"
+
+
+def test_cannot_change_your_own_role(client, db):
+    from app import models
+    org = models.Organisation(name="Team Org 4", org_type="department"); db.add(org); db.flush()
+    owner, owner_hdrs = _team_user(db, org, "owner", "owner")
+
+    r = client.patch(f"/v1/auth/team/{owner.id}/role", headers=owner_hdrs, json={"role": "assessor"})
+    assert r.status_code == 400
+
+
+def test_cannot_change_a_role_across_organisations(client, db):
+    from app import models
+    org_a = models.Organisation(name="Team Org 5a", org_type="department"); db.add(org_a); db.flush()
+    org_b = models.Organisation(name="Team Org 5b", org_type="department"); db.add(org_b); db.flush()
+    owner, owner_hdrs = _team_user(db, org_a, "owner", "owner")
+    outsider, _ = _team_user(db, org_b, "owner", "outsider")
+
+    r = client.patch(f"/v1/auth/team/{outsider.id}/role", headers=owner_hdrs, json={"role": "assessor"})
+    assert r.status_code == 404
+
+
+def test_contributor_cannot_manage_team_roles(client, db):
+    from app import models
+    org = models.Organisation(name="Team Org 6", org_type="department"); db.add(org); db.flush()
+    contrib, contrib_hdrs = _team_user(db, org, "contributor", "contrib")
+    colleague, _ = _team_user(db, org, "owner", "colleague")
+
+    r = client.patch(f"/v1/auth/team/{colleague.id}/role", headers=contrib_hdrs, json={"role": "assessor"})
+    assert r.status_code == 403
+
+
+def test_unknown_role_is_rejected(client, db):
+    from app import models
+    org = models.Organisation(name="Team Org 7", org_type="department"); db.add(org); db.flush()
+    owner, owner_hdrs = _team_user(db, org, "owner", "owner")
+    colleague, _ = _team_user(db, org, "owner", "colleague")
+
+    r = client.patch(f"/v1/auth/team/{colleague.id}/role", headers=owner_hdrs, json={"role": "wizard"})
+    assert r.status_code == 422

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
 type Browser = {
@@ -27,7 +28,8 @@ export default function Compatibility({ params }: { params: { id: string } }) {
 
   const wrap = (b: React.ReactNode) => <AppShell><div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
     <h1 className="h3">Responsiveness &amp; compatibility</h1>
-    <p className="text-secondary small">Each site is rendered in three real browser engines — Chromium, Firefox and WebKit (Safari/iOS).</p>{b}</div></AppShell>;
+    <p className="text-secondary small">Each site is rendered in three real browser engines — Chromium, Firefox and WebKit (Safari/iOS).</p>
+    <AuditNav id={params.id} />{b}</div></AppShell>;
 
   if (err) return wrap(<div className="alert alert-warning" role="alert">{err}</div>);
   if (!browsers) return wrap(<div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);

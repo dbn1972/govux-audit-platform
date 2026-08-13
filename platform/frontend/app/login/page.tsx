@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, setToken } from "@/lib/api";
 
-const GOV = /(\.gov\.in|\.nic\.in)$/i;
+// Mirrors backend security.is_gov_email: bare @gov.in/@nic.in as well as any subdomain.
+const GOV = /(@|\.)(gov\.in|nic\.in)$/i;
 
 // Device key pair for device binding (WebCrypto; use non-extractable + DBSC/WebAuthn in prod)
 async function deviceKey(): Promise<string> {
@@ -16,7 +17,7 @@ async function deviceKey(): Promise<string> {
 export default function Login() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
-  const [email, setEmail] = useState("");   // empty → placeholder guides; a pre-filled apex (@nic.in) would fail GOV
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -62,9 +63,6 @@ export default function Login() {
               {err && <div className="text-danger small mt-1" role="alert">✗ {err}</div>}
               <button className="btn btn-primary w-100 mt-3" onClick={sendOtp} disabled={busy}>
                 {busy ? "Sending…" : "Send OTP"}</button>
-              <div className="text-center text-secondary my-3 small">or</div>
-              <a href="/api/v1/auth/sso" className="btn btn-outline-secondary w-100">
-                <i className="bi bi-shield-lock me-2" />Continue with Parichay SSO</a>
             </>
           ) : (
             <>

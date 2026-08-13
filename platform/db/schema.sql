@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "vector";         -- pgvector (guideline RAG); op
 CREATE TYPE user_role      AS ENUM ('owner','contributor','assessor','programme_admin','super_admin');
 CREATE TYPE org_type       AS ENUM ('ministry','department','state','ut','psu','other');
 CREATE TYPE verify_method  AS ENUM ('dns_txt','file_upload','sso_mapping');
-CREATE TYPE verify_status  AS ENUM ('pending','verified','failed');
+CREATE TYPE verify_status  AS ENUM ('pending','verified','failed','superseded');
 CREATE TYPE audit_status   AS ENUM ('queued','crawling','analyzing','scoring','completed','partial','failed','cancelled','insufficient_evidence');
 CREATE TYPE page_status    AS ENUM ('discovered','analysed','timed_out','skipped','error');
 CREATE TYPE severity       AS ENUM ('critical','high','medium','low');
@@ -93,7 +93,13 @@ CREATE INDEX idx_session_family ON sessions(family_id);
 CREATE TABLE domains (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id         UUID NOT NULL REFERENCES organisations(id),
-    url            TEXT UNIQUE NOT NULL,             -- e.g. ncsc.dop.gov.in
+    -- NOT globally unique: several organisations may hold a PENDING claim on
+    -- the same host and race to prove ownership. A global UNIQUE made this
+    -- first-come-first-served — anyone could register a domain they did not
+    -- own, never verify it, and permanently block the real owner (409, with
+    -- no release path). Uniqueness belongs on proven ownership; see the
+    -- partial index below.
+    url            TEXT NOT NULL,                    -- e.g. ncsc.dop.gov.in
     tld            TEXT NOT NULL,                    -- gov.in | nic.in
     service_category TEXT,                           -- transactional | information | payments ...
     size_class     TEXT,                             -- large | medium | small (for segmentation)
@@ -105,6 +111,11 @@ CREATE TABLE domains (
     CONSTRAINT chk_gov_domain CHECK (url ~* '(\.gov\.in|\.nic\.in)$')
 );
 CREATE INDEX idx_domain_org ON domains(org_id);
+-- exactly ONE organisation may hold a host once ownership is proven; losing
+-- claims are marked 'superseded' so they fall out of this index
+CREATE UNIQUE INDEX uq_domain_verified_url ON domains(url) WHERE verify_status = 'verified';
+-- and one organisation cannot stack duplicate claims on the same host
+CREATE UNIQUE INDEX uq_domain_org_url ON domains(org_id, url);
 
 -- ---------- audits (each run = an async job = a dated snapshot) ----------
 CREATE TABLE audits (
@@ -375,3 +386,29 @@ CREATE TABLE IF NOT EXISTS external_assessments (
 );
 CREATE INDEX IF NOT EXISTS idx_extassess_org_time ON external_assessments(org_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_extassess_domain   ON external_assessments(domain_id);
+
+-- ---------- invitations (join an EXISTING organisation) ----------
+-- Without this, every first sign-in produced its own single-person organisation
+-- (users.org_id starts NULL and domains.register auto-provisioned one), so two
+-- colleagues from the same ministry could never share domains or audits.
+-- An invite is consumed by verify_otp when the invited address first signs in.
+CREATE TABLE IF NOT EXISTS invitations (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id       UUID NOT NULL REFERENCES organisations(id),
+    email        CITEXT NOT NULL,
+    role         user_role NOT NULL DEFAULT 'contributor',
+    invited_by   UUID REFERENCES users(id),
+    status       TEXT NOT NULL DEFAULT 'pending',   -- pending | accepted | revoked
+    expires_at   TIMESTAMPTZ NOT NULL,
+    accepted_at  TIMESTAMPTZ,
+    accepted_by  UUID REFERENCES users(id),
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- same gov-only invariant as users.chk_gov_email: you cannot invite a
+    -- non-government address into an organisation
+    CONSTRAINT chk_gov_invite_email CHECK (email ~* '[@.](gov|nic)\.in$')
+);
+-- at most ONE live invite per address: a second invite must revoke/replace the
+-- first, otherwise which org the invitee lands in depends on row order
+CREATE UNIQUE INDEX IF NOT EXISTS uq_invite_pending_email
+    ON invitations(email) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_invite_org_time ON invitations(org_id, created_at DESC);

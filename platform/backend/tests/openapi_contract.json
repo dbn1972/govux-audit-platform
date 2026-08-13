@@ -3,8 +3,16 @@
     "204",
     "422"
   ],
+  "DELETE /v1/auth/invitations/{invite_id}": [
+    "204",
+    "422"
+  ],
   "DELETE /v1/auth/me": [
     "200",
+    "422"
+  ],
+  "DELETE /v1/domains/claims/{domain_id}": [
+    "204",
     "422"
   ],
   "DELETE /v1/schedules/{schedule_id}": [
@@ -28,6 +36,10 @@
     "200",
     "422"
   ],
+  "GET /v1/alerts": [
+    "200",
+    "422"
+  ],
   "GET /v1/assessments": [
     "200",
     "422"
@@ -37,6 +49,10 @@
     "422"
   ],
   "GET /v1/audits/{task_id}": [
+    "200",
+    "422"
+  ],
+  "GET /v1/audits/{task_id}/compare": [
     "200",
     "422"
   ],
@@ -64,11 +80,19 @@
     "200",
     "422"
   ],
+  "GET /v1/auth/invitations": [
+    "200",
+    "422"
+  ],
   "GET /v1/auth/me": [
     "200",
     "422"
   ],
   "GET /v1/auth/me/export": [
+    "200",
+    "422"
+  ],
+  "GET /v1/auth/team": [
     "200",
     "422"
   ],
@@ -84,11 +108,11 @@
     "200",
     "422"
   ],
-  "GET /v1/domains/{domain_id}/audits": [
+  "GET /v1/domains/claims": [
     "200",
     "422"
   ],
-  "GET /v1/domains/{domain_id}/compare": [
+  "GET /v1/domains/{domain_id}/audits": [
     "200",
     "422"
   ],
@@ -101,6 +125,10 @@
     "422"
   ],
   "GET /v1/national": [
+    "200",
+    "422"
+  ],
+  "GET /v1/organisations": [
     "200",
     "422"
   ],
@@ -170,7 +198,19 @@
     "200",
     "422"
   ],
+  "PATCH /v1/auth/organisation": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/auth/team/{target_id}/role": [
+    "200",
+    "422"
+  ],
   "PATCH /v1/findings/{finding_id}": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/organisations/{org_id}": [
     "200",
     "422"
   ],
@@ -186,6 +226,10 @@
     "200",
     "422"
   ],
+  "POST /v1/admin/registry/import": [
+    "200",
+    "422"
+  ],
   "POST /v1/assessments": [
     "201",
     "422"
@@ -197,6 +241,13 @@
   "POST /v1/audits/{task_id}/review": [
     "200",
     "422"
+  ],
+  "POST /v1/auth/invitations": [
+    "201",
+    "422"
+  ],
+  "POST /v1/auth/logout": [
+    "204"
   ],
   "POST /v1/auth/otp/request": [
     "202",
@@ -223,6 +274,10 @@
   ],
   "POST /v1/domains/{domain_id}/verify": [
     "200",
+    "422"
+  ],
+  "POST /v1/organisations": [
+    "201",
     "422"
   ],
   "POST /v1/public/scan": [

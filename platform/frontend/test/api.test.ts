@@ -51,4 +51,27 @@ describe("api client", () => {
     const refreshCalls = (global.fetch as any).mock.calls.filter((c: any[]) => c[0] === "/api/v1/auth/refresh");
     expect(refreshCalls.length).toBeLessThanOrEqual(1);
   });
+
+  it("logout() posts to /v1/auth/logout and resolves (server-side revoke)", async () => {
+    global.fetch = vi.fn(async () => new Response(null, { status: 204 })) as any;
+    await expect(api.logout()).resolves.toBeNull();
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/v1/auth/logout",
+      expect.objectContaining({ method: "POST", credentials: "include" }),
+    );
+  });
+
+  it("surfaces a plain-string detail as the error message", async () => {
+    global.fetch = vi.fn(async () => json({ detail: "OTP expired or not found" }, 400)) as any;
+    await expect(api.verifyOtp("x@nic.in", "000000", "pk")).rejects.toThrow("OTP expired or not found");
+  });
+
+  it("surfaces a structured detail object's .message, not '[object Object]' (lockout shape from otp/verify)", async () => {
+    global.fetch = vi.fn(async () => json({
+      detail: { message: "Too many failed attempts. Locked for about 10 minute(s).",
+                retry_after: 600, captcha_required: true },
+    }, 429)) as any;
+    await expect(api.verifyOtp("x@nic.in", "000000", "pk"))
+      .rejects.toThrow("Too many failed attempts. Locked for about 10 minute(s).");
+  });
 });

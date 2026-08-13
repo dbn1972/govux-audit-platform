@@ -122,7 +122,11 @@ def test_verification_dns_and_metafile_injected():
                                       resolve_txt=lambda h: ["nothing"]) is False
     assert verification.check_metafile("x.gov.in", token,
                                        fetch_text=lambda u: token) is True
-    assert verification.verify("x.gov.in", token, "sso_mapping") is True
+    # `sso_mapping` is NOT implemented (no Parichay integration yet). It used to
+    # return True, which this test locked in — making it a self-service bypass
+    # of ownership proof for anyone who named it. Unknown methods fail closed.
+    assert verification.verify("x.gov.in", token, "sso_mapping") is False
+    assert verification.verify("x.gov.in", token, "made-up") is False
     assert verification.verify("x.gov.in", token, "unknown") is False
 
 

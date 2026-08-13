@@ -31,7 +31,8 @@
 - Client pages mount `AppShell`; all data goes through `lib/api.ts` (handles silent token refresh).
 - Use Bootstrap 5 / UX4G classes (`btn`, `card`, `table`, `badge`, `bi-*`); deep-blue headings via
   `var(--ux-navy)`. No bespoke CSS when a token/class exists.
-- Every new screen passes `scripts/verify_screens.py` and is added to `AppShell` nav.
+- Every new screen passes `scripts/verify_screens.py` (structure + reachability) and is linked
+  from the `AppShell` nav or another page — orphaned routes fail the check.
 
 ## Engine (Node)
 - Deterministic, no AI in the score path. **Quote attribute values** in any selector passed to

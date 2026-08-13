@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
+import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
 const NAMES: Record<string, [string, number]> = {
@@ -55,6 +56,10 @@ export default function Report({ params }: { params: { id: string } }) {
           <Link href={`/review?audit=${params.id}`} className="btn btn-outline-secondary">Certify (expert review)</Link>
           <Link href={`/audits/${params.id}/issues`} className="btn btn-primary">See prioritised issues →</Link>
         </div>
+
+        {/* every other view of this audit — four of them previously had no
+            inbound link anywhere in the app */}
+        <AuditNav id={params.id} />
 
         {r.integrity?.flagged && (
           <div className="alert alert-danger mt-2" role="alert">

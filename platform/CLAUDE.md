@@ -17,4 +17,5 @@ docker compose exec api pytest    # ≥80% gate (≈92%)   ·   web: npm test   
   truth); cache read-heavy aggregates via `services/cache.py`. Details in `docs/DATA_ACCESS.md`.
 - Schema change ⇒ `db/schema.sql` + `app/models.py` (PG ENUM/JSONB/INET) + Alembic (`0002` additive).
 - New endpoint ⇒ router in `routers/`, included in `main.py`, with a test (≥80%).
-- New screen ⇒ `AppShell` + `lib/api.ts`, passes `verify_screens.py`, in nav.
+- New screen ⇒ `AppShell` + `lib/api.ts`, passes `verify_screens.py` (structure + reachability:
+  an unlinked route fails), reachable from the nav or another page.

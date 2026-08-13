@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { api } from "@/lib/api";
+import { api, setToken } from "@/lib/api";
 
 type NavGroup = { group: string; steward?: boolean; items: string[][] };
 const NAV: NavGroup[] = [
@@ -30,6 +30,9 @@ const NAV: NavGroup[] = [
     ["Bulk Scan", "/admin/bulk-scan", "bi-collection"],
     ["Continuous Monitoring", "/admin/monitoring", "bi-arrow-repeat"],
     ["Estate Discovery", "/admin/discovery", "bi-search"],
+    ["Organisations", "/admin/organisations", "bi-diagram-2"],
+    ["Register Import", "/admin/registry", "bi-upload"],
+    ["Domain Claims", "/admin/domain-claims", "bi-shield-exclamation"],
     ["Ministries", "/admin/ministries", "bi-building"],
     ["States & UTs", "/admin/states", "bi-map"],
     ["League Table", "/admin/league", "bi-trophy"],
@@ -46,9 +49,17 @@ const STEWARD_PREFIXES = NAV.filter(g => g.steward).flatMap(g => g.items.map(([,
 const isStewardRoute = (path: string) =>
   STEWARD_PREFIXES.some(h => path === h || path.startsWith(h + "/"));
 
+// idle-session policy (separate from the 15-min access token): warn 1 minute
+// before auto sign-out, so an officer who stepped away doesn't lose work
+// silently. Real activity anywhere on the page cancels both timers.
+const IDLE_WARNING_AFTER_MS = 19 * 60 * 1000;
+const IDLE_LOGOUT_AFTER_MS = 20 * 60 * 1000;
+const ACTIVITY_EVENTS = ["mousemove", "keydown", "mousedown", "touchstart", "scroll"] as const;
+
 /** The navigation list — shared by the desktop rail and the mobile drawer.
  *  Steward-only groups are hidden unless the signed-in user is a steward. */
-function NavList({ path, isSteward, onNavigate }: { path: string; isSteward: boolean; onNavigate?: () => void }) {
+function NavList({ path, isSteward, onSignOut, onNavigate }:
+  { path: string; isSteward: boolean; onSignOut: () => void; onNavigate?: () => void }) {
   const groups = NAV.filter(g => !g.steward || isSteward);
   // Longest-prefix wins so only one item highlights: on /audits/new, "New Audit"
   // is active, not the shorter "/audits" (Audit History) that also prefix-matches.
@@ -72,6 +83,12 @@ function NavList({ path, isSteward, onNavigate }: { path: string; isSteward: boo
               </Link>
             );
           })}
+          {g.group === "Account" && (
+            <button type="button" onClick={onSignOut}
+              className="d-flex align-items-center gap-2 px-2 py-2 rounded text-decoration-none mb-1 text-body w-100 text-start border-0 bg-transparent">
+              <i className="bi bi-box-arrow-right" /> <span style={{ fontSize: 13.5 }}>Sign out</span>
+            </button>
+          )}
         </div>
       ))}
     </nav>
@@ -96,6 +113,30 @@ function AccessDenied() {
   );
 }
 
+function IdleWarning({ secondsLeft, onContinue, onSignOut }:
+  { secondsLeft: number; onContinue: () => void; onSignOut: () => void }) {
+  return (
+    <div role="alertdialog" aria-modal="true" aria-labelledby="idle-warning-title"
+      style={{ position: "fixed", inset: 0, zIndex: 1080, background: "rgba(9,20,40,.45)",
+        display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div className="card shadow" style={{ maxWidth: 420, width: "92%" }}>
+        <div className="card-body p-4 text-center">
+          <div className="display-6 mb-2" aria-hidden="true">⏳</div>
+          <h2 id="idle-warning-title" className="h5">Still there?</h2>
+          <p className="text-secondary mb-3">
+            You've been inactive — for your security, you'll be signed out in{" "}
+            <strong>{secondsLeft}s</strong> unless you continue.
+          </p>
+          <div className="d-flex gap-2 justify-content-center">
+            <button type="button" className="btn btn-primary" onClick={onContinue}>Stay signed in</button>
+            <button type="button" className="btn btn-outline-secondary" onClick={onSignOut}>Sign out now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AppShell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
@@ -109,6 +150,69 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const denied = !!me && !me.is_steward && isStewardRoute(path);
   const initials = ((me?.display_name || me?.email || "").match(/[A-Za-z]+/g) || [])
     .slice(0, 2).map((s: string) => s[0].toUpperCase()).join("") || "GX";
+
+  // best-effort server-side revoke, then always forget the local token and
+  // leave — even if the network call fails, the user must not stay signed in
+  function signOut() {
+    api.logout().catch(() => {});
+    setToken(null);
+    window.location.assign("/login");
+  }
+
+  // --- idle timeout: 19 min inactive -> warn, 20 min -> auto sign-out -------
+  const [idleWarning, setIdleWarning] = useState(false);
+  const [idleSecondsLeft, setIdleSecondsLeft] = useState(60);
+  const warnTimer = useRef<ReturnType<typeof setTimeout>>();
+  const logoutTimer = useRef<ReturnType<typeof setTimeout>>();
+  const countdownTimer = useRef<ReturnType<typeof setInterval>>();
+  const lastResetAt = useRef(0);
+
+  function clearIdleTimers() {
+    clearTimeout(warnTimer.current);
+    clearTimeout(logoutTimer.current);
+    clearInterval(countdownTimer.current);
+  }
+
+  function armIdleTimers() {
+    clearIdleTimers();
+    warnTimer.current = setTimeout(() => {
+      setIdleWarning(true);
+      setIdleSecondsLeft(Math.round((IDLE_LOGOUT_AFTER_MS - IDLE_WARNING_AFTER_MS) / 1000));
+      countdownTimer.current = setInterval(() => {
+        setIdleSecondsLeft(s => Math.max(0, s - 1));
+      }, 1000);
+    }, IDLE_WARNING_AFTER_MS);
+    logoutTimer.current = setTimeout(signOut, IDLE_LOGOUT_AFTER_MS);
+  }
+
+  // "still there?" — any real activity (including while the warning is up)
+  // cancels the pending sign-out and dismisses it. Throttled, not run on
+  // every mousemove, since re-arming two timers per event is unnecessary;
+  // a few seconds of slack doesn't matter for a 20-minute idle window.
+  function onActivity() {
+    const now = Date.now();
+    if (now - lastResetAt.current < 5000) return;
+    lastResetAt.current = now;
+    setIdleWarning(false);
+    armIdleTimers();
+  }
+
+  function stayLoggedIn() {
+    setIdleWarning(false);
+    api.me().catch(() => {});   // touch the API — proactively refreshes an expired access token
+    lastResetAt.current = Date.now();
+    armIdleTimers();
+  }
+
+  useEffect(() => {
+    armIdleTimers();
+    ACTIVITY_EVENTS.forEach(ev => window.addEventListener(ev, onActivity, { passive: true }));
+    return () => {
+      clearIdleTimers();
+      ACTIVITY_EVENTS.forEach(ev => window.removeEventListener(ev, onActivity));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // close the drawer whenever the route changes (tapping a nav item navigates)
   useEffect(() => { setOpen(false); }, [path]);
@@ -169,7 +273,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         {/* desktop rail — sticky, self-scrolling, hidden below lg */}
         <aside className="border-end bg-white p-2 d-none d-lg-block flex-shrink-0"
           style={{ width: 236, position: "sticky", top: 60, height: "calc(100vh - 60px)", overflowY: "auto" }}>
-          <NavList path={path} isSteward={isSteward} />
+          <NavList path={path} isSteward={isSteward} onSignOut={signOut} />
         </aside>
 
         <main className="flex-grow-1" style={{ background: "var(--bs-body-bg)", minWidth: 0 }}>
@@ -205,9 +309,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <i className="bi bi-x-lg" />
             </button>
           </div>
-          <NavList path={path} isSteward={isSteward} onNavigate={() => setOpen(false)} />
+          <NavList path={path} isSteward={isSteward} onSignOut={signOut} onNavigate={() => setOpen(false)} />
         </div>
       </div>
+
+      {idleWarning && (
+        <IdleWarning secondsLeft={idleSecondsLeft} onContinue={stayLoggedIn} onSignOut={signOut} />
+      )}
     </div>
   );
 }

@@ -5,8 +5,10 @@ Runs the deterministic engine on a single URL, scores it, generates a PDF, and
 audit worker so the free tier can't starve authenticated audits.
 """
 import json
-from datetime import datetime, timezone
+import os
+from datetime import datetime, timedelta, timezone
 
+from .config import settings
 from .database import SessionLocal
 from . import models
 from .services import queue, storage, report_pdf
@@ -63,18 +65,58 @@ def process(scan_id: str):
         db.close()
 
 
+def _handle(entry_id, data):
+    try:
+        process(data["scan_id"])
+        queue.ack_public(entry_id)   # ack only on success; failures stay pending for reclaim/DLQ
+    except Exception as exc:
+        print("public worker error:", exc)
+
+
+def reconcile_stale_scans(db):
+    """Fail out scans that have been queued/running past all reasonable
+    processing time — almost certainly because their Redis Streams message
+    was lost outright (e.g. a dev-Redis restart with no persistence) rather
+    than merely slow, since reclaim_stale_public only rescues a message that
+    is still IN the stream. Without this, a lost message leaves the DB row
+    stuck in 'queued' forever, permanently inflating the public queue
+    position shown to everyone behind it."""
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=settings.public_scan_stale_minutes)
+    stale = (db.query(models.PublicScan)
+               .filter(models.PublicScan.status.in_(["queued", "running"]),
+                       models.PublicScan.created_at < cutoff)
+               .all())
+    for scan in stale:
+        scan.status = "failed"
+        scan.error = "Timed out waiting in the queue — please try scanning again."
+        scan.finished_at = datetime.now(timezone.utc)
+    if stale:
+        db.commit()
+        print(f"public worker: reconciled {len(stale)} stale scan(s)")
+
+
 def run():
     queue.ensure_public_group()
-    print("GovUX public-scan worker started; one scan at a time…")
+    # unique consumer per replica (falls back to PID locally) so a crashed
+    # process's in-flight scan can be reclaimed instead of stalling the
+    # single-concurrency queue forever.
+    consumer = os.getenv("HOSTNAME") or f"pub-worker-{os.getpid()}"
+    print(f"GovUX public-scan worker '{consumer}' started; one scan at a time…")
+    ticks = 0
     while True:  # pragma: no cover - long-lived loop
-        batches = queue.read_public(consumer="pub-worker-1", count=1, block_ms=5000)
+        ticks += 1
+        if ticks % 6 == 0:
+            for entry_id, data in queue.reclaim_stale_public(consumer):
+                _handle(entry_id, data)
+            db = SessionLocal()
+            try:
+                reconcile_stale_scans(db)
+            finally:
+                db.close()
+        batches = queue.read_public(consumer=consumer, count=1, block_ms=5000)
         for _stream, entries in batches or []:
             for entry_id, data in entries:
-                try:
-                    process(data["scan_id"])
-                    queue.ack_public(entry_id)
-                except Exception as exc:
-                    print("public worker error:", exc)
+                _handle(entry_id, data)
 
 
 if __name__ == "__main__":  # pragma: no cover

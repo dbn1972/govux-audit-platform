@@ -17,7 +17,10 @@ async function req(path: string, opts: RequestInit = {}, retry = true): Promise<
     credentials: "include", // send/receive the HttpOnly refresh cookie
   });
   if (res.status === 401 && retry) {
-    // silent refresh (device-bound rotating token), then retry once
+    // silent refresh (device-bound rotating token), then retry once — this is
+    // what makes a page reload (in-memory token gone) resume the session, same
+    // as an access token expiring mid-session. Explicit sign-out (Sign out
+    // button, or the idle timeout in AppShell) is what actually ends a session.
     const r = await fetch(`/api/v1/auth/refresh`, { method: "POST", credentials: "include" });
     if (r.ok) { const d = await r.json(); setToken(d.access_token); return req(path, opts, false); }
   }
@@ -29,7 +32,15 @@ async function req(path: string, opts: RequestInit = {}, retry = true): Promise<
     }
     throw new AuthError("Your session has expired — please sign in again.");
   }
-  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
+  if (!res.ok) {
+    const detail = (await res.json().catch(() => ({}))).detail;
+    // detail is usually a string, but some endpoints (e.g. OTP lockout) send a
+    // structured object — {message, retry_after, captcha_required} — instead.
+    const msg = typeof detail === "string" ? detail
+      : detail && typeof detail === "object" && typeof detail.message === "string" ? detail.message
+      : res.statusText;
+    throw new Error(msg);
+  }
   return res.status === 204 ? null : res.json();
 }
 
@@ -40,6 +51,16 @@ export const api = {
     req("/v1/auth/otp/verify", { method: "POST",
       body: JSON.stringify({ email, code, device_pubkey, trust_device }) }),
   me: () => req("/v1/auth/me"),
+  logout: () => req("/v1/auth/logout", { method: "POST" }),
+  updateOrganisation: (body: { name?: string; state_code?: string }) =>
+    req("/v1/auth/organisation", { method: "PATCH", body: JSON.stringify(body) }),
+  listTeam: () => req("/v1/auth/team"),
+  updateTeamRole: (userId: string, role: string) =>
+    req(`/v1/auth/team/${userId}/role`, { method: "PATCH", body: JSON.stringify({ role }) }),
+  listInvitations: () => req("/v1/auth/invitations"),
+  createInvitation: (email: string, role: string) =>
+    req("/v1/auth/invitations", { method: "POST", body: JSON.stringify({ email, role }) }),
+  revokeInvitation: (id: string) => req(`/v1/auth/invitations/${id}`, { method: "DELETE" }),
   exportMyData: () => req("/v1/auth/me/export"),
   eraseMyData: () => req("/v1/auth/me", { method: "DELETE" }),
   devices: () => req("/v1/auth/devices"),
@@ -60,18 +81,42 @@ export const api = {
       body: JSON.stringify({ approved, notes }) }),
   registerDomain: (url: string, category?: string) =>
     req("/v1/domains", { method: "POST", body: JSON.stringify({ url, service_category: category }) }),
-  verifyDomain: (id: string, method: string = "dns_txt") =>
+  // proof method is the caller's choice: many gov teams run the web server but
+  // not the DNS zone (often held centrally by NIC), so the metafile route is the
+  // only one they can actually complete
+  verifyDomain: (id: string, method: "dns_txt" | "file_upload" = "dns_txt") =>
     req(`/v1/domains/${id}/verify`, { method: "POST", body: JSON.stringify({ method }) }),
+  domainClaims: (contestedOnly = false) =>
+    req(`/v1/domains/claims${contestedOnly ? "?contested_only=true" : ""}`),
+  releaseClaim: (id: string) => req(`/v1/domains/claims/${id}`, { method: "DELETE" }),
   guidelines: (family?: string) => req(`/v1/guidelines${family ? `?family=${family}` : ""}`),
   updateFinding: (id: string, state: string) =>
     req(`/v1/findings/${id}`, { method: "PATCH", body: JSON.stringify({ state, is_reviewed: true }) }),
   auditHistory: (domainId: string) => req(`/v1/domains/${domainId}/audits`),
-  compare: (domainId: string, frm: string, to: string) =>
-    req(`/v1/domains/${domainId}/compare?frm=${frm}&to=${to}`),
+  // defaults to comparing against the domain's most recent prior completed
+  // audit; pass `against` (another audit's task_id) to pick a specific one
+  compare: (taskId: string, against?: string) =>
+    req(`/v1/audits/${taskId}/compare${against ? `?against=${against}` : ""}`),
   national: () => req("/v1/national"),
   rankings: (category?: string) => req(`/v1/rankings${category ? `?category=${category}` : ""}`),
   ministries: () => req("/v1/ministries"),
   states: () => req("/v1/states"),
+  alerts: () => req("/v1/alerts"),
+  organisations: (p: { q?: string; org_type?: string; limit?: number; offset?: number } = {}) => {
+    const qs = new URLSearchParams();
+    if (p.q) qs.set("q", p.q);
+    if (p.org_type) qs.set("org_type", p.org_type);
+    if (p.limit != null) qs.set("limit", String(p.limit));
+    if (p.offset != null) qs.set("offset", String(p.offset));
+    const s = qs.toString();
+    return req(`/v1/organisations${s ? `?${s}` : ""}`);
+  },
+  importRegistry: (csv: string, dry_run: boolean) =>
+    req("/v1/admin/registry/import", { method: "POST", body: JSON.stringify({ csv, dry_run }) }),
+  createOrganisation: (body: { name: string; org_type: string; state_code?: string }) =>
+    req("/v1/organisations", { method: "POST", body: JSON.stringify(body) }),
+  patchOrganisation: (id: string, body: { name?: string; org_type?: string; state_code?: string }) =>
+    req(`/v1/organisations/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   auditTrend: (taskId: string) => req(`/v1/audits/${taskId}/trend`),
   bulkScan: (scope: string) =>
     req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),

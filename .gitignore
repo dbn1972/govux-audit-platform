@@ -66,3 +66,7 @@ platform/deploy-out/
 # Air-gapped bundles (large; contain images)
 platform/govux-airgap-*
 govux-airgap-*
+
+# ---- Database backups (scripts/govux-backup.sh) ----
+# Dumps contain real user emails and org data — never commit them.
+platform/backups/

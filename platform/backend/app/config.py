@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     secret_key: str = ""
     access_ttl_seconds: int = 15 * 60            # 15 min
     refresh_ttl_seconds: int = 60 * 60 * 24 * 60  # 60 days
+    # tolerate a just-rotated refresh token being presented again within this window
+    # as a benign race (e.g. two components both refreshing off one stale cookie
+    # right after a reload) rather than genuine reuse/theft, which cascades and
+    # kills the whole session family. Standard refresh-token-rotation mitigation.
+    refresh_reuse_grace_seconds: int = 10
     otp_ttl_seconds: int = 5 * 60                 # 5 min
     otp_max_attempts: int = 5
     allowed_email_suffixes: list[str] = [".gov.in", ".nic.in"]
@@ -62,6 +67,12 @@ class Settings(BaseSettings):
     # free public scanner + quotas
     public_scan_stream: str = "govux:public"
     public_consumer_group: str = "public-workers"
+    # a scan still queued/running past this age has almost certainly lost its
+    # queue message entirely (e.g. a Redis restart with no persistence) rather
+    # than merely being slow — a single-page scan normally finishes in seconds.
+    # The reconciler fails it out so it stops showing as a phantom ahead of
+    # everyone else in the public queue position count.
+    public_scan_stale_minutes: int = 30
     free_registered_pages: int = 10        # registered users may scan up to this many pages
     free_scan_suffixes: list[str] = [".gov.in", ".nic.in"]  # SSRF/abuse guard
 

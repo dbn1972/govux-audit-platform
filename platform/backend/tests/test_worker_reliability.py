@@ -47,7 +47,7 @@ def test_handle_does_not_ack_a_failed_job_so_it_stays_pending(monkeypatch):
 
 # ---------- 2. cache invalidation after a completed audit -------------------
 
-def _reachable_engine(url, screenshot_path=None):
+def _reachable_engine(url, screenshot_path=None, depth=None):
     return {
         "url": url,
         "categories": {"accessibility": 80, "usability": 70, "gigw": 75, "design": 70,
@@ -60,12 +60,14 @@ def _reachable_engine(url, screenshot_path=None):
 
 
 def test_completed_audit_drops_the_cached_aggregates(client, ctx, verified_domain, monkeypatch):
-    # warm the aggregates a prior /national + /rankings read would have cached
+    # warm the aggregates a prior /national + /rankings + /alerts read would have cached
     nat = cache.cache_key("national", "summary")
     rnk = cache.cache_key("rankings", "gov.in", "large")
+    alt = cache.cache_key("alerts")
     cache._r.setex(nat, 300, json.dumps({"stale": True}))
     cache._r.setex(rnk, 300, json.dumps({"stale": True}))
-    assert cache._r.get(nat) is not None and cache._r.get(rnk) is not None
+    cache._r.setex(alt, 300, json.dumps({"stale": True}))
+    assert cache._r.get(nat) is not None and cache._r.get(rnk) is not None and cache._r.get(alt) is not None
 
     monkeypatch.setattr(worker, "run_engine", _reachable_engine)
     sub = client.post("/v1/audits", headers=ctx["headers"],
@@ -75,6 +77,7 @@ def test_completed_audit_drops_the_cached_aggregates(client, ctx, verified_domai
     # a newly-scored audit changes the leaderboards -> their cache must be gone
     assert cache._r.get(nat) is None
     assert cache._r.get(rnk) is None
+    assert cache._r.get(alt) is None
 
 
 # ---------- 3. scheduler hands the created audit to the broker --------------

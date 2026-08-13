@@ -1,5 +1,5 @@
 # bookworm pin: playwright 1.44 --with-deps knows Debian 12's package names
-FROM python:3.12-slim-bookworm
+FROM python:3.12-slim-bookworm AS base
 WORKDIR /app
 
 # Node.js for the audit engine (Playwright + Lighthouse + axe-core)
@@ -25,6 +25,18 @@ RUN printf 'Acquire::Check-Valid-Until "false";\nAcquire::Check-Date "false";\n'
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# ---- dev: adds pytest/pytest-cov so `docker compose exec api pytest` works
+# out of the box — docker-compose.yml builds this target explicitly.
+FROM base AS dev
+COPY requirements-dev.txt .
+RUN pip install --no-cache-dir -r requirements-dev.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# ---- final: lean image, no test tooling. The default target (no `target:`
+# override), so docker-compose.prod.yml gets this without any change there.
+FROM base AS final
 COPY . .
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

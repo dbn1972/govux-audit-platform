@@ -1,15 +1,16 @@
 """Domain registration & ownership verification (restricted to gov.in/nic.in)."""
 import re
 import secrets
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Literal
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 from ..database import get_db
 from .. import models
-from ..deps import current_user
-from ..services import verification, url_validate, cache, settings_store
+from ..deps import current_user, require_role
+from ..services import verification, url_validate, cache, settings_store, audit_log
 
 router = APIRouter(prefix="/v1/domains", tags=["domains"])
 GOV = re.compile(r"(\.gov\.in|\.nic\.in)$", re.I)
@@ -26,7 +27,13 @@ class DomainCreate(BaseModel):
 
 
 class VerifyRequest(BaseModel):
-    method: str = "dns_txt"   # dns_txt | file_upload | sso_mapping
+    # Constrained, not a free string. It used to be `str`, and `verification.verify`
+    # treated the undelivered `sso_mapping` method as out-of-band success — so any
+    # signed-in user could register any unclaimed .gov.in domain and self-verify it
+    # with {"method": "sso_mapping"}, bypassing ownership proof entirely and then
+    # auditing a domain they do not control. Only the two real, checkable proofs
+    # are accepted; anything else is a 422 before it reaches the service.
+    method: Literal["dns_txt", "file_upload"] = "dns_txt"
 
 
 @router.get("")
@@ -58,6 +65,14 @@ def list_domains(user: models.User = Depends(current_user), db: Session = Depend
             ls = latest.get(d.id)
             out.append({"id": str(d.id), "url": d.url, "verify_status": d.verify_status,
                         "category": d.service_category,
+                        # The DNS-TXT value was previously returned ONLY by the
+                        # registration response, so leaving the page lost it for
+                        # good — and since DNS can take 30 minutes to propagate,
+                        # leaving is the normal case. A pending domain could then
+                        # never be verified (re-registering 409s), and an
+                        # unverified domain can never be audited. Returned for
+                        # pending rows only; a verified domain has no use for it.
+                        "verify_token": d.verify_token if d.verify_status != "verified" else None,
                         "latest_score": ls[0] if ls else None,
                         "latest_band": ls[1] if ls else None,
                         "last_audited_at": ls[2] if ls else None})
@@ -73,8 +88,24 @@ def register_domain(body: DomainCreate, user: models.User = Depends(current_user
     if not v["ok"]:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, v["error"])
     url = v["host"]
-    if db.query(models.Domain).filter(models.Domain.url == url).first():
-        raise HTTPException(status.HTTP_409_CONFLICT, "Domain already registered")
+    # Registration is a CLAIM, not ownership. Several organisations may hold a
+    # pending claim on the same host and race to prove control — previously the
+    # first registration won globally and could never be released, so anyone
+    # could permanently block a domain they did not own by registering and never
+    # verifying it.
+    claims = db.query(models.Domain).filter(models.Domain.url == url).all()
+    if any(c.verify_status == "verified" for c in claims):
+        owner = next(c for c in claims if c.verify_status == "verified")
+        if owner.org_id == user.org_id:
+            raise HTTPException(status.HTTP_409_CONFLICT,
+                                "Your organisation has already verified this domain")
+        # don't name the other organisation — that is not this caller's business
+        raise HTTPException(status.HTTP_409_CONFLICT,
+                            "This domain has already been verified by another organisation. "
+                            "If that is wrong, ask a programme admin to review the claim.")
+    if any(c.org_id == user.org_id for c in claims):
+        raise HTTPException(status.HTTP_409_CONFLICT,
+                            "Your organisation already has a pending claim on this domain")
 
     # auto-provision an organisation if the user doesn't have one yet (dev convenience;
     # in production, org assignment happens via Parichay SSO or admin invite)
@@ -96,6 +127,56 @@ def register_domain(body: DomainCreate, user: models.User = Depends(current_user
     return {"id": str(d.id), "url": d.url, "verify_token": d.verify_token, "verify_status": d.verify_status}
 
 
+@router.get("/claims", tags=["admin-registry"])
+def list_claims(contested_only: bool = False, db: Session = Depends(get_db),
+                user=Depends(require_role("programme_admin", "super_admin"))):
+    """Every unverified domain claim, with the organisation behind it.
+
+    Stewards need this because proof alone can't settle everything: a squatter
+    who registers a domain and never verifies it still occupies a claim, and the
+    real owner has no way to see who holds it. `contested_only` narrows to hosts
+    where more than one organisation is claiming."""
+    rows = (db.query(models.Domain, models.Organisation.name)
+              .join(models.Organisation, models.Organisation.id == models.Domain.org_id)
+              .filter(models.Domain.verify_status != "verified")
+              .order_by(models.Domain.url, models.Domain.created_at).all())
+    by_host: dict[str, list] = {}
+    for d, org_name in rows:
+        by_host.setdefault(d.url, []).append(
+            {"id": str(d.id), "org_id": str(d.org_id), "org_name": org_name,
+             "verify_status": d.verify_status, "created_at": d.created_at})
+    # a host is "contested" when two organisations are both still claiming it
+    items = [{"url": host, "contested": len(cs) > 1, "claims": cs}
+             for host, cs in by_host.items()
+             if not contested_only or len(cs) > 1]
+    items.sort(key=lambda i: (not i["contested"], i["url"]))
+    return {"total": len(items), "items": items}
+
+
+@router.delete("/claims/{domain_id}", status_code=204)
+def release_claim(domain_id: str, db: Session = Depends(get_db),
+                  user=Depends(require_role("programme_admin", "super_admin"))):
+    """Release an unverified claim so the host is free to be claimed again.
+
+    Refuses to touch a verified domain: ownership that has been proven is not a
+    steward's to revoke, and deleting it would orphan its audit history."""
+    d = db.get(models.Domain, domain_id)
+    if not d:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Claim not found")
+    if d.verify_status == "verified":
+        raise HTTPException(status.HTTP_409_CONFLICT,
+                            "This domain is verified — ownership was proven and cannot be "
+                            "released here.")
+    org_id, url = d.org_id, d.url
+    db.delete(d)
+    db.commit()
+    cache.invalidate(_domains_key(org_id))
+    audit_log.record(db, user.id, "domain_claim_released", target=url,
+                     detail={"org_id": str(org_id)})
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @router.post("/{domain_id}/verify")
 def verify_domain(domain_id: str, body: VerifyRequest,
                   user: models.User = Depends(current_user), db: Session = Depends(get_db)):
@@ -108,8 +189,26 @@ def verify_domain(domain_id: str, body: VerifyRequest,
     verified = verification.verify(d.url, d.verify_token or "", body.method)
     d.verify_status = "verified" if verified else "failed"
     d.verify_method = body.method
+
+    superseded = 0
+    if verified:
+        # Proof settles the race: every competing claim on this host loses. They
+        # are marked `superseded` (not `failed` — their own token was never the
+        # problem) so they drop out of uq_domain_verified_url and the claimant
+        # sees an honest reason.
+        losers = (db.query(models.Domain)
+                    .filter(models.Domain.url == d.url, models.Domain.id != d.id,
+                            models.Domain.verify_status != "verified").all())
+        for loser in losers:
+            loser.verify_status = "superseded"
+        superseded = len(losers)
     db.commit()
+
     cache.invalidate(_domains_key(d.org_id))      # verify_status changed
+    if verified:
+        for org_id in {l.org_id for l in losers}:  # their lists changed too
+            cache.invalidate(_domains_key(org_id))
     return {"id": str(d.id), "verify_status": d.verify_status,
+            "superseded_claims": superseded,
             "detail": ("ownership proven" if verified else
                        "verification token not found via " + body.method)}

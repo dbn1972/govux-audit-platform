@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from sqlalchemy import (
     Column, Text, Boolean, Integer, BigInteger, Numeric, ForeignKey, DateTime, Date,
-    func, CheckConstraint,
+    func, CheckConstraint, Index, text,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET, ENUM
 from .database import Base
@@ -18,7 +18,9 @@ UserRole = ENUM("owner", "contributor", "assessor", "programme_admin", "super_ad
                 name="user_role")
 OrgType = ENUM("ministry", "department", "state", "ut", "psu", "other", name="org_type")
 VerifyMethod = ENUM("dns_txt", "file_upload", "sso_mapping", name="verify_method")
-VerifyStatus = ENUM("pending", "verified", "failed", name="verify_status")
+# `superseded` = a competing claim on the same host proved ownership first.
+# Distinct from `failed`, which means this claimant's own token wasn't found.
+VerifyStatus = ENUM("pending", "verified", "failed", "superseded", name="verify_status")
 AuditStatus = ENUM("queued", "crawling", "analyzing", "scoring", "completed",
                    "partial", "failed", "cancelled", "insufficient_evidence",
                    name="audit_status")
@@ -104,10 +106,16 @@ class Domain(Base):
     # gov-only access (invariant #4) at the DB layer, in sync with db/schema.sql.
     __table_args__ = (
         CheckConstraint(r"url ~* '(\.gov\.in|\.nic\.in)$'", name="chk_gov_domain"),
+        # Uniqueness is on PROVEN ownership, not on who registered first: several
+        # organisations may hold a pending claim on one host and race to verify.
+        # Mirrors db/schema.sql and migration 0014.
+        Index("uq_domain_verified_url", "url", unique=True,
+              postgresql_where=text("verify_status = 'verified'")),
+        Index("uq_domain_org_url", "org_id", "url", unique=True),
     )
     id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
     org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
-    url = Column(Text, unique=True, nullable=False)
+    url = Column(Text, nullable=False)
     tld = Column(Text, nullable=False)
     service_category = Column(Text)
     size_class = Column(Text)
@@ -353,4 +361,26 @@ class ExternalAssessment(Base):
     summary = Column(Text)
     report_ref = Column(Text)                # file no. / URL / certificate id of the external report
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Invitation(Base):
+    """Lets a colleague join an EXISTING organisation. Before this, users.org_id
+    started NULL and the first domain registration auto-created a one-person org,
+    so a ministry's second user could never reach the first user's domains.
+    Consumed by `verify_otp` the first time the invited address signs in."""
+    __tablename__ = "invitations"
+    # mirrors db/schema.sql chk_gov_invite_email — invariant #4 at the DB layer
+    __table_args__ = (
+        CheckConstraint(r"email ~* '[@.](gov|nic)\.in$'", name="chk_gov_invite_email"),
+    )
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    email = Column(Text, nullable=False)
+    role = Column(UserRole, nullable=False, default="contributor")
+    invited_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    status = Column(Text, nullable=False, default="pending")   # pending | accepted | revoked
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    accepted_at = Column(DateTime(timezone=True))
+    accepted_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
