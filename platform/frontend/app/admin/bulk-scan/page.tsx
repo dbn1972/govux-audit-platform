@@ -1,17 +1,40 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
 export default function BulkScan() {
   const [scope, setScope] = useState("never_audited");
   const [result, setResult] = useState<any>(null);
+  const [progress, setProgress] = useState<any>(null);
+  const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const poll = useRef<any>(null);
+
+  useEffect(() => () => clearInterval(poll.current), []);
 
   async function enqueue() {
-    setBusy(true);
-    try { setResult(await api.bulkScan(scope)); } catch (e: any) { alert(e.message); }
-    setBusy(false);
+    setBusy(true); setErr(""); setResult(null); setProgress(null);
+    clearInterval(poll.current);
+    // inline error like every other screen — this used to be a bare alert()
+    try {
+      const r = await api.bulkScan(scope);
+      setResult(r);
+      // Poll the real batch endpoint. This screen used to draw a hardcoded
+      // "38% · 517 / 1,360 done · ~2h 10m left" bar with nothing behind it.
+      const tick = async () => {
+        try {
+          const p = await api.bulkScanStatus(r.batch_id);
+          setProgress(p);
+          if (p.finished) clearInterval(poll.current);
+        } catch { clearInterval(poll.current); }   // stop rather than spin on an error
+      };
+      await tick();
+      poll.current = setInterval(tick, 5000);
+    }
+    catch (e: any) { setErr(e?.message || "Could not enqueue the bulk scan."); }
+    finally { setBusy(false); }
   }
 
   return (
@@ -23,36 +46,65 @@ export default function BulkScan() {
         <div className="row g-3">
           <div className="col-lg-6"><div className="card shadow-sm"><div className="card-body">
             <h2 className="h6">Start a bulk scan</h2>
-            <div className="btn-group mb-3">
-              <button className="btn btn-outline-secondary active">🗂️ Auto-discover register</button>
-              <button className="btn btn-outline-secondary">📄 Upload CSV</button>
-            </div>
-            <label className="form-label fw-semibold">Scope</label>
-            <select className="form-select mb-3" value={scope} onChange={e => setScope(e.target.value)}>
+            <label className="form-label fw-semibold" htmlFor="scope">Scope</label>
+            <select id="scope" className="form-select mb-3" value={scope}
+              onChange={e => setScope(e.target.value)}>
               <option value="never_audited">All never-audited domains</option>
               <option value="all">Entire register</option>
             </select>
             <div className="alert alert-light border small">
               ⚙️ Enqueued to <code>Redis Streams</code> · consumed by the polyglot worker fleet · idempotent · polite per-domain rate limits.
             </div>
+            {err && <div className="alert alert-warning py-2 small" role="alert">{err}</div>}
             <button className="btn btn-primary w-100" onClick={enqueue} disabled={busy}>
               {busy ? "Enqueuing…" : "▶ Enqueue bulk scan"}</button>
+            <div className="form-text mt-2">
+              Loading domains from a spreadsheet? Use{" "}
+              <Link href="/admin/registry">Register Import</Link> instead.
+            </div>
           </div></div></div>
 
           <div className="col-lg-6"><div className="card shadow-sm h-100"><div className="card-body">
             <h2 className="h6">Batch status</h2>
             {result ? (
-              <div className="alert alert-success">
-                Batch <b>{result.batch_id?.slice(0, 8)}</b> — <b>{result.enqueued}</b> domains enqueued.
-                Each becomes an independent task processed in the background.
-              </div>
+              <>
+                <div className="alert alert-success">
+                  Batch <b>{result.batch_id?.slice(0, 8)}</b> — <b>{result.enqueued}</b> domain(s) enqueued.
+                  Each becomes an independent task processed in the background.
+                </div>
+                {progress && (
+                  <>
+                    <div className="progress" role="progressbar"
+                      aria-label="Batch progress"
+                      aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}>
+                      <div className={`progress-bar${progress.finished ? "" : " progress-bar-striped progress-bar-animated"}`}
+                        style={{ width: `${progress.percent}%` }}>{progress.percent}%</div>
+                    </div>
+                    <div className="d-flex justify-content-between mt-2 small text-secondary">
+                      <span>{progress.done} / {progress.total} done</span>
+                      <span>
+                        {progress.finished
+                          ? `${progress.scored} scored · ${progress.no_result} without a score`
+                          : `${progress.running} running · ${progress.queued} queued`}
+                      </span>
+                    </div>
+                    {/* No time estimate: audit duration varies with crawl depth and
+                        the target's own speed, so any "~2h 10m left" would be a
+                        guess dressed as a measurement — which is what this screen
+                        used to show. */}
+                  </>
+                )}
+                <p className="small text-secondary mt-2 mb-0">
+                  Each domain is a separate audit — open them in{" "}
+                  <Link href="/audits">Audit History</Link>.
+                </p>
+              </>
             ) : (
-              <div className="text-secondary small">Submit a bulk scan to enqueue the estate. Task IDs and progress will appear here.</div>
+              <div className="text-secondary small">
+                Submit a bulk scan to enqueue the estate. The batch reference and the number of
+                domains queued will appear here.
+              </div>
             )}
-            <div className="progress mt-3" role="progressbar"><div className="progress-bar" style={{ width: "38%" }}>38%</div></div>
-            <div className="d-flex justify-content-between mt-2 small text-secondary">
-              <span>517 / 1,360 done</span><span>~2h 10m left</span>
-            </div>
           </div></div></div>
         </div>
       </div>

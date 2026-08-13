@@ -218,6 +218,55 @@ def test_bulk_scan_enqueues(client, ctx, verified_domain):
     assert r.json()["enqueued"] >= 1
 
 
+def test_bulk_scan_status_reports_real_progress(client, ctx, verified_domain, db):
+    """The bulk-scan screen used to render a hardcoded '38% · 517 / 1,360 done'
+    bar because no endpoint like this existed. Progress is aggregated from the
+    batch's own audits — no new state to keep in sync."""
+    from app import models as m
+    batch = client.post("/v1/bulk-scans", headers=ctx["headers"],
+                        json={"mode": "auto_discover", "scope": "all"}).json()["batch_id"]
+
+    r = client.get(f"/v1/bulk-scans/{batch}", headers=ctx["headers"])
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total"] >= 1
+    assert body["done"] == 0 and body["percent"] == 0
+    assert body["queued"] == body["total"] and body["finished"] is False
+    assert body["finished_at"] is None          # nothing has finished yet
+
+    # drive the batch to a mixed terminal state
+    audits = db.query(m.Audit).filter(m.Audit.batch_id == batch).all()
+    audits[0].status = "completed"
+    for a in audits[1:]:
+        a.status = "failed"
+    db.commit()
+
+    body = client.get(f"/v1/bulk-scans/{batch}", headers=ctx["headers"]).json()
+    assert body["done"] == body["total"] and body["percent"] == 100
+    assert body["finished"] is True
+    # finished-without-a-score is counted apart from scored, and NOT called a
+    # failure: `insufficient_evidence` is the coverage gate correctly refusing
+    # to band a site it could not capture
+    assert body["scored"] == 1
+    assert body["no_result"] == body["total"] - 1
+    assert body["by_status"]["completed"] == 1
+
+
+def test_bulk_scan_status_is_steward_only_and_404s_on_nonsense(client, ctx, db):
+    from app import models as m, security
+    org = m.Organisation(name=f"BS {uuid.uuid4().hex[:6]}", org_type="department")
+    db.add(org); db.flush()
+    u = m.User(email=f"bs.{uuid.uuid4().hex[:6]}@nic.in", org_id=org.id, role="owner")
+    db.add(u); db.flush()
+    dev = m.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    h = {"Authorization": f"Bearer {security.issue_access_token(str(u.id), 'owner', str(dev.id))}"}
+
+    assert client.get(f"/v1/bulk-scans/{uuid.uuid4()}", headers=h).status_code == 403
+    # unknown batch, and a non-UUID, both 404 rather than 500
+    assert client.get(f"/v1/bulk-scans/{uuid.uuid4()}", headers=ctx["headers"]).status_code == 404
+    assert client.get("/v1/bulk-scans/not-a-uuid", headers=ctx["headers"]).status_code == 404
+
+
 def test_status_missing_task(client, ctx):
     assert client.get(f"/v1/audits/{uuid.uuid4()}", headers=ctx["headers"]).status_code == 404
 

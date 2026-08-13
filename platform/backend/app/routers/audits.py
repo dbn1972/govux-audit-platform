@@ -7,7 +7,7 @@ access returns 404 (not 403) so it never confirms that a task_id exists.
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
-from sqlalchemy import desc, text
+from sqlalchemy import desc, func, text
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -455,3 +455,58 @@ def bulk_scan(body: BulkScanCreate, user=Depends(current_user), db: Session = De
         count += 1
     db.commit()
     return {"batch_id": str(batch_id), "enqueued": count}
+
+
+# audit statuses that will never change again — everything else is still moving
+TERMINAL_STATUSES = ("completed", "partial", "failed", "cancelled", "insufficient_evidence")
+
+
+@router.get("/bulk-scans/{batch_id}")
+def bulk_scan_status(batch_id: str, user=Depends(current_user), db: Session = Depends(get_db)):
+    """Real progress for a batch, aggregated from its audits.
+
+    The bulk-scan screen used to render a hardcoded '38% · 517 / 1,360 done ·
+    ~2h 10m left' bar because nothing like this existed. Audits already carry
+    `batch_id`, so the counts are a single GROUP BY — no new state to maintain.
+    """
+    if user.role not in ("programme_admin", "super_admin"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Bulk scan requires an admin role")
+    try:
+        uuid.UUID(batch_id)
+    except ValueError:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Batch not found")
+
+    rows = (db.query(models.Audit.status, func.count(models.Audit.id))
+              .filter(models.Audit.batch_id == batch_id)
+              .group_by(models.Audit.status).all())
+    if not rows:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Batch not found")
+
+    by_status = {str(s): int(n) for s, n in rows}
+    total = sum(by_status.values())
+    done = sum(n for s, n in by_status.items() if s in TERMINAL_STATUSES)
+    # Only `completed` yields a usable score. The rest are finished-without-a-result:
+    # `insufficient_evidence` in particular is the coverage gate deliberately
+    # REFUSING to band an uncapturable site — reporting that as "failed" would
+    # misdescribe a correct outcome as an error.
+    scored = by_status.get("completed", 0)
+    queued = by_status.get("queued", 0)
+
+    times = (db.query(func.min(models.Audit.created_at), func.max(models.Audit.finished_at))
+               .filter(models.Audit.batch_id == batch_id).one())
+    return {
+        "batch_id": batch_id,
+        "total": total,
+        "done": done,
+        "running": total - done - queued,
+        "queued": queued,
+        "scored": scored,
+        "no_result": done - scored,
+        # integer percent so the UI never renders a spurious 99.97%
+        "percent": round(100 * done / total) if total else 0,
+        "finished": done == total,
+        "by_status": by_status,
+        "started_at": times[0],
+        # only meaningful once every audit is terminal
+        "finished_at": times[1] if done == total else None,
+    }

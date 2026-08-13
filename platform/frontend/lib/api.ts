@@ -120,6 +120,7 @@ export const api = {
   auditTrend: (taskId: string) => req(`/v1/audits/${taskId}/trend`),
   bulkScan: (scope: string) =>
     req("/v1/bulk-scans", { method: "POST", body: JSON.stringify({ mode: "auto_discover", scope }) }),
+  bulkScanStatus: (batchId: string) => req(`/v1/bulk-scans/${batchId}`),
   // gap-closure endpoints
   remediation: (taskId: string, enrich = false) =>
     req(`/v1/audits/${taskId}/remediation${enrich ? "?enrich=1" : ""}`),
