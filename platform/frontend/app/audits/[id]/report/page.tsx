@@ -4,6 +4,7 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
+import { BAND_COLOR, barColor } from "@/lib/score";
 
 const NAMES: Record<string, [string, number]> = {
   accessibility: ["Accessibility", 22], usability: ["Usability & UX", 17],
@@ -14,13 +15,10 @@ const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString(undef
 // CWV lab thresholds (good/needs/poor)
 const cwvJudge = (metric: string, v: number | null) => {
   if (v == null) return ["—", "#5c636a"];
-  if (metric === "lcp") return v <= 2500 ? ["Good", "#15803d"] : v <= 4000 ? ["Needs work", "#b45309"] : ["Poor", "#b91c1c"];
-  if (metric === "cls") return v <= 0.1 ? ["Good", "#15803d"] : v <= 0.25 ? ["Needs work", "#b45309"] : ["Poor", "#b91c1c"];
-  return v <= 200 ? ["Good", "#15803d"] : v <= 500 ? ["Needs work", "#b45309"] : ["Poor", "#b91c1c"];
+  if (metric === "lcp") return v <= 2500 ? ["Good", BAND_COLOR.A] : v <= 4000 ? ["Needs work", BAND_COLOR.C] : ["Poor", BAND_COLOR.E];
+  if (metric === "cls") return v <= 0.1 ? ["Good", BAND_COLOR.A] : v <= 0.25 ? ["Needs work", BAND_COLOR.C] : ["Poor", BAND_COLOR.E];
+  return v <= 200 ? ["Good", BAND_COLOR.A] : v <= 500 ? ["Needs work", BAND_COLOR.C] : ["Poor", BAND_COLOR.E];
 };
-// AA-safe semantic palette (≥4.5:1 on white) — mirrors lib/score.ts
-const bandColor: Record<string, string> = { A: "#15803d", B: "#0f766e", C: "#b45309", D: "#c2410c", E: "#b91c1c" };
-const barColor = (s: number) => s >= 75 ? "#15803d" : s >= 60 ? "#b45309" : "#b91c1c";
 
 export default function Report({ params }: { params: { id: string } }) {
   const [r, setR] = useState<any>(null);
@@ -88,7 +86,7 @@ export default function Report({ params }: { params: { id: string } }) {
           <div className="col-lg-8"><div className="card shadow-sm h-100"><div className="card-body d-flex gap-4 align-items-center flex-wrap">
             <div className="text-center">
               <div className="score-value">{r.overall_score}</div>
-              <span className="badge" style={{ background: bandColor[r.band] + "22", color: bandColor[r.band] }}>Band {r.band}</span>
+              <span className="badge" style={{ background: BAND_COLOR[r.band] + "22", color: BAND_COLOR[r.band] }}>Band {r.band}</span>
             </div>
             <div className="flex-grow-1" style={{ minWidth: 220 }}>
               <p className="mb-2 text-secondary">
@@ -107,7 +105,7 @@ export default function Report({ params }: { params: { id: string } }) {
           <div className="col-lg-4"><div className="card shadow-sm h-100"><div className="card-body">
             <h2 className="h6">Issues by severity</h2>
             {/* AA-safe severity palette (≥4.5:1 on white) — mirrors lib/score.ts */}
-            {[["Critical", "critical", "#b91c1c"], ["High", "high", "#c2410c"], ["Medium", "medium", "#b45309"], ["Low", "low", "#5c636a"]].map(([l, k, c]) => (
+            {[["Critical", "critical", BAND_COLOR.E], ["High", "high", BAND_COLOR.D], ["Medium", "medium", BAND_COLOR.C], ["Low", "low", "#5c636a"]].map(([l, k, c]) => (
               <div className="d-flex justify-content-between border-bottom py-1" key={k}>
                 <span>{l}</span><b style={{ color: c as string }}>{sev(k as string)}</b>
               </div>

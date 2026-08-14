@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const bandColor: Record<string, string> = { A: "#15803d", B: "#0f766e", C: "#b45309", D: "#c2410c", E: "#b91c1c" };
+import { BAND_COLOR as bandColor } from "@/lib/score";
 const DEVICES: [string, number][] = [["Mobile", 375], ["Tablet", 768], ["Desktop", 1180]];
 
 export default function Showcase({ params }: { params: { slug: string } }) {

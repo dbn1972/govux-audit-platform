@@ -9,7 +9,7 @@ type Row = {
   score: number | null; band: string | null; compliance_status: string | null; date: string;
 };
 
-const bandColor: Record<string, string> = { A: "#15803d", B: "#0f766e", C: "#b45309", D: "#c2410c", E: "#b91c1c" };
+import { BAND_COLOR as bandColor } from "@/lib/score";
 const PROGRESS = ["queued", "crawling", "analyzing", "scoring"];
 const PAGE = 15;
 

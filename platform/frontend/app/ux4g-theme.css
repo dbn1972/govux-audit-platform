@@ -13,7 +13,13 @@
   --bs-success:        #198754;
   --bs-info:           #0dcaf0;
   --bs-warning:        #ffc107;
-  --bs-danger:         #dc3545;
+  /* Bootstrap's #dc3545 measures 4.53:1 on white — it clears AA by 0.03 and
+     then fails (4.29:1) the moment it sits on the --bs-body-bg card surface,
+     which is where every "Revoke" / "Release" / outline-danger control lives.
+     Darkened to clear it on both. Also used as a fill, where white text on it
+     only gets better. */
+  --bs-danger:         #b02a37;
+  --bs-danger-rgb:     176,42,55;
 
   /* surfaces & text */
   --bs-body-color:     #212529;
@@ -21,10 +27,16 @@
   --bs-border-color:   #dee2e6;
   --bs-tertiary-bg:    #ffffff;
 
-  /* links */
-  --bs-link-color:       #0d6efd;
-  --bs-link-color-rgb:   13,110,253;
-  --bs-link-hover-color: #0a58ca;
+  /* Links. --bs-primary above stays the UX4G brand blue because it is used as
+     a FILL (white on it clears AA). As TEXT the same blue is only 4.26:1 on the
+     card surface, so links and .btn-link get the darker step — which is the
+     brand's own hover blue, not a new colour. */
+  --bs-link-color:       #0a58ca;
+  --bs-link-color-rgb:   10,88,202;
+  --bs-link-hover-color: #094ba8;
+
+  /* inline <code> — Bootstrap's #d63384 is another 4.5-on-white-only value */
+  --bs-code-color:       #b02a6a;
 
   /* shape & type */
   --bs-border-radius:    .5rem;
@@ -48,13 +60,48 @@ h1, h2, h3, .navbar-brand, .h1, .h2, .h3 { color: var(--ux-navy); }
     var(--ux-saff) 0 33%, #fff 33% 66%, var(--ux-green) 66% 100%);
 }
 
-/* GovUX score-band utilities — AA-safe text colours (each ≥4.5:1 on white;
-   the old teal #20c997 / olive #997404 / orange #fd7e14 failed as text). */
-.band-A { color:#15803d } .band-B { color:#0f766e } .band-C { color:#b45309 }
-.band-D { color:#c2410c } .band-E { color:#b91c1c }
-/* band fills — darker so white text on them clears AA (≥4.5:1) */
-.bg-band-A{background:#15803d}.bg-band-B{background:#0f766e}.bg-band-C{background:#b45309}
-.bg-band-D{background:#c2410c}.bg-band-E{background:#b91c1c}
+/* GovUX score-band utilities. These were picked to clear 4.5:1 ON WHITE, but
+   the band badges paint the colour over a 13.3% tint OF ITSELF — a background
+   that is neither white nor constant — and against that A/B/C/D all landed
+   between 3.99 and 4.34. Darkened until each clears 4.5:1 on its own tint,
+   which makes plain white and #f8f9fa comfortable by construction. Keep these
+   in step with BAND_COLOR in lib/score.ts. */
+.band-A { color:#116932 } .band-B { color:#0c655e } .band-C { color:#9a4508 }
+.band-D { color:#a6370a } .band-E { color:#b91c1c }
+/* band fills — dark enough that white text on them clears AA (≥4.5:1) */
+.bg-band-A{background:#116932}.bg-band-B{background:#0c655e}.bg-band-C{background:#9a4508}
+.bg-band-D{background:#a6370a}.bg-band-E{background:#b91c1c}
+
+/* Outline buttons. Bootstrap's compiled CSS hard-codes these hexes instead of
+   reading --bs-primary/--bs-danger/etc, so retuning the tokens above does not
+   reach them. Every one of the four was between 4.27 and 4.45 against the
+   --bs-body-bg card surface they sit on; each is swapped for Bootstrap's own
+   darker step of the same hue. Hover/active fills darken with them, which only
+   improves the white text on those states. */
+.btn-outline-primary {
+  --bs-btn-color: #0a58ca; --bs-btn-border-color: #0a58ca;
+  --bs-btn-hover-bg: #0a58ca; --bs-btn-hover-border-color: #0a58ca;
+  --bs-btn-active-bg: #0a58ca; --bs-btn-active-border-color: #0a58ca;
+  --bs-btn-disabled-color: #0a58ca; --bs-btn-disabled-border-color: #0a58ca;
+}
+.btn-outline-secondary {
+  --bs-btn-color: #5c636a; --bs-btn-border-color: #5c636a;
+  --bs-btn-hover-bg: #5c636a; --bs-btn-hover-border-color: #5c636a;
+  --bs-btn-active-bg: #5c636a; --bs-btn-active-border-color: #5c636a;
+  --bs-btn-disabled-color: #5c636a; --bs-btn-disabled-border-color: #5c636a;
+}
+.btn-outline-success {
+  --bs-btn-color: #146c43; --bs-btn-border-color: #146c43;
+  --bs-btn-hover-bg: #146c43; --bs-btn-hover-border-color: #146c43;
+  --bs-btn-active-bg: #146c43; --bs-btn-active-border-color: #146c43;
+  --bs-btn-disabled-color: #146c43; --bs-btn-disabled-border-color: #146c43;
+}
+.btn-outline-danger {
+  --bs-btn-color: #b02a37; --bs-btn-border-color: #b02a37;
+  --bs-btn-hover-bg: #b02a37; --bs-btn-hover-border-color: #b02a37;
+  --bs-btn-active-bg: #b02a37; --bs-btn-active-border-color: #b02a37;
+  --bs-btn-disabled-color: #b02a37; --bs-btn-disabled-border-color: #b02a37;
+}
 
 /* a slightly softer card shadow to match UX4G */
 .card { box-shadow: 0 1px 2px rgba(16,40,64,.05); }

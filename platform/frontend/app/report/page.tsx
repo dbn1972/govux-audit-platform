@@ -1,10 +1,11 @@
 "use client";
+import { BAND_COLOR } from "@/lib/score";
 // Report — 8-category GovUX Score using UX4G/Bootstrap components.
 const cats: [string, number, number, string][] = [
-  ["Accessibility", 22, 58, "#b91c1c"], ["Usability & UX", 17, 65, "#b45309"],
-  ["GIGW 3.0", 15, 72, "#15803d"], ["Design / UX4G", 11, 67, "#b45309"],
-  ["Performance/CWV", 12, 62, "#b45309"], ["Responsiveness & Compat.", 10, 61, "#b45309"],
-  ["Content quality", 7, 61, "#b45309"], ["Trust & security", 6, 71, "#15803d"],
+  ["Accessibility", 22, 58, BAND_COLOR.E], ["Usability & UX", 17, 65, BAND_COLOR.C],
+  ["GIGW 3.0", 15, 72, BAND_COLOR.A], ["Design / UX4G", 11, 67, BAND_COLOR.C],
+  ["Performance/CWV", 12, 62, BAND_COLOR.C], ["Responsiveness & Compat.", 10, 61, BAND_COLOR.C],
+  ["Content quality", 7, 61, BAND_COLOR.C], ["Trust & security", 6, 71, BAND_COLOR.A],
 ];
 
 export default function Report() {

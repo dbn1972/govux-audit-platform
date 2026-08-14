@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
-const bandColor: Record<string, string> = { A: "#15803d", B: "#0f766e", C: "#b45309", D: "#c2410c", E: "#b91c1c" };
+import { BAND_COLOR as bandColor } from "@/lib/score";
 const ACCENTS = [["ux4g-purple #4a2bc2", "UX4G Purple (default)"], ["ux4g-saffron #f70", "Saffron"], ["ux4g-green #080", "Green"]];
 const DEVICES: [string, number][] = [["Mobile", 375], ["Tablet", 768], ["Desktop", 1180]];
 

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { BAND_COLOR as bandCol } from "@/lib/score";
 
 // UX4G-aligned public landing page for the FREE single-URL audit (no sign-in).
 // This is the page the "UX4G Audit" link on ux4g.gov.in points to.
@@ -86,7 +87,6 @@ export default function ScanLanding() {
   }
 
   const band = state?.band;
-  const bandCol: Record<string, string> = { A: "#198754", B: "#15803d", C: "#b45309", D: "#c2410c", E: "#b91c1c" };
 
   return (
     <main>

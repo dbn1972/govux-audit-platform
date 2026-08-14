@@ -98,6 +98,12 @@ jobs:
       # audits others for exactly this. Chromium-only against the production
       # build already produced above, so the marginal cost is one browser
       # download; the 3-browser matrix + backend-backed flows stay nightly.
+      #
+      # This job has no backend, so it can only reach /login and / — the signed-in
+      # screens are covered from both sides instead: test/a11y.component.test.tsx
+      # runs axe over them in jsdom as part of `npm test` above (structure, names,
+      # label wiring — no layout), and e2e/a11y.auth.spec.ts sweeps the real
+      # routes in a real browser in the nightly job below (contrast, focus).
       - run: npx playwright install --with-deps chromium
       - name: Serve the production build
         run: |
@@ -155,7 +161,10 @@ jobs:
           npm init -y >/dev/null
           npm install -D @playwright/test@1.44.0 @axe-core/playwright@^4.9.1
           npx playwright install --with-deps chromium firefox webkit
-      - name: Cross-browser E2E — a11y (axe) · responsive reflow · public flows
+      # Runs every project, which includes `a11y-auth`: the signed-in axe sweep.
+      # That one signs itself in against the stack booted above and needs the API
+      # in dev mode to read back its own OTP.
+      - name: Cross-browser E2E — a11y (axe, public + signed-in) · responsive reflow · public flows
         working-directory: /tmp/e2e
         env:
           E2E_BASE_URL: "http://localhost:3000"

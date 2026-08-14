@@ -9,7 +9,7 @@ type Domain = {
   latest_score?: number | null; latest_band?: string | null; last_audited_at?: string | null;
 };
 
-const bandColor: Record<string, string> = { A: "#15803d", B: "#0f766e", C: "#b45309", D: "#c2410c", E: "#b91c1c" };
+import { BAND_COLOR as bandColor } from "@/lib/score";
 function fmtDate(s?: string | null) { return s ? new Date(s).toLocaleDateString() : "—"; }
 
 export default function Dashboard() {

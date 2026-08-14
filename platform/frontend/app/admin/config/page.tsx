@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
+import { BAND_COLOR } from "@/lib/score";
 
 // Runtime configuration — admin-editable email provider, CAPTCHA, rate limits,
 // scan parameters. Changes take effect live (no redeploy).
@@ -94,7 +95,7 @@ export default function ConfigAdmin() {
                     <div className="col-6 col-md-3" key={label}>
                       <div className="border rounded p-2 h-100">
                         <div className="text-secondary" style={{ fontSize: 11 }}>{label}</div>
-                        <div className="fw-bold" style={{ fontSize: 18, color: warn ? "#b91c1c" : "var(--ux-navy)" }}>
+                        <div className="fw-bold" style={{ fontSize: 18, color: warn ? BAND_COLOR.E : "var(--ux-navy)" }}>
                           {val ?? "—"}
                         </div>
                       </div>
@@ -114,7 +115,11 @@ export default function ConfigAdmin() {
                 const val = s.key in edits ? edits[s.key] : s.value;
                 return (
                   <div className="row align-items-center mb-2" key={s.key}>
-                    <label className="col-sm-6 col-form-label">
+                    {/* htmlFor/id: the label sat next to these controls without
+                        being attached to any of them, so every one of them —
+                        switch, secret, select and text alike — reached a screen
+                        reader as an unnamed control. */}
+                    <label className="col-sm-6 col-form-label" htmlFor={`cfg-${s.key}`}>
                       {s.label}
                       {s.is_override && <span className="badge bg-info-subtle text-info-emphasis ms-2">overridden</span>}
                       <div className="text-secondary" style={{ fontSize: 11 }}><code>{s.key}</code></div>
@@ -122,20 +127,22 @@ export default function ConfigAdmin() {
                     <div className="col-sm-6">
                       {s.type === "bool" ? (
                         <div className="form-check form-switch">
-                          <input className="form-check-input" type="checkbox"
+                          <input className="form-check-input" type="checkbox" id={`cfg-${s.key}`}
                             checked={val === true || val === "true"}
                             onChange={e => change(s.key, e.target.checked)} />
                         </div>
                       ) : s.secret ? (
-                        <input className="form-control" type="password" placeholder="•••••• (leave blank to keep)"
+                        <input className="form-control" type="password" id={`cfg-${s.key}`}
+                          placeholder="•••••• (leave blank to keep)"
                           onChange={e => change(s.key, e.target.value)} />
                       ) : OPTIONS[s.key] ? (
-                        <select className="form-select" value={val ?? ""}
+                        <select className="form-select" id={`cfg-${s.key}`} value={val ?? ""}
                           onChange={e => change(s.key, e.target.value)}>
                           {OPTIONS[s.key].map(o => <option key={o} value={o}>{o}</option>)}
                         </select>
                       ) : (
-                        <input className="form-control" type={s.type === "int" ? "number" : "text"}
+                        <input className="form-control" id={`cfg-${s.key}`}
+                          type={s.type === "int" ? "number" : "text"}
                           value={val ?? ""} onChange={e => change(s.key, e.target.value)} />
                       )}
                     </div>

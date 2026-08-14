@@ -4,7 +4,7 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
-const bandBg: Record<string, string> = { A: "#198754", B: "#15803d", C: "#b45309", D: "#c2410c", E: "#b91c1c" };
+import { BAND_COLOR as bandBg } from "@/lib/score";
 
 export default function National() {
   const [d, setD] = useState<any>(null);

@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
+import { BAND_COLOR } from "@/lib/score";
 
-const col = (s: number) => s >= 75 ? "#15803d" : s >= 60 ? "#b45309" : s >= 45 ? "#c2410c" : "#b91c1c";
+const col = (s: number) => s >= 75 ? BAND_COLOR.A : s >= 60 ? BAND_COLOR.C : s >= 45 ? BAND_COLOR.D : BAND_COLOR.E;
 type Row = { code: string; avg_score: number; domains: number };
 
 export default function States() {

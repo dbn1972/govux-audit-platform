@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
+import { BAND_COLOR } from "@/lib/score";
 
 type Org = {
   id: string; name: string; org_type: string; state_code: string | null;
@@ -12,7 +13,7 @@ type Org = {
 const TYPES = ["ministry", "department", "state", "ut", "psu", "other"];
 const PAGE = 25;
 const bandColor = (s: number) =>
-  s >= 75 ? "#15803d" : s >= 60 ? "#b45309" : "#b91c1c";
+  s >= 75 ? BAND_COLOR.A : s >= 60 ? BAND_COLOR.C : BAND_COLOR.E;
 const fmt = (s: string | null) => (s ? new Date(s).toLocaleDateString() : "—");
 
 export default function Organisations() {

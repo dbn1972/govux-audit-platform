@@ -230,6 +230,10 @@ export default function Settings() {
                       <td>
                         {editable ? (
                           <select className="form-select form-select-sm" value={m.role}
+                            /* Names the person, not just "Role": in a table of
+                               these a screen reader otherwise announces a column
+                               of identical unlabelled dropdowns. */
+                            aria-label={`Role for ${m.display_name || m.email}`}
                             disabled={teamBusyId === m.id}
                             onChange={(e) => changeRole(m.id, e.target.value)}>
                             {ROLES.filter((r) => canGrantSteward || !(r === "programme_admin" || r === "super_admin")
