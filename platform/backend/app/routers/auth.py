@@ -363,6 +363,12 @@ def verify_otp(body: OtpVerify, response: Response, db: Session = Depends(get_db
         # An invited address joins the inviting org with the invited role. Without
         # an invite the account starts org-less and defaults to owner — the first
         # domain it registers auto-provisions an organisation for it.
+        #
+        # Self-service signup is the deliberate onboarding route until Parichay
+        # SSO is introduced. It means possession of any .gov.in mailbox is enough
+        # to create an owner account, so the real gate on what that account can
+        # DO is domain verification (an owner with no verified domain can audit
+        # nothing), not the sign-up step.
         user = models.User(email=email, display_name=email.split("@")[0],
                            org_id=invite.org_id if invite else None,
                            role=invite.role if invite else "owner")

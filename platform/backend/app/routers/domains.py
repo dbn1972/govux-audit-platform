@@ -110,8 +110,13 @@ def register_domain(body: DomainCreate, user: models.User = Depends(current_user
         raise HTTPException(status.HTTP_409_CONFLICT,
                             "Your organisation already has a pending claim on this domain")
 
-    # auto-provision an organisation if the user doesn't have one yet (dev convenience;
-    # in production, org assignment happens via Parichay SSO or admin invite)
+    # Auto-provision an organisation for an org-less account on its first domain.
+    # This is the CHOSEN onboarding path, not a leftover shortcut: self-service
+    # signup stands until Parichay SSO lands, at which point org assignment moves
+    # to the SSO claim and this branch becomes the fallback for invite-less
+    # accounts. Consequence to keep in view: two colleagues from one department
+    # who both self-serve end up in two separate organisations, and then contend
+    # for the same domain through the claim-race path below.
     if not user.org_id:
         org = models.Organisation(name=f"{user.email.split('@')[0]}'s Organisation",
                                   org_type="department")
