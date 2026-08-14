@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from ..database import get_db
 from .. import models
@@ -73,6 +73,9 @@ def list_domains(user: models.User = Depends(current_user), db: Session = Depend
                         # unverified domain can never be audited. Returned for
                         # pending rows only; a verified domain has no use for it.
                         "verify_token": d.verify_token if d.verify_status != "verified" else None,
+                        # lets the UI distinguish a proven domain from one a
+                        # steward vouched for
+                        "verify_method": d.verify_method,
                         "latest_score": ls[0] if ls else None,
                         "latest_band": ls[1] if ls else None,
                         "last_audited_at": ls[2] if ls else None})
@@ -175,6 +178,65 @@ def release_claim(domain_id: str, db: Session = Depends(get_db),
                      detail={"org_id": str(org_id)})
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+class ForceVerifyRequest(BaseModel):
+    # Mandatory and substantive: the whole value of an override is that someone
+    # is on record for it. A blank or one-word justification defeats the point.
+    reason: str = Field(..., min_length=10, max_length=500)
+
+
+@router.post("/{domain_id}/force-verify")
+def force_verify_domain(domain_id: str, body: ForceVerifyRequest,
+                        db: Session = Depends(get_db),
+                        user=Depends(require_role("programme_admin", "super_admin"))):
+    """Steward override: mark a domain verified WITHOUT ownership proof.
+
+    Real cases exist — a ministry owns the site but DNS sits with a third party
+    and the paperwork outlasts the audit. What must not exist is a silent
+    bypass: this used to ride on `sso_mapping`, which `verification.verify`
+    returned True for unconditionally, so ANY signed-in user could self-verify
+    any unclaimed .gov.in domain by naming that method.
+
+    So the override is now: steward-only, requires a written reason, recorded as
+    `verify_method='steward_override'` (never mistakable for a DNS/file proof)
+    and written to the audit log with the actor.
+    """
+    d = db.get(models.Domain, domain_id)
+    if not d:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
+    if d.verify_status == "verified":
+        raise HTTPException(status.HTTP_409_CONFLICT, "This domain is already verified")
+
+    # a competing claim may already have PROVEN ownership of this host
+    proven = (db.query(models.Domain)
+                .filter(models.Domain.url == d.url, models.Domain.id != d.id,
+                        models.Domain.verify_status == "verified").first())
+    if proven:
+        raise HTTPException(status.HTTP_409_CONFLICT,
+                            "Another organisation has already proven ownership of this domain. "
+                            "Release their claim first if that is wrong.")
+
+    d.verify_status = "verified"
+    d.verify_method = "steward_override"
+    # settle the race exactly as a real proof does — an override still decides the host
+    losers = (db.query(models.Domain)
+                .filter(models.Domain.url == d.url, models.Domain.id != d.id,
+                        models.Domain.verify_status != "verified").all())
+    for loser in losers:
+        loser.verify_status = "superseded"
+    db.commit()
+
+    cache.invalidate(_domains_key(d.org_id))
+    for org_id in {l.org_id for l in losers}:
+        cache.invalidate(_domains_key(org_id))
+    audit_log.record(db, user.id, "domain_force_verified", target=d.url,
+                     detail={"org_id": str(d.org_id), "reason": body.reason,
+                             "superseded_claims": len(losers)})
+    db.commit()
+    return {"id": str(d.id), "url": d.url, "verify_status": d.verify_status,
+            "verify_method": d.verify_method, "superseded_claims": len(losers),
+            "detail": "Verified by steward override — ownership was not proven."}
 
 
 @router.post("/{domain_id}/verify")

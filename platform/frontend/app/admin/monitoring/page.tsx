@@ -39,15 +39,17 @@ export default function Monitoring() {
         <div className="card shadow-sm mb-3"><div className="card-body">
           <div className="row g-2 align-items-end">
             <div className="col-md-6">
-              <label className="form-label small">Domain</label>
-              <select className="form-select" value={domainId} onChange={e => setDomainId(e.target.value)}>
+              <label className="form-label small" htmlFor="monitor-domain">Domain</label>
+              <select id="monitor-domain" className="form-select" value={domainId}
+                onChange={e => setDomainId(e.target.value)}>
                 <option value="">Select a verified domain…</option>
                 {domains.map(d => <option key={d.id} value={d.id}>{d.url}</option>)}
               </select>
             </div>
             <div className="col-md-3">
-              <label className="form-label small">Cadence</label>
-              <select className="form-select" value={cadence} onChange={e => setCadence(e.target.value)}>
+              <label className="form-label small" htmlFor="monitor-cadence">Cadence</label>
+              <select id="monitor-cadence" className="form-select" value={cadence}
+                onChange={e => setCadence(e.target.value)}>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
@@ -70,8 +72,12 @@ export default function Monitoring() {
                 <td><span className="badge bg-secondary">{s.cadence}</span></td>
                 <td className="small">{s.next_run_at?.slice(0, 16).replace("T", " ")}</td>
                 <td className="small text-secondary">{s.last_run_at ? s.last_run_at.slice(0, 16).replace("T", " ") : "—"}</td>
-                <td><button className="btn btn-sm btn-outline-danger" onClick={() => remove(s.id)}>
-                  <i className="bi bi-trash" /></button></td>
+                {/* icon-only control needs an accessible name — WCAG 4.1.2, the
+                    same "buttons must have discernible text" rule this platform
+                    reports on other people's sites */}
+                <td><button className="btn btn-sm btn-outline-danger" onClick={() => remove(s.id)}
+                  aria-label={`Stop monitoring ${s.domain || "this domain"}`}>
+                  <i className="bi bi-trash" aria-hidden="true" /></button></td>
               </tr>
             ))}
             {!rows.length && <tr><td colSpan={5} className="text-secondary text-center py-4">No monitors yet.</td></tr>}

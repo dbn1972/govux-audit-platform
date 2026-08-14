@@ -86,6 +86,10 @@ export const api = {
   // only one they can actually complete
   verifyDomain: (id: string, method: "dns_txt" | "file_upload" = "dns_txt") =>
     req(`/v1/domains/${id}/verify`, { method: "POST", body: JSON.stringify({ method }) }),
+  // steward override — verified WITHOUT ownership proof, so the reason is
+  // mandatory and the actor is recorded server-side
+  forceVerifyDomain: (id: string, reason: string) =>
+    req(`/v1/domains/${id}/force-verify`, { method: "POST", body: JSON.stringify({ reason }) }),
   domainClaims: (contestedOnly = false) =>
     req(`/v1/domains/claims${contestedOnly ? "?contested_only=true" : ""}`),
   releaseClaim: (id: string) => req(`/v1/domains/claims/${id}`, { method: "DELETE" }),

@@ -223,3 +223,84 @@ def test_steward_can_release_a_squatted_claim_but_never_a_verified_domain(
     # proven ownership is not a steward's to revoke — it would orphan audit history
     r = client.delete(f"/v1/domains/claims/{verified_domain.id}", headers=ctx["headers"])
     assert r.status_code == 409 and "verified" in r.json()["detail"]
+
+
+# ---------- steward override --------------------------------------------------
+def test_force_verify_is_steward_only_and_demands_a_written_reason(client, ctx, db):
+    """The override used to ride on `sso_mapping`, which verify() returned True
+    for unconditionally — so any signed-in user could self-verify any unclaimed
+    domain. It is now a steward action that puts someone on record."""
+    url = f"fv{uuid.uuid4().hex[:6]}.gov.in"
+    d = client.post("/v1/domains", headers=ctx["headers"], json={"url": url}).json()
+
+    _, owner = _other_org_user(db, role="owner")
+    assert client.post(f"/v1/domains/{d['id']}/force-verify", headers=owner,
+                       json={"reason": "we own this, honestly"}).status_code == 403
+
+    # a reason is mandatory and must actually say something
+    for bad in ({}, {"reason": ""}, {"reason": "because"}):
+        r = client.post(f"/v1/domains/{d['id']}/force-verify", headers=ctx["headers"], json=bad)
+        assert r.status_code == 422, f"{bad!r} was accepted"
+
+
+def test_force_verify_records_the_override_distinctly_from_a_proof(client, ctx, db):
+    from app.services import cache
+    url = f"ov{uuid.uuid4().hex[:6]}.gov.in"
+    d = client.post("/v1/domains", headers=ctx["headers"], json={"url": url}).json()
+
+    r = client.post(f"/v1/domains/{d['id']}/force-verify", headers=ctx["headers"],
+                    json={"reason": "DNS held by a third-party vendor; ownership confirmed by letter"})
+    assert r.status_code == 200, r.text
+    assert r.json()["verify_status"] == "verified"
+    # never mistakable for a DNS/file proof — "verified but unproven" stays queryable
+    assert r.json()["verify_method"] == "steward_override"
+
+    db.expire_all()
+    assert db.get(models.Domain, d["id"]).verify_method == "steward_override"
+
+    # and the actor + justification are on record
+    entry = (db.query(models.AuditLog)
+               .filter(models.AuditLog.action == "domain_force_verified",
+                       models.AuditLog.target == url).first())
+    assert entry is not None
+    assert entry.actor_id == ctx["user"].id
+    assert "third-party vendor" in entry.detail["reason"]
+
+    cache.invalidate_prefix("domains")
+    listed = {x["url"]: x for x in client.get("/v1/domains", headers=ctx["headers"]).json()}
+    assert listed[url]["verify_method"] == "steward_override"
+
+
+def test_force_verify_settles_competing_claims_and_respects_a_real_proof(
+        client, ctx, db, monkeypatch):
+    from app.services import verification
+    url = f"cf{uuid.uuid4().hex[:6]}.gov.in"
+    mine = client.post("/v1/domains", headers=ctx["headers"], json={"url": url}).json()
+    _, rival = _other_org_user(db)
+    theirs = client.post("/v1/domains", headers=rival, json={"url": url}).json()
+
+    # an override still decides the host, exactly as a proof does
+    r = client.post(f"/v1/domains/{mine['id']}/force-verify", headers=ctx["headers"],
+                    json={"reason": "ministry confirmed ownership in writing"})
+    assert r.status_code == 200 and r.json()["superseded_claims"] == 1
+    db.expire_all()
+    assert db.get(models.Domain, theirs["id"]).verify_status == "superseded"
+
+    # ...but it must never override someone who actually PROVED ownership
+    other_url = f"pr{uuid.uuid4().hex[:6]}.gov.in"
+    proven = client.post("/v1/domains", headers=rival, json={"url": other_url}).json()
+    monkeypatch.setattr(verification, "verify", lambda host, tok, method: True)
+    client.post(f"/v1/domains/{proven['id']}/verify", headers=rival, json={"method": "dns_txt"})
+
+    late = models.Domain(org_id=ctx["org"].id, url=other_url, tld="gov.in",
+                         verify_status="pending", verify_token="x", created_by=ctx["user"].id)
+    db.add(late); db.commit()
+    r = client.post(f"/v1/domains/{late.id}/force-verify", headers=ctx["headers"],
+                    json={"reason": "we believe this one is ours as well"})
+    assert r.status_code == 409 and "already proven" in r.json()["detail"]
+
+
+def test_force_verify_refuses_an_already_verified_domain(client, ctx, verified_domain):
+    r = client.post(f"/v1/domains/{verified_domain.id}/force-verify", headers=ctx["headers"],
+                    json={"reason": "belt and braces, just in case"})
+    assert r.status_code == 409 and "already verified" in r.json()["detail"]

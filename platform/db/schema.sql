@@ -10,7 +10,10 @@ CREATE EXTENSION IF NOT EXISTS "vector";         -- pgvector (guideline RAG); op
 -- ---------- enums ----------
 CREATE TYPE user_role      AS ENUM ('owner','contributor','assessor','programme_admin','super_admin');
 CREATE TYPE org_type       AS ENUM ('ministry','department','state','ut','psu','other');
-CREATE TYPE verify_method  AS ENUM ('dns_txt','file_upload','sso_mapping');
+-- steward_override: ownership was NOT proven — a programme admin vouched for it
+-- out of band. Kept distinct from sso_mapping (Parichay) so "never actually
+-- proven" stays queryable.
+CREATE TYPE verify_method  AS ENUM ('dns_txt','file_upload','sso_mapping','steward_override');
 CREATE TYPE verify_status  AS ENUM ('pending','verified','failed','superseded');
 CREATE TYPE audit_status   AS ENUM ('queued','crawling','analyzing','scoring','completed','partial','failed','cancelled','insufficient_evidence');
 CREATE TYPE page_status    AS ENUM ('discovered','analysed','timed_out','skipped','error');

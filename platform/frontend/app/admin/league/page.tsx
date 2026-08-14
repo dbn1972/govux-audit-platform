@@ -23,8 +23,9 @@ export default function League() {
 
         <div className="card shadow-sm mb-3"><div className="card-body d-flex gap-3 flex-wrap align-items-end">
           <div>
-            <label className="form-label fw-semibold small">Service category</label>
-            <select className="form-select form-select-sm" value={cat} onChange={e => setCat(e.target.value)}>
+            <label className="form-label fw-semibold small" htmlFor="league-category">Service category</label>
+            <select id="league-category" className="form-select form-select-sm" value={cat}
+              onChange={e => setCat(e.target.value)}>
               <option value="transactional">Transactional</option>
               <option value="information">Information</option>
               <option value="payments">Payments</option>

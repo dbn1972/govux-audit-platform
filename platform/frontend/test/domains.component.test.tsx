@@ -22,14 +22,18 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("@/components/AppShell", () => ({ default: ({ children }: any) => <div>{children}</div> }));
 vi.mock("next/link", () => ({ default: ({ href, children }: any) => <a href={String(href)}>{children}</a> }));
 
+const me = vi.fn();
 const listDomains = vi.fn();
 const registerDomain = vi.fn();
 const verifyDomain = vi.fn();
+const forceVerifyDomain = vi.fn();
 vi.mock("@/lib/api", () => ({
   api: {
+    me: (...a: any[]) => me(...a),
     listDomains: (...a: any[]) => listDomains(...a),
     registerDomain: (...a: any[]) => registerDomain(...a),
     verifyDomain: (...a: any[]) => verifyDomain(...a),
+    forceVerifyDomain: (...a: any[]) => forceVerifyDomain(...a),
   },
 }));
 
@@ -37,9 +41,11 @@ import Domains from "@/app/domains/page";
 import RegisterDomain from "@/app/domains/new/page";
 
 beforeEach(() => {
-  [push, listDomains, registerDomain, verifyDomain].forEach((m) => m.mockReset());
+  [push, me, listDomains, registerDomain, verifyDomain, forceVerifyDomain].forEach((m) => m.mockReset());
+  me.mockResolvedValue({ is_steward: false });
   listDomains.mockResolvedValue([]);
   verifyDomain.mockResolvedValue({ verify_status: "verified" });
+  forceVerifyDomain.mockResolvedValue({ verify_status: "verified", verify_method: "steward_override" });
   // several tests drive /domains/new; reset the query between them
   window.history.pushState({}, "", "/domains/new");
 });
@@ -84,6 +90,67 @@ describe("My domains", () => {
     listDomains.mockImplementation(() => Promise.reject(new Error("Not authorised")));
     render(<Domains />);
     expect(await screen.findByRole("alert")).toHaveTextContent(/Not authorised/);
+  });
+});
+
+// ---------- steward override ------------------------------------------------
+describe("Steward force-verify", () => {
+  const PENDING = [{ id: "d-new", url: "draft.nic.in", verify_status: "pending" }];
+
+  it("is offered only to a steward", async () => {
+    listDomains.mockResolvedValue(PENDING);
+    render(<Domains />);
+    await screen.findByText("draft.nic.in");
+    expect(screen.queryByRole("button", { name: /Override/i })).not.toBeInTheDocument();
+
+    cleanup();
+    me.mockResolvedValue({ is_steward: true });
+    render(<Domains />);
+    expect(await screen.findByRole("button", { name: /Override/i })).toBeInTheDocument();
+  });
+
+  it("requires a substantive reason before it will submit", async () => {
+    me.mockResolvedValue({ is_steward: true });
+    listDomains.mockResolvedValue(PENDING);
+    render(<Domains />);
+    await userEvent.click(await screen.findByRole("button", { name: /Override/i }));
+
+    const confirm = screen.getByRole("button", { name: /Force verify/i });
+    expect(confirm).toBeDisabled();                       // nothing typed
+    await userEvent.type(screen.getByLabelText(/Why is this domain/i), "because");
+    expect(confirm).toBeDisabled();                       // too thin to be a record
+    await userEvent.type(screen.getByLabelText(/Why is this domain/i), " DNS sits with a vendor");
+    expect(confirm).toBeEnabled();
+  });
+
+  it("sends the reason and marks the row as an override, not a proof", async () => {
+    me.mockResolvedValue({ is_steward: true });
+    listDomains.mockResolvedValue(PENDING);
+    render(<Domains />);
+    await userEvent.click(await screen.findByRole("button", { name: /Override/i }));
+    await userEvent.type(screen.getByLabelText(/Why is this domain/i),
+      "DNS held by a third-party vendor; ownership confirmed by letter");
+    await userEvent.click(screen.getByRole("button", { name: /Force verify/i }));
+
+    await waitFor(() => expect(forceVerifyDomain).toHaveBeenCalledWith("d-new",
+      "DNS held by a third-party vendor; ownership confirmed by letter"));
+    // it must never look like a DNS/file-proven domain
+    expect(await screen.findByText(/Verified · override/)).toBeInTheDocument();
+    // and it must not reuse the old bypass
+    expect(verifyDomain).not.toHaveBeenCalled();
+  });
+
+  it("surfaces a refusal from the server", async () => {
+    me.mockResolvedValue({ is_steward: true });
+    listDomains.mockResolvedValue(PENDING);
+    forceVerifyDomain.mockImplementation(() => Promise.reject(
+      new Error("Another organisation has already proven ownership of this domain.")));
+    render(<Domains />);
+    await userEvent.click(await screen.findByRole("button", { name: /Override/i }));
+    await userEvent.type(screen.getByLabelText(/Why is this domain/i), "we think this is ours");
+    await userEvent.click(screen.getByRole("button", { name: /Force verify/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/already proven ownership/);
   });
 });
 

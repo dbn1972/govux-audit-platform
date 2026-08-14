@@ -3,18 +3,22 @@ import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
-const DEMO = [
-  { id: "WCAG-1.4.3", family: "WCAG", title: "Colour contrast (minimum)", plain_language: "Text needs ≥4.5:1 contrast so low-vision users can read it.", good_example: "navy on white = 11.8:1 — passes." },
-  { id: "WCAG-2.1.1", family: "WCAG", title: "Keyboard operable", plain_language: "All functionality must work with a keyboard alone.", good_example: "a real <button> instead of a clickable <div>." },
-  { id: "GIGW-2.4", family: "GIGW", title: "Mandatory footer elements", plain_language: "Contact, last-updated, policies must appear on every page.", good_example: "a consistent footer on all templates." },
-  { id: "CWV-LCP", family: "CWV", title: "Largest Contentful Paint", plain_language: "Main content should render within 2.5s on mobile.", good_example: "compressed WebP hero + deferred JS." },
-];
+// No demo fallback: this page used to seed itself with four hardcoded
+// guidelines and swallow API errors, so a 401 or an empty library rendered
+// fabricated entries indistinguishable from the real ones. The library is
+// seeded for real by migration 0012 — show what the API returns, or say why not.
 
 export default function Library() {
-  const [rows, setRows] = useState<any[]>(DEMO);
+  const [rows, setRows] = useState<any[] | null>(null);
+  const [err, setErr] = useState("");
   const [fam, setFam] = useState("");
-  useEffect(() => { api.guidelines(fam || undefined).then(r => r.length && setRows(r)).catch(() => {}); }, [fam]);
-  const shown = fam ? rows.filter(r => r.family === fam) : rows;
+  useEffect(() => {
+    setErr("");
+    api.guidelines(fam || undefined)
+      .then((r) => setRows(r || []))
+      .catch((e: any) => { setErr(e?.message || "Could not load the guideline library."); setRows([]); });
+  }, [fam]);
+  const shown = rows || [];
 
   return (
     <AppShell>
@@ -27,6 +31,13 @@ export default function Library() {
               className={`btn btn-sm ${fam === f ? "btn-primary" : "btn-outline-secondary"}`}>{f || "All"}</button>
           ))}
         </div>
+        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {rows != null && shown.length === 0 && !err && (
+          <div className="text-secondary text-center py-5">
+            No guidelines in this family yet.
+          </div>
+        )}
+
         <div className="row g-3">
           {shown.map(g => (
             <div className="col-md-6" key={g.id}><div className="card shadow-sm h-100"><div className="card-body">

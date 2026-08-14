@@ -17,7 +17,11 @@ def _uuid():
 UserRole = ENUM("owner", "contributor", "assessor", "programme_admin", "super_admin",
                 name="user_role")
 OrgType = ENUM("ministry", "department", "state", "ut", "psu", "other", name="org_type")
-VerifyMethod = ENUM("dns_txt", "file_upload", "sso_mapping", name="verify_method")
+# `steward_override` records that ownership was never proven — a programme admin
+# vouched for the domain out of band. Distinct from `sso_mapping` (Parichay) so
+# unproven domains stay queryable.
+VerifyMethod = ENUM("dns_txt", "file_upload", "sso_mapping", "steward_override",
+                    name="verify_method")
 # `superseded` = a competing claim on the same host proved ownership first.
 # Distinct from `failed`, which means this claimant's own token wasn't found.
 VerifyStatus = ENUM("pending", "verified", "failed", "superseded", name="verify_status")

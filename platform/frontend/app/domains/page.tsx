@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 
 type Domain = {
   id: string; url: string; verify_status: string; category?: string | null;
+  verify_method?: string | null;
   latest_score?: number | null; latest_band?: string | null; last_audited_at?: string | null;
 };
 
@@ -26,16 +27,25 @@ export default function Domains() {
       .catch(() => {});
   }, []);
 
+  // Steward override. This used to call verifyDomain(id, "sso_mapping") — the
+  // method verification.verify() returned True for unconditionally, i.e. a
+  // bypass any signed-in user could invoke. It is now its own endpoint:
+  // steward-only, a written reason required, recorded as `steward_override` so
+  // an unproven domain is never mistaken for a DNS/file-proven one.
+  const [overriding, setOverriding] = useState<string | null>(null);
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+
   async function forceVerify(id: string) {
-    setErr("");
+    setErr(""); setBusy(true);
     try {
-      const res = await api.verifyDomain(id, "sso_mapping");
-      if (res?.verify_status === "verified") {
-        setRows((rs) => (rs || []).map((d) => d.id === id ? { ...d, verify_status: "verified" } : d));
-      }
+      const res = await api.forceVerifyDomain(id, reason.trim());
+      setRows((rs) => (rs || []).map((d) => d.id === id
+        ? { ...d, verify_status: res.verify_status, verify_method: res.verify_method } : d));
+      setOverriding(null); setReason("");
     } catch (e: any) {
-      setErr(e?.message || "Could not force verify domain.");
-    }
+      setErr(e?.message || "Could not force-verify that domain.");
+    } finally { setBusy(false); }
   }
 
   return (
@@ -66,7 +76,13 @@ export default function Domains() {
                     <td data-label="Domain" className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{d.url}</td>
                     <td data-label="Category" className="text-secondary small">{d.category || "—"}</td>
                     <td data-label="Status">{d.verify_status === "verified"
-                      ? <span className="badge text-bg-success-subtle text-success">Verified</span>
+                      ? (d.verify_method === "steward_override"
+                          // an override is verified, but nobody proved anything —
+                          // say so rather than letting it look DNS-proven
+                          ? <span className="badge text-bg-info-subtle text-info-emphasis"
+                              title="Verified by a programme admin — ownership was not proven">
+                              Verified · override</span>
+                          : <span className="badge text-bg-success-subtle text-success">Verified</span>)
                       : <span className="badge text-bg-warning-subtle">Pending</span>}</td>
                     <td data-label="Latest score">{d.latest_score != null
                       ? <><b>{d.latest_score}</b>{d.latest_band &&
@@ -75,11 +91,46 @@ export default function Domains() {
                     <td data-label="Last audited" className="text-secondary small">{fmtDate(d.last_audited_at)}</td>
                     <td data-label="">{d.verify_status === "verified"
                       ? <Link href={`/audits/new?domain=${d.id}`} className="btn btn-sm btn-link">Audit →</Link>
-                      // carry the id: a bare /domains/new is a blank form, and
-                      // re-registering an existing domain 409s
-                      : <Link href={`/domains/new?domain=${d.id}`} className="btn btn-sm btn-link">Verify →</Link>}</td>
+                      : (<>
+                          {/* carry the id: a bare /domains/new is a blank form,
+                              and re-registering an existing domain 409s */}
+                          <Link href={`/domains/new?domain=${d.id}`} className="btn btn-sm btn-link">Verify →</Link>
+                          {isSteward && (
+                            <button className="btn btn-sm btn-link text-secondary"
+                              onClick={() => { setOverriding(d.id); setReason(""); setErr(""); }}>
+                              Override
+                            </button>
+                          )}
+                        </>)}</td>
                   </tr>
                 ))}
+                {overriding && (
+                  <tr>
+                    <td colSpan={6} className="bg-light">
+                      <div className="p-2">
+                        <label className="form-label small fw-semibold" htmlFor="override-reason">
+                          Why is this domain being verified without proof?
+                        </label>
+                        <div className="text-secondary small mb-2">
+                          Recorded against your account in the audit log, and the domain is marked
+                          as an override rather than DNS-proven.
+                        </div>
+                        <div className="d-flex flex-wrap gap-2 align-items-start">
+                          <input id="override-reason" className="form-control form-control-sm"
+                            style={{ maxWidth: 460 }} value={reason}
+                            placeholder="e.g. DNS held by a third-party vendor; ownership confirmed by letter"
+                            onChange={(e) => setReason(e.target.value)} />
+                          <button className="btn btn-sm btn-primary"
+                            disabled={busy || reason.trim().length < 10}
+                            onClick={() => forceVerify(overriding)}>
+                            {busy ? "Verifying…" : "Force verify"}</button>
+                          <button className="btn btn-sm btn-outline-secondary"
+                            onClick={() => { setOverriding(null); setReason(""); }}>Cancel</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

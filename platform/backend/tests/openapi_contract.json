@@ -276,6 +276,10 @@
     "201",
     "422"
   ],
+  "POST /v1/domains/{domain_id}/force-verify": [
+    "200",
+    "422"
+  ],
   "POST /v1/domains/{domain_id}/verify": [
     "200",
     "422"
