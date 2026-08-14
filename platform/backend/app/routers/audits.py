@@ -132,6 +132,29 @@ def audit_status(task_id: str, user: models.User = Depends(current_user),
     )
 
 
+IN_FLIGHT_STATUSES = ("queued", "crawling", "analyzing", "scoring")
+
+
+@router.post("/audits/{task_id}/cancel", status_code=200)
+def cancel_audit(task_id: str, user: models.User = Depends(current_user),
+                 db: Session = Depends(get_db)):
+    """Cancel an in-progress audit. Sets status to 'cancelled' and records
+    finished_at. The worker will finish its current engine run (best-effort)
+    but the result is discarded — it checks cancelled status before persisting.
+
+    Only the audit's requestor or an admin may cancel."""
+    audit = _owned_audit(db, task_id, user)
+    if audit.status not in IN_FLIGHT_STATUSES:
+        raise HTTPException(status.HTTP_409_CONFLICT,
+                            f"Cannot cancel audit in '{audit.status}' state")
+    from datetime import datetime, timezone
+    audit.status = "cancelled"
+    audit.finished_at = datetime.now(timezone.utc)
+    db.commit()
+    queue.set_status(task_id, "cancelled")
+    return {"task_id": task_id, "status": "cancelled"}
+
+
 @router.get("/audits/{task_id}/report")
 def audit_report(task_id: str, user: models.User = Depends(current_user),
                  db: Session = Depends(get_db)):

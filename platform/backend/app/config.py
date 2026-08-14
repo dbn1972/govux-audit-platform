@@ -73,6 +73,11 @@ class Settings(BaseSettings):
     # The reconciler fails it out so it stops showing as a phantom ahead of
     # everyone else in the public queue position count.
     public_scan_stale_minutes: int = 30
+    # same reconciliation for the main audit worker: an audit stuck in a non-
+    # terminal state past this age has lost its Redis Streams message and will
+    # never complete. The reconciler marks it failed so the domain is unblocked
+    # for re-submission (the idempotency check looks at in-flight statuses).
+    audit_stale_minutes: int = 60
     free_registered_pages: int = 10        # registered users may scan up to this many pages
     free_scan_suffixes: list[str] = [".gov.in", ".nic.in"]  # SSRF/abuse guard
 

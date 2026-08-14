@@ -86,6 +86,12 @@ services:
       GOVUX_S3_BUCKET: ${GOVUX_S3_BUCKET:-govux-reports}
       GOVUX_S3_ACCESS_KEY: ${GOVUX_S3_ACCESS_KEY:-govux}
       GOVUX_S3_SECRET_KEY: ${GOVUX_S3_SECRET_KEY:-govux-secret}
+      # DELIBERATE, PRE-LAUNCH ONLY — kept on by decision, not by oversight.
+      # This disables the SAST-003 guard: /v1/auth/otp/request returns the OTP in
+      # its own response body and it is printed to the server log. The OTP is the
+      # only authentication factor, so while this is set, anyone who can name a
+      # .gov.in address can sign in as it. Must be removed before the platform
+      # holds real departmental data or faces the public internet.
       GOVUX_ALLOW_CONSOLE_OTP: "true"
     depends_on:
       db: { condition: service_healthy }

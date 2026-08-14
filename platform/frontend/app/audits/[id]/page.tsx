@@ -10,6 +10,7 @@ const TERMINAL = new Set(["completed", "failed", "insufficient_evidence", "cance
 
 export default function Running({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<any>({ status: "queued", pages_done: 0, pages_total: 0 });
+  const [cancelling, setCancelling] = useState(false);
 
   // Poll the async job until it completes (WebSocket in production).
   useEffect(() => {
@@ -24,6 +25,15 @@ export default function Running({ params }: { params: { id: string } }) {
     tick();
     return () => { stop = true; };
   }, [params.id]);
+
+  async function cancelAudit() {
+    if (cancelling) return;
+    setCancelling(true);
+    try {
+      await api.cancelAudit(params.id);
+      setStatus((s: any) => ({ ...s, status: "cancelled" }));
+    } catch { setCancelling(false); }
+  }
 
   const idx = STATES.indexOf(status.status);
   const done = status.status === "completed";
@@ -65,11 +75,21 @@ export default function Running({ params }: { params: { id: string } }) {
             </div>
             <Link href="/audits/new" className="btn btn-outline-secondary btn-sm mt-2">Try another audit →</Link>
           </div>
+        ) : status.status === "cancelled" ? (
+          <div className="alert alert-secondary">
+            <b>Audit cancelled.</b>
+            <div className="small mt-1">This audit was cancelled before completion. No score was issued.</div>
+            <Link href="/audits/new" className="btn btn-outline-secondary btn-sm mt-2">Start a new audit →</Link>
+          </div>
         ) : (
           <div className="card shadow-sm"><div className="card-body">
             <div className="d-flex align-items-center gap-2">
               <div className="spinner-border spinner-border-sm text-primary" role="status" />
               <span>Running the engine — Playwright · Lighthouse · axe-core · GIGW rules · responsiveness matrix…</span>
+              <button type="button" className="btn btn-sm btn-outline-danger ms-auto"
+                onClick={cancelAudit} disabled={cancelling}>
+                {cancelling ? "Cancelling…" : "Cancel audit"}
+              </button>
             </div>
           </div></div>
         )}

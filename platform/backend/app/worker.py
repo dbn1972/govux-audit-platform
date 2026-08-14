@@ -9,16 +9,19 @@ persists per-page and per-document coverage, and (for CI) fires a webhook.
 import json
 import os
 import subprocess
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from .database import SessionLocal
 from .config import settings
+from .logging import configure_logging, get_logger
 from . import models
 from sqlalchemy import desc
 from .services import queue, cache
 from .services.scoring import compute_score, compliance_verdict, CATEGORY_WEIGHTS
 from .services import (crux, remediation, pdf_audit, ml_anomaly, design_cv, integrity,
                        settings_store, notify)
+
+logger = get_logger("worker")
 
 ENGINE = os.path.join(os.path.dirname(__file__), "..", "audit_engine", "runner.js")
 COMPAT = os.path.join(os.path.dirname(__file__), "..", "audit_engine", "compat.js")
@@ -58,7 +61,7 @@ def _cross_browser(db, audit, domain_url: str) -> list[dict]:
     try:
         compat = run_compat(domain_url)
     except Exception as exc:
-        print("compat error:", exc)
+        logger.error("compat_error", error=str(exc))
         return findings
     for e in compat.get("engines", []):
         db.add(models.AuditBrowser(
@@ -180,13 +183,20 @@ def process(task_id: str, payload: dict):
             return
 
         # --- deterministic CV design score (replaces the hardcoded design: 70) ---
+        # The engine emits design: 70 as a placeholder; the Python worker overrides
+        # it with a real per-screenshot pixel-analysis score when possible. If the
+        # CV module fails, the engine's placeholder persists — logged explicitly.
         try:
             cv = design_cv.score_from_path(shot)
             if cv is not None:
                 categories["design"] = cv
+                logger.info("design_cv_applied", task_id=task_id, score=cv)
+            else:
+                logger.info("design_cv_null_fallback", task_id=task_id,
+                            fallback=categories.get("design", 70))
             os.path.exists(shot) and os.remove(shot)
         except Exception as exc:
-            print("design-cv error:", exc)
+            logger.warning("design_cv_error", task_id=task_id, error=str(exc))
 
         # --- blend CrUX field data into performance (gap G4) ---
         field = crux.fetch_field_data(payload.get("domain") or domain.url)
@@ -196,6 +206,13 @@ def process(task_id: str, payload: dict):
 
         # --- score (deterministic UX band) ---
         audit.status = "scoring"; db.commit(); queue.set_status(task_id, "scoring")
+
+        # check for cancellation before committing expensive score computation
+        db.refresh(audit)
+        if audit.status == "cancelled":
+            os.path.exists(shot) and os.remove(shot)
+            return
+
         score = compute_score(categories)
 
         for cat, sc in score.categories.items():
@@ -272,7 +289,7 @@ def process(task_id: str, payload: dict):
                               "worth a human review (possible regression)."))
                 db.commit()
         except Exception as exc:
-            print("ml advisory error:", exc)
+            logger.warning("ml_advisory_error", task_id=task_id, error=str(exc))
 
         # a completed audit changes the national/rankings aggregates AND each org's
         # domain list (latest score/band) -> drop their caches
@@ -296,11 +313,13 @@ def process(task_id: str, payload: dict):
                     "overall_score": score.overall, "band": score.band,
                     "compliance_status": comp.status})
             except Exception as exc:  # never fail the audit on a webhook error
-                print("webhook error:", exc)
+                logger.warning("webhook_error", task_id=task_id, error=str(exc))
     except Exception as exc:
         audit = db.get(models.Audit, task_id)
         if audit:
-            audit.status = "failed"; db.commit()
+            audit.status = "failed"
+            audit.finished_at = datetime.now(timezone.utc)
+            db.commit()
             dom = db.get(models.Domain, audit.domain_id)
             if dom:
                 notify.audit_failed(db, audit, dom, str(exc))
@@ -315,15 +334,40 @@ def _handle(entry_id, data):
         process(data["task_id"], json.loads(data["payload"]))
         queue.ack(entry_id)   # ack only on success; failures stay pending for reclaim/DLQ
     except Exception as exc:
-        print("worker error:", exc)
+        logger.error("worker_handle_error", task_id=data.get("task_id"), error=str(exc))
+
+
+# ---------- DB-level reconciler for audits whose Redis message was lost ----------
+IN_FLIGHT_STATUSES = ["queued", "crawling", "analyzing", "scoring"]
+
+
+def reconcile_stale_audits(db):
+    """Fail out audits stuck in a non-terminal state past all reasonable processing
+    time — almost certainly because their Redis Streams message was lost entirely
+    (e.g. a Redis restart or a message that was acked but the process died before
+    committing the DB status). Without this, a lost message leaves the audit row
+    stuck in 'queued' forever, and the per-domain idempotency lock prevents the
+    officer from ever re-submitting."""
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=settings.audit_stale_minutes)
+    stale = (db.query(models.Audit)
+               .filter(models.Audit.status.in_(IN_FLIGHT_STATUSES),
+                       models.Audit.created_at < cutoff)
+               .all())
+    for audit in stale:
+        audit.status = "failed"
+        audit.finished_at = datetime.now(timezone.utc)
+    if stale:
+        db.commit()
+        logger.info("reconciled_stale_audits", count=len(stale))
 
 
 def run():
+    configure_logging()
     queue.ensure_group()
     # unique consumer per replica so horizontal scaling works and a dead consumer's
     # in-flight jobs can be reclaimed by its peers (falls back to PID locally)
     consumer = os.getenv("HOSTNAME") or f"py-worker-{os.getpid()}"
-    print(f"GovUX worker '{consumer}' started; waiting for jobs…")
+    logger.info("worker_started", consumer=consumer)
     ticks = 0
     while True:  # pragma: no cover - long-lived loop
         # periodically reclaim jobs orphaned by crashed workers (and DLQ poison ones)
@@ -331,6 +375,12 @@ def run():
         if ticks % 6 == 0:
             for entry_id, data in queue.reclaim_stale(consumer):
                 _handle(entry_id, data)
+            # DB-level reconciler: catch rows whose Redis message was lost entirely
+            db = SessionLocal()
+            try:
+                reconcile_stale_audits(db)
+            finally:
+                db.close()
         batches = queue.read_jobs(consumer=consumer, count=1, block_ms=5000)
         for _stream, entries in batches or []:
             for entry_id, data in entries:

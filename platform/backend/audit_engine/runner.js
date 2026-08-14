@@ -15,6 +15,7 @@ import { AxeBuilder } from "@axe-core/playwright";
 import { gigwChecks } from "./gigw-rules.js";
 import { detectScript, isIndic, langMatchesScript, readability } from "./lang.js";
 import { UA, UA_DISCLOSED, BOT_TOKEN, BOT_URL, parseRobots, robotsAllows, pathOf } from "./robots.js";
+import { wcagCriterion, gigwId } from "./rules.js";
 
 const clamp = (n, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
 // Budget for time spent WAITING between page loads. We honour whatever
@@ -55,7 +56,7 @@ async function accessibility(page) {
         category: "accessibility",
         severity: v.impact === "critical" ? "critical" : v.impact === "serious" ? "high"
           : v.impact === "moderate" ? "medium" : "low",
-        guideline: (v.tags.find(t => t.startsWith("wcag")) || v.id).toUpperCase(),
+        guideline: wcagCriterion(v.tags) || v.id.toUpperCase(),
         title: v.help,
         element: v.nodes[0]?.target?.join(" ") || "",
         effort: v.impact === "minor" ? "low" : "medium",
@@ -124,7 +125,7 @@ async function gigw(page) {
   const passed = keys.filter(k => checks[k]).length;
   const findings = keys.filter(k => !checks[k]).map(k => ({
     category: "gigw", severity: k === "https" ? "critical" : "medium",
-    guideline: "GIGW", title: `Missing mandatory element: ${k.replace(/_/g, " ")}`, effort: "low",
+    guideline: gigwId(k), title: `Missing mandatory element: ${k.replace(/_/g, " ")}`, effort: "low",
   }));
   return { score: clamp((passed / keys.length) * 100), findings };
 }

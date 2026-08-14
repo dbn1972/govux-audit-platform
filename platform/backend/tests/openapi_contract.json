@@ -242,6 +242,10 @@
     "202",
     "422"
   ],
+  "POST /v1/audits/{task_id}/cancel": [
+    "200",
+    "422"
+  ],
   "POST /v1/audits/{task_id}/review": [
     "200",
     "422"

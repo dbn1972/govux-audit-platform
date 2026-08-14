@@ -73,6 +73,8 @@ export const api = {
   listDomains: () => req("/v1/domains"),
   submitAudit: (domain_id: string, depth: number = 10) =>
     req("/v1/audits", { method: "POST", body: JSON.stringify({ domain_id, depth }) }),
+  cancelAudit: (taskId: string) =>
+    req(`/v1/audits/${taskId}/cancel`, { method: "POST" }),
   listAudits: () => req("/v1/audits"),
   auditStatus: (taskId: string) => req(`/v1/audits/${taskId}`),
   auditReport: (taskId: string) => req(`/v1/audits/${taskId}/report`),

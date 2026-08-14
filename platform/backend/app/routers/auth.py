@@ -43,6 +43,7 @@ def me(user: models.User = Depends(current_user), db: Session = Depends(get_db))
             "unlimited_audits": True,
             "free_pages_per_audit": free_pages,
             "can_request_larger_crawl": True,
+            "studio_enabled": bool(org.studio_enabled) if org else False,
         },
         "org_state_code": org.state_code if org else None,
     }

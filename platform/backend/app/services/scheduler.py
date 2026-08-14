@@ -12,8 +12,11 @@ from datetime import datetime, timedelta, timezone
 
 from ..database import SessionLocal
 from ..config import settings
+from ..logging import configure_logging, get_logger
 from .. import models
 from . import queue
+
+logger = get_logger("scheduler")
 
 CADENCE = {"daily": timedelta(days=1), "weekly": timedelta(weeks=1),
            "monthly": timedelta(days=30)}
@@ -57,15 +60,20 @@ def enqueue_due(db, now: datetime | None = None) -> list[str]:
 
 
 def run(poll_seconds: int = 60):  # pragma: no cover - long-lived loop
-    print("GovUX scheduler started; polling for due monitors…")
+    configure_logging()
+    logger.info("scheduler_started", poll_seconds=poll_seconds)
     while True:
         db = SessionLocal()
         try:
             ids = enqueue_due(db)
             if ids:
-                print(f"scheduler enqueued {len(ids)} audit(s)")
+                # task_ids, not just a count: this is the only record linking a
+                # scheduled run back to the audits it created.
+                logger.info("scheduler_enqueued", count=len(ids), task_ids=ids)
         except Exception as exc:
-            print("scheduler error:", exc)
+            # exc_info so the traceback survives — a bare str() of the exception
+            # loses which query or enqueue actually failed.
+            logger.error("scheduler_error", error=str(exc), exc_info=True)
         finally:
             db.close()
         time.sleep(poll_seconds)

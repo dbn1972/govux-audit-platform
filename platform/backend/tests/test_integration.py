@@ -7,7 +7,13 @@
   * a response-schema contract test for the report endpoint
 
 These exercise real production reliability code that is monkeypatched everywhere else.
+
+NOTE: The real-Redis tests (1 & 2) use `pytest.skip` when Redis is not reachable —
+this is intentional for local dev without Redis running. In CI, the backend job
+provides a Redis service container, so these tests will always run. If they skip
+in CI, something is wrong with the service configuration.
 """
+import os
 import uuid
 
 import pytest
@@ -15,6 +21,9 @@ import pytest
 from app import models, security
 from app.config import settings
 from app.services import queue, cache
+
+# If we're in CI and Redis isn't reachable, that's a CI config bug — fail hard
+_IN_CI = os.getenv("CI") == "true" or os.getenv("GITHUB_ACTIONS") == "true"
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -40,6 +49,8 @@ def test_queue_reclaim_routes_poison_to_dlq_real_redis(monkeypatch):
     try:
         r.ping()
     except Exception:
+        if _IN_CI:
+            pytest.fail("Redis must be reachable in CI — check service container config")
         pytest.skip("real Redis not reachable")
 
     stream = f"test:audits:{uuid.uuid4().hex[:8]}"
@@ -80,6 +91,8 @@ def test_queue_healthy_job_is_reclaimable_not_dlq(monkeypatch):
     try:
         r.ping()
     except Exception:
+        if _IN_CI:
+            pytest.fail("Redis must be reachable in CI — check service container config")
         pytest.skip("real Redis not reachable")
     stream = f"test:audits:{uuid.uuid4().hex[:8]}"
     dlq = stream + ":dlq"

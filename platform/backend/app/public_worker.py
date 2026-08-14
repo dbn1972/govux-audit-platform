@@ -9,10 +9,13 @@ import os
 from datetime import datetime, timedelta, timezone
 
 from .config import settings
+from .logging import configure_logging, get_logger
 from .database import SessionLocal
 from . import models
 from .services import queue, storage, report_pdf
 from .services.scoring import compute_score, CATEGORY_WEIGHTS
+
+logger = get_logger("public_worker")
 from . import worker as audit_worker
 
 
@@ -60,7 +63,7 @@ def process(scan_id: str):
         scan = db.get(models.PublicScan, scan_id)
         if scan:
             scan.status = "failed"; scan.error = str(exc)[:300]; db.commit()
-        print("public-scan error:", exc)
+        logger.error("public_scan_error", scan_id=scan_id, error=str(exc))
     finally:
         db.close()
 
@@ -70,7 +73,7 @@ def _handle(entry_id, data):
         process(data["scan_id"])
         queue.ack_public(entry_id)   # ack only on success; failures stay pending for reclaim/DLQ
     except Exception as exc:
-        print("public worker error:", exc)
+        logger.error("public_worker_handle_error", error=str(exc))
 
 
 def reconcile_stale_scans(db):
@@ -92,16 +95,17 @@ def reconcile_stale_scans(db):
         scan.finished_at = datetime.now(timezone.utc)
     if stale:
         db.commit()
-        print(f"public worker: reconciled {len(stale)} stale scan(s)")
+        logger.info("reconciled_stale_scans", count=len(stale))
 
 
 def run():
+    configure_logging()
     queue.ensure_public_group()
     # unique consumer per replica (falls back to PID locally) so a crashed
     # process's in-flight scan can be reclaimed instead of stalling the
     # single-concurrency queue forever.
     consumer = os.getenv("HOSTNAME") or f"pub-worker-{os.getpid()}"
-    print(f"GovUX public-scan worker '{consumer}' started; one scan at a time…")
+    logger.info("public_worker_started", consumer=consumer)
     ticks = 0
     while True:  # pragma: no cover - long-lived loop
         ticks += 1

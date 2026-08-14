@@ -4,43 +4,52 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, setToken } from "@/lib/api";
 
-type NavGroup = { group: string; steward?: boolean; items: string[][] };
+type NavGroup = { group: string; steward?: boolean; items: NavItem[] };
+type NavItem = string[] & { studio?: boolean };
+
+// Helper to tag an item with metadata (studio entitlement gating)
+function navItem(label: string, href: string, icon: string, opts?: { studio?: boolean }): NavItem {
+  const item = [label, href, icon] as NavItem;
+  if (opts?.studio) item.studio = true;
+  return item;
+}
+
 const NAV: NavGroup[] = [
   { group: "Workspace", items: [
-    ["Dashboard", "/dashboard", "bi-grid"],
-    ["My Domains", "/domains", "bi-globe"],
+    navItem("Dashboard", "/dashboard", "bi-grid"),
+    navItem("My Domains", "/domains", "bi-globe"),
   ]},
   { group: "Audits", items: [
-    ["New Audit", "/audits/new", "bi-play-circle"],
-    ["Audit History", "/audits", "bi-clock-history"],
-    ["Design Studio", "/studio", "bi-magic"],
-    ["Sample Report", "/report", "bi-file-earmark-text"],
+    navItem("New Audit", "/audits/new", "bi-play-circle"),
+    navItem("Audit History", "/audits", "bi-clock-history"),
+    navItem("Design Studio", "/studio", "bi-magic", { studio: true }),
+    navItem("Sample Report", "/report", "bi-file-earmark-text"),
   ]},
   { group: "Assess", items: [
-    ["Manual Review", "/review", "bi-check2-square"],
-    ["External Assessments", "/assessments", "bi-shield-check"],
-    ["Guideline Library", "/library", "bi-book"],
+    navItem("Manual Review", "/review", "bi-check2-square"),
+    navItem("External Assessments", "/assessments", "bi-shield-check"),
+    navItem("Guideline Library", "/library", "bi-book"),
   ]},
   { group: "Account", items: [
-    ["Team & Settings", "/settings", "bi-gear"],
+    navItem("Team & Settings", "/settings", "bi-gear"),
   ]},
   { group: "Steward (MeitY/NIC)", steward: true, items: [
-    ["National Dashboard", "/admin/national", "bi-bank"],
-    ["Approvals", "/admin/approvals", "bi-inbox"],
-    ["Bulk Scan", "/admin/bulk-scan", "bi-collection"],
-    ["Continuous Monitoring", "/admin/monitoring", "bi-arrow-repeat"],
-    ["Estate Discovery", "/admin/discovery", "bi-search"],
-    ["Organisations", "/admin/organisations", "bi-diagram-2"],
-    ["Register Import", "/admin/registry", "bi-upload"],
-    ["Domain Claims", "/admin/domain-claims", "bi-shield-exclamation"],
-    ["Ministries", "/admin/ministries", "bi-building"],
-    ["States & UTs", "/admin/states", "bi-map"],
-    ["League Table", "/admin/league", "bi-trophy"],
-    ["Alerts", "/admin/alerts", "bi-bell"],
-    ["Standards & Rules", "/admin/standards", "bi-sliders"],
-    ["Studio Access", "/admin/studio-access", "bi-key"],
-    ["Configuration", "/admin/config", "bi-gear-wide-connected"],
-    ["Methodology", "/admin/methodology", "bi-diagram-3"],
+    navItem("National Dashboard", "/admin/national", "bi-bank"),
+    navItem("Approvals", "/admin/approvals", "bi-inbox"),
+    navItem("Bulk Scan", "/admin/bulk-scan", "bi-collection"),
+    navItem("Continuous Monitoring", "/admin/monitoring", "bi-arrow-repeat"),
+    navItem("Estate Discovery", "/admin/discovery", "bi-search"),
+    navItem("Organisations", "/admin/organisations", "bi-diagram-2"),
+    navItem("Register Import", "/admin/registry", "bi-upload"),
+    navItem("Domain Claims", "/admin/domain-claims", "bi-shield-exclamation"),
+    navItem("Ministries", "/admin/ministries", "bi-building"),
+    navItem("States & UTs", "/admin/states", "bi-map"),
+    navItem("League Table", "/admin/league", "bi-trophy"),
+    navItem("Alerts", "/admin/alerts", "bi-bell"),
+    navItem("Standards & Rules", "/admin/standards", "bi-sliders"),
+    navItem("Studio Access", "/admin/studio-access", "bi-key"),
+    navItem("Configuration", "/admin/config", "bi-gear-wide-connected"),
+    navItem("Methodology", "/admin/methodology", "bi-diagram-3"),
   ]},
 ];
 
@@ -57,19 +66,25 @@ const IDLE_LOGOUT_AFTER_MS = 20 * 60 * 1000;
 const ACTIVITY_EVENTS = ["mousemove", "keydown", "mousedown", "touchstart", "scroll"] as const;
 
 /** The navigation list — shared by the desktop rail and the mobile drawer.
- *  Steward-only groups are hidden unless the signed-in user is a steward. */
-function NavList({ path, isSteward, onSignOut, onNavigate }:
-  { path: string; isSteward: boolean; onSignOut: () => void; onNavigate?: () => void }) {
+ *  Steward-only groups are hidden unless the signed-in user is a steward.
+ *  Studio item is hidden unless the org has studio_enabled entitlement. */
+function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
+  { path: string; isSteward: boolean; studioEnabled: boolean; onSignOut: () => void; onNavigate?: () => void }) {
   const groups = NAV.filter(g => !g.steward || isSteward);
+  // Filter out studio-gated items when the org doesn't have entitlement
+  const filteredGroups = groups.map(g => ({
+    ...g,
+    items: g.items.filter(item => !item.studio || studioEnabled),
+  }));
   // Longest-prefix wins so only one item highlights: on /audits/new, "New Audit"
   // is active, not the shorter "/audits" (Audit History) that also prefix-matches.
-  const hrefs = groups.flatMap(g => g.items.map(([, href]) => href as string));
+  const hrefs = filteredGroups.flatMap(g => g.items.map(([, href]) => href as string));
   const activeHref = hrefs
     .filter(h => path === h || path.startsWith(h + "/"))
     .sort((a, b) => b.length - a.length)[0];
   return (
     <nav aria-label="Primary">
-      {groups.map(g => (
+      {filteredGroups.map(g => (
         <div key={g.group}>
           <div className="text-secondary text-uppercase fw-bold px-2 pt-3 pb-1" style={{ fontSize: 10.5, letterSpacing: ".04em" }}>{g.group}</div>
           {g.items.map(([label, href, icon]) => {
@@ -147,6 +162,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // who is signed in — drives role-aware nav + route guarding + the avatar
   useEffect(() => { api.me().then(setMe).catch(() => setMe({ is_steward: false })); }, []);
   const isSteward = !!me?.is_steward;
+  const studioEnabled = !!me?.entitlements?.studio_enabled;
   const denied = !!me && !me.is_steward && isStewardRoute(path);
   const initials = ((me?.display_name || me?.email || "").match(/[A-Za-z]+/g) || [])
     .slice(0, 2).map((s: string) => s[0].toUpperCase()).join("") || "GX";
@@ -273,7 +289,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         {/* desktop rail — sticky, self-scrolling, hidden below lg */}
         <aside className="border-end bg-white p-2 d-none d-lg-block flex-shrink-0"
           style={{ width: 236, position: "sticky", top: 60, height: "calc(100vh - 60px)", overflowY: "auto" }}>
-          <NavList path={path} isSteward={isSteward} onSignOut={signOut} />
+          <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={signOut} />
         </aside>
 
         <main className="flex-grow-1" style={{ background: "var(--bs-body-bg)", minWidth: 0 }}>
@@ -309,7 +325,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <i className="bi bi-x-lg" />
             </button>
           </div>
-          <NavList path={path} isSteward={isSteward} onSignOut={signOut} onNavigate={() => setOpen(false)} />
+          <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={signOut} onNavigate={() => setOpen(false)} />
         </div>
       </div>
 

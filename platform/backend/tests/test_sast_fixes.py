@@ -41,6 +41,11 @@ def test_dev_skips_the_assertion(monkeypatch):
 
 # ── SAST-003 ────────────────────────────────────────────────────────────────
 def test_otp_not_logged_in_production(monkeypatch, capsys):
+    # GOVUX_ALLOW_CONSOLE_OTP disables this very guard, and it is set in the
+    # dev container's environment — without clearing it the test silently
+    # asserted the opposite of its name and went green wherever the flag was
+    # absent. A guard test that inverts with ambient env is worse than none.
+    monkeypatch.delenv("GOVUX_ALLOW_CONSOLE_OTP", raising=False)
     monkeypatch.setattr(email.settings, "env", "production")   # provider defaults to console
     ok = email.send_otp("officer@nic.in", "424242")
     out = capsys.readouterr().out
