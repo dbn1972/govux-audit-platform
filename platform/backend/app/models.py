@@ -197,6 +197,11 @@ class Guideline(Base):
     roles = Column(Text)
     source = Column(Text)
     reference = Column(Text)
+    # Platform applicability. Two booleans, not one enum: most guidelines apply
+    # to both, so website/app is not a partition. Default True — an unclassified
+    # guideline must keep appearing rather than vanish from an audit.
+    applies_website = Column(Boolean, nullable=False, server_default=text("true"))
+    applies_app = Column(Boolean, nullable=False, server_default=text("true"))
 
 
 class ReviewItem(Base):

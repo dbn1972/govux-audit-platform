@@ -44,6 +44,27 @@ ENFORCEMENT = {"foundational": "Foundational", "optimizing": "Optimizing",
                "advanced": "Advanced"}
 
 
+# NOTE 5 — "Platform-wise Applicability" holds 16 spellings of three ideas:
+#          semicolon and comma separators, with and without emoji, plus a bare
+#          "All platforms". Substring matching is deliberate — it survives all
+#          of them without enumerating every combination.
+def platforms(raw: str | None) -> tuple[bool, bool]:
+    """(applies_website, applies_app) — unknown/blank means BOTH.
+
+    Defaulting to both is the safe direction: a guideline wrongly shown costs a
+    reviewer a moment, one wrongly hidden is a compliance item silently dropped
+    from an audit.
+    """
+    s = (raw or "").lower()
+    if "all platform" in s:
+        return True, True
+    website = "website" in s or "mobile web" in s
+    app = "mobile app" in s
+    if not (website or app):
+        return True, True
+    return website, app
+
+
 def clean(s: str | None, limit: int | None = None) -> str | None:
     if s is None:
         return None
@@ -104,6 +125,16 @@ def run(reader, dry_run: bool = False) -> dict:
             g.source = "UX4G Mastersheet"
             g.reference = clean(row.get("References"), 500)
             g.version = clean(row.get("Version")) or "v3.0.0"
+            raw_platform = row.get("Platform-wise Applicability")
+            g.applies_website, g.applies_app = platforms(raw_platform)
+            if not (raw_platform or "").strip():
+                stats["platform_missing_defaulted_to_both"] += 1
+            elif g.applies_website and g.applies_app:
+                stats["platform_both"] += 1
+            elif g.applies_website:
+                stats["platform_website_only"] += 1
+            else:
+                stats["platform_app_only"] += 1
 
         if dry_run:
             db.rollback()

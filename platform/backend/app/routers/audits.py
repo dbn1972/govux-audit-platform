@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
-from sqlalchemy import desc, func, text
+from sqlalchemy import and_, desc, func, text
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -332,9 +332,17 @@ class ReviewItemUpdate(BaseModel):
     note: str | None = None
 
 
+# Which normative document a guideline derives from. Matched against the cited
+# reference rather than `family`, because every reviewable row is a UX4G row —
+# what varies, and what a reviewer wants to filter by, is the standard behind it.
+STANDARDS = {"WCAG": "%WCAG%", "GIGW": "%GIGW%", "UX4G": "%UX4G%",
+             "BIS": "%IS 1%", "DPDP": "%DPDP%"}
+
+
 @router.get("/audits/{task_id}/review-checklist")
 def review_checklist(task_id: str, enforcement: str | None = None,
-                     category: str | None = None,
+                     category: str | None = None, standard: str | None = None,
+                     platform: str = "website",
                      user: models.User = Depends(current_user),
                      db: Session = Depends(get_db)):
     """Guidelines a human still has to judge, with any decisions already made.
@@ -342,15 +350,32 @@ def review_checklist(task_id: str, enforcement: str | None = None,
     Deliberately excludes `automation='automated'`: those are decided by the
     engine and re-asking a person to eyeball them is how checklists become
     rubber stamps. Filters exist because the full set is several hundred items —
-    a reviewer works through one category, or the Foundational tier, at a time.
+    a reviewer works through one standard, category or tier at a time.
+
+    Counts are returned per facet (not just the filtered page) so the UI can
+    show how much sits behind each option before it is chosen, the way the UX4G
+    self-check does — otherwise picking a filter is guesswork.
     """
     audit = _owned_audit(db, task_id, user, require_completed=True)
 
-    q = db.query(models.Guideline).filter(models.Guideline.automation.in_(("manual", "assisted")))
+    # Platform scope, mirroring the UX4G self-check's Website/App switch: a
+    # reviewer auditing a website should not be asked about avatar menus or
+    # walkthrough screens. Defaults to website — this platform audits websites.
+    reviewable = models.Guideline.automation.in_(("manual", "assisted"))
+    if platform == "app":
+        reviewable = and_(reviewable, models.Guideline.applies_app.is_(True))
+    elif platform == "website":
+        reviewable = and_(reviewable, models.Guideline.applies_website.is_(True))
+    # any other value = no platform filter (the full corpus)
+    base = db.query(models.Guideline).filter(reviewable)
+
+    q = base
     if enforcement:
         q = q.filter(models.Guideline.enforcement_level == enforcement)
     if category:
         q = q.filter(models.Guideline.category == category)
+    if standard and standard in STANDARDS:
+        q = q.filter(models.Guideline.reference.ilike(STANDARDS[standard]))
     guidelines = q.order_by(models.Guideline.category, models.Guideline.id).all()
 
     decided = {r.guideline_id: r for r in db.query(models.ReviewItem)
@@ -365,12 +390,30 @@ def review_checklist(task_id: str, enforcement: str | None = None,
         "note": decided[g.id].note if g.id in decided else None,
     } for g in guidelines]
 
+    # Facet counts over everything reviewable, independent of the current filter.
+    cat_counts = dict(db.query(models.Guideline.category, func.count())
+                        .filter(reviewable).group_by(models.Guideline.category).all())
+    std_counts = {k: base.filter(models.Guideline.reference.ilike(v)).count()
+                  for k, v in STANDARDS.items()}
+    answered = sum(1 for i in items if i["decision"])
+    failed = sum(1 for i in items if i["decision"] == "fail")
+    passed = sum(1 for i in items if i["decision"] == "pass")
+
     return {
         "task_id": str(audit.id),
-        "categories": sorted({g.category for g in guidelines}),
+        "categories": [{"name": c, "count": n} for c, n in sorted(cat_counts.items())],
+        "standards": [{"name": k, "count": n} for k, n in sorted(std_counts.items())
+                      if n],
+        "platform": platform,
+        "reviewable_total": base.count(),
         "total": len(items),
-        "decided": sum(1 for i in items if i["decision"]),
-        "failed": sum(1 for i in items if i["decision"] == "fail"),
+        "decided": answered,
+        "failed": failed,
+        "passed": passed,
+        # Compliance rating over what has actually been answered — pass rate
+        # excluding N/A, which is what the UX4G self-check reports. None until
+        # something is answered, rather than a misleading 0 or 100.
+        "rating": round(100 * passed / (passed + failed), 1) if (passed + failed) else None,
         "items": items,
     }
 

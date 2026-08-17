@@ -61,8 +61,8 @@ const isStewardRoute = (path: string) =>
 // idle-session policy (separate from the 15-min access token): warn 1 minute
 // before auto sign-out, so an officer who stepped away doesn't lose work
 // silently. Real activity anywhere on the page cancels both timers.
-const IDLE_WARNING_AFTER_MS = 19 * 60 * 1000;
-const IDLE_LOGOUT_AFTER_MS = 20 * 60 * 1000;
+const IDLE_WARNING_AFTER_MS = 29 * 60 * 1000;
+const IDLE_LOGOUT_AFTER_MS = 30 * 60 * 1000;
 const ACTIVITY_EVENTS = ["mousemove", "keydown", "mousedown", "touchstart", "scroll"] as const;
 
 /** The navigation list — shared by the desktop rail and the mobile drawer.
@@ -175,7 +175,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     window.location.assign("/login");
   }
 
-  // --- idle timeout: 19 min inactive -> warn, 20 min -> auto sign-out -------
+  // --- idle timeout: 29 min inactive -> warn, 30 min -> auto sign-out -------
   const [idleWarning, setIdleWarning] = useState(false);
   const [idleSecondsLeft, setIdleSecondsLeft] = useState(60);
   const warnTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -204,7 +204,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // "still there?" — any real activity (including while the warning is up)
   // cancels the pending sign-out and dismisses it. Throttled, not run on
   // every mousemove, since re-arming two timers per event is unnecessary;
-  // a few seconds of slack doesn't matter for a 20-minute idle window.
+  // a few seconds of slack doesn't matter for a 30-minute idle window.
   function onActivity() {
     const now = Date.now();
     if (now - lastResetAt.current < 5000) return;

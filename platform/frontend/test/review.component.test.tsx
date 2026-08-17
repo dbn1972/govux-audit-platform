@@ -20,12 +20,14 @@ const auditStatus = vi.fn();
 const reviewAudit = vi.fn();
 const reviewChecklist = vi.fn();
 const setReviewItem = vi.fn();
+const listAudits = vi.fn();
 vi.mock("@/lib/api", () => ({
   api: {
     auditStatus: (...a: any[]) => auditStatus(...a),
     reviewAudit: (...a: any[]) => reviewAudit(...a),
     reviewChecklist: (...a: any[]) => reviewChecklist(...a),
     setReviewItem: (...a: any[]) => setReviewItem(...a),
+    listAudits: (...a: any[]) => listAudits(...a),
   },
 }));
 
@@ -37,7 +39,10 @@ const AUDIT = {
 };
 
 const checklist = (over: any = {}) => ({
-  task_id: "T1", categories: ["About Us", "Search"], total: 2, decided: 0, failed: 0,
+  task_id: "T1",
+  categories: [{ name: "About Us", count: 8 }, { name: "Search", count: 9 }],
+  standards: [{ name: "GIGW", count: 347 }, { name: "WCAG", count: 217 }],
+  reviewable_total: 379, total: 2, decided: 0, failed: 0, passed: 0, rating: null,
   items: [
     { guideline_id: "UX4G-ABT-001", category: "About Us", title: "Define the organisation's purpose",
       issue: "Purpose or mission is missing.", advice: "Add a concise Our Purpose section.",
@@ -53,11 +58,44 @@ const checklist = (over: any = {}) => ({
 
 describe("Guided manual review", () => {
   beforeEach(() => {
-    [auditStatus, reviewAudit, reviewChecklist, setReviewItem].forEach(m => m.mockReset());
+    [auditStatus, reviewAudit, reviewChecklist, setReviewItem, listAudits]
+      .forEach(m => m.mockReset());
     auditStatus.mockResolvedValue(AUDIT);
     reviewChecklist.mockResolvedValue(checklist());
     setReviewItem.mockResolvedValue({ ok: true });
+    listAudits.mockResolvedValue([]);
     window.history.pushState({}, "", "/review?audit=T1");
+  });
+
+  // Manual Review is a top-level nav item, so it is routinely opened with no
+  // ?audit= at all. It used to answer that with an instruction to go somewhere
+  // else, which reads as a broken page.
+  describe("opened from the nav, with no audit selected", () => {
+    beforeEach(() => window.history.pushState({}, "", "/review"));
+
+    it("offers the completed audits to certify", async () => {
+      listAudits.mockResolvedValue([
+        { task_id: "T9", domain: "ux4g.gov.in", status: "completed", score: 71.4,
+          compliance_status: "partially_compliant", date: "2026-08-16T10:00:00Z" },
+        { task_id: "T8", domain: "half-done.gov.in", status: "running", score: null,
+          compliance_status: null, date: "2026-08-16T09:00:00Z" },
+      ]);
+      render(<Review />);
+      const row = (await screen.findByText("ux4g.gov.in")).closest("li")!;
+      expect(within(row).getByRole("link", { name: "Review" }))
+        .toHaveAttribute("href", "/review?audit=T9");
+      // an audit still running cannot be certified, so it must not be offered
+      expect(screen.queryByText("half-done.gov.in")).not.toBeInTheDocument();
+      expect(reviewChecklist).not.toHaveBeenCalled();
+    });
+
+    it("points at New Audit when there is nothing to certify yet", async () => {
+      listAudits.mockResolvedValue([]);
+      render(<Review />);
+      expect(await screen.findByText(/No completed audits yet/)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "New Audit" }))
+        .toHaveAttribute("href", "/audits/new");
+    });
   });
 
   it("loads the audit's current verdict from the API", async () => {
@@ -77,7 +115,7 @@ describe("Guided manual review", () => {
     expect(screen.getByText("UX4G-ABT-001")).toBeInTheDocument();
     expect(screen.getByText(/Search returns relevant results/)).toBeInTheDocument();
     expect(reviewChecklist).toHaveBeenCalledWith("T1",
-      { enforcement: "Foundational", category: undefined });
+      { enforcement: "Foundational", category: undefined, standard: undefined, platform: "website" });
   });
 
   it("shows the issue and the advice a reviewer needs to judge it", async () => {
@@ -94,7 +132,7 @@ describe("Guided manual review", () => {
     await screen.findByText(/Define the organisation's purpose/);
 
     const row = screen.getByText("UX4G-ABT-001").closest(".list-group-item")!;
-    await userEvent.click(within(row as HTMLElement).getByRole("button", { name: "Fail" }));
+    await userEvent.click(within(row as HTMLElement).getByRole("button", { name: "No" }));
 
     await waitFor(() =>
       expect(setReviewItem).toHaveBeenCalledWith("T1", "UX4G-ABT-001", "fail", undefined));
@@ -105,7 +143,7 @@ describe("Guided manual review", () => {
     await screen.findByText(/Search returns relevant results/);
     const row = screen.getByText("UX4G-SEA-001").closest(".list-group-item")!;
     // an already-failed item comes back selected, not blank
-    expect(within(row as HTMLElement).getByRole("button", { name: "Fail" })).toHaveClass("btn-primary");
+    expect(within(row as HTMLElement).getByRole("button", { name: "No" })).toHaveClass("btn-primary");
     expect(screen.getByText(/top hit unrelated/)).toBeInTheDocument();
   });
 
@@ -135,14 +173,71 @@ describe("Guided manual review", () => {
     await screen.findByText(/Define the organisation's purpose/);
     await userEvent.selectOptions(screen.getByLabelText(/Category/i), "Search");
     await waitFor(() => expect(reviewChecklist).toHaveBeenLastCalledWith("T1",
-      { enforcement: "Foundational", category: "Search" }));
+      { enforcement: "Foundational", category: "Search", standard: undefined, platform: "website" }));
   });
 
-  it("prompts to open from a report when no audit id is present", async () => {
+  it("loads no checklist until an audit is chosen", async () => {
     window.history.pushState({}, "", "/review");   // no ?audit=
     render(<Review />);
-    expect(await screen.findByText(/open this from a completed audit report/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Choose an audit to certify/i)).toBeInTheDocument();
     expect(auditStatus).not.toHaveBeenCalled();
     expect(reviewChecklist).not.toHaveBeenCalled();
+  });
+
+  // Mirrors the UX4G self-health-check: you can see how much sits behind each
+  // filter before choosing it. Without counts, picking one is guesswork.
+  it("shows how many guidelines sit behind each filter option", async () => {
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    const cat = screen.getByLabelText(/Category/i);
+    expect(within(cat as HTMLElement).getByRole("option", { name: "About Us (8)" })).toBeInTheDocument();
+    const std = screen.getByLabelText(/Compliance/i);
+    expect(within(std as HTMLElement).getByRole("option", { name: "GIGW (347)" })).toBeInTheDocument();
+    expect(within(std as HTMLElement).getByRole("option", { name: /All compliances \(379\)/ })).toBeInTheDocument();
+  });
+
+  it("filtering by compliance standard refetches", async () => {
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    await userEvent.selectOptions(screen.getByLabelText(/Compliance/i), "WCAG");
+    await waitFor(() => expect(reviewChecklist).toHaveBeenLastCalledWith("T1",
+      { enforcement: "Foundational", category: undefined, standard: "WCAG", platform: "website" }));
+  });
+
+  it("reports a compliance rating over answered items, ignoring N/A", async () => {
+    reviewChecklist.mockResolvedValue(checklist({ passed: 3, failed: 1, decided: 5, rating: 75 }));
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    expect(screen.getByText(/Compliance rating/)).toBeInTheDocument();
+    expect(screen.getByText("75%")).toBeInTheDocument();
+    // 5 answered but only 4 assessed — the N/A is excluded from the rate
+    expect(screen.getByText(/3 met \/ 4 assessed/)).toBeInTheDocument();
+  });
+
+  it("shows no rating until something has actually been answered", async () => {
+    render(<Review />);   // rating: null
+    await screen.findByText(/Define the organisation's purpose/);
+    expect(screen.queryByText(/Compliance rating/)).not.toBeInTheDocument();
+  });
+
+  it("the rating updates as answers are given, rather than going stale", async () => {
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    const row = screen.getByText("UX4G-ABT-001").closest(".list-group-item")!;
+    await userEvent.click(within(row as HTMLElement).getByRole("button", { name: "Yes" }));
+    // fixture already carries one "fail" -> 1 met of 2 assessed
+    expect(await screen.findByText("50%")).toBeInTheDocument();
+  });
+
+  // A website audit must not ask about avatar menus or walkthrough screens.
+  it("reviews the website by default and refetches when switched to App", async () => {
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    expect(screen.getByRole("button", { name: "Website" })).toHaveAttribute("aria-pressed", "true");
+
+    await userEvent.click(screen.getByRole("button", { name: "Mobile app" }));
+    await waitFor(() => expect(reviewChecklist).toHaveBeenLastCalledWith("T1",
+      { enforcement: "Foundational", category: undefined, standard: undefined, platform: "app" }));
+    expect(screen.getByRole("button", { name: "Mobile app" })).toHaveAttribute("aria-pressed", "true");
   });
 });

@@ -177,7 +177,10 @@ CREATE INDEX idx_page_audit ON audit_pages(audit_id);
 -- ---------- guideline library (checks; feeds RAG + guidance) ----------
 CREATE TABLE guidelines (
     id           TEXT PRIMARY KEY,                   -- e.g. WCAG-1.4.3, UX4G-TC-001
-    family       TEXT NOT NULL,                      -- WCAG | GIGW | UX4G | CWV
+    -- 'UX4G' is exactly the v3.0.0 mastersheet import; handbook principles and
+    -- engine-only rules carry their own family so counts against the published
+    -- guideline set stay exact.
+    family       TEXT NOT NULL,   -- WCAG | GIGW | UX4G | UX4G Handbook | CWV | GovUX
     category     TEXT NOT NULL,
     title        TEXT NOT NULL,
     plain_language TEXT,
@@ -194,10 +197,16 @@ CREATE TABLE guidelines (
     roles             TEXT,                          -- Developer | Designer | Content
     source            TEXT,
     reference         TEXT,
+    -- Platform applicability. Two flags, not one enum: most guidelines apply to
+    -- both, so website/app is not a partition. Default TRUE so an unclassified
+    -- guideline keeps appearing rather than silently dropping out of an audit.
+    applies_website   BOOLEAN NOT NULL DEFAULT TRUE,
+    applies_app       BOOLEAN NOT NULL DEFAULT TRUE,
     embedding    vector(768)                         -- optional, pgvector
 );
 CREATE INDEX ix_guidelines_automation  ON guidelines(automation);
 CREATE INDEX ix_guidelines_enforcement ON guidelines(enforcement_level);
+CREATE INDEX ix_guidelines_platform    ON guidelines(applies_website, applies_app);
 
 -- ---------- guided manual review ----------
 -- One assessor decision per guideline per audit. Without this the review

@@ -103,11 +103,18 @@ def _send_smtp(frm, to, subject, body) -> bool:  # pragma: no cover - needs a re
             print(f"[OTP·smtp-unconfigured] to {to}: {body}")
         return False
     msg = MIMEText(body); msg["Subject"] = subject; msg["From"] = frm; msg["To"] = to
-    with smtplib.SMTP(host, port, timeout=15) as s:
-        s.starttls()
-        if user:
-            s.login(user, pw)
-        s.sendmail(frm, [to], msg.as_string())
+    # Port 465 uses implicit SSL (SMTP_SSL); port 587 and others use STARTTLS.
+    if port == 465:
+        with smtplib.SMTP_SSL(host, port, timeout=15) as s:
+            if user:
+                s.login(user, pw)
+            s.sendmail(frm, [to], msg.as_string())
+    else:
+        with smtplib.SMTP(host, port, timeout=15) as s:
+            s.starttls()
+            if user:
+                s.login(user, pw)
+            s.sendmail(frm, [to], msg.as_string())
     return True
 
 

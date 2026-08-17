@@ -83,10 +83,14 @@ export const api = {
       body: JSON.stringify({ approved, notes }) }),
   // guided manual review: the guidelines automation can't decide, plus any
   // decisions already recorded against this audit
-  reviewChecklist: (taskId: string, p: { enforcement?: string; category?: string } = {}) => {
+  reviewChecklist: (taskId: string,
+                    p: { enforcement?: string; category?: string; standard?: string;
+                         platform?: string } = {}) => {
     const qs = new URLSearchParams();
     if (p.enforcement) qs.set("enforcement", p.enforcement);
     if (p.category) qs.set("category", p.category);
+    if (p.standard) qs.set("standard", p.standard);
+    if (p.platform) qs.set("platform", p.platform);
     const s = qs.toString();
     return req(`/v1/audits/${taskId}/review-checklist${s ? `?${s}` : ""}`);
   },

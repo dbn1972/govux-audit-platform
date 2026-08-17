@@ -376,6 +376,22 @@ def test_every_engine_guideline_id_has_actionable_guidance(db):
     assert not empty, f"guideline rows exist but carry no advice: {empty}"
 
 
+# `family='UX4G'` is how the library is counted, exported and reconciled against
+# the published UX4G self-health-check. Three Design Handbook principles used to
+# be seeded into that family, so every one of those totals read three too high.
+def test_the_ux4g_family_holds_only_mastersheet_rows(db):
+    from app import models
+    from app import seed_engine_guidelines
+    seed_engine_guidelines.run()
+    # Asserted per-id rather than as "family UX4G is empty of non-sheet rows":
+    # other suites seed UX4G-* fixtures into this shared schema, and a whole-
+    # family assertion would fail on their rows instead of on a real regression.
+    handbook = ["UX4G-consistent-components", "UX4G-lang", "UX4G-mobile-first"]
+    families = {gid: db.get(models.Guideline, gid).family for gid in handbook}
+    assert families == {gid: "UX4G Handbook" for gid in handbook}, (
+        f"handbook principles must not sit in family='UX4G': {families}")
+
+
 def test_engine_guidelines_never_enter_the_human_review_checklist(db):
     from app import models
     from app import seed_engine_guidelines

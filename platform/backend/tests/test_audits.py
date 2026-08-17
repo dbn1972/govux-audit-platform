@@ -568,3 +568,92 @@ def test_another_orgs_audit_checklist_is_not_reachable(client, ctx, verified_dom
     _guideline(db, "UX4G-FENCE-1")
     assert client.put(f"/v1/audits/{a.id}/review-checklist/UX4G-FENCE-1",
                       headers=hdrs, json={"decision": "pass"}).status_code == 404
+
+
+def test_checklist_returns_facet_counts_and_a_standard_filter(client, ctx, verified_domain, db):
+    from app import models
+    a = _completed_audit(db, ctx, verified_domain)
+    g1 = _guideline(db, "UX4G-STD-WCAG", automation="manual")
+    g1.category, g1.reference = "Accessibility", "WCAG 2.2 SC 1.4.3"
+    g2 = _guideline(db, "UX4G-STD-GIGW", automation="manual")
+    g2.category, g2.reference = "Trust & Credibility", "GIGW 3.0 – Section 5.3.2"
+    db.commit()
+
+    body = client.get(f"/v1/audits/{a.id}/review-checklist", headers=ctx["headers"]).json()
+    # counts are over everything reviewable, not just the current page — the UI
+    # shows them on the filter options before one is chosen
+    cats = {c["name"]: c["count"] for c in body["categories"]}
+    assert cats.get("Accessibility", 0) >= 1
+    stds = {s["name"]: s["count"] for s in body["standards"]}
+    assert stds.get("WCAG", 0) >= 1 and stds.get("GIGW", 0) >= 1
+    assert body["reviewable_total"] >= 2
+
+    only_wcag = client.get(f"/v1/audits/{a.id}/review-checklist?standard=WCAG",
+                           headers=ctx["headers"]).json()
+    ids = {i["guideline_id"] for i in only_wcag["items"]}
+    assert "UX4G-STD-WCAG" in ids and "UX4G-STD-GIGW" not in ids
+
+
+def test_compliance_rating_ignores_not_applicable(client, ctx, verified_domain, db):
+    a = _completed_audit(db, ctx, verified_domain)
+    for gid, decision in (("UX4G-R1", "pass"), ("UX4G-R2", "pass"),
+                          ("UX4G-R3", "fail"), ("UX4G-R4", "not_applicable")):
+        _guideline(db, gid)
+        client.put(f"/v1/audits/{a.id}/review-checklist/{gid}",
+                   headers=ctx["headers"], json={"decision": decision})
+
+    body = client.get(f"/v1/audits/{a.id}/review-checklist", headers=ctx["headers"]).json()
+    # 2 met of 3 assessed = 66.7%; the N/A is answered but not assessable, so
+    # counting it either way would misstate the rating
+    assert body["decided"] >= 4
+    assert body["passed"] >= 2 and body["failed"] >= 1
+    assert body["rating"] == round(100 * body["passed"] / (body["passed"] + body["failed"]), 1)
+
+
+def test_rating_is_none_before_anything_is_answered(client, ctx, verified_domain, db):
+    a = _completed_audit(db, ctx, verified_domain)
+    _guideline(db, "UX4G-R-NONE")
+    body = client.get(f"/v1/audits/{a.id}/review-checklist", headers=ctx["headers"]).json()
+    # not 0 and not 100 — an unanswered checklist has no rating to report
+    assert body["rating"] is None
+
+
+def test_the_checklist_is_scoped_to_the_platform_being_reviewed(client, ctx, verified_domain, db):
+    # The UX4G self-check renders one platform at a time — its published Website
+    # view is 354 of the mastersheet's 412, the rest being app-only patterns.
+    # Without this a reviewer auditing a site is asked about avatar menus.
+    from app import models
+    a = _completed_audit(db, ctx, verified_domain)
+    web = _guideline(db, "UX4G-PLAT-WEB"); web.applies_website, web.applies_app = True, False
+    app = _guideline(db, "UX4G-PLAT-APP"); app.applies_website, app.applies_app = False, True
+    both = _guideline(db, "UX4G-PLAT-BOTH"); both.applies_website, both.applies_app = True, True
+    db.commit()
+
+    def ids(qs=""):
+        r = client.get(f"/v1/audits/{a.id}/review-checklist{qs}", headers=ctx["headers"])
+        return {i["guideline_id"] for i in r.json()["items"]}
+
+    site = ids()                       # website is the default — this audits websites
+    assert "UX4G-PLAT-WEB" in site and "UX4G-PLAT-BOTH" in site
+    assert "UX4G-PLAT-APP" not in site
+
+    mobile = ids("?platform=app")
+    assert "UX4G-PLAT-APP" in mobile and "UX4G-PLAT-BOTH" in mobile
+    assert "UX4G-PLAT-WEB" not in mobile
+
+
+def test_a_guideline_with_unknown_platform_is_never_hidden(client, ctx, verified_domain, db):
+    # Defaults are TRUE both ways on purpose: a guideline wrongly shown costs a
+    # reviewer a moment, one wrongly hidden is a compliance item silently
+    # dropped from an audit.
+    from app import models
+    a = _completed_audit(db, ctx, verified_domain)
+    g = models.Guideline(id="UX4G-PLAT-UNSET", family="UX4G", category="Task Orientation",
+                         title="Unclassified", automation="manual")
+    db.add(g); db.commit()
+    db.refresh(g)
+    assert g.applies_website is True and g.applies_app is True
+
+    for qs in ("", "?platform=app"):
+        r = client.get(f"/v1/audits/{a.id}/review-checklist{qs}", headers=ctx["headers"])
+        assert "UX4G-PLAT-UNSET" in {i["guideline_id"] for i in r.json()["items"]}

@@ -464,3 +464,131 @@ def test_a_new_account_sees_only_its_own_estate(client, db, monkeypatch):
 
     urls = {d["url"] for d in client.get("/v1/domains", headers=hdrs).json()}
     assert urls == {"mine-only.gov.in"}
+
+
+# ── server-side idle timeout ─────────────────────────────────────────────────
+# The 30-minute timer in AppShell is client-side only: it stops when the tab
+# closes, and disabling JS bypassed it entirely, leaving the 60-day refresh
+# cookie free to mint a new session hours later. These pin the server half.
+
+def _age_session(db, cookie_holder, seconds: int):
+    """Backdate the live session's last rotation to simulate idleness."""
+    from app import models
+    from datetime import datetime, timezone, timedelta
+    s = (db.query(models.Session).filter(models.Session.revoked_at.is_(None))
+           .order_by(models.Session.created_at.desc()).first())
+    s.rotated_at = datetime.now(timezone.utc) - timedelta(seconds=seconds)
+    db.commit()
+    return s
+
+
+def _signed_in(client, monkeypatch, email="idle.user@nic.in"):
+    monkeypatch.setattr(security, "new_otp", lambda: "123456")
+    client.post("/v1/auth/otp/request", json={"email": email})
+    r = client.post("/v1/auth/otp/verify",
+                    json={"email": email, "code": "123456", "device_pubkey": "pk", "trust_device": True})
+    assert r.status_code == 200
+    client.cookies.set("govux_rt", r.cookies["govux_rt"])
+    return r
+
+
+def test_refresh_is_refused_after_the_idle_window(client, db, monkeypatch):
+    _signed_in(client, monkeypatch, "idle.expired@nic.in")
+    _age_session(db, client, settings.idle_timeout_seconds + 60)
+
+    r = client.post("/v1/auth/refresh")
+    assert r.status_code == 401
+    assert "inactivity" in r.json()["detail"].lower()
+
+
+def test_refresh_still_works_inside_the_idle_window(client, db, monkeypatch):
+    _signed_in(client, monkeypatch, "idle.active@nic.in")
+    # idle for most of the window, but not past it
+    _age_session(db, client, settings.idle_timeout_seconds - 120)
+
+    r = client.post("/v1/auth/refresh")
+    assert r.status_code == 200 and r.json()["access_token"]
+
+
+def test_the_idle_window_exceeds_the_access_token_lifetime(client):
+    # An active browser only refreshes when its access token expires. If the
+    # idle window were shorter than that, a user who is still working would be
+    # signed out purely for not having crossed a token boundary.
+    assert settings.idle_timeout_seconds >= settings.access_ttl_seconds
+
+
+def test_an_idle_timeout_does_not_kill_the_whole_session_family(client, db, monkeypatch):
+    # Timing out is not theft: the family must survive so a fresh sign-in on the
+    # same device works normally, rather than the user hitting "session revoked".
+    from app import models
+    _signed_in(client, monkeypatch, "idle.family@nic.in")
+    sess = _age_session(db, client, settings.idle_timeout_seconds + 60)
+    family = sess.family_id
+
+    assert client.post("/v1/auth/refresh").status_code == 401
+
+    killed = (db.query(models.Session)
+                .filter(models.Session.family_id == family,
+                        models.Session.revoked_at.isnot(None)).count())
+    assert killed == 1, "only the idle session should be revoked, not the family"
+
+
+# ── seed reconciliation ──────────────────────────────────────────────────────
+# The seed used to bail out the moment steward@indiapost.gov.in existed, so the
+# one case worth fixing — a deployment where that address had already been
+# created by self-service sign-in, in its own auto-provisioned org — was the
+# exact case it refused to touch. Local and deployed drifted apart as a result.
+
+def test_seed_reconciles_a_self_service_account_into_the_demo_org(db):
+    from app import models, seed as demo_seed
+    demo_seed.seed()
+
+    # simulate the deployed state: same address, self-service defaults, own org
+    stray = models.Organisation(name="stray org", org_type="department")
+    db.add(stray); db.flush()
+    u = db.query(models.User).filter(models.User.email == demo_seed.STEWARD_EMAIL).one()
+    u.org_id, u.role, u.display_name = stray.id, "owner", "steward"
+    db.commit()
+
+    stats = demo_seed.seed()
+
+    db.expire_all()
+    u = db.query(models.User).filter(models.User.email == demo_seed.STEWARD_EMAIL).one()
+    org = db.get(models.Organisation, u.org_id)
+    assert org.name == demo_seed.ORG_NAME
+    assert u.role == "programme_admin"
+    assert u.display_name == "MeitY/NIC Steward"
+    assert stats["users_updated"] >= 1
+
+
+def test_seeding_twice_creates_nothing_the_second_time(db):
+    from app import seed as demo_seed
+    demo_seed.seed()
+    again = demo_seed.seed()
+    assert again["users_created"] == 0
+    assert again["domains_created"] == 0
+    assert again["schedules_created"] == 0
+    assert again["discovered_created"] == 0
+    assert again["org"] == "existing"
+
+
+def test_seed_never_steals_a_domain_another_org_has_proven(db):
+    from app import models, seed as demo_seed
+    # DOMAINS[1], not [0]: the seed hangs a monitoring schedule off the first
+    # domain, and clearing it would trip that foreign key rather than test this.
+    url = demo_seed.DOMAINS[1][0]
+    # Start from no claim on this URL, whatever earlier tests in this file did:
+    # a verified row already exists once the seed has run, and uq_domain_verified_url
+    # (correctly) forbids a second verified claim on the same host.
+    db.query(models.Domain).filter(models.Domain.url == url).delete()
+    other = models.Organisation(name="Someone Else", org_type="department")
+    db.add(other); db.flush()
+    db.add(models.Domain(org_id=other.id, url=url, tld="gov.in",
+                         verify_status="verified"))
+    db.commit()
+
+    demo_seed.seed()
+
+    db.expire_all()
+    d = db.query(models.Domain).filter(models.Domain.url == url).one()
+    assert d.org_id == other.id, "a verified claim must never be reassigned by a seed"

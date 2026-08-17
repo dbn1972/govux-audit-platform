@@ -36,18 +36,18 @@ beforeEach(() => {
 });
 
 describe("AppShell idle timeout", () => {
-  it("shows the 'still there?' warning after 19 minutes of inactivity", async () => {
+  it("shows the 'still there?' warning after 29 minutes of inactivity", async () => {
     await mountSignedIn();
     expect(screen.queryByText(/still there/i)).not.toBeInTheDocument();
 
-    await act(async () => { vi.advanceTimersByTime(19 * MIN); });
+    await act(async () => { vi.advanceTimersByTime(29 * MIN); });
     expect(screen.getByText(/still there/i)).toBeInTheDocument();
     expect(logout).not.toHaveBeenCalled();
   });
 
-  it("auto signs out one minute after the warning (20 min total idle)", async () => {
+  it("auto signs out one minute after the warning (30 min total idle)", async () => {
     await mountSignedIn();
-    await act(async () => { vi.advanceTimersByTime(19 * MIN); });
+    await act(async () => { vi.advanceTimersByTime(29 * MIN); });
     expect(screen.getByText(/still there/i)).toBeInTheDocument();
 
     await act(async () => { vi.advanceTimersByTime(MIN); });
@@ -55,20 +55,20 @@ describe("AppShell idle timeout", () => {
     expect(setToken).toHaveBeenCalledWith(null);
   });
 
-  it("real activity before 19 minutes cancels the pending warning", async () => {
+  it("real activity before 29 minutes cancels the pending warning", async () => {
     await mountSignedIn();
     await act(async () => { vi.advanceTimersByTime(10 * MIN); });
     await act(async () => { window.dispatchEvent(new Event("mousedown")); });
 
-    // 9 more minutes puts us at the ORIGINAL 19-min mark, which is now cancelled
-    await act(async () => { vi.advanceTimersByTime(9 * MIN); });
+    // 19 more minutes puts us at the ORIGINAL 29-min mark, which is now cancelled
+    await act(async () => { vi.advanceTimersByTime(19 * MIN); });
     expect(screen.queryByText(/still there/i)).not.toBeInTheDocument();
     expect(logout).not.toHaveBeenCalled();
   });
 
   it("'Stay signed in' dismisses the warning, re-arms the timer, and touches the API", async () => {
     await mountSignedIn();
-    await act(async () => { vi.advanceTimersByTime(19 * MIN); });
+    await act(async () => { vi.advanceTimersByTime(29 * MIN); });
     expect(screen.getByText(/still there/i)).toBeInTheDocument();
     me.mockClear();
 
@@ -76,14 +76,14 @@ describe("AppShell idle timeout", () => {
     expect(screen.queryByText(/still there/i)).not.toBeInTheDocument();
     expect(me).toHaveBeenCalledTimes(1);   // proactive touch, refreshes an expired access token
 
-    // the original 20-min sign-out mark passes with no effect — the timer was re-armed
+    // the original 30-min sign-out mark passes with no effect — the timer was re-armed
     await act(async () => { vi.advanceTimersByTime(MIN); });
     expect(logout).not.toHaveBeenCalled();
   });
 
   it("'Sign out now' on the warning signs out immediately, without waiting out the countdown", async () => {
     await mountSignedIn();
-    await act(async () => { vi.advanceTimersByTime(19 * MIN); });
+    await act(async () => { vi.advanceTimersByTime(29 * MIN); });
     await act(async () => { screen.getByRole("button", { name: /sign out now/i }).click(); });
     expect(logout).toHaveBeenCalledTimes(1);
   });

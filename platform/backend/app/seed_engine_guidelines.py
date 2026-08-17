@@ -343,7 +343,12 @@ CWV = [
      ""),
 ]
 
-UX4G_LEGACY = [
+# Principles from the UX4G Design Handbook, NOT rows of the v3.0.0 mastersheet.
+# They sit in their own family so `family='UX4G'` means exactly the 412 imported
+# guidelines: counts, exports and the reconciliation against the published
+# self-health-check all key off that family, and three extras hiding inside it
+# made every one of those totals read three too high.
+UX4G_HANDBOOK = [
     ("UX4G-consistent-components", "Design", "Consistent Design Tokens & Components",
      "Components and styling are inconsistent across the site, so citizens have to relearn the "
      "interface page by page.",
@@ -370,7 +375,8 @@ def run() -> dict[str, int]:
     db = SessionLocal()
     try:
         groups = [("WCAG", "WCAG 2.2", WCAG), ("GIGW", "GIGW 3.0", GIGW),
-                  ("CWV", "Core Web Vitals", CWV), ("UX4G", "UX4G", UX4G_LEGACY),
+                  ("CWV", "Core Web Vitals", CWV),
+                  ("UX4G Handbook", "UX4G Design Handbook", UX4G_HANDBOOK),
                   ("GovUX", "GovUX engine", ENGINE)]
         for family, source, rows in groups:
             for gid, category, title, issue, advice, good in rows:

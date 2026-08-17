@@ -428,10 +428,15 @@ def refresh_token(request: Request, response: Response, db: Session = Depends(ge
     # "win", each minting its own rotation — and the next one to present the
     # now-already-revoked original token tripped reuse-detection below and
     # killed the whole family, including the sibling sessions just issued.
+    # Idle window is part of the claim condition, not a check afterwards: the
+    # UPDATE overwrites rotated_at, and RETURNING yields the NEW value, so by
+    # the time we could inspect it the evidence of idleness is gone.
+    idle_cutoff = now - timedelta(seconds=settings.idle_timeout_seconds)
     claimed = db.execute(
         update(models.Session)
         .where(models.Session.refresh_token_hash == rt_hash,
-               models.Session.revoked_at.is_(None))
+               models.Session.revoked_at.is_(None),
+               models.Session.rotated_at > idle_cutoff)
         .values(revoked_at=now, rotated_at=now)
         .returning(models.Session.user_id, models.Session.device_id,
                    models.Session.family_id)
@@ -448,6 +453,15 @@ def refresh_token(request: Request, response: Response, db: Session = Depends(ge
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid session")
         if sess.expires_at < now:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Session expired")
+        # Idle-expired, checked BEFORE the reuse logic below: a live session
+        # that simply sat unused is not a stolen credential, so it must not
+        # cascade-kill the family — and the user deserves to be told they timed
+        # out rather than that their session was revoked.
+        if sess.revoked_at is None and sess.rotated_at <= idle_cutoff:
+            sess.revoked_at = now
+            db.commit()
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED,
+                                "Session timed out after inactivity — please sign in again")
         if sess.revoked_at is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid session")   # lost the claim race unexpectedly
         # A row's revocation can come from three places: our own rotation

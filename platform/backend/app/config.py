@@ -40,6 +40,15 @@ class Settings(BaseSettings):
     # right after a reload) rather than genuine reuse/theft, which cascades and
     # kills the whole session family. Standard refresh-token-rotation mitigation.
     refresh_reuse_grace_seconds: int = 10
+    # Idle-session policy, enforced on the SERVER. The 30-minute timer in
+    # AppShell is a courtesy — it only runs while a tab is open, so closing the
+    # browser and returning hours later would otherwise mint a fresh session
+    # straight off the 60-day refresh cookie, and disabling JS bypassed the
+    # timeout entirely. A session whose last rotation is older than this is
+    # dead regardless of what the client does. Must stay >= access_ttl_seconds:
+    # an active browser only rotates when its access token expires, so a window
+    # shorter than that would sign out users who are still working.
+    idle_timeout_seconds: int = 30 * 60           # 30 min
     otp_ttl_seconds: int = 5 * 60                 # 5 min
     otp_max_attempts: int = 5
     allowed_email_suffixes: list[str] = [".gov.in", ".nic.in"]
