@@ -48,6 +48,39 @@ pipeline {
             }
         }
 
+        stage('Post-Deploy Config') {
+            steps {
+                script {
+                    // Configure SMTP settings directly in the database.
+                    // This breaks the chicken-and-egg: can't sign in to configure SMTP,
+                    // can't get OTP without SMTP configured.
+                    def cmd = """cd ${COMPOSE_DIR} && docker compose -f docker-compose.prod.yml exec -T db psql -U \\\${POSTGRES_USER} -d \\\${POSTGRES_DB} -c "
+INSERT INTO app_settings (key, value) VALUES
+  ('email_provider', 'smtp'),
+  ('email_from', 'support.ux4g@digitalindia.gov.in'),
+  ('smtp_host', 'smtp.mgovcloud.in'),
+  ('smtp_port', '465'),
+  ('smtp_user', 'support.ux4g@digitalindia.gov.in')
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
+" """
+                    ssmRunAndWait(cmd, 30)
+
+                    // SMTP password is encrypted at rest via Fernet in the app layer.
+                    // Insert it through the API's own encryption path by exec-ing into
+                    // the api container (which has the GOVUX_SECRET_KEY for Fernet).
+                    def pwdCmd = """cd ${COMPOSE_DIR} && docker compose -f docker-compose.prod.yml exec -T api python -c "
+from app.services import settings_store
+from app.database import SessionLocal
+db = SessionLocal()
+settings_store.set_value('smtp_password', 'AK5eP44DE3u8', db, user_id=None)
+db.close()
+print('smtp_password configured (encrypted)')
+" """
+                    ssmRunAndWait(pwdCmd, 30)
+                }
+            }
+        }
+
         stage('Health Check') {
             steps {
                 script {
