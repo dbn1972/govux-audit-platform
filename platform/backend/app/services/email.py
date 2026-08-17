@@ -62,6 +62,13 @@ def send_otp(email: str, code: str) -> bool:
             log.error("email_provider=console in production — OTP NOT sent and NOT logged. "
                       "Configure smtp/api. (to=%s)", email)
             return False
+        if getattr(settings, "env", "dev") == "production":
+            # Reachable only via GOVUX_ALLOW_CONSOLE_OTP. The caller gets a
+            # success and the user gets no mail, so the one place this is
+            # visible at all is here — say it plainly rather than logging the
+            # code as though delivery had happened.
+            log.warning("email_provider=console on a PRODUCTION instance — the code below was "
+                        "written to this log and NOT emailed. Configure smtp/api. (to=%s)", email)
         log.info("[OTP·console] to %s: %s", email, code)
         print(f"[OTP·console] to {email}: {code}")   # dev only
         return True

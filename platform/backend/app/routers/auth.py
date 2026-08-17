@@ -311,7 +311,16 @@ def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db
     )
     db.add(otp)
     db.commit()
-    email_svc.send_otp(email, code)   # provider chosen at runtime via admin config
+    sent = email_svc.send_otp(email, code)   # provider chosen at runtime via admin config
+    if not sent:
+        # This used to answer 202 whatever happened downstream, because all it
+        # really knew was that it had written a code row. An instance with no mail
+        # provider configured was indistinguishable from a healthy one from the
+        # client's side — which is exactly how a deployment can look like it is
+        # signing people in while delivering nothing. The failure is provider-wide
+        # and identical for every address, so saying so enumerates no accounts.
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY,
+                            "Could not send the sign-in code. Please contact the administrator.")
     resp = {"message": "OTP sent", "email": email}
     # Local dev only: echo the code so the browser console and the e2e specs can
     # read it back. GOVUX_ALLOW_CONSOLE_OTP used to widen this to production too,

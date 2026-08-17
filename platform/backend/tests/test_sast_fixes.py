@@ -70,6 +70,25 @@ def test_otp_logged_in_production_with_allow_env(monkeypatch, capsys):
     assert ok is True and "777777" in out
 
 
+def test_otp_request_reports_a_delivery_failure(client, monkeypatch):
+    """202 used to mean "a code row exists", not "a mail went out". An instance
+    with no working provider looked healthy from the client while delivering
+    nothing to anyone."""
+    monkeypatch.setattr("app.services.email.send_otp", lambda *a, **k: False)
+    r = client.post("/v1/auth/otp/request", json={"email": "n.officer@nic.in"})
+    assert r.status_code == 502
+    # identical for every address, so it tells an attacker nothing about who exists
+    assert "n.officer" not in r.text
+
+
+def test_console_provider_on_a_production_instance_warns(monkeypatch, caplog):
+    monkeypatch.setenv("GOVUX_ALLOW_CONSOLE_OTP", "true")   # the only way to reach this
+    monkeypatch.setattr(email.settings, "env", "production")
+    with caplog.at_level("WARNING", logger="govux.email"):
+        assert email.send_otp("officer@nic.in", "246810") is True
+    assert any("NOT emailed" in r.message for r in caplog.records), caplog.text
+
+
 def test_prod_compose_does_not_set_the_console_otp_escape_hatch():
     """It was set for months while there was no working mail path, and every
     guard in this file is a no-op while it is: it turns _is_prod() off, which
