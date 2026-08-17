@@ -37,6 +37,25 @@ def optional_user(
         return None
 
 
+def owned_domain(db: Session, domain_id, user: models.User) -> models.Domain:
+    """Load a domain the caller's organisation owns, else 404.
+
+    404 rather than 403 on a cross-org hit, so this never confirms that another
+    organisation's domain id exists. super_admin is the deliberate exception —
+    platform stewards act across the estate.
+
+    Lives here rather than in one router because it did not: routers/audits.py
+    had a private copy and applied it correctly, while monitoring.py and
+    scan_requests.py each loaded the domain by id with no ownership check at
+    all. That let an account in an unrelated organisation schedule recurring
+    audits against a department's site. One shared helper, used everywhere.
+    """
+    domain = db.get(models.Domain, domain_id)
+    if not domain or (user.role != "super_admin" and domain.org_id != user.org_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
+    return domain
+
+
 def require_role(*roles: str):
     def _dep(user: models.User = Depends(current_user)) -> models.User:
         if roles and user.role not in roles:

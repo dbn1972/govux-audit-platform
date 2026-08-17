@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from .. import models
-from ..deps import current_user, require_role
+from ..deps import current_user, require_role, owned_domain
 from ..schemas import ScheduleCreate, DiscoveryScan
 from ..services import discovery
 
@@ -16,9 +16,9 @@ router = APIRouter(prefix="/v1", tags=["monitoring"])
 @router.post("/schedules", status_code=201)
 def create_schedule(body: ScheduleCreate, user: models.User = Depends(current_user),
                     db: Session = Depends(get_db)):
-    domain = db.get(models.Domain, body.domain_id)
-    if not domain:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
+    # Ownership, not just existence: this used to load the domain by id alone, so
+    # anyone could put a recurring depth-50 crawl on another department's site.
+    domain = owned_domain(db, body.domain_id, user)
     if body.cadence not in ("daily", "weekly", "monthly"):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "cadence must be daily|weekly|monthly")
     sch = models.Schedule(domain_id=domain.id, cadence=body.cadence,
@@ -44,6 +44,10 @@ def delete_schedule(schedule_id: str, user: models.User = Depends(current_user),
     sch = db.get(models.Schedule, schedule_id)
     if not sch:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Schedule not found")
+    # This checked nothing but existence, so any signed-in user could delete any
+    # schedule by id and silently switch off another ministry's monitoring. The
+    # listing above was already org-fenced — only the delete was open.
+    owned_domain(db, sch.domain_id, user)
     db.delete(sch)
     db.commit()
 

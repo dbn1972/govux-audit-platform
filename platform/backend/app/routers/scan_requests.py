@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from ..database import get_db
 from ..config import settings
 from .. import models
-from ..deps import current_user, require_role
+from ..deps import current_user, require_role, owned_domain
 from ..services import audit_log, notify
 
 router = APIRouter(prefix="/v1/scan-requests", tags=["quota"])
@@ -40,9 +40,10 @@ def create_request(body: RequestCreate, user: models.User = Depends(current_user
     if body.requested_pages <= settings.free_registered_pages:
         raise HTTPException(status.HTTP_400_BAD_REQUEST,
                             f"Up to {settings.free_registered_pages} pages need no approval.")
-    domain = db.get(models.Domain, body.domain_id)
-    if not domain:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
+    # Existence-only lookup let a caller raise a quota request against another
+    # organisation's domain — noise in the steward approvals queue, and a probe
+    # for which domain ids exist.
+    domain = owned_domain(db, body.domain_id, user)
     r = models.ScanRequest(user_id=user.id, domain_id=body.domain_id,
                            requested_pages=body.requested_pages, reason=body.reason, status="pending")
     db.add(r); db.commit()

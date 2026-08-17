@@ -5,6 +5,7 @@ of domains belonging to their own organisation (super_admin sees all). Cross-org
 access returns 404 (not 403) so it never confirms that a task_id exists.
 """
 import uuid
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
 from sqlalchemy import desc, func, text
@@ -13,7 +14,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..config import settings
 from .. import models
-from ..deps import current_user
+from ..deps import current_user, owned_domain
 from ..schemas import AuditCreate, AuditAccepted, AuditStatus, BulkScanCreate
 from ..services import (queue, remediation, ml_priority, cache, settings_store,
                         llm_advisor, evidence_pack)
@@ -27,12 +28,8 @@ def _report_key(task_id) -> str:
     return cache.cache_key("report", str(task_id))
 
 
-def _owned_domain(db: Session, domain_id, user: models.User) -> models.Domain:
-    """Load a domain the caller is allowed to act on, else 404."""
-    domain = db.get(models.Domain, domain_id)
-    if not domain or (user.role != "super_admin" and domain.org_id != user.org_id):
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
-    return domain
+# now shared from deps so every router fences the same way (see deps.owned_domain)
+_owned_domain = owned_domain
 
 
 def _owned_audit(db: Session, task_id, user: models.User,
@@ -147,7 +144,6 @@ def cancel_audit(task_id: str, user: models.User = Depends(current_user),
     if audit.status not in IN_FLIGHT_STATUSES:
         raise HTTPException(status.HTTP_409_CONFLICT,
                             f"Cannot cancel audit in '{audit.status}' state")
-    from datetime import datetime, timezone
     audit.status = "cancelled"
     audit.finished_at = datetime.now(timezone.utc)
     db.commit()
@@ -281,6 +277,9 @@ def review_audit(task_id: str, body: ReviewDecision,
                  user: models.User = Depends(current_user), db: Session = Depends(get_db)):
     """Record an expert review of a completed audit and re-derive the legal verdict.
 
+    Item-by-item decisions are recorded separately via the review-checklist
+    endpoints below; this is the final sign-off that moves the legal verdict.
+
     This is the ingress the compliance model requires (`reviewed=True`) — without it
     every audit is capped at `partially_compliant` forever. Assessor/admin only;
     org-scoped and audit-logged for accountability.
@@ -316,6 +315,93 @@ def review_audit(task_id: str, body: ReviewDecision,
     return {"task_id": task_id, "is_reviewed": True,
             "compliance": {"status": comp.status, "method": comp.method,
                            "confidence": comp.confidence, "reason": comp.reason}}
+
+
+# ---------- guided manual review -------------------------------------------
+# The review screen used to carry three prompts hard-coded in the frontend, and
+# the assessor's answers were never sent anywhere. The checklist now comes from
+# the guideline library — everything automation cannot decide — and each
+# decision is stored, so the reasoning behind a legal verdict survives.
+
+REVIEWER_ROLES = ("assessor", "programme_admin", "super_admin")
+DECISIONS = ("pass", "fail", "not_applicable")
+
+
+class ReviewItemUpdate(BaseModel):
+    decision: str
+    note: str | None = None
+
+
+@router.get("/audits/{task_id}/review-checklist")
+def review_checklist(task_id: str, enforcement: str | None = None,
+                     category: str | None = None,
+                     user: models.User = Depends(current_user),
+                     db: Session = Depends(get_db)):
+    """Guidelines a human still has to judge, with any decisions already made.
+
+    Deliberately excludes `automation='automated'`: those are decided by the
+    engine and re-asking a person to eyeball them is how checklists become
+    rubber stamps. Filters exist because the full set is several hundred items —
+    a reviewer works through one category, or the Foundational tier, at a time.
+    """
+    audit = _owned_audit(db, task_id, user, require_completed=True)
+
+    q = db.query(models.Guideline).filter(models.Guideline.automation.in_(("manual", "assisted")))
+    if enforcement:
+        q = q.filter(models.Guideline.enforcement_level == enforcement)
+    if category:
+        q = q.filter(models.Guideline.category == category)
+    guidelines = q.order_by(models.Guideline.category, models.Guideline.id).all()
+
+    decided = {r.guideline_id: r for r in db.query(models.ReviewItem)
+                                            .filter(models.ReviewItem.audit_id == audit.id)}
+    items = [{
+        "guideline_id": g.id, "category": g.category, "title": g.title,
+        "issue": g.issue, "advice": g.advice,
+        "good_example": g.good_example, "bad_example": g.bad_example,
+        "enforcement_level": g.enforcement_level, "severity": g.severity,
+        "automation": g.automation, "roles": g.roles, "reference": g.reference,
+        "decision": decided[g.id].decision if g.id in decided else None,
+        "note": decided[g.id].note if g.id in decided else None,
+    } for g in guidelines]
+
+    return {
+        "task_id": str(audit.id),
+        "categories": sorted({g.category for g in guidelines}),
+        "total": len(items),
+        "decided": sum(1 for i in items if i["decision"]),
+        "failed": sum(1 for i in items if i["decision"] == "fail"),
+        "items": items,
+    }
+
+
+@router.put("/audits/{task_id}/review-checklist/{guideline_id}")
+def set_review_item(task_id: str, guideline_id: str, body: ReviewItemUpdate,
+                    user: models.User = Depends(current_user),
+                    db: Session = Depends(get_db)):
+    """Record (or change) one assessor decision. Idempotent per guideline."""
+    if user.role not in REVIEWER_ROLES:
+        raise HTTPException(status.HTTP_403_FORBIDDEN,
+                            "Recording a review decision requires an assessor or admin role")
+    if body.decision not in DECISIONS:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            f"decision must be one of {', '.join(DECISIONS)}")
+    audit = _owned_audit(db, task_id, user, require_completed=True)
+    if not db.get(models.Guideline, guideline_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Guideline not found")
+
+    item = (db.query(models.ReviewItem)
+              .filter(models.ReviewItem.audit_id == audit.id,
+                      models.ReviewItem.guideline_id == guideline_id).first())
+    if item is None:
+        item = models.ReviewItem(audit_id=audit.id, guideline_id=guideline_id)
+        db.add(item)
+    item.decision = body.decision
+    item.note = body.note
+    item.decided_by = user.id
+    item.decided_at = datetime.now(timezone.utc)
+    db.commit()
+    return {"guideline_id": guideline_id, "decision": item.decision, "note": item.note}
 
 
 @router.get("/audits/{task_id}/evidence")

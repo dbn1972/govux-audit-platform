@@ -352,3 +352,115 @@ def test_unknown_role_is_rejected(client, db):
 
     r = client.patch(f"/v1/auth/team/{colleague.id}/role", headers=owner_hdrs, json={"role": "wizard"})
     assert r.status_code == 422
+
+
+# ── self-service signup (Route A) ────────────────────────────────────────────
+# The chosen onboarding path until Parichay SSO lands: there is no sign-up page,
+# so first sign-in IS account creation, and the first domain registration is what
+# creates the organisation. Both were exercised only by hand before this.
+
+def _signup(client, monkeypatch, email: str, code: str = "123456"):
+    """Run a brand-new address through the real OTP flow; return auth headers."""
+    monkeypatch.setattr(security, "new_otp", lambda: code)
+    assert client.post("/v1/auth/otp/request", json={"email": email}).status_code == 202
+    r = client.post("/v1/auth/otp/verify",
+                    json={"email": email, "code": code, "device_pubkey": "pk-signup"})
+    assert r.status_code == 200
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+
+
+def test_first_sign_in_creates_an_owner_with_no_organisation(client, db, monkeypatch):
+    from app import models
+    email = "newjoiner@meity.gov.in"
+    assert db.query(models.User).filter(models.User.email == email).first() is None
+
+    _signup(client, monkeypatch, email)
+
+    user = db.query(models.User).filter(models.User.email == email).first()
+    assert user is not None
+    assert user.role == "owner"
+    assert user.org_id is None          # org-less until the first domain
+    assert user.display_name == "newjoiner"
+    assert user.last_login_at is not None
+
+
+def test_signing_in_again_reuses_the_account_rather_than_creating_a_second(client, db, monkeypatch):
+    from app import models
+    email = "returning@meity.gov.in"
+    _signup(client, monkeypatch, email)
+    first = db.query(models.User).filter(models.User.email == email).one()
+    first_id = first.id
+
+    _signup(client, monkeypatch, email, code="654321")
+
+    rows = db.query(models.User).filter(models.User.email == email).all()
+    assert len(rows) == 1 and rows[0].id == first_id
+
+
+def test_registering_the_first_domain_provisions_an_organisation(client, db, monkeypatch):
+    from app import models
+    email = "provisioner@meity.gov.in"
+    hdrs = _signup(client, monkeypatch, email)
+
+    r = client.post("/v1/domains", headers=hdrs, json={"url": "provision-test.gov.in"})
+    assert r.status_code in (200, 201)
+
+    db.expire_all()
+    user = db.query(models.User).filter(models.User.email == email).one()
+    assert user.org_id is not None
+    org = db.get(models.Organisation, user.org_id)
+    assert org.name == "provisioner's Organisation"
+    assert org.org_type == "department"
+
+
+def test_a_second_domain_joins_the_same_organisation(client, db, monkeypatch):
+    from app import models
+    email = "twodomains@meity.gov.in"
+    hdrs = _signup(client, monkeypatch, email)
+
+    client.post("/v1/domains", headers=hdrs, json={"url": "first-domain.gov.in"})
+    db.expire_all()
+    org_id = db.query(models.User).filter(models.User.email == email).one().org_id
+
+    client.post("/v1/domains", headers=hdrs, json={"url": "second-domain.gov.in"})
+    db.expire_all()
+    assert db.query(models.User).filter(models.User.email == email).one().org_id == org_id
+    assert db.query(models.Domain).filter(models.Domain.org_id == org_id).count() == 2
+
+
+def test_a_self_served_owner_cannot_audit_a_domain_it_has_not_proven(client, db, monkeypatch):
+    # Signup is deliberately open, so domain verification — not the sign-up step —
+    # is what gates every capability that matters.
+    email = "unproven@meity.gov.in"
+    hdrs = _signup(client, monkeypatch, email)
+    dom = client.post("/v1/domains", headers=hdrs, json={"url": "unproven-site.gov.in"}).json()
+
+    r = client.post("/v1/audits", headers=hdrs, json={"domain_id": dom["id"], "depth": 3})
+    assert r.status_code == 403
+    assert "not verified" in r.json()["detail"].lower()
+
+
+def test_a_self_served_owner_cannot_force_verify_its_own_domain(client, db, monkeypatch):
+    # Otherwise self-service signup would be a self-service route to "verified".
+    email = "selfapprove@meity.gov.in"
+    hdrs = _signup(client, monkeypatch, email)
+    dom = client.post("/v1/domains", headers=hdrs, json={"url": "selfapprove-site.gov.in"}).json()
+
+    r = client.post(f"/v1/domains/{dom['id']}/force-verify", headers=hdrs,
+                    json={"reason": "trying to approve my own domain without proof"})
+    assert r.status_code == 403
+
+
+def test_a_new_account_sees_only_its_own_estate(client, db, monkeypatch):
+    from app import models
+    other = models.Organisation(name="Someone Else's Dept", org_type="department")
+    db.add(other); db.flush()
+    db.add(models.Domain(org_id=other.id, url="not-yours.gov.in", tld="gov.in",
+                         verify_status="verified"))
+    db.commit()
+
+    hdrs = _signup(client, monkeypatch, "fenced@meity.gov.in")
+    client.post("/v1/domains", headers=hdrs, json={"url": "mine-only.gov.in"})
+
+    urls = {d["url"] for d in client.get("/v1/domains", headers=hdrs).json()}
+    assert urls == {"mine-only.gov.in"}

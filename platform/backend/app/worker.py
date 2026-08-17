@@ -237,7 +237,12 @@ def process(task_id: str, payload: dict):
                 audit_id=audit.id, category=f["category"], severity=f["severity"],
                 guideline_id=f.get("guideline"), element=f.get("element"),
                 effort=f.get("effort"), title=f.get("title"),
-                remediation=g.remediation, confidence="automated"))
+                # A detector that ships its own advice wins over the keyword
+                # matcher: guidance_for works on words in the title, so a
+                # measured finding like "Largest Contentful Paint: 13.6s" fell
+                # through to the generic "review this against the guideline".
+                remediation=f.get("remediation") or g.remediation,
+                confidence="automated"))
 
         # --- Integrity Engine (anti-gaming) — detects gaming from the findings +
         #     an implausible jump vs the previous audit. Caps the verdict, never

@@ -60,3 +60,46 @@ def test_discovery_requires_admin(client, db):
     r = client.post("/v1/discovery/scan", headers={"Authorization": f"Bearer {tok}"},
                     json={"samples": []})
     assert r.status_code == 403
+
+
+# ---------- cross-org writes -------------------------------------------------
+# The listing was org-fenced from the start; the writes were not. Any signed-in
+# user could delete another ministry's schedule by id, or put a recurring
+# depth-50 crawl on a domain they did not own. Reads fenced, writes open — the
+# same shape as the findings endpoint, which is why fencing now lives in one
+# shared helper (deps.owned_domain) rather than being re-derived per router.
+
+def _outsider(db):
+    import uuid as _uuid
+    from app import models as m, security
+    org = m.Organisation(name=f"Other Dept {_uuid.uuid4().hex[:6]}", org_type="department")
+    db.add(org); db.flush()
+    u = m.User(email=f"out.{_uuid.uuid4().hex[:6]}@nic.in", org_id=org.id, role="owner")
+    db.add(u); db.flush()
+    dev = m.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    return {"Authorization": f"Bearer {security.issue_access_token(str(u.id), 'owner', str(dev.id))}"}
+
+
+def test_cannot_schedule_another_orgs_domain(client, ctx, verified_domain, db):
+    r = client.post("/v1/schedules", headers=_outsider(db),
+                    json={"domain_id": str(verified_domain.id), "cadence": "daily"})
+    assert r.status_code == 404
+
+
+def test_cannot_delete_another_orgs_schedule(client, ctx, verified_domain, db):
+    from app import models as m
+    created = client.post("/v1/schedules", headers=ctx["headers"],
+                          json={"domain_id": str(verified_domain.id), "cadence": "weekly"})
+    assert created.status_code == 201
+    sid = created.json()["id"]
+
+    assert client.delete(f"/v1/schedules/{sid}", headers=_outsider(db)).status_code == 404
+    assert db.get(m.Schedule, sid) is not None      # still monitoring
+
+    assert client.delete(f"/v1/schedules/{sid}", headers=ctx["headers"]).status_code == 204
+
+
+def test_cannot_raise_a_scan_request_against_another_orgs_domain(client, ctx, verified_domain, db):
+    r = client.post("/v1/scan-requests", headers=_outsider(db),
+                    json={"domain_id": str(verified_domain.id), "requested_pages": 50})
+    assert r.status_code == 404

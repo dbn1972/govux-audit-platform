@@ -176,15 +176,45 @@ CREATE INDEX idx_page_audit ON audit_pages(audit_id);
 
 -- ---------- guideline library (checks; feeds RAG + guidance) ----------
 CREATE TABLE guidelines (
-    id           TEXT PRIMARY KEY,                   -- e.g. WCAG-1.4.3
+    id           TEXT PRIMARY KEY,                   -- e.g. WCAG-1.4.3, UX4G-TC-001
     family       TEXT NOT NULL,                      -- WCAG | GIGW | UX4G | CWV
     category     TEXT NOT NULL,
     title        TEXT NOT NULL,
     plain_language TEXT,
-    good_example TEXT,
+    good_example TEXT,                               -- a passing example
     version      TEXT,
+    -- review-facing detail (mirrors the UX4G v3.0.0 mastersheet). A reviewer
+    -- needs the failure mode and the fix, not just a title.
+    issue             TEXT,
+    advice            TEXT,
+    bad_example       TEXT,
+    enforcement_level TEXT,                          -- Foundational | Optimizing | Advanced
+    severity          TEXT,
+    automation        TEXT,                          -- automated | assisted | manual
+    roles             TEXT,                          -- Developer | Designer | Content
+    source            TEXT,
+    reference         TEXT,
     embedding    vector(768)                         -- optional, pgvector
 );
+CREATE INDEX ix_guidelines_automation  ON guidelines(automation);
+CREATE INDEX ix_guidelines_enforcement ON guidelines(enforcement_level);
+
+-- ---------- guided manual review ----------
+-- One assessor decision per guideline per audit. Without this the review
+-- screen's per-item answers lived only in browser state and were lost on
+-- navigation, leaving a legal verdict with no recorded reasoning behind it.
+CREATE TABLE review_items (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    audit_id     UUID NOT NULL REFERENCES audits(id) ON DELETE CASCADE,
+    guideline_id TEXT NOT NULL REFERENCES guidelines(id) ON DELETE RESTRICT,
+    decision     TEXT NOT NULL,
+    note         TEXT,
+    decided_by   UUID NOT NULL REFERENCES users(id),
+    decided_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT uq_review_item UNIQUE (audit_id, guideline_id),
+    CONSTRAINT chk_review_decision CHECK (decision IN ('pass','fail','not_applicable'))
+);
+CREATE INDEX ix_review_items_audit ON review_items(audit_id);
 
 -- ---------- findings ----------
 CREATE TABLE findings (

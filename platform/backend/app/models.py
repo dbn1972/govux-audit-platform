@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from sqlalchemy import (
     Column, Text, Boolean, Integer, BigInteger, Numeric, ForeignKey, DateTime, Date,
-    func, CheckConstraint, Index, text,
+    func, CheckConstraint, UniqueConstraint, Index, text,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET, ENUM
 from .database import Base
@@ -187,6 +187,40 @@ class Guideline(Base):
     plain_language = Column(Text)
     good_example = Column(Text)
     version = Column(Text)
+    # review-facing detail (mirrors the UX4G v3.0.0 mastersheet)
+    issue = Column(Text)
+    advice = Column(Text)
+    bad_example = Column(Text)
+    enforcement_level = Column(Text)   # Foundational | Optimizing | Advanced
+    severity = Column(Text)
+    automation = Column(Text)          # automated | assisted | manual
+    roles = Column(Text)
+    source = Column(Text)
+    reference = Column(Text)
+
+
+class ReviewItem(Base):
+    """An assessor's decision on one guideline for one audit.
+
+    Previously the review screen's per-item answers lived only in React state and
+    were dropped on navigation, so the evidence behind a legal verdict was never
+    recorded — only the free-text note survived.
+    """
+    __tablename__ = "review_items"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    audit_id = Column(UUID(as_uuid=True), ForeignKey("audits.id", ondelete="CASCADE"),
+                      nullable=False)
+    guideline_id = Column(Text, ForeignKey("guidelines.id", ondelete="RESTRICT"),
+                          nullable=False)
+    decision = Column(Text, nullable=False)   # pass | fail | not_applicable
+    note = Column(Text)
+    decided_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    decided_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    __table_args__ = (
+        UniqueConstraint("audit_id", "guideline_id", name="uq_review_item"),
+        CheckConstraint("decision IN ('pass','fail','not_applicable')",
+                        name="chk_review_decision"),
+    )
 
 
 class Finding(Base):

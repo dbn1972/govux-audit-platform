@@ -72,6 +72,10 @@
     "200",
     "422"
   ],
+  "GET /v1/audits/{task_id}/review-checklist": [
+    "200",
+    "422"
+  ],
   "GET /v1/audits/{task_id}/trend": [
     "200",
     "422"
@@ -309,6 +313,10 @@
     "422"
   ],
   "POST /v1/studio/{run_id}/publish": [
+    "200",
+    "422"
+  ],
+  "PUT /v1/audits/{task_id}/review-checklist/{guideline_id}": [
     "200",
     "422"
   ]

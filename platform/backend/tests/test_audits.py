@@ -461,3 +461,110 @@ def test_list_audits_org_fenced(client, ctx, verified_domain, db, monkeypatch):
     other = client.get("/v1/audits", headers={"Authorization": f"Bearer {tok2}"})
     assert other.status_code == 200
     assert r["task_id"] not in [a["task_id"] for a in other.json()]
+
+
+# ---------- guided manual review checklist ----------------------------------
+# The review screen used to hold three prompts in the frontend and threw the
+# answers away. These cover the two things that made it worthless as evidence:
+# the checklist has to come from the library, and decisions have to persist.
+
+def _guideline(db, gid="UX4G-TEST-001", automation="manual", enforcement="Foundational"):
+    from app import models
+    g = db.get(models.Guideline, gid)
+    if g is None:
+        g = models.Guideline(id=gid, family="UX4G", category="Task Orientation",
+                             title="Test guideline")
+        db.add(g)
+    g.automation = automation
+    g.enforcement_level = enforcement
+    db.commit()
+    return g
+
+
+def _completed_audit(db, ctx, verified_domain):
+    from app import models
+    a = models.Audit(domain_id=verified_domain.id, engine_version="test",
+                     requested_by=ctx["user"].id, status="completed")
+    db.add(a); db.commit()
+    return a
+
+
+def test_checklist_excludes_what_the_engine_already_decides(client, ctx, verified_domain, db):
+    a = _completed_audit(db, ctx, verified_domain)
+    _guideline(db, "UX4G-MANUAL-1", automation="manual")
+    _guideline(db, "UX4G-AUTO-1", automation="automated")
+
+    ids = {i["guideline_id"] for i in
+           client.get(f"/v1/audits/{a.id}/review-checklist", headers=ctx["headers"]).json()["items"]}
+    assert "UX4G-MANUAL-1" in ids
+    # re-asking a human to confirm an automated result is how checklists become
+    # rubber stamps — automated guidelines must never appear
+    assert "UX4G-AUTO-1" not in ids
+
+
+def test_a_decision_is_persisted_and_returned_with_the_checklist(client, ctx, verified_domain, db):
+    a = _completed_audit(db, ctx, verified_domain)
+    _guideline(db, "UX4G-PERSIST-1")
+
+    r = client.put(f"/v1/audits/{a.id}/review-checklist/UX4G-PERSIST-1",
+                   headers=ctx["headers"], json={"decision": "fail", "note": "no mission stated"})
+    assert r.status_code == 200
+
+    body = client.get(f"/v1/audits/{a.id}/review-checklist", headers=ctx["headers"]).json()
+    item = next(i for i in body["items"] if i["guideline_id"] == "UX4G-PERSIST-1")
+    assert item["decision"] == "fail" and item["note"] == "no mission stated"
+    assert body["failed"] >= 1
+
+
+def test_re_deciding_updates_in_place(client, ctx, verified_domain, db):
+    from app import models
+    a = _completed_audit(db, ctx, verified_domain)
+    _guideline(db, "UX4G-REDECIDE-1")
+    for d in ("fail", "pass"):
+        client.put(f"/v1/audits/{a.id}/review-checklist/UX4G-REDECIDE-1",
+                   headers=ctx["headers"], json={"decision": d})
+    rows = (db.query(models.ReviewItem)
+              .filter(models.ReviewItem.audit_id == a.id,
+                      models.ReviewItem.guideline_id == "UX4G-REDECIDE-1").all())
+    assert len(rows) == 1 and rows[0].decision == "pass"
+
+
+def test_an_unknown_decision_is_rejected(client, ctx, verified_domain, db):
+    a = _completed_audit(db, ctx, verified_domain)
+    _guideline(db, "UX4G-BADDEC-1")
+    r = client.put(f"/v1/audits/{a.id}/review-checklist/UX4G-BADDEC-1",
+                   headers=ctx["headers"], json={"decision": "maybe"})
+    assert r.status_code == 422
+
+
+def test_recording_a_decision_requires_a_reviewer_role(client, ctx, verified_domain, db):
+    from app import models, security
+    a = _completed_audit(db, ctx, verified_domain)
+    _guideline(db, "UX4G-ROLE-1")
+    u = models.User(email=f"contrib.rev.{uuid.uuid4().hex[:6]}@nic.in",
+                    org_id=ctx["org"].id, role="contributor")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    hdrs = {"Authorization": f"Bearer {security.issue_access_token(str(u.id), 'contributor', str(dev.id))}"}
+
+    r = client.put(f"/v1/audits/{a.id}/review-checklist/UX4G-ROLE-1",
+                   headers=hdrs, json={"decision": "pass"})
+    assert r.status_code == 403
+    # ...but they may still read the checklist to see what the assessor will cover
+    assert client.get(f"/v1/audits/{a.id}/review-checklist", headers=hdrs).status_code == 200
+
+
+def test_another_orgs_audit_checklist_is_not_reachable(client, ctx, verified_domain, db):
+    from app import models, security
+    a = _completed_audit(db, ctx, verified_domain)
+    org = models.Organisation(name=f"Other {uuid.uuid4().hex[:6]}", org_type="department")
+    db.add(org); db.flush()
+    u = models.User(email=f"out.rev.{uuid.uuid4().hex[:6]}@nic.in", org_id=org.id, role="assessor")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    hdrs = {"Authorization": f"Bearer {security.issue_access_token(str(u.id), 'assessor', str(dev.id))}"}
+
+    assert client.get(f"/v1/audits/{a.id}/review-checklist", headers=hdrs).status_code == 404
+    _guideline(db, "UX4G-FENCE-1")
+    assert client.put(f"/v1/audits/{a.id}/review-checklist/UX4G-FENCE-1",
+                      headers=hdrs, json={"decision": "pass"}).status_code == 404

@@ -249,3 +249,141 @@ def test_creating_and_editing_organisations_requires_a_steward(client, db):
     assert client.post("/v1/organisations", headers=h, json={"name": "Sneaky Dept"}).status_code == 403
     assert client.patch(f"/v1/organisations/{org.id}", headers=h,
                         json={"name": "Renamed"}).status_code == 403
+
+
+# ---------- finding updates: ownership + reviewer gate ----------------------
+# The one pre-existing test above used the `ctx` fixture, i.e. a programme_admin
+# — the superset role, in the owning org. That single happy path passed while
+# the endpoint had NO ownership check and NO reviewer check at all: any signed-in
+# user from any organisation could mark another ministry's findings resolved and
+# expert-reviewed. Reading the same audit was correctly fenced (404); only the
+# write was open. These cover the roles that actually constrain it.
+
+def _user_in_own_org(db, role: str, name: str):
+    from app import security
+    org = models.Organisation(name=f"{name} Dept {uuid.uuid4().hex[:6]}", org_type="department")
+    db.add(org); db.flush()
+    u = models.User(email=f"{name}.{uuid.uuid4().hex[:6]}@nic.in", org_id=org.id, role=role)
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    tok = security.issue_access_token(str(u.id), role, str(dev.id))
+    return org, u, {"Authorization": f"Bearer {tok}"}
+
+
+def _finding_for(db, ctx, verified_domain):
+    audit = models.Audit(domain_id=verified_domain.id, engine_version="test",
+                         requested_by=ctx["user"].id, status="completed")
+    db.add(audit); db.flush()
+    f = models.Finding(audit_id=audit.id, category="accessibility", severity="critical")
+    db.add(f); db.commit()
+    return f
+
+
+def test_another_orgs_finding_cannot_be_written(client, ctx, verified_domain, db):
+    f = _finding_for(db, ctx, verified_domain)
+    _, _, outsider = _user_in_own_org(db, "owner", "outsider")
+
+    r = client.patch(f"/v1/findings/{f.id}", headers=outsider,
+                     json={"state": "resolved", "is_reviewed": True})
+    # 404, not 403 — never confirm another org's finding id exists
+    assert r.status_code == 404
+
+    db.refresh(f)
+    assert f.state == "open" and f.is_reviewed is False
+
+
+def test_a_colleague_may_triage_but_not_sign_off(client, ctx, verified_domain, db):
+    from app import security
+    f = _finding_for(db, ctx, verified_domain)
+    # a contributor inside the OWNING org
+    u = models.User(email=f"contrib.{uuid.uuid4().hex[:6]}@nic.in",
+                    org_id=ctx["org"].id, role="contributor")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    hdrs = {"Authorization": f"Bearer {security.issue_access_token(str(u.id), 'contributor', str(dev.id))}"}
+
+    assert client.patch(f"/v1/findings/{f.id}", headers=hdrs,
+                        json={"state": "in_progress"}).status_code == 200
+
+    r = client.patch(f"/v1/findings/{f.id}", headers=hdrs, json={"is_reviewed": True})
+    assert r.status_code == 403
+    db.refresh(f)
+    assert f.is_reviewed is False
+
+
+def test_an_assessor_may_sign_off(client, ctx, verified_domain, db):
+    from app import security
+    f = _finding_for(db, ctx, verified_domain)
+    u = models.User(email=f"assessor.{uuid.uuid4().hex[:6]}@nic.in",
+                    org_id=ctx["org"].id, role="assessor")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk"); db.add(dev); db.commit()
+    hdrs = {"Authorization": f"Bearer {security.issue_access_token(str(u.id), 'assessor', str(dev.id))}"}
+
+    r = client.patch(f"/v1/findings/{f.id}", headers=hdrs, json={"is_reviewed": True})
+    assert r.status_code == 200 and r.json()["is_reviewed"] is True
+
+
+def test_an_unknown_state_is_rejected_before_the_database(client, ctx, verified_domain, db):
+    # `state` is a PG enum: as a free-form string this reached the DB and came
+    # back a 500 rather than a validation error.
+    f = _finding_for(db, ctx, verified_domain)
+    r = client.patch(f"/v1/findings/{f.id}", headers=ctx["headers"], json={"state": "banana"})
+    assert r.status_code == 422
+
+
+# ---------- guidance coverage ------------------------------------------------
+# A finding without guidance names a rule and a severity but never says how to
+# pass it. Before the library merge two-thirds of a real report looked like that.
+# This guards the invariant rather than the count: every id the engine can emit
+# must resolve to a guideline that actually carries advice text.
+
+# Mirrors audit_engine/rules.js GIGW_IDS + gigw-rules.js check keys.
+ENGINE_GIGW_IDS = [
+    "GIGW-contact-info", "GIGW-content-freshness", "GIGW-accessibility-statement",
+    "GIGW-hyperlinking-policy", "GIGW-rti", "GIGW-6.2",
+    "GIGW-copyright-policy", "GIGW-privacy-policy", "GIGW-terms", "GIGW-help-faq",
+    "GIGW-sitemap", "GIGW-search", "GIGW-feedback", "GIGW-language-option",
+    "GIGW-metadata-title", "GIGW-metadata-desc", "GIGW-viewport",
+]
+# Non-WCAG families runner.js / worker.py emit directly.
+ENGINE_OTHER_IDS = [
+    "Security", "Consent-banner", "DPDP-s6-consent", "Responsive", "Cross-browser",
+    "Content-QA", "PDF-UA", "Integrity-overlay", "Integrity-gaming", "ML-ADVISORY",
+    "Evidence", "CWV-LCP", "CWV-INP", "CWV-CLS",
+]
+# The WCAG criteria axe can decide deterministically (see rules.js wcagCriterion).
+ENGINE_WCAG_IDS = [f"WCAG-{sc}" for sc in (
+    "1.1.1 1.2.1 1.2.2 1.3.1 1.3.4 1.3.5 1.4.1 1.4.2 1.4.3 1.4.4 1.4.12 2.1.1 "
+    "2.2.1 2.2.2 2.4.1 2.4.2 2.4.4 2.5.3 2.5.8 3.1.1 3.1.2 3.3.2 4.1.2").split()]
+
+
+def test_every_engine_guideline_id_has_actionable_guidance(db):
+    from app import models
+    from app import seed_engine_guidelines
+    # Runs the seeder rather than assuming a populated database: the suite uses
+    # an isolated schema, and this way a guideline missing from the seed fails
+    # here instead of only showing up on a live audit.
+    seed_engine_guidelines.run()
+    missing, empty = [], []
+    for gid in ENGINE_GIGW_IDS + ENGINE_OTHER_IDS + ENGINE_WCAG_IDS:
+        g = db.get(models.Guideline, gid)
+        if g is None:
+            missing.append(gid)
+        elif not (g.advice or "").strip():
+            empty.append(gid)
+    assert not missing, f"engine emits ids with no guideline row: {missing}"
+    assert not empty, f"guideline rows exist but carry no advice: {empty}"
+
+
+def test_engine_guidelines_never_enter_the_human_review_checklist(db):
+    from app import models
+    from app import seed_engine_guidelines
+    seed_engine_guidelines.run()
+    # Anything the crawler decides on its own must be automation='automated',
+    # otherwise it turns up in the assessor's checklist and the review becomes a
+    # rubber stamp of machine output.
+    rows = (db.query(models.Guideline)
+              .filter(models.Guideline.id.in_(ENGINE_OTHER_IDS + ENGINE_WCAG_IDS)).all())
+    wrong = [g.id for g in rows if g.automation != "automated"]
+    assert not wrong, f"engine-decided guidelines not marked automated: {wrong}"

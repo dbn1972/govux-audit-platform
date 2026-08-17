@@ -81,6 +81,18 @@ export const api = {
   reviewAudit: (taskId: string, approved: boolean, notes?: string) =>
     req(`/v1/audits/${taskId}/review`, { method: "POST",
       body: JSON.stringify({ approved, notes }) }),
+  // guided manual review: the guidelines automation can't decide, plus any
+  // decisions already recorded against this audit
+  reviewChecklist: (taskId: string, p: { enforcement?: string; category?: string } = {}) => {
+    const qs = new URLSearchParams();
+    if (p.enforcement) qs.set("enforcement", p.enforcement);
+    if (p.category) qs.set("category", p.category);
+    const s = qs.toString();
+    return req(`/v1/audits/${taskId}/review-checklist${s ? `?${s}` : ""}`);
+  },
+  setReviewItem: (taskId: string, guidelineId: string, decision: string, note?: string) =>
+    req(`/v1/audits/${taskId}/review-checklist/${encodeURIComponent(guidelineId)}`,
+        { method: "PUT", body: JSON.stringify({ decision, note }) }),
   registerDomain: (url: string, category?: string) =>
     req("/v1/domains", { method: "POST", body: JSON.stringify({ url, service_category: category }) }),
   // proof method is the caller's choice: many gov teams run the web server but

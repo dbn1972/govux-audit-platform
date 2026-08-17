@@ -13,9 +13,10 @@
 import { chromium } from "playwright";
 import { AxeBuilder } from "@axe-core/playwright";
 import { gigwChecks } from "./gigw-rules.js";
+import { ux4gChecks } from "./ux4g-rules.js";
 import { detectScript, isIndic, langMatchesScript, readability } from "./lang.js";
 import { UA, UA_DISCLOSED, BOT_TOKEN, BOT_URL, parseRobots, robotsAllows, pathOf } from "./robots.js";
-import { wcagCriterion, gigwId } from "./rules.js";
+import { wcagCriterion, gigwId, cwvFindings } from "./rules.js";
 
 const clamp = (n, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
 // Budget for time spent WAITING between page loads. We honour whatever
@@ -128,6 +129,47 @@ async function gigw(page) {
     guideline: gigwId(k), title: `Missing mandatory element: ${k.replace(/_/g, " ")}`, effort: "low",
   }));
   return { score: clamp((passed / keys.length) * 100), findings };
+}
+
+// ---------- UX4G deterministic guidelines ----------
+// The mastersheet's own category drives which score bucket each finding lands
+// in, so a typography failure does not quietly become an accessibility failure.
+const UX4G_META = {
+  "UX4G-PLD-022": ["design", "medium", "Logo is not present in the header"],
+  "UX4G-PLD-023": ["design", "low", "Logo does not link to the homepage"],
+  "UX4G-PLD-012": ["design", "medium", "In-text links are not visually distinguishable"],
+  "UX4G-PLD-018": ["design", "low", "Underline used on text that is not a link"],
+  "UX4G-PLD-004": ["design", "high", "Body text is below a legible size"],
+  "UX4G-PLD-014": ["design", "low", "Inconsistent font families across the page"],
+  "UX4G-PLD-028": ["design", "low", "No consistent typography scale"],
+  "UX4G-PLD-010": ["usability", "medium", "Non-interactive elements look clickable"],
+  "UX4G-PLD-017": ["content", "low", "No print-friendly stylesheet"],
+  "UX4G-MFA-002": ["responsiveness", "high", "No responsive media queries"],
+  "UX4G-MFA-007": ["performance", "medium", "Below-the-fold images are not lazy-loaded"],
+  "UX4G-WCQ-007": ["content", "high", "Heading hierarchy is broken"],
+  "UX4G-WCQ-011": ["content", "low", "Content is not broken into readable chunks"],
+  "UX4G-WCQ-017": ["usability", "high", "Placeholder text used as the only field label"],
+  "UX4G-FDE-001": ["usability", "medium", "Form asks for more than the essential fields"],
+  "UX4G-NIA-003": ["usability", "medium", "Navigation landmark missing or unlabelled"],
+  "UX4G-TO-023": ["usability", "medium", "Links used where buttons are needed"],
+  "UX4G-LFS-004": ["responsiveness", "medium", "List targets are too small to tap"],
+};
+
+async function ux4g(page) {
+  const results = await page.evaluate(ux4gChecks);
+  const findings = [];
+  for (const r of results) {
+    const meta = UX4G_META[r.id];
+    if (!meta || r.ok) continue;
+    const [category, severity, title] = meta;
+    findings.push({
+      category, severity, guideline: r.id, effort: "medium",
+      title: r.detail ? `${title} — ${r.detail}` : title,
+    });
+  }
+  const total = results.filter(r => UX4G_META[r.id]).length;
+  const passed = total - findings.length;
+  return { score: total ? clamp((passed / total) * 100) : 100, findings };
 }
 
 // ---------- multilingual content (script-aware, gap G6) ----------
@@ -378,7 +420,10 @@ async function performance(url) {
       cls: +(lhr.audits["cumulative-layout-shift"]?.numericValue || 0).toFixed(3),
       tbt_ms: Math.round(lhr.audits["total-blocking-time"]?.numericValue || 0),
     };
-    return { score: clamp((lhr.categories.performance.score || 0.6) * 100), cwv, findings: [] };
+    // Emit a finding per breached vital so the worst number on the report also
+    // reaches the remediation plan, instead of living only in a metric tile.
+    return { score: clamp((lhr.categories.performance.score || 0.6) * 100),
+             cwv, findings: cwvFindings(cwv) };
   } catch (e) {
     return { score: 60, cwv: {}, findings: [], error: String(e) };
   }
@@ -386,15 +431,16 @@ async function performance(url) {
 
 // run the lightweight (no-Lighthouse) check suite on an already-loaded page
 async function auditLoaded(page, url, resp) {
-  const [a11y, g, c, t, o] = [await accessibility(page), await gigw(page),
-    await content(page), await trust(page, resp), await overlays(page)];
+  const [a11y, g, c, t, o, u] = [await accessibility(page), await gigw(page),
+    await content(page), await trust(page, resp), await overlays(page), await ux4g(page)];
   // use the page's FINAL url (after redirects) so links on a redirected host aren't dropped
   const pageOrigin = (() => { try { return new URL(page.url()).origin; } catch { return new URL(url).origin; } })();
   const links = await discoverLinks(page, pageOrigin);
-  const findings = [...a11y.findings, ...g.findings, ...c.findings, ...t.findings, ...o.findings];
+  const findings = [...a11y.findings, ...g.findings, ...c.findings, ...t.findings,
+                    ...o.findings, ...u.findings];
   const page_score = Math.round((a11y.score + g.score + c.score + t.score) / 4);
   return { url, status: resp ? "analysed" : "error", a11y: a11y.score, gigw: g.score,
-    content: c.score, trust: t.score, page_score, issue_count: findings.length,
+    content: c.score, trust: t.score, ux4g: u.score, page_score, issue_count: findings.length,
     integrity: !!o.integrity, findings, links: links.same, pdfs: links.pdfs, script: c.script };
 }
 
@@ -507,7 +553,9 @@ async function main() {
   };
   const findings = dedupe([
     ...pageResults.flatMap(r => r.findings || []),
-    ...respv.findings, ...brokenFindings,
+    // perf.findings was never merged here, so Core Web Vitals could only ever
+    // surface as a metric tile — a 13.6s LCP produced no remediation item.
+    ...respv.findings, ...brokenFindings, ...perf.findings,
   ]);
   const pages = pageResults.map(r => ({
     url: r.url, status: r.status, page_score: r.page_score,

@@ -1,0 +1,653 @@
+catalogue_id,source,family,title,automation,tool,govux_category,reference,notes
+WCAG-1.1.1,WCAG 2.2,Level A,Non-text Content,automated,axe-core,accessibility,WCAG 2.2 SC 1.1.1,"axe rules: aria-meter-name, aria-progressbar-name, image-alt, input-image-alt, object-alt, role-img-alt, svg-img-alt"
+WCAG-1.2.1,WCAG 2.2,Level A,Audio-only and Video-only (Prerecorded),automated,axe-core,accessibility,WCAG 2.2 SC 1.2.1,axe rules: audio-caption
+WCAG-1.2.2,WCAG 2.2,Level A,Captions (Prerecorded),automated,axe-core,accessibility,WCAG 2.2 SC 1.2.2,axe rules: video-caption
+WCAG-1.2.3,WCAG 2.2,Level A,Audio Description or Media Alternative (Prerecorded),manual,,accessibility,WCAG 2.2 SC 1.2.3,no deterministic rule — assessor judgement
+WCAG-1.3.1,WCAG 2.2,Level A,Info and Relationships,automated,axe-core,accessibility,WCAG 2.2 SC 1.3.1,"axe rules: aria-hidden-body, aria-required-children, aria-required-parent, definition-list, dlitem, list, listitem, p-as-heading, table-fake-caption, td-has-header, td-headers-attr, th-has-data-cells"
+WCAG-1.3.2,WCAG 2.2,Level A,Meaningful Sequence,manual,,accessibility,WCAG 2.2 SC 1.3.2,no deterministic rule — assessor judgement
+WCAG-1.3.3,WCAG 2.2,Level A,Sensory Characteristics,manual,,accessibility,WCAG 2.2 SC 1.3.3,no deterministic rule — assessor judgement
+WCAG-1.4.1,WCAG 2.2,Level A,Use of Color,automated,axe-core,accessibility,WCAG 2.2 SC 1.4.1,axe rules: link-in-text-block
+WCAG-1.4.2,WCAG 2.2,Level A,Audio Control,automated,axe-core,accessibility,WCAG 2.2 SC 1.4.2,axe rules: no-autoplay-audio
+WCAG-2.1.1,WCAG 2.2,Level A,Keyboard,automated,axe-core,accessibility,WCAG 2.2 SC 2.1.1,"axe rules: frame-focusable-content, scrollable-region-focusable, server-side-image-map"
+WCAG-2.1.2,WCAG 2.2,Level A,No Keyboard Trap,manual,,accessibility,WCAG 2.2 SC 2.1.2,no deterministic rule — assessor judgement
+WCAG-2.1.4,WCAG 2.2,Level A,Character Key Shortcuts,manual,,accessibility,WCAG 2.2 SC 2.1.4,no deterministic rule — assessor judgement
+WCAG-2.2.1,WCAG 2.2,Level A,Timing Adjustable,automated,axe-core,accessibility,WCAG 2.2 SC 2.2.1,axe rules: meta-refresh
+WCAG-2.2.2,WCAG 2.2,Level A,"Pause, Stop, Hide",automated,axe-core,accessibility,WCAG 2.2 SC 2.2.2,"axe rules: blink, marquee"
+WCAG-2.3.1,WCAG 2.2,Level A,Three Flashes or Below Threshold,manual,,accessibility,WCAG 2.2 SC 2.3.1,no deterministic rule — assessor judgement
+WCAG-2.4.1,WCAG 2.2,Level A,Bypass Blocks,automated,axe-core,accessibility,WCAG 2.2 SC 2.4.1,axe rules: bypass
+WCAG-2.4.2,WCAG 2.2,Level A,Page Titled,automated,axe-core,accessibility,WCAG 2.2 SC 2.4.2,axe rules: document-title
+WCAG-2.4.3,WCAG 2.2,Level A,Focus Order,manual,,accessibility,WCAG 2.2 SC 2.4.3,no deterministic rule — assessor judgement
+WCAG-2.4.4,WCAG 2.2,Level A,Link Purpose (In Context),automated,axe-core,accessibility,WCAG 2.2 SC 2.4.4,"axe rules: area-alt, link-name"
+WCAG-2.5.1,WCAG 2.2,Level A,Pointer Gestures,manual,,accessibility,WCAG 2.2 SC 2.5.1,no deterministic rule — assessor judgement
+WCAG-2.5.2,WCAG 2.2,Level A,Pointer Cancellation,manual,,accessibility,WCAG 2.2 SC 2.5.2,no deterministic rule — assessor judgement
+WCAG-2.5.3,WCAG 2.2,Level A,Label in Name,automated,axe-core,accessibility,WCAG 2.2 SC 2.5.3,axe rules: label-content-name-mismatch
+WCAG-2.5.4,WCAG 2.2,Level A,Motion Actuation,manual,,accessibility,WCAG 2.2 SC 2.5.4,no deterministic rule — assessor judgement
+WCAG-3.1.1,WCAG 2.2,Level A,Language of Page,automated,axe-core,accessibility,WCAG 2.2 SC 3.1.1,"axe rules: html-has-lang, html-lang-valid, html-xml-lang-mismatch"
+WCAG-3.2.1,WCAG 2.2,Level A,On Focus,manual,,accessibility,WCAG 2.2 SC 3.2.1,no deterministic rule — assessor judgement
+WCAG-3.2.2,WCAG 2.2,Level A,On Input,manual,,accessibility,WCAG 2.2 SC 3.2.2,no deterministic rule — assessor judgement
+WCAG-3.2.6,WCAG 2.2,Level A,Consistent Help,manual,,accessibility,WCAG 2.2 SC 3.2.6,no deterministic rule — assessor judgement
+WCAG-3.3.1,WCAG 2.2,Level A,Error Identification,manual,,accessibility,WCAG 2.2 SC 3.3.1,no deterministic rule — assessor judgement
+WCAG-3.3.2,WCAG 2.2,Level A,Labels or Instructions,automated,axe-core,accessibility,WCAG 2.2 SC 3.3.2,axe rules: form-field-multiple-labels
+WCAG-3.3.7,WCAG 2.2,Level A,Redundant Entry,manual,,accessibility,WCAG 2.2 SC 3.3.7,no deterministic rule — assessor judgement
+WCAG-4.1.2,WCAG 2.2,Level A,"Name, Role, Value",automated,axe-core,accessibility,WCAG 2.2 SC 4.1.2,"axe rules: aria-allowed-attr, aria-braille-equivalent, aria-command-name, aria-conditional-attr, aria-deprecated-role, aria-hidden-focus, aria-input-field-name, aria-prohibited-attr, aria-required-attr, aria-roledescription, aria-roles, aria-toggle-field-name, aria-tooltip-name, aria-valid-attr, aria-valid-attr-value, button-name, duplicate-id-aria, frame-title, frame-title-unique, input-button-name, label, nested-interactive, select-name"
+WCAG-1.2.4,WCAG 2.2,Level AA,Captions (Live),manual,,accessibility,WCAG 2.2 SC 1.2.4,no deterministic rule — assessor judgement
+WCAG-1.2.5,WCAG 2.2,Level AA,Audio Description (Prerecorded),manual,,accessibility,WCAG 2.2 SC 1.2.5,no deterministic rule — assessor judgement
+WCAG-1.3.4,WCAG 2.2,Level AA,Orientation,automated,axe-core,accessibility,WCAG 2.2 SC 1.3.4,axe rules: css-orientation-lock
+WCAG-1.3.5,WCAG 2.2,Level AA,Identify Input Purpose,automated,axe-core,accessibility,WCAG 2.2 SC 1.3.5,axe rules: autocomplete-valid
+WCAG-1.4.3,WCAG 2.2,Level AA,Contrast (Minimum),automated,axe-core,accessibility,WCAG 2.2 SC 1.4.3,axe rules: color-contrast
+WCAG-1.4.4,WCAG 2.2,Level AA,Resize Text,automated,axe-core,accessibility,WCAG 2.2 SC 1.4.4,axe rules: meta-viewport
+WCAG-1.4.5,WCAG 2.2,Level AA,Images of Text,manual,,accessibility,WCAG 2.2 SC 1.4.5,no deterministic rule — assessor judgement
+WCAG-1.4.10,WCAG 2.2,Level AA,Reflow,manual,,accessibility,WCAG 2.2 SC 1.4.10,no deterministic rule — assessor judgement
+WCAG-1.4.11,WCAG 2.2,Level AA,Non-text Contrast,manual,,accessibility,WCAG 2.2 SC 1.4.11,no deterministic rule — assessor judgement
+WCAG-1.4.12,WCAG 2.2,Level AA,Text Spacing,automated,axe-core,accessibility,WCAG 2.2 SC 1.4.12,axe rules: avoid-inline-spacing
+WCAG-1.4.13,WCAG 2.2,Level AA,Content on Hover or Focus,manual,,accessibility,WCAG 2.2 SC 1.4.13,no deterministic rule — assessor judgement
+WCAG-2.4.5,WCAG 2.2,Level AA,Multiple Ways,manual,,accessibility,WCAG 2.2 SC 2.4.5,no deterministic rule — assessor judgement
+WCAG-2.4.6,WCAG 2.2,Level AA,Headings and Labels,manual,,accessibility,WCAG 2.2 SC 2.4.6,no deterministic rule — assessor judgement
+WCAG-2.4.7,WCAG 2.2,Level AA,Focus Visible,manual,,accessibility,WCAG 2.2 SC 2.4.7,no deterministic rule — assessor judgement
+WCAG-2.4.11,WCAG 2.2,Level AA,Focus Not Obscured (Minimum),manual,,accessibility,WCAG 2.2 SC 2.4.11,no deterministic rule — assessor judgement
+WCAG-2.5.7,WCAG 2.2,Level AA,Dragging Movements,manual,,accessibility,WCAG 2.2 SC 2.5.7,no deterministic rule — assessor judgement
+WCAG-2.5.8,WCAG 2.2,Level AA,Target Size (Minimum),automated,axe-core,accessibility,WCAG 2.2 SC 2.5.8,axe rules: target-size
+WCAG-3.1.2,WCAG 2.2,Level AA,Language of Parts,automated,axe-core,accessibility,WCAG 2.2 SC 3.1.2,axe rules: valid-lang
+WCAG-3.2.3,WCAG 2.2,Level AA,Consistent Navigation,manual,,accessibility,WCAG 2.2 SC 3.2.3,no deterministic rule — assessor judgement
+WCAG-3.2.4,WCAG 2.2,Level AA,Consistent Identification,manual,,accessibility,WCAG 2.2 SC 3.2.4,no deterministic rule — assessor judgement
+WCAG-3.3.3,WCAG 2.2,Level AA,Error Suggestion,manual,,accessibility,WCAG 2.2 SC 3.3.3,no deterministic rule — assessor judgement
+WCAG-3.3.4,WCAG 2.2,Level AA,"Error Prevention (Legal, Financial, Data)",manual,,accessibility,WCAG 2.2 SC 3.3.4,no deterministic rule — assessor judgement
+WCAG-3.3.8,WCAG 2.2,Level AA,Accessible Authentication (Minimum),manual,,accessibility,WCAG 2.2 SC 3.3.8,no deterministic rule — assessor judgement
+WCAG-4.1.3,WCAG 2.2,Level AA,Status Messages,manual,,accessibility,WCAG 2.2 SC 4.1.3,no deterministic rule — assessor judgement
+LH-first-contentful-paint,Lighthouse,performance,first contentful paint,automated,lighthouse,performance,Lighthouse performance,
+LH-largest-contentful-paint,Lighthouse,performance,largest contentful paint,automated,lighthouse,performance,Lighthouse performance,
+LH-total-blocking-time,Lighthouse,performance,total blocking time,automated,lighthouse,performance,Lighthouse performance,
+LH-cumulative-layout-shift,Lighthouse,performance,cumulative layout shift,automated,lighthouse,performance,Lighthouse performance,
+LH-speed-index,Lighthouse,performance,speed index,automated,lighthouse,performance,Lighthouse performance,
+LH-interaction-to-next-paint,Lighthouse,performance,interaction to next paint,automated,lighthouse,performance,Lighthouse performance,
+LH-interactive,Lighthouse,performance,interactive,automated,lighthouse,performance,Lighthouse performance,
+LH-max-potential-fid,Lighthouse,performance,max potential fid,automated,lighthouse,performance,Lighthouse performance,
+LH-first-meaningful-paint,Lighthouse,performance,first meaningful paint,automated,lighthouse,performance,Lighthouse performance,
+LH-render-blocking-resources,Lighthouse,performance,render blocking resources,automated,lighthouse,performance,Lighthouse performance,
+LH-uses-responsive-images,Lighthouse,performance,uses responsive images,automated,lighthouse,performance,Lighthouse performance,
+LH-offscreen-images,Lighthouse,performance,offscreen images,automated,lighthouse,performance,Lighthouse performance,
+LH-unminified-css,Lighthouse,performance,unminified css,automated,lighthouse,performance,Lighthouse performance,
+LH-unminified-javascript,Lighthouse,performance,unminified javascript,automated,lighthouse,performance,Lighthouse performance,
+LH-unused-css-rules,Lighthouse,performance,unused css rules,automated,lighthouse,performance,Lighthouse performance,
+LH-unused-javascript,Lighthouse,performance,unused javascript,automated,lighthouse,performance,Lighthouse performance,
+LH-uses-optimized-images,Lighthouse,performance,uses optimized images,automated,lighthouse,performance,Lighthouse performance,
+LH-modern-image-formats,Lighthouse,performance,modern image formats,automated,lighthouse,performance,Lighthouse performance,
+LH-uses-text-compression,Lighthouse,performance,uses text compression,automated,lighthouse,performance,Lighthouse performance,
+LH-uses-rel-preconnect,Lighthouse,performance,uses rel preconnect,automated,lighthouse,performance,Lighthouse performance,
+LH-server-response-time,Lighthouse,performance,server response time,automated,lighthouse,performance,Lighthouse performance,
+LH-redirects,Lighthouse,performance,redirects,automated,lighthouse,performance,Lighthouse performance,
+LH-uses-http2,Lighthouse,performance,uses http2,automated,lighthouse,performance,Lighthouse performance,
+LH-efficient-animated-content,Lighthouse,performance,efficient animated content,automated,lighthouse,performance,Lighthouse performance,
+LH-duplicated-javascript,Lighthouse,performance,duplicated javascript,automated,lighthouse,performance,Lighthouse performance,
+LH-legacy-javascript,Lighthouse,performance,legacy javascript,automated,lighthouse,performance,Lighthouse performance,
+LH-prioritize-lcp-image,Lighthouse,performance,prioritize lcp image,automated,lighthouse,performance,Lighthouse performance,
+LH-total-byte-weight,Lighthouse,performance,total byte weight,automated,lighthouse,performance,Lighthouse performance,
+LH-uses-long-cache-ttl,Lighthouse,performance,uses long cache ttl,automated,lighthouse,performance,Lighthouse performance,
+LH-dom-size,Lighthouse,performance,dom size,automated,lighthouse,performance,Lighthouse performance,
+LH-critical-request-chains,Lighthouse,performance,critical request chains,automated,lighthouse,performance,Lighthouse performance,
+LH-user-timings,Lighthouse,performance,user timings,automated,lighthouse,performance,Lighthouse performance,
+LH-bootup-time,Lighthouse,performance,bootup time,automated,lighthouse,performance,Lighthouse performance,
+LH-mainthread-work-breakdown,Lighthouse,performance,mainthread work breakdown,automated,lighthouse,performance,Lighthouse performance,
+LH-font-display,Lighthouse,performance,font display,automated,lighthouse,performance,Lighthouse performance,
+LH-third-party-summary,Lighthouse,performance,third party summary,automated,lighthouse,performance,Lighthouse performance,
+LH-third-party-facades,Lighthouse,performance,third party facades,automated,lighthouse,performance,Lighthouse performance,
+LH-largest-contentful-paint-element,Lighthouse,performance,largest contentful paint element,automated,lighthouse,performance,Lighthouse performance,
+LH-lcp-lazy-loaded,Lighthouse,performance,lcp lazy loaded,automated,lighthouse,performance,Lighthouse performance,
+LH-layout-shifts,Lighthouse,performance,layout shifts,automated,lighthouse,performance,Lighthouse performance,
+LH-uses-passive-event-listeners,Lighthouse,performance,uses passive event listeners,automated,lighthouse,performance,Lighthouse performance,
+LH-no-document-write,Lighthouse,performance,no document write,automated,lighthouse,performance,Lighthouse performance,
+LH-long-tasks,Lighthouse,performance,long tasks,automated,lighthouse,performance,Lighthouse performance,
+LH-non-composited-animations,Lighthouse,performance,non composited animations,automated,lighthouse,performance,Lighthouse performance,
+LH-unsized-images,Lighthouse,performance,unsized images,automated,lighthouse,performance,Lighthouse performance,
+LH-viewport,Lighthouse,performance,viewport,automated,lighthouse,performance,Lighthouse performance,
+LH-uses-responsive-images-snapshot,Lighthouse,performance,uses responsive images snapshot,automated,lighthouse,performance,Lighthouse performance,
+LH-work-during-interaction,Lighthouse,performance,work during interaction,automated,lighthouse,performance,Lighthouse performance,
+LH-bf-cache,Lighthouse,performance,bf cache,automated,lighthouse,performance,Lighthouse performance,
+LH-network-requests,Lighthouse,performance,network requests,automated,lighthouse,performance,Lighthouse performance,
+LH-network-rtt,Lighthouse,performance,network rtt,automated,lighthouse,performance,Lighthouse performance,
+LH-network-server-latency,Lighthouse,performance,network server latency,automated,lighthouse,performance,Lighthouse performance,
+LH-main-thread-tasks,Lighthouse,performance,main thread tasks,automated,lighthouse,performance,Lighthouse performance,
+LH-diagnostics,Lighthouse,performance,diagnostics,automated,lighthouse,performance,Lighthouse performance,
+LH-metrics,Lighthouse,performance,metrics,automated,lighthouse,performance,Lighthouse performance,
+LH-screenshot-thumbnails,Lighthouse,performance,screenshot thumbnails,automated,lighthouse,performance,Lighthouse performance,
+LH-final-screenshot,Lighthouse,performance,final screenshot,automated,lighthouse,performance,Lighthouse performance,
+LH-script-treemap-data,Lighthouse,performance,script treemap data,automated,lighthouse,performance,Lighthouse performance,
+LH-resource-summary,Lighthouse,performance,resource summary,automated,lighthouse,performance,Lighthouse performance,
+LH-accesskeys,Lighthouse,accessibility,accesskeys,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-allowed-attr,Lighthouse,accessibility,aria allowed attr,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-allowed-role,Lighthouse,accessibility,aria allowed role,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-command-name,Lighthouse,accessibility,aria command name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-conditional-attr,Lighthouse,accessibility,aria conditional attr,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-deprecated-role,Lighthouse,accessibility,aria deprecated role,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-dialog-name,Lighthouse,accessibility,aria dialog name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-hidden-body,Lighthouse,accessibility,aria hidden body,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-hidden-focus,Lighthouse,accessibility,aria hidden focus,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-input-field-name,Lighthouse,accessibility,aria input field name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-meter-name,Lighthouse,accessibility,aria meter name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-progressbar-name,Lighthouse,accessibility,aria progressbar name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-prohibited-attr,Lighthouse,accessibility,aria prohibited attr,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-required-attr,Lighthouse,accessibility,aria required attr,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-required-children,Lighthouse,accessibility,aria required children,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-required-parent,Lighthouse,accessibility,aria required parent,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-roles,Lighthouse,accessibility,aria roles,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-text,Lighthouse,accessibility,aria text,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-toggle-field-name,Lighthouse,accessibility,aria toggle field name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-tooltip-name,Lighthouse,accessibility,aria tooltip name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-treeitem-name,Lighthouse,accessibility,aria treeitem name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-valid-attr-value,Lighthouse,accessibility,aria valid attr value,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-aria-valid-attr,Lighthouse,accessibility,aria valid attr,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-button-name,Lighthouse,accessibility,button name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-bypass,Lighthouse,accessibility,bypass,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-color-contrast,Lighthouse,accessibility,color contrast,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-definition-list,Lighthouse,accessibility,definition list,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-dlitem,Lighthouse,accessibility,dlitem,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-document-title,Lighthouse,accessibility,document title,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-duplicate-id-aria,Lighthouse,accessibility,duplicate id aria,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-form-field-multiple-labels,Lighthouse,accessibility,form field multiple labels,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-frame-title,Lighthouse,accessibility,frame title,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-heading-order,Lighthouse,accessibility,heading order,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-html-has-lang,Lighthouse,accessibility,html has lang,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-html-lang-valid,Lighthouse,accessibility,html lang valid,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-html-xml-lang-mismatch,Lighthouse,accessibility,html xml lang mismatch,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-image-alt,Lighthouse,accessibility,image alt,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-image-redundant-alt,Lighthouse,accessibility,image redundant alt,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-input-button-name,Lighthouse,accessibility,input button name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-input-image-alt,Lighthouse,accessibility,input image alt,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-label,Lighthouse,accessibility,label,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-link-in-text-block,Lighthouse,accessibility,link in text block,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-link-name,Lighthouse,accessibility,link name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-list,Lighthouse,accessibility,list,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-listitem,Lighthouse,accessibility,listitem,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-meta-refresh,Lighthouse,accessibility,meta refresh,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-meta-viewport,Lighthouse,accessibility,meta viewport,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-object-alt,Lighthouse,accessibility,object alt,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-select-name,Lighthouse,accessibility,select name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-skip-link,Lighthouse,accessibility,skip link,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-tabindex,Lighthouse,accessibility,tabindex,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-table-duplicate-name,Lighthouse,accessibility,table duplicate name,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-target-size,Lighthouse,accessibility,target size,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-td-headers-attr,Lighthouse,accessibility,td headers attr,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-th-has-data-cells,Lighthouse,accessibility,th has data cells,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-valid-lang,Lighthouse,accessibility,valid lang,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-video-caption,Lighthouse,accessibility,video caption,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-focusable-controls,Lighthouse,accessibility,focusable controls,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-interactive-element-affordance,Lighthouse,accessibility,interactive element affordance,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-logical-tab-order,Lighthouse,accessibility,logical tab order,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-visual-order-follows-dom,Lighthouse,accessibility,visual order follows dom,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-focus-traps,Lighthouse,accessibility,focus traps,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-managed-focus,Lighthouse,accessibility,managed focus,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-use-landmarks,Lighthouse,accessibility,use landmarks,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-offscreen-content-hidden,Lighthouse,accessibility,offscreen content hidden,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-custom-controls-labels,Lighthouse,accessibility,custom controls labels,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-custom-controls-roles,Lighthouse,accessibility,custom controls roles,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-empty-heading,Lighthouse,accessibility,empty heading,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-identical-links-same-purpose,Lighthouse,accessibility,identical links same purpose,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-landmark-one-main,Lighthouse,accessibility,landmark one main,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-label-content-name-mismatch,Lighthouse,accessibility,label content name mismatch,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-table-fake-caption,Lighthouse,accessibility,table fake caption,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-td-has-header,Lighthouse,accessibility,td has header,automated,lighthouse,accessibility,Lighthouse accessibility,
+LH-is-on-https,Lighthouse,best-practices,is on https,automated,lighthouse,trust,Lighthouse best-practices,
+LH-redirects-http,Lighthouse,best-practices,redirects http,automated,lighthouse,trust,Lighthouse best-practices,
+LH-geolocation-on-start,Lighthouse,best-practices,geolocation on start,automated,lighthouse,trust,Lighthouse best-practices,
+LH-notification-on-start,Lighthouse,best-practices,notification on start,automated,lighthouse,trust,Lighthouse best-practices,
+LH-csp-xss,Lighthouse,best-practices,csp xss,automated,lighthouse,trust,Lighthouse best-practices,
+LH-paste-preventing-inputs,Lighthouse,best-practices,paste preventing inputs,automated,lighthouse,trust,Lighthouse best-practices,
+LH-image-aspect-ratio,Lighthouse,best-practices,image aspect ratio,automated,lighthouse,trust,Lighthouse best-practices,
+LH-image-size-responsive,Lighthouse,best-practices,image size responsive,automated,lighthouse,trust,Lighthouse best-practices,
+LH-font-size,Lighthouse,best-practices,font size,automated,lighthouse,trust,Lighthouse best-practices,
+LH-doctype,Lighthouse,best-practices,doctype,automated,lighthouse,trust,Lighthouse best-practices,
+LH-charset,Lighthouse,best-practices,charset,automated,lighthouse,trust,Lighthouse best-practices,
+LH-js-libraries,Lighthouse,best-practices,js libraries,automated,lighthouse,trust,Lighthouse best-practices,
+LH-deprecations,Lighthouse,best-practices,deprecations,automated,lighthouse,trust,Lighthouse best-practices,
+LH-third-party-cookies,Lighthouse,best-practices,third party cookies,automated,lighthouse,trust,Lighthouse best-practices,
+LH-errors-in-console,Lighthouse,best-practices,errors in console,automated,lighthouse,trust,Lighthouse best-practices,
+LH-valid-source-maps,Lighthouse,best-practices,valid source maps,automated,lighthouse,trust,Lighthouse best-practices,
+LH-inspector-issues,Lighthouse,best-practices,inspector issues,automated,lighthouse,trust,Lighthouse best-practices,
+LH-is-crawlable,Lighthouse,seo,is crawlable,automated,lighthouse,content,Lighthouse seo,
+LH-meta-description,Lighthouse,seo,meta description,automated,lighthouse,content,Lighthouse seo,
+LH-http-status-code,Lighthouse,seo,http status code,automated,lighthouse,content,Lighthouse seo,
+LH-link-text,Lighthouse,seo,link text,automated,lighthouse,content,Lighthouse seo,
+LH-crawlable-anchors,Lighthouse,seo,crawlable anchors,automated,lighthouse,content,Lighthouse seo,
+LH-robots-txt,Lighthouse,seo,robots txt,automated,lighthouse,content,Lighthouse seo,
+LH-hreflang,Lighthouse,seo,hreflang,automated,lighthouse,content,Lighthouse seo,
+LH-canonical,Lighthouse,seo,canonical,automated,lighthouse,content,Lighthouse seo,
+LH-structured-data,Lighthouse,seo,structured data,automated,lighthouse,content,Lighthouse seo,
+UX4G-TC-001,UX4G Mastersheet v3.0.0,Trust & Credibility,Ensure SSL/TLS encryption is implemented and HTTPS is enforced on the website,automated,govux-engine,trust,GIGW 3.0 – Section 5.3.2 (Security Guidelines),
+UX4G-TC-002,UX4G Mastersheet v3.0.0,Trust & Credibility,Ensure ownership and management information is clearly displayed on the website,manual,,trust,GIGW 3.0 – Section 2.2 (Website Identification Guidelines),
+UX4G-TC-003,UX4G Mastersheet v3.0.0,Trust & Credibility,Display official state emblems and ownership identification on mobile app splash screens,assisted,,trust,"GIGW 3.0 (5.1.1, 5.1.2), DBIM Section 5.2",
+UX4G-TC-004,UX4G Mastersheet v3.0.0,Trust & Credibility,Ensure clear and accessible contact details are provided on the website,manual,,trust,GIGW 3.0 – Section 2.5 (Contact Information),
+UX4G-TC-005,UX4G Mastersheet v3.0.0,Trust & Credibility,Obtain explicit user consent before collecting or storing personal data,assisted,,trust,"GIGW 3.0 – 2.6.3, BIS IS 17428:2020, DBIM, DPDP Act 2023",
+UX4G-TC-006,UX4G Mastersheet v3.0.0,Trust & Credibility,Clearly inform users about what data is collected and how it is used,assisted,,trust,"GIGW 3.0 – 2.6.3, BIS IS 17428:2020, DBIM, DPDP Act 2023",
+UX4G-TC-007,UX4G Mastersheet v3.0.0,Trust & Credibility,Display the National Emblem prominently in the website or app header,manual,,trust,"GIGW 3.0 – Section 2.2.1, DBIM",
+UX4G-TC-008,UX4G Mastersheet v3.0.0,Trust & Credibility,Implement trusted government login systems for user authentication,assisted,,trust,"GIGW 3.0 – 4.2, BIS IS 17428:2020, DBIM",
+UX4G-TC-009,UX4G Mastersheet v3.0.0,Trust & Credibility,Provide a clear grievance redressal mechanism for users,assisted,,trust,"GIGW 3.0 – 2.5.3, DBIM, BIS IS 17428:2020",
+UX4G-TC-010,UX4G Mastersheet v3.0.0,Trust & Credibility,Allow users to track the status of submitted grievances,assisted,,trust,"GIGW 3.0 – 2.5.5, DBIM, BIS IS 17428:2020",
+UX4G-TC-011,UX4G Mastersheet v3.0.0,Trust & Credibility,Communicate grievance resolutions clearly to users,assisted,,trust,"GIGW 3.0 – 2.5.5, BIS IS 17428:2020, DBIM",
+UX4G-TC-012,UX4G Mastersheet v3.0.0,Trust & Credibility,"Provide a system for users to submit feedback, reviews, and ratings",assisted,,trust,"GIGW 3.0 – 2.5.6, DBIM, BIS IS 17428:2020",
+UX4G-TC-013,UX4G Mastersheet v3.0.0,Trust & Credibility,Inform users before redirecting them to external websites,assisted,,trust,"GIGW 3.0 – 2.7.2, DBIM, BIS IS 17428:2020",
+UX4G-TC-014,UX4G Mastersheet v3.0.0,Trust & Credibility,Minimize external redirects and outbound links in mobile applications,assisted,,trust,GIGW 3.0 – Cybersecurity Guidelines 5.3,
+UX4G-TC-015,UX4G Mastersheet v3.0.0,Trust & Credibility,Ensure Privacy Policy and Terms & Conditions are available on the website,manual,,trust,GIGW 3.0 – Legal & Policy Requirements,
+UX4G-TC-016,UX4G Mastersheet v3.0.0,Trust & Credibility,Ensure privacy policies and terms are accessible before users access core functionality,assisted,,trust,"GIGW 3.0 – 5.4, WCAG 2.1 SC 3.2.2",
+UX4G-TC-017,UX4G Mastersheet v3.0.0,Trust & Credibility,Ensure legal documents are consistently accessible from profile and navigation menus,assisted,,trust,GIGW 3.0 – 5.1.4,
+UX4G-TC-018,UX4G Mastersheet v3.0.0,Trust & Credibility,Provide a clearly visible “Contact Us” link on the website,manual,,trust,"GIGW 3.0 – 3.1.2, WCAG 2.1 SC 3.2.3, DBIM",
+UX4G-TC-019,UX4G Mastersheet v3.0.0,Trust & Credibility,Distribute mobile applications through official government and recognised app stores,assisted,,trust,"GIGW 3.0 Distribution, BIS IS 17802:2022",
+UX4G-TC-020,UX4G Mastersheet v3.0.0,Trust & Credibility,Implement mandated security protocols and obtain required government cybersecurity certifications,assisted,,trust,GIGW 3.0 – Cybersecurity 5.3,
+UX4G-TC-021,UX4G Mastersheet v3.0.0,Trust & Credibility,Provide a comprehensive and transparent “About Us” section in the application,assisted,,trust,GIGW 3.0 – 5.1.9,
+UX4G-TC-022,UX4G Mastersheet v3.0.0,Trust & Credibility,Apply visual brand identity consistently across all application interfaces,manual,,trust,"DBIM Sections 2, 4, 5; GIGW 3.0 – 5.1.1",
+UX4G-TC-023,UX4G Mastersheet v3.0.0,Trust & Credibility,Implement mandatory data security controls across the application,assisted,,trust,GIGW 3.0 – Cybersecurity 5.3,
+UX4G-TC-024,UX4G Mastersheet v3.0.0,Trust & Credibility,Transparently communicate data practices and user rights through clear notices and consent,assisted,,trust,"GIGW 3.0 – 5.4; WCAG 2.1 SC 3.1.1, 3.1.2",
+UX4G-WS-001,UX4G Mastersheet v3.0.0,Walkthrough Screens,"Explain complex features using plain, easy-to-understand language",assisted,,usability,"GIGW 3.0 – 5.1; WCAG 2.1 SC 3.1.3, 3.1.5",
+UX4G-WS-002,UX4G Mastersheet v3.0.0,Walkthrough Screens,Limit cognitive load through focused and well-structured walkthrough content,assisted,,usability,WCAG 2.1 SC 2.4.8; GIGW 3.0 – 5.1,
+UX4G-WS-003,UX4G Mastersheet v3.0.0,Walkthrough Screens,Use graphics and animations purposefully to support understanding,assisted,,usability,"GIGW 3.0 – 5.1; WCAG 2.1 SC 1.1.1, 2.2.2",
+UX4G-WS-004,UX4G Mastersheet v3.0.0,Walkthrough Screens,Introduce features progressively to avoid overwhelming users,assisted,,usability,GIGW 3.0 – 5.1; WCAG 2.1 SC 3.3.2,
+UX4G-WS-005,UX4G Mastersheet v3.0.0,Walkthrough Screens,Clearly communicate the core value proposition during walkthroughs,assisted,,usability,GIGW 3.0 – 5.1,
+UX4G-WS-006,UX4G Mastersheet v3.0.0,Walkthrough Screens,Ensure walkthrough text meets accessibility standards for readability,manual,,usability,WCAG 2.1/2.2 SC 1.4.x; GIGW 3.0 – 5.2,
+UX4G-WS-007,UX4G Mastersheet v3.0.0,Walkthrough Screens,Implement comprehensive screen reader support with semantic structure,automated,govux-engine,usability,"WCAG 2.1 SC 1.3.1, 2.4.3, 4.1.2; WCAG 2.2 SC 2.4.11; GIGW 3.0 – 5.2",
+UX4G-WS-008,UX4G Mastersheet v3.0.0,Walkthrough Screens,Keep onboarding sequences concise while ensuring comprehension,assisted,,usability,GIGW 3.0 – 5.1,
+UX4G-WS-009,UX4G Mastersheet v3.0.0,Walkthrough Screens,Allow users to skip onboarding and access it later,assisted,,usability,GIGW 3.0 – 5.1; WCAG 2.1 SC 2.4.6,
+UX4G-WS-010,UX4G Mastersheet v3.0.0,Walkthrough Screens,Maintain consistent brand voice and communication style during onboarding,assisted,,usability,GIGW 3.0 – 5.1,
+UX4G-WS-011,UX4G Mastersheet v3.0.0,Walkthrough Screens,Use supportive and confidence-building language in onboarding,assisted,,usability,DBIM Communication Guidelines; GIGW 3.0 – 5.1,
+UX4G-WS-012,UX4G Mastersheet v3.0.0,Walkthrough Screens,Support Indian languages with culturally appropriate localization,assisted,,usability,GIGW 3.0 – 5.1; WCAG 2.1 SC 3.1.2,
+UX4G-MFA-001,UX4G Mastersheet v3.0.0,Mobile First Approach,Ensure core content and primary functionality are accessible on mobile screens,automated,govux-engine,responsiveness,GIGW 3.0 – 3.2; WCAG 2.1; BIS IS 17802:2022,
+UX4G-MFA-002,UX4G Mastersheet v3.0.0,Mobile First Approach,"Implement responsive layouts using flexible grids, fluid images, and media queries",automated,govux-engine,responsiveness,GIGW 3.0 – 3.1; WCAG 2.1 SC 1.4.10; BIS IS 17802:2022,
+UX4G-MFA-003,UX4G Mastersheet v3.0.0,Mobile First Approach,Design touch targets with adequate size for reliable interaction,manual,,responsiveness,GIGW 3.0 – 3.2.1; WCAG 2.2 SC 2.5.8; BIS IS 17802:2022,
+UX4G-MFA-004,UX4G Mastersheet v3.0.0,Mobile First Approach,Provide sufficient spacing between interactive elements to prevent accidental taps,assisted,,responsiveness,GIGW 3.0 – 3.2.1; WCAG 2.1 SC 2.5.5; BIS IS 17802:2022,
+UX4G-MFA-005,UX4G Mastersheet v3.0.0,Mobile First Approach,Use mobile-friendly navigation patterns aligned with platform conventions,assisted,,responsiveness,GIGW 3.0 – 3.2.2; WCAG 2.1 – 2.4; BIS IS 17802:2022,
+UX4G-MFA-006,UX4G Mastersheet v3.0.0,Mobile First Approach,Minimize loading time using efficient coding and performance practices,assisted,,responsiveness,GIGW 3.0 – 4.1.3; WCAG 2.1 – 2.2; BIS IS 17428:2020; BIS IS 17802:2022,
+UX4G-MFA-007,UX4G Mastersheet v3.0.0,Mobile First Approach,Implement lazy loading for non-critical images and resources,automated,govux-engine,responsiveness,GIGW 3.0 – 4.1.4; BIS IS 17428:2020; BIS IS 17802:2022,
+UX4G-MFA-008,UX4G Mastersheet v3.0.0,Mobile First Approach,Allow users to expand sections to view additional details when needed,assisted,,responsiveness,GIGW 3.0 – 2.2.5; WCAG 2.1 – 2.4; DBIM; BIS IS 17428:2020,
+UX4G-MFA-009,UX4G Mastersheet v3.0.0,Mobile First Approach,Make language selection easily accessible on mobile,automated,govux-engine,responsiveness,GIGW 3.0 – 2.4.2; DBIM; BIS IS 17802:2022,
+UX4G-MFA-010,UX4G Mastersheet v3.0.0,Mobile First Approach,Provide clear validation and error handling to guide form completion,assisted,,responsiveness,GIGW 3.0 – 3.3.1; WCAG 2.1 SC 3.3.x; DBIM,
+UX4G-HOM-001,UX4G Mastersheet v3.0.0,Homepage,Ensure the homepage presents a professional and trustworthy first impression,assisted,,usability,GIGW 3.0 – 2.2.2; DBIM; BIS IS 17428:2020,
+UX4G-HOM-002,UX4G Mastersheet v3.0.0,Homepage,Establish a clear visual hierarchy to guide user attention on the homepage,manual,,usability,"GIGW 3.0 – 2.2.4; WCAG 2.1 SC 1.3.1, 2.4.6; DBIM",
+UX4G-HOM-003,UX4G Mastersheet v3.0.0,Homepage,Present valuable content on the homepage or within one click,assisted,,usability,"GIGW 3.0 – 2.2.8; WCAG 2.1 SC 2.4.5, 3.2.3; DBIM",
+UX4G-HOM-004,UX4G Mastersheet v3.0.0,Homepage,Reveal homepage information progressively to avoid cognitive overload,assisted,,usability,"GIGW 3.0 – 2.2.9; WCAG 2.1 SC 3.2.4, 1.3.1",
+UX4G-HOM-005,UX4G Mastersheet v3.0.0,Homepage,Highlight primary tasks clearly for immediate discovery on the homepage,automated,govux-engine,usability,"GIGW 3.0 – 2.2.6; WCAG 2.1 SC 2.4.1, 2.4.6; BIS IS 17428:2020",
+UX4G-HOM-006,UX4G Mastersheet v3.0.0,Homepage,Display recent content with access to archival information,assisted,,usability,GIGW 3.0 – 2.2.10; BIS IS 17428:2020,
+UX4G-HOM-007,UX4G Mastersheet v3.0.0,Homepage,Use visuals to convey meaning rather than decoration,manual,,usability,"GIGW 3.0 – 2.3.4; WCAG 2.1 SC 1.1.1, 1.4.5",
+UX4G-HOM-008,UX4G Mastersheet v3.0.0,Homepage,Motivate users to browse and explore further from the homepage,assisted,,usability,"GIGW 3.0 – 2.1.5, 2.2.2; DBIM; BIS IS 17428:2020",
+UX4G-HOM-009,UX4G Mastersheet v3.0.0,Homepage,Clearly communicate the website’s value proposition on the homepage,manual,,usability,GIGW 3.0 – 2.1.2; WCAG 2.1 SC 1.3.1; DBIM,
+UX4G-HOM-010,UX4G Mastersheet v3.0.0,Homepage,"Use descriptive page titles, link text, and semantic labels to improve clarity and discoverability",automated,govux-engine,usability,GIGW 3.0 – 2.4.1; WCAG 2.1 SC 2.4.2; DBIM; BIS IS 17428:2020,
+UX4G-HOM-011,UX4G Mastersheet v3.0.0,Homepage,Group organisational or departmental information into a dedicated section,manual,,usability,GIGW 3.0 – 3.1.4; WCAG 2.1 SC 2.4.6; DBIM,
+UX4G-HOM-012,UX4G Mastersheet v3.0.0,Homepage,"Use a clear, meaningful URL that reflects the website’s purpose",automated,govux-engine,usability,GIGW 3.0 – 1.2.1; DBIM; BIS IS 17428:2020,
+UX4G-HOM-013,UX4G Mastersheet v3.0.0,Homepage,Maintain consistent branding across devices and screen sizes,manual,,usability,"GIGW 3.0 – 1.2.3, 2.1.4; WCAG 2.1 SC 3.2.4; DBIM",
+UX4G-HOM-014,UX4G Mastersheet v3.0.0,Homepage,Position navigation controls within thumb-zone reach on mobile,assisted,,usability,GIGW 3.0 – 5.1; WCAG 2.1 SC 2.5.5; DBIM,
+UX4G-HOM-015,UX4G Mastersheet v3.0.0,Homepage,Provide centralized service discovery from the homepage,assisted,,usability,GIGW 3.0 – 5.1.18; API Gateway Pattern,
+UX4G-HOM-016,UX4G Mastersheet v3.0.0,Homepage,Provide guided assistance for advanced or multi-step features on the homepage,assisted,,usability,GIGW 3.0 – 5.1; WCAG 2.1 SC 3.3.2,
+UX4G-HOM-017,UX4G Mastersheet v3.0.0,Homepage,Structure homepage information to support rapid scanning and comprehension,manual,,usability,"GIGW 3.0 – 5.1.18; WCAG 2.1 SC 2.4.6, 1.3.1",
+UX4G-ABT-001,UX4G Mastersheet v3.0.0,About Us,"Clearly define the organisation’s purpose, mission, vision, and values",manual,,usability,GIGW 3.0 – Section 3.1.4; WCAG 2.1 Guideline 1.3,
+UX4G-ABT-002,UX4G Mastersheet v3.0.0,About Us,Provide a clear organisational overview describing background and mandate,manual,,usability,"GIGW 3.0 – Section 3.1.4; WCAG 2.1 Guidelines 1.3, 2.4",
+UX4G-ABT-003,UX4G Mastersheet v3.0.0,About Us,Clearly outline the organisation’s core values,manual,,usability,GIGW 3.0 – Section 3.1.4; DBIM; WCAG 2.1 SC 2.4.6; BIS IS 17428:2020,
+UX4G-ABT-004,UX4G Mastersheet v3.0.0,About Us,Introduce key leaders and team members with roles and responsibilities,manual,,usability,GIGW 3.0 – Section 3.1.4; DBIM,
+UX4G-ABT-005,UX4G Mastersheet v3.0.0,About Us,Highlight significant achievements and milestones,manual,,usability,GIGW 3.0 – Section 3.1.4; DBIM Public Accountability Guidelines; WCAG 2.1 SC 2.4.6,
+UX4G-ABT-006,UX4G Mastersheet v3.0.0,About Us,Include a brief history of the organisation,manual,,usability,GIGW 3.0 – Section 3.1.4; DBIM Organisational Identity Guidelines,
+UX4G-ABT-007,UX4G Mastersheet v3.0.0,About Us,Use authentic images or videos to humanize the organisation,assisted,,usability,GIGW 3.0 – Section 3.1.4; DBIM Visual Identity & Engagement Guidelines,
+UX4G-ABT-008,UX4G Mastersheet v3.0.0,About Us,Provide links to related sections to encourage exploration,assisted,,usability,"GIGW 3.0 – Sections 3.1.4, 4.1.5; WCAG 2.1 SC 2.4.4",
+UX4G-PLD-001,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Follow recognized scanning patterns (F-pattern / Z-pattern),manual,,design,GIGW 3.0 – Section 2.2.5; DBIM; BIS IS 17428:2020; WCAG 2.2 SC 2.4.3,
+UX4G-PLD-002,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Make webpage content easy to scan without cognitive overload,manual,,design,"GIGW 3.0 – Section 2.2.3; WCAG 2.1 SC 2.4.6, 1.3.1; DBIM",
+UX4G-PLD-003,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Ensure screen density is appropriate for target users and tasks,assisted,,design,"GIGW 3.0 – Sections 3.2.3, 3.4.1; DBIM",
+UX4G-PLD-004,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Use legible fonts and font sizes to ensure readability and accessibility,automated,govux-engine,design,"GIGW 3.0 – Section 3.2.3; DBIM; WCAG 2.1 SC 1.4.3, 1.4.4, 1.4.12",
+UX4G-PLD-005,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Guide users’ focus toward the next action using clear visual cues,assisted,,design,"GIGW 3.0 – Sections 3.1.3, 3.2.4; DBIM",
+UX4G-PLD-006,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Provide a clear visual starting point on every page,assisted,,design,GIGW 3.0 – Section 3.2.4; DBIM,
+UX4G-PLD-007,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Maintain consistent layout across all pages and devices,manual,,design,"GIGW 3.0 – Sections 3.2.2, 3.2.4; WCAG 2.1 SC 3.2.3, 3.2.4; DBIM",
+UX4G-PLD-008,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Place high-priority information above the first screen,assisted,,design,"GIGW 3.0 – Sections 3.2.3, 3.2.4; DBIM",
+UX4G-PLD-009,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Make clickable elements clearly recognizable as interactive,automated,govux-engine,design,GIGW 3.0 – Section 3.2.4,
+UX4G-PLD-010,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Avoid false visual affordances on non-clickable elements,automated,govux-engine,design,GIGW 3.0 – 3.2.4; WCAG 2.1 SC 3.2.4; DBIM; BIS IS 17428:2020,
+UX4G-PLD-011,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Use interactive components appropriately and label actions clearly,automated,govux-engine,design,BIS IS 17428:2020 – Clause 8.2.3,
+UX4G-PLD-012,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Make hyperlinked text visually distinguishable,automated,govux-engine,design,GIGW 3.0 – 3.2.4; DBIM,
+UX4G-PLD-013,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Use standard and intuitive icons and graphics,manual,,design,GIGW 3.0 – 3.4.1; WCAG 2.1 SC 3.2.4,
+UX4G-PLD-014,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Use a consistent font style across the webpage,automated,govux-engine,design,BIS IS 17428:2020 Clause 8.2.3; DBIM Typography Guidelines,
+UX4G-PLD-015,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Use color to group and organize content for clear visual hierarchy,manual,,design,GIGW 3.0 – 3.2.2; BIS IS 17428:2020 Clause 8.2.4,
+UX4G-PLD-016,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,"Maintain a harmonious, accessible color scheme with sufficient contrast",automated,govux-engine,design,"WCAG 2.1 SC 1.4.3, 1.4.6; GIGW 3.0 – 3.2.2; BIS IS 17428:2020; DBIM",
+UX4G-PLD-017,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Provide print-friendly pages or printable versions,automated,govux-engine,design,GIGW 3.0 – 3.2.9; BIS IS 17428:2020 Clause 8.3.7,
+UX4G-PLD-018,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Avoid italics and reserve underlining only for hyperlinks,automated,govux-engine,design,"WCAG 2.1 SC 1.4.1, 3.2.4; GIGW 3.0 – 3.2.2",
+UX4G-PLD-019,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Use a grid system for structured and aligned layouts,manual,,design,GIGW 3.0 – 3.3.2; BIS IS 17428:2020 Clause 8.3.3,
+UX4G-PLD-020,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Group related information and functions for efficient scanning,manual,,design,GIGW 3.0 – 3.3.2; BIS IS 17428:2020 Clause 8.3.4; WCAG 2.1 SC 1.3.1,
+UX4G-PLD-021,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Structure pages section-by-section to aid element discovery,automated,govux-engine,design,"BIS IS 17428:2020 Clause 8.2.1; WCAG 2.1 SC 1.3.1, 2.4.6",
+UX4G-PLD-022,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Maintain consistent logo placement across all pages,automated,govux-engine,design,"GIGW 3.0 – 3.6.1, 3.3; BIS IS 17428:2020 Clause 8.2.3",
+UX4G-PLD-023,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Ensure clicking the logo navigates to the homepage,automated,govux-engine,design,"GIGW 3.0 – 3.6.1, 3.3; BIS IS 17428:2020 Clause 8.2.3",
+UX4G-PLD-024,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Use attention-grabbing elements sparingly and purposefully,manual,,design,"WCAG 2.1 SC 2.3.1, 1.4.1, 1.4.3; GIGW 3.0 – 3.5.2; BIS IS 17428:2020 Clause 8.2.4",
+UX4G-PLD-025,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Align UI components with overall theme and branding,automated,govux-engine,design,"DBIM Branding & UI Guidelines; GIGW 3.0 Quality; WCAG 2.1 SC 1.4.3, 3.2.4",
+UX4G-PLD-026,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Provide access to underlying data for graphs and charts,assisted,,design,WCAG 2.1 SC 1.1.1,
+UX4G-PLD-027,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Apply visual hierarchy to guide attention and information flow,manual,,design,"WCAG 2.1 SC 1.4.1, 1.3.1; DBIM; GIGW 3.0 – 5.1",
+UX4G-PLD-028,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Apply a systematic typography scale for readability and comprehension,automated,govux-engine,design,"WCAG 2.1 SC 1.4.8, 1.4.12; WCAG 2.2 SC 1.4.11; DBIM Typography; GIGW 3.0 – 5.2",
+UX4G-PLD-029,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Apply a consistent visual identity system across all touchpoints,manual,,design,DBIM Sections 2–5; GIGW 3.0 – 5.1.1,
+UX4G-PLD-030,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Maintain comprehensive design system documentation,assisted,,design,GIGW 3.0 – 5.1; DBIM Component Library & UX Kit,
+UX4G-PLD-031,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Manage information density using grouping and progressive disclosure,manual,,design,"WCAG 2.1 SC 2.4.8, 1.3.1; GIGW 3.0 – 5.1",
+UX4G-PLD-032,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Ensure interface affordances clearly communicate functionality,automated,govux-engine,design,"WCAG 2.1 SC 1.3.1, 3.2.4; GIGW 3.0 – 5.1",
+UX4G-PLD-033,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Use rich media purposefully to enhance understanding without clutter,manual,,design,"GIGW 3.0 – 5.1; WCAG 2.1 SC 1.1.1, 1.4.2",
+UX4G-PLD-034,UX4G Mastersheet v3.0.0,Page Layout and Visual Design,Implement platform-specific design patterns while maintaining unified brand identity,manual,,design,GIGW 3.0 – 5.1; DBIM Section 8,
+UX4G-RES-001,UX4G Mastersheet v3.0.0,Responsiveness,Maintain consistent branding across all screen sizes,automated,govux-engine,responsiveness,GIGW 3.0 – 2.1.4; DBIM Branding Guidelines; BIS IS 17428:2020; BIS IS 17802:2022,
+UX4G-RES-002,UX4G Mastersheet v3.0.0,Responsiveness,Design touch-friendly elements with adequate spacing,automated,govux-engine,responsiveness,GIGW 3.0 – 6.3.3; BIS IS 17802 (Part 2) 10.3.2; WCAG 2.2 SC 2.5.8,
+UX4G-RES-003,UX4G Mastersheet v3.0.0,Responsiveness,Optimize images and media for responsive resizing,manual,,responsiveness,GIGW 3.0 – 6.3.4; WCAG 2.1 SC 1.4.10; BIS IS 17802 (Part 2) 10.2.4,
+UX4G-RES-004,UX4G Mastersheet v3.0.0,Responsiveness,Optimize performance for mobile devices,automated,govux-engine,responsiveness,GIGW 3.0 – 6.2.2; WCAG 2.2 SC 2.2.1,
+UX4G-RES-005,UX4G Mastersheet v3.0.0,Responsiveness,Use responsive containers to maintain layout structure,manual,,responsiveness,DBIM Responsive Design Guidelines; WCAG 2.2 SC 1.4.10; GIGW 3.0 Layout Consistency,
+UX4G-RES-006,UX4G Mastersheet v3.0.0,Responsiveness,"Implement a flexible, adaptive grid layout across devices",manual,,responsiveness,WCAG 2.1 SC 1.4.10; GIGW 3.0 – 2.2.1; BIS IS 17802:2022 Part 2 – 4.3.2,
+UX4G-RES-007,UX4G Mastersheet v3.0.0,Responsiveness,Adjust text size and line height for readable content across devices,manual,,responsiveness,"WCAG 2.1 SC 1.4.4, 1.4.12; GIGW 3.0 Accessibility",
+UX4G-RES-008,UX4G Mastersheet v3.0.0,Responsiveness,Use CSS media queries to adapt styles by screen size,manual,,responsiveness,WCAG 2.1 SC 1.4.10; GIGW 3.0 Responsive Web Design,
+UX4G-RES-009,UX4G Mastersheet v3.0.0,Responsiveness,Create fluid layouts using relative units,manual,,responsiveness,WCAG 2.1 SC 1.4.4; GIGW 3.0 Responsive Design,
+UX4G-RES-010,UX4G Mastersheet v3.0.0,Responsiveness,Include viewport meta tag for proper mobile rendering,automated,govux-engine,responsiveness,GIGW 3.0 Responsive Web Design; DBIM Mobile Guidelines; BIS IS 17802:2022 Part 1 – 7.4.4; WCAG 2.2 SC 1.4.10,
+UX4G-WTH-001,UX4G Mastersheet v3.0.0,Exploration Without Login,Allow exploration of key content without login,manual,,usability,GIGW 3.0 UX Discoverability; DBIM Section 3.3; BIS IS 17802:2022 Clause 8.3.1,
+UX4G-WTH-002,UX4G Mastersheet v3.0.0,Exploration Without Login,Provide teaser or preview of premium features,manual,,usability,DBIM 3.3; GIGW 3.0 Engagement Design; BIS IS 17802:2022 Clause 8.3.3,
+UX4G-WTH-003,UX4G Mastersheet v3.0.0,Exploration Without Login,Restrict interactive actions for non-logged-in users,manual,,usability,"GIGW 3.0 Security 2.3, 3.5.1; DBIM 4.3; BIS IS 17802:2022 Clause 6.2.4",
+UX4G-WTH-004,UX4G Mastersheet v3.0.0,Exploration Without Login,Integrate single sign-on (SSO) for seamless authentication,automated,govux-engine,usability,GIGW 3.0 2.4.3; DBIM 3.4.2; BIS IS 17802:2022 Clause 6.5.1,
+UX4G-WTH-005,UX4G Mastersheet v3.0.0,Exploration Without Login,Provide offline access to previously viewed content,manual,,usability,GIGW 3.0 3.4.6; DBIM 4.5.3; BIS IS 17802:2022 Clause 8.2.2,
+UX4G-WTH-006,UX4G Mastersheet v3.0.0,Exploration Without Login,Prompt login when accessing restricted features,manual,,usability,GIGW 3.0 3.4.2; DBIM 4.1.3; BIS IS 17802:2022 Clause 6.1.2,
+UX4G-WTH-007,UX4G Mastersheet v3.0.0,Exploration Without Login,Provide accessible and discoverable search for guest users,manual,,usability,"WCAG 2.1 SC 2.4.5, 3.3.2; WCAG G161; GIGW 3.0 – 5.1",
+UX4G-WTH-008,UX4G Mastersheet v3.0.0,Exploration Without Login,Enable content sharing via social media and copy links,manual,,usability,GIGW 3.0 – 4.3.3; DBIM 3.3.2; BIS IS 17802:2022 Clause 6.4.1,
+UX4G-WTH-009,UX4G Mastersheet v3.0.0,Exploration Without Login,Communicate registration value proposition clearly and voluntarily,manual,,usability,GIGW 3.0 – 5.1 User Engagement,
+UX4G-LOG-001,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Integrate government-approved SSO API for seamless authentication,automated,govux-engine,usability,GIGW 3.0 – GuDApps SSO Integration; UX4G Authentication Guidelines,
+UX4G-LOG-002,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Follow official SSO integration documentation for secure implementation,manual,,usability,GIGW 3.0 – Cybersecurity Standards; MeitY SSO Guidelines; UX4G SSO Compliance,
+UX4G-LOG-003,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Place login/sign-up entry points prominently and consistently,automated,govux-engine,usability,GIGW 3.0 – Authentication Integration,
+UX4G-LOG-004,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Maintain consistent official SSO branding across platforms,automated,govux-engine,usability,GIGW 3.0 – Branding & Identity; Meri Pehchaan Integration Handbook; UX4G Brand Consistency,
+UX4G-LOG-005,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Enforce strong authentication security standards,manual,,usability,GIGW 3.0 – Authentication Security; Meri Pehchaan Security Guidelines; UX4G Handbook,
+UX4G-LOG-006,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Clearly communicate data privacy policies and terms of service,automated,govux-engine,usability,GIGW 3.0 – Privacy & Transparency; UX4G Handbook Section 6.3,
+UX4G-LOG-007,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Obtain explicit user consent before initiating SSO,automated,govux-engine,usability,GIGW 3.0 Section 5.3; DPDP Act 2023; UX4G Handbook Section 6.3,
+UX4G-LOG-008,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Allow seamless linking of existing accounts with SSO credentials,manual,,usability,UX4G Handbook Section 4.10,
+UX4G-LOG-009,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Simplify login and signup UI to minimize steps,automated,govux-engine,usability,GIGW 3.0 Usability; WCAG 2.2 SC 3.3.8; UX4G Handbook Section 4.1,
+UX4G-LOG-010,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Conduct thorough testing of login and SSO integrations,manual,,usability,UX4G Integration Testing Guidelines,
+UX4G-LOG-011,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Keep SSO integration updated with latest APIs and security patches,manual,,usability,UX4G Handbook Section 6.7 – API Maintenance & Security Compliance,
+UX4G-LOG-012,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Use trust indicators to reassure users during login,manual,,usability,GIGW 3.0 – Visual Identity; DBIM Co-branding & Identity; UX4G Handbook Section 6.9,
+UX4G-LOG-013,UX4G Mastersheet v3.0.0,Login and Signup Guidelines,Provide contextual error guidance and recovery mechanisms,manual,,usability,"WCAG 2.1 SC 3.3.1, 3.3.3, 3.3.4; GIGW 3.0 – 5.1",
+UX4G-SEA-001,UX4G Mastersheet v3.0.0,Search,"Provide a search bar for large, exploration-heavy products",manual,,usability,"GIGW 3.0 – 2.2.12, 3.3.2; DBIM Search UI; WCAG 2.1 SC 2.4.5; BIS IS 17428:2020",
+UX4G-SEA-002,UX4G Mastersheet v3.0.0,Search,Place search functionality prominently for quick access,manual,,usability,WCAG 2.1 SC 2.4.5; WCAG G161; GIGW 3.0 – 5.1,
+UX4G-SEA-003,UX4G Mastersheet v3.0.0,Search,Provide auto-suggestions to improve search efficiency,manual,,usability,GIGW 3.0 – 3.3.3; DBIM Search Interaction; BIS IS 17428:2020,
+UX4G-SEA-004,UX4G Mastersheet v3.0.0,Search,Clearly indicate whether search is global or local,automated,govux-engine,usability,GIGW 3.0 Search UX; WCAG 2.1 SC 2.4.5; WCAG G161,
+UX4G-SEA-005,UX4G Mastersheet v3.0.0,Search,Enable filtering and sorting of search results,manual,,usability,WCAG 2.1 / 2.2 SC 3.3.5; GIGW 3.0 Search Usability,
+UX4G-SEA-006,UX4G Mastersheet v3.0.0,Search,Provide auto-complete suggestions while typing,manual,,usability,"GIGW 3.0 Search UX; WCAG 2.1 / 2.2 SC 3.3.5, SC 3.2.2",
+UX4G-SEA-007,UX4G Mastersheet v3.0.0,Search,Rank search results by relevance and importance,manual,,usability,"GIGW 3.0 Search Experience; WCAG 2.1 / 2.2 SC 3.3.5, SC 3.2.2",
+UX4G-SEA-008,UX4G Mastersheet v3.0.0,Search,Support voice search for hands-free interaction,assisted,,usability,"GIGW 3.0 Accessibility; WCAG 2.1 / 2.2 SC 2.1.1, SC 4.1.2",
+UX4G-SEA-009,UX4G Mastersheet v3.0.0,Search,Provide fast-loading results with visible loading feedback,manual,,usability,GIGW 3.0 Performance; WCAG 2.1 SC 4.1.3,
+UX4G-SEA-010,UX4G Mastersheet v3.0.0,Search,Use lazy loading for large search result sets,manual,,usability,"GIGW 3.0 Performance; WCAG 2.1 / 2.2 SC 2.2.2, SC 4.1.3",
+UX4G-SEA-011,UX4G Mastersheet v3.0.0,Search,Maintain consistent search placement and interaction across screens,manual,,usability,WCAG 2.1 SC 3.2.4; GIGW 3.0 Quality Guidelines 5.1,
+UX4G-SEA-012,UX4G Mastersheet v3.0.0,Search,Align search bar visual styling with brand and design system,manual,,usability,DBIM UI Standards Section 8; GIGW 3.0 Quality Guidelines 5.1,
+UX4G-PER-001,UX4G Mastersheet v3.0.0,Personalisation,Use consent-based personalisation to tailor content and features,manual,,usability,GIGW 3.0 – Functional Requirements & Privacy Principles; UX4G Handbook – Data-Driven UX; WCAG 2.2 SC 3.3.4,
+UX4G-PER-002,UX4G Mastersheet v3.0.0,Personalisation,Ensure personal data collection complies with government data protection regulations,manual,,usability,GIGW 3.0 – Data Protection Compliance; UX4G Handbook – Privacy by Design; WCAG 2.2 SC 3.3.1,
+UX4G-PER-003,UX4G Mastersheet v3.0.0,Personalisation,Provide theme options to support user visual comfort,manual,,usability,GIGW 3.0 – Accessibility & Usability; WCAG 2.1 SC 1.4.3; WCAG 2.2 SC 1.4.6,
+UX4G-PER-004,UX4G Mastersheet v3.0.0,Personalisation,Allow users to adjust typography and layout for readability,manual,,usability,WCAG 2.1 SC 1.4.4; WCAG 2.1 SC 1.4.12; WCAG 2.1 SC 1.4.8; GIGW 3.0 Accessibility & Usability Practices,
+UX4G-PER-005,UX4G Mastersheet v3.0.0,Personalisation,Recommend relevant content based on user interests and interactions,assisted,,usability,GIGW 3.0 Functional Requirements – Personalisation; WCAG 2.2 SC 3.2.2; UX4G Handbook – Content Recommendations,
+UX4G-PER-006,UX4G Mastersheet v3.0.0,Personalisation,Provide location-based content with user control,assisted,,usability,GIGW 3.0 Functional Requirements – Context Awareness; WCAG 2.2 SC 2.4.5; UX4G Handbook – Location-Based UX,
+UX4G-PER-007,UX4G Mastersheet v3.0.0,Personalisation,Allow users to customize notification preferences,assisted,,usability,GIGW 3.0 User-Centric Design; WCAG 2.2 SC 2.2.4; WCAG 2.2 SC 3.3.2; UX4G Handbook – Notification UX,
+UX4G-PER-008,UX4G Mastersheet v3.0.0,Personalisation,Prioritize notifications based on importance and user behavior,assisted,,usability,WCAG 2.2 SC 4.1.3; WCAG 2.1 SC 3.2.2; GIGW 3.0 Usability & Predictable UX,
+UX4G-PER-009,UX4G Mastersheet v3.0.0,Personalisation,Synchronize personalization changes in real time,assisted,,usability,GIGW 3.0 API Integration Guidelines; UX4G Handbook – Personalization Systems,
+UX4G-PER-010,UX4G Mastersheet v3.0.0,Personalisation,"Ensure ethical, transparent, and non-manipulative personalization",manual,,usability,WCAG 2.1 SC 3.2.5; GIGW 3.0 Quality Guidelines 5.1; UX4G Ethical UX Principles,
+UX4G-TO-001,UX4G Mastersheet v3.0.0,Task Orientation,Avoid irrelevant information to maintain task focus,manual,,usability,WCAG 2.1 SC 3.1.5; GIGW 3.0 SC 3.6.2; DBIM Clause 4.1; BIS IS 17802:2022 Clause 7.3.3,
+UX4G-TO-002,UX4G Mastersheet v3.0.0,Task Orientation,Use multimedia only when it supports the task,assisted,,usability,WCAG 2.1 SC 2.2.2; GIGW 3.0 SC 3.6.4; DBIM Clause 4.2; BIS IS 17802:2022 Clause 6.3.4,
+UX4G-TO-003,UX4G Mastersheet v3.0.0,Task Orientation,Avoid unnecessary registration for primary tasks,manual,,usability,WCAG 2.1 SC 3.3.6; GIGW 3.0 SC 3.5.4; BIS IS 17802:2022 Clause 6.3.2,
+UX4G-TO-004,UX4G Mastersheet v3.0.0,Task Orientation,Minimize steps and screens to complete tasks,assisted,,usability,GIGW 3.0 SC 3.6.2; DBIM Clause 4.1; BIS IS 17802:2022 Clause 6.3.1,
+UX4G-TO-005,UX4G Mastersheet v3.0.0,Task Orientation,Align digital task flow with real-world order,assisted,,usability,GIGW 3.0 SC 3.4.3,
+UX4G-TO-006,UX4G Mastersheet v3.0.0,Task Orientation,Reduce manual effort through automated inputs,assisted,,usability,GIGW 3.0 SC 3.4.7 – Assistance with Forms,
+UX4G-TO-007,UX4G Mastersheet v3.0.0,Task Orientation,Enable comparison to support informed decisions,assisted,,usability,GIGW 3.0 SC 3.4.11; BIS IS 17802:2022 SC 6.3.2; DBIM Clause 4.5,
+UX4G-TO-008,UX4G Mastersheet v3.0.0,Task Orientation,Place frequently used features in easily accessible areas,automated,govux-engine,usability,GIGW 3.0 SC 3.3.2; DBIM Clause 3.2; BIS IS 17802:2022 SC 6.2.3,
+UX4G-TO-009,UX4G Mastersheet v3.0.0,Task Orientation,Prevent repeated data entry across tasks,manual,,usability,GIGW 3.0 SC 6.1.1; DBIM Clause 5.1; BIS IS 17802:2022 SC 7.3.2,
+UX4G-TO-010,UX4G Mastersheet v3.0.0,Task Orientation,Show task progress and remaining steps clearly,assisted,,usability,GIGW 3.0 SC 6.2.1; BIS IS 17802:2022 SC 7.3.4; DBIM Clause 5.2,
+UX4G-TO-011,UX4G Mastersheet v3.0.0,Task Orientation,Support recognition over recall across sections,manual,,usability,WCAG 2.1 SC 3.3.7 (AAA); GIGW 3.0 SC 6.2.4; BIS IS 17802:2022 SC 6.5.1; DBIM SC 4.3,
+UX4G-TO-012,UX4G Mastersheet v3.0.0,Task Orientation,Use familiar metaphors and culturally appropriate formats,assisted,,usability,WCAG 2.1 SC 3.1.2; GIGW 3.0 SC 6.1.6; BIS IS 17802:2022 SC 7.3.1; DBIM SC 4.2,
+UX4G-TO-013,UX4G Mastersheet v3.0.0,Task Orientation,Hide system internals and avoid technical jargon,assisted,,usability,GIGW 3.0 SC 4.4.2; DBIM SC 4.3; BIS IS 17802:2022 SC 7.4.2,
+UX4G-TO-014,UX4G Mastersheet v3.0.0,Task Orientation,Provide recovery paths for critical errors,manual,,usability,WCAG 2.1 SC 3.3.6 (AAA),
+UX4G-TO-015,UX4G Mastersheet v3.0.0,Task Orientation,Enable self-sufficiency for common tasks,assisted,,usability,GIGW 3.0 SC 2.4.3,
+UX4G-TO-016,UX4G Mastersheet v3.0.0,Task Orientation,Allow users to resume tasks after interruption,assisted,,usability,WCAG 2.1 SC 3.2.5; BIS IS 17802:2022 SC 6.3.4,
+UX4G-TO-017,UX4G Mastersheet v3.0.0,Task Orientation,Provide sorting and filtering for content-heavy interfaces,manual,,usability,BIS IS 17802:2022 SC 6.6.2,
+UX4G-TO-018,UX4G Mastersheet v3.0.0,Task Orientation,Ensure buttons and icons clearly reflect intended actions,assisted,,usability,WCAG 2.1 SC 1.1.1; BIS IS 17802:2022 SC 6.3.3,
+UX4G-TO-019,UX4G Mastersheet v3.0.0,Task Orientation,Warn users before automatic session timeout,manual,,usability,WCAG 2.1 SC 2.2.1; GIGW 3.0 SC 2.7.2,
+UX4G-TO-020,UX4G Mastersheet v3.0.0,Task Orientation,Support both novice and expert users,assisted,,usability,WCAG 2.1 SC 3.3.5 (AAA); DBIM Section 4,
+UX4G-TO-021,UX4G Mastersheet v3.0.0,Task Orientation,Allow users to edit provided information,manual,,usability,GIGW 3.0 SC 2.7.3; BIS IS 17802:2022 SC 6.5.2,
+UX4G-TO-022,UX4G Mastersheet v3.0.0,Task Orientation,Provide step-by-step onboarding for new users,assisted,,usability,GIGW 3.0 SC 4.4.1; WCAG 2.1 SC 3.3.6; DBIM SC 5.1.2; BIS IS 17802:2022 SC 6.1.3,
+UX4G-TO-023,UX4G Mastersheet v3.0.0,Task Orientation,Use buttons for commands and actions instead of links,automated,govux-engine,usability,GIGW 3.0 SC 4.4.5; BIS IS 17802:2022 SC 7.3.5; DBIM SC 4.4,
+UX4G-TO-024,UX4G Mastersheet v3.0.0,Task Orientation,Provide real-time validation for incorrect inputs,assisted,,usability,"WCAG 2.1 SC 3.3.1, 3.3.3; GIGW 3.0 4.3.6; BIS IS 17802:2022 5.6.4",
+UX4G-TO-025,UX4G Mastersheet v3.0.0,Task Orientation,Make primary call-to-action buttons prominent and distinct,assisted,,usability,"WCAG 2.1 SC 2.5.5, 2.4.3; GIGW 3.0 Quality 5.1",
+UX4G-TO-026,UX4G Mastersheet v3.0.0,Task Orientation,Trigger data submission and state changes only through explicit user actions,manual,,usability,WCAG 2.1 SC 3.2.2; WCAG 2.2 SC 3.2.6,
+UX4G-NIA-001,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Make webpage titles clearly accessible and recognizable,automated,govux-engine,usability,WCAG 2.1 SC 2.4.2; GIGW 3.0 3.2.3; BIS IS 17428:2020 8.1.4; DBIM Navigation,
+UX4G-NIA-002,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Maintain a clear and logical navigation hierarchy,manual,,usability,"GIGW 3.0 SC 2.4.1; WCAG 2.1 SC 2.4.6, 2.4.10",
+UX4G-NIA-003,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Ensure primary navigation elements are clearly labeled and accessible,automated,govux-engine,usability,"WCAG 2.1 SC 2.4.4, 2.4.6; GIGW 3.0 2.4.2; BIS IS 17802:2022 6.5.2",
+UX4G-NIA-004,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Maintain consistent navigation patterns across pages,manual,,usability,WCAG 2.1 SC 3.2.3; GIGW 3.0 3.1.2,
+UX4G-NIA-005,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Keep key navigation elements persistent across main screens,manual,,usability,WCAG 2.1 SC 3.2.3; GIGW 3.0 3.1.2; BIS IS 17802:2022 6.4.1,
+UX4G-NIA-006,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,"Place navigation elements in prominent, expected locations",automated,govux-engine,usability,BIS IS 17802:2022 6.4.2; GIGW 3.0 3.1.1,
+UX4G-NIA-007,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Ensure navigation elements meet minimum target size,automated,govux-engine,usability,WCAG 2.1 SC 2.5.5; GIGW 3.0 3.1.2; BIS IS 17802:2022 6.3.1,
+UX4G-NIA-008,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Provide visual feedback on navigation interaction,manual,,usability,WCAG 2.1 SC 3.2.1; GIGW 3.0 3.2.2; BIS IS 17802:2022 6.3.4,
+UX4G-NIA-009,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,"Use smooth, non-disruptive transitions between screens",manual,,usability,WCAG 2.1 SC 3.2.3; DBIM 2.5,
+UX4G-NIA-010,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Support standard back navigation patterns,manual,,usability,WCAG 2.1 SC 2.4.5; GIGW 3.0 2.4.7,
+UX4G-NIA-011,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Use breadcrumbs for deep navigation paths,manual,,usability,WCAG 2.1 SC 2.4.8; GIGW 3.0 3.2.2,
+UX4G-NIA-012,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Structure information architecture around user needs,manual,,usability,GIGW 3.0 3.2.1; BIS IS 17802:2022 5.4.2,
+UX4G-NIA-013,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Group related content logically,automated,govux-engine,usability,WCAG 2.1 SC 2.4.6; GIGW 3.0 SC 4.2.2; BIS IS 17802:2022 5.4.2,
+UX4G-NIA-014,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Keep information architecture shallow,manual,,usability,GIGW 3.0 SC 4.2.1; WCAG 2.1 SC 2.4.1,
+UX4G-NIA-015,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Apply consistent structure to similar sections,automated,govux-engine,usability,WCAG 2.1 SC 3.2.3; GIGW 3.0 SC 4.3.2,
+UX4G-NIA-016,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Provide multiple pathways to important content,manual,,usability,WCAG 2.1 SC 2.4.5; GIGW 3.0 SC 4.3.2; BIS IS 17802:2022 6.3,
+UX4G-NIA-017,UX4G Mastersheet v3.0.0,Navigation and Information Architecture,Continuously refine IA based on user feedback,manual,,usability,GIGW 3.0 SC 6.2.1; BIS IS 17802:2022 6.2.1,
+UX4G-LFS-001,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Structure list items for scanability,manual,,usability,WCAG 2.1 SC 1.3.1; GIGW 3.0 SC 5.2.1; BIS IS 17802:2022 6.1.2,
+UX4G-LFS-002,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Maintain consistent list styling,automated,govux-engine,usability,GIGW 3.0 SC 5.2.3,
+UX4G-LFS-003,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Use visual separators between items,automated,govux-engine,usability,GIGW 3.0 SC 5.2.4,
+UX4G-LFS-004,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Ensure list items are easily clickable,automated,govux-engine,usability,WCAG 2.1 SC 2.5.5; WCAG 2.2 SC 2.5.8; BIS IS 17802:2022 6.2.3,
+UX4G-LFS-005,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Provide visual feedback on selection,manual,,usability,WCAG 2.1 SC 2.4.7; GIGW 3.0 SC 5.4.2,
+UX4G-LFS-006,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Optimize performance for large lists,manual,,usability,GIGW 3.0 SC 5.5.4,
+UX4G-LFS-007,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Show loading indicators for dynamic lists,manual,,usability,WCAG 2.1 SC 3.2.2; GIGW 3.0 SC 5.4.1; BIS IS 17802:2022 7.6.3,
+UX4G-LFS-008,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting","Place filters in prominent, accessible locations",automated,govux-engine,usability,WCAG 2.1 SC 2.4.3; WCAG 2.1 SC 3.2.3; GIGW 3.0,
+UX4G-LFS-009,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Use collapsible filter sections for dense filter sets,manual,,usability,WCAG 2.1 SC 2.4.1; GIGW 3.0 SC 5.3.2; DBIM 4.4,
+UX4G-LFS-010,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting","Use clear, jargon-free filter labels",manual,,usability,WCAG 2.1 SC 2.4.6; GIGW 3.0 SC 5.4.1; BIS IS 17802:2022 7.2.4,
+UX4G-LFS-011,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Support multi-select filtering where applicable,manual,,usability,GIGW 3.0 SC 6.1.2; DBIM 4.4; BIS IS 17802:2022 8.3.1,
+UX4G-LFS-012,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Apply filters efficiently with clear interaction model,manual,,usability,GIGW 3.0 SC 6.1.3; BIS IS 17802:2022 8.3.2,
+UX4G-LFS-013,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Show visual confirmation of active filters,manual,,usability,GIGW 3.0 SC 6.2.1; BIS IS 17802:2022 7.5.3; DBIM 4.4,
+UX4G-LFS-014,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Provide clear option to reset all filters,manual,,usability,WCAG 2.1 SC 3.3.6; GIGW 3.0 SC 6.2.2; BIS IS 17802:2022 7.5.4; DBIM 4.5,
+UX4G-LFS-015,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Persist user filter preferences across sessions,manual,,usability,GIGW 3.0 SC 6.2.4; DBIM 4.3; BIS IS 17802:2022 7.4.2,
+UX4G-LFS-016,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Allow users to create and save custom filter presets,manual,,usability,GIGW 3.0 SC 6.2.4,
+UX4G-LFS-017,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Provide relevant sorting options,manual,,usability,GIGW 3.0 SC 6.3.1,
+UX4G-LFS-018,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Define a logical default sorting order,manual,,usability,GIGW 3.0 SC 6.3.1,
+UX4G-LFS-019,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Allow ascending and descending sort toggling,manual,,usability,WCAG 2.1 SC 2.4.5; DBIM 4.2; BIS IS 17802:2022 7.3.5,
+UX4G-LFS-020,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Enable combination sorting where contextually useful,manual,,usability,GIGW 3.0 SC 6.3.1,
+UX4G-LFS-021,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Display clear indicators for current sort order,manual,,usability,GIGW 3.0 SC 6.3.2; DBIM 4.3,
+UX4G-LFS-022,UX4G Mastersheet v3.0.0,"Lists, Filters, and Sorting",Highlight the active sorting option,manual,,usability,WCAG 2.1 SC 1.3.1; SC 2.4.7; GIGW 3.0 SC 6.3.2,
+UX4G-FDE-001,UX4G Mastersheet v3.0.0,Forms and Data Entry,Limit forms to essential fields only,automated,govux-engine,usability,WCAG 2.1 SC 3.3.2; WCAG 2.2 SC 1.3.5; GIGW 3.0 Accessible Forms,
+UX4G-FDE-002,UX4G Mastersheet v3.0.0,Forms and Data Entry,Use multi-step forms for long data entry,manual,,usability,WCAG 2.1 SC 3.3.2; SC 3.3.5; GIGW 3.0 Progressive Disclosure,
+UX4G-FDE-003,UX4G Mastersheet v3.0.0,Forms and Data Entry,Show clear progress indicators in multi-step forms,manual,,usability,WCAG 2.2 SC 2.5.3; SC 2.4.6; GIGW 3.0 Process Guidance,
+UX4G-FDE-004,UX4G Mastersheet v3.0.0,Forms and Data Entry,Ensure visible and clear field labels,automated,govux-engine,usability,WCAG 2.2 SC 3.3.2; GIGW 3.0 Form Clarity,
+UX4G-FDE-005,UX4G Mastersheet v3.0.0,Forms and Data Entry,Use appropriate input types for data fields,manual,,usability,GIGW 3.0 Accessible Forms; WCAG 2.2 SC 2.5.1,
+UX4G-FDE-006,UX4G Mastersheet v3.0.0,Forms and Data Entry,Provide real-time input validation with guidance,manual,,usability,WCAG 2.1 SC 3.3.1; SC 3.3.3; GIGW 3.0 Input Feedback,
+UX4G-FDE-007,UX4G Mastersheet v3.0.0,Forms and Data Entry,Optimize input fields for touch interaction,manual,,usability,WCAG 2.1 SC 2.5.1; WCAG 2.2 SC 2.5.8; GIGW 3.0 Mobile Accessibility,
+UX4G-FDE-008,UX4G Mastersheet v3.0.0,Forms and Data Entry,Enable autofill for repetitive or predictable inputs,manual,,usability,WCAG 2.1 SC 1.3.5; WCAG 2.2 SC 2.2.1; GIGW 3.0 Form Efficiency,
+UX4G-FDE-009,UX4G Mastersheet v3.0.0,Forms and Data Entry,Provide intelligent suggestions and predictive input,manual,,usability,WCAG 2.1 SC 1.3.1; SC 1.3.5; GIGW 3.0 Input Acceleration,
+UX4G-FDE-010,UX4G Mastersheet v3.0.0,Forms and Data Entry,Use placeholder text only as supportive guidance,manual,,usability,WCAG 2.1 SC 3.3.2; GIGW 3.0 Forms; BIS IS 17802:2022 SC 5.6.3,
+UX4G-BG-001,UX4G Mastersheet v3.0.0,Banners and Graphics,Ensure every banner has a clear purpose,manual,,design,WCAG 2.1 SC 1.1.1; GIGW 3.0 Graphics Guidance,
+UX4G-BG-002,UX4G Mastersheet v3.0.0,Banners and Graphics,Maintain contextual relevance of banners,manual,,design,WCAG 2.1 SC 1.1.1; GIGW 3.0 Media Usability,
+UX4G-BG-003,UX4G Mastersheet v3.0.0,Banners and Graphics,Ensure branding consistency in banners,manual,,design,WCAG 2.1 SC 3.2.4; GIGW 3.0 Branding,
+UX4G-BG-004,UX4G Mastersheet v3.0.0,Banners and Graphics,"Use high-resolution, scalable graphics",manual,,design,WCAG 1.4.3; WCAG 1.4.5; GIGW 3.0 Visual Clarity,
+UX4G-BG-005,UX4G Mastersheet v3.0.0,Banners and Graphics,Balance visual appeal without overwhelming users,manual,,design,WCAG 2.1 SC 1.4.3; SC 1.4.8; GIGW 3.0 UI Design,
+UX4G-BG-006,UX4G Mastersheet v3.0.0,Banners and Graphics,Prevent banners from obstructing core functionality,manual,,design,WCAG 2.1 SC 1.4.13; SC 2.4.7; GIGW 3.0 Usability; BIS IS 17802,
+UX4G-BG-007,UX4G Mastersheet v3.0.0,Banners and Graphics,Ensure responsive sizing of banners across devices,manual,,design,WCAG 2.1 SC 1.4.10; SC 1.4.4; SC 1.4.5; GIGW 3.0 Responsive Layouts,
+UX4G-BG-008,UX4G Mastersheet v3.0.0,Banners and Graphics,Provide clear and prominent calls to action in banners,manual,,design,WCAG 2.1 SC 2.4.4; SC 3.2.4; GIGW 3.0 UI Design,
+UX4G-BG-009,UX4G Mastersheet v3.0.0,Banners and Graphics,Enable interaction for actionable banners,manual,,design,WCAG 2.1 SC 1.1.1; SC 3.2.4; GIGW 3.0 Graphics Guidelines,
+UX4G-BG-010,UX4G Mastersheet v3.0.0,Banners and Graphics,Use animations subtly to draw attention,manual,,design,WCAG 2.1 SC 2.3.3; SC 2.2.2,
+UX4G-BG-011,UX4G Mastersheet v3.0.0,Banners and Graphics,Ensure animations do not degrade performance or battery life,manual,,design,WCAG 2.1 SC 2.2.2; WCAG 2.2 SC 2.3.1,
+UX4G-BG-012,UX4G Mastersheet v3.0.0,Banners and Graphics,Keep banner text concise and visually supported,manual,,design,WCAG 3.1 Readable; GIGW 3.0 Content Clarity,
+UX4G-BG-013,UX4G Mastersheet v3.0.0,Banners and Graphics,Ensure readable text size and sufficient contrast,automated,govux-engine,design,WCAG 2.1 SC 1.4.3; 1.4.4; 1.4.10; GIGW 3.0 Typography,
+UX4G-BG-014,UX4G Mastersheet v3.0.0,Banners and Graphics,Provide alternative text for banners and graphics,automated,govux-engine,design,WCAG 2.1 SC 1.1.1,
+UX4G-BG-015,UX4G Mastersheet v3.0.0,Banners and Graphics,Prevent banner overload and manage multiple banners,manual,,design,WCAG 2.1 SC 2.2.2; 1.3.1; 2.1.1; GIGW 3.0,
+UX4G-BG-016,UX4G Mastersheet v3.0.0,Banners and Graphics,Keep banners updated and content current,manual,,design,GIGW 3.0 Content Governance,
+UX4G-BG-017,UX4G Mastersheet v3.0.0,Banners and Graphics,Localize banners for language and cultural context,manual,,design,WCAG 2.1 SC 1.3.1; GIGW 3.0 Localization,
+UX4G-BG-018,UX4G Mastersheet v3.0.0,Banners and Graphics,Ensure contextual relevance of banners,manual,,design,WCAG 2.1 SC 1.3.1; GIGW 3.0 User-Centric Design,
+UX4G-BG-019,UX4G Mastersheet v3.0.0,Banners and Graphics,Optimize images for fast loading,manual,,design,WCAG 2.1 SC 2.2.2; GIGW 3.0 Performance,
+UX4G-BG-020,UX4G Mastersheet v3.0.0,Banners and Graphics,Use lazy loading for non-critical banners,manual,,design,WCAG 2.1 SC 2.2.2; GIGW 3.0,
+UX4G-BG-021,UX4G Mastersheet v3.0.0,Banners and Graphics,Make banner notifications clear and dismissible,manual,,design,WCAG 2.1 SC 2.2.2; GIGW 3.0 UI Guidance,
+UX4G-WCQ-001,UX4G Mastersheet v3.0.0,Writing & Content Quality,Organize content into clear categories,automated,govux-engine,content,WCAG 2.1 SC 2.4.6; GIGW 3.0 IA; DBIM 2.2; BIS IS 17802:2022,
+UX4G-WCQ-002,UX4G Mastersheet v3.0.0,Writing & Content Quality,Recommend personalized content where appropriate,automated,govux-engine,content,GIGW 3.0 Personalization; DBIM 2.5; BIS IS 17802:2022,
+UX4G-WCQ-003,UX4G Mastersheet v3.0.0,Writing & Content Quality,Ensure content is easy to understand or simplified,automated,govux-engine,content,WCAG 2.1 SC 3.1.5; BIS IS 17802:2022,
+UX4G-WCQ-004,UX4G Mastersheet v3.0.0,Writing & Content Quality,Tailor content to target audience demographics,automated,govux-engine,content,WCAG 2.1 SC 3.1.1; 3.1.2; BIS IS 17802:2022,
+UX4G-WCQ-005,UX4G Mastersheet v3.0.0,Writing & Content Quality,Maintain consistent brand voice,automated,govux-engine,content,GIGW 3.0 SC 4.4.1; DBIM; BIS IS 17802:2022,
+UX4G-WCQ-006,UX4G Mastersheet v3.0.0,Writing & Content Quality,Adjust tone based on content context,automated,govux-engine,content,GIGW 3.0 SC 4.4.2; BIS IS 17802:2022,
+UX4G-WCQ-007,UX4G Mastersheet v3.0.0,Writing & Content Quality,Use hierarchical headings and structured formatting,automated,govux-engine,content,WCAG 2.1 SC 1.3.1; GIGW 3.0 4.3.1; BIS IS 17802:2022,
+UX4G-WCQ-008,UX4G Mastersheet v3.0.0,Writing & Content Quality,Highlight important information prominently,automated,govux-engine,content,WCAG 2.1 SC 1.3.1; BIS IS 17802:2022 SC 6.2.3,
+UX4G-WCQ-009,UX4G Mastersheet v3.0.0,Writing & Content Quality,Ensure grammatical correctness,automated,govux-engine,content,GIGW 3.0 SC 5.3.2; BIS IS 17802:2022 SC 6.4.2,
+UX4G-WCQ-010,UX4G Mastersheet v3.0.0,Writing & Content Quality,Eliminate spelling and typographical errors,automated,govux-engine,content,GIGW 3.0 SC 5.3.2,
+UX4G-WCQ-011,UX4G Mastersheet v3.0.0,Writing & Content Quality,Break content into readable chunks with whitespace,automated,govux-engine,content,GIGW 3.0 SC 5.4.3,
+UX4G-WCQ-012,UX4G Mastersheet v3.0.0,Writing & Content Quality,Provide clear instructions and guidance,manual,,content,GIGW 3.0 SC 5.2.1.1; WCAG 2.1 SC 3.3.2,
+UX4G-WCQ-013,UX4G Mastersheet v3.0.0,Writing & Content Quality,Ensure overall content accessibility compliance,automated,govux-engine,content,WCAG 2.1 SC 1.4.4; 1.1.1; 4.1.2; GIGW 3.0 SC 5.1.3,
+UX4G-WCQ-014,UX4G Mastersheet v3.0.0,Writing & Content Quality,Provide descriptive alternative text for non-text content,automated,govux-engine,content,WCAG 2.1 SC 1.1.1,
+UX4G-WCQ-015,UX4G Mastersheet v3.0.0,Writing & Content Quality,Keep content accurate and up to date,manual,,content,GIGW 3.0 SC 5.4.1.1,
+UX4G-WCQ-016,UX4G Mastersheet v3.0.0,Writing & Content Quality,Use feedback and analytics to improve content quality,manual,,content,GIGW 3.0 SC 5.4.1.3,
+UX4G-WCQ-017,UX4G Mastersheet v3.0.0,Writing & Content Quality,"Provide clear, accessible placeholder text",automated,govux-engine,content,GIGW 3.0 (Search UX); WCAG 2.1 SC 1.3.1; 3.3.2; 1.4.3,
+UX4G-WCQ-018,UX4G Mastersheet v3.0.0,Writing & Content Quality,Keep tooltip text concise and task-relevant,manual,,content,WCAG 2.1 SC 1.4.13; GIGW 3.0 Usability,
+UX4G-MIA-001,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Use system feedback to keep users informed,assisted,,design,"GIGW 3.0 §3.3.3; WCAG 2.1 SC 3.3.1, 3.3.3, 4.1.3",
+UX4G-MIA-002,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Provide visual feedback for button states,manual,,design,GIGW 3.0 SC 4.2.1; WCAG 2.2 SC 1.4.13,
+UX4G-MIA-003,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Highlight focused form fields,automated,govux-engine,design,GIGW 3.0 SC 4.3.2; BIS IS 17802:2022 §5.6.1; WCAG 2.2 SC 2.4.7,
+UX4G-MIA-004,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Use tooltips for contextual help,manual,,design,WCAG 2.1 SC 1.4.13; GIGW 3.0 SC 4.3.6,
+UX4G-MIA-005,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Use skeleton screens for perceived performance,manual,,design,GIGW 3.0 §9.2; UX4G Performance Guidance,
+UX4G-MIA-006,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Provide textual updates for long processes,manual,,design,WCAG 2.1 SC 2.2.4; GIGW 3.0 SC 4.2.2; BIS IS 17802:2022 §5.5.3,
+UX4G-MIA-007,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Place notifications consistently and non-intrusively,manual,,design,GIGW 3.0 SC 4.2.4; WCAG 2.1 SC 3.2.3; BIS IS 17802:2022 §5.5.4,
+UX4G-MIA-008,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Provide confirmation messages for completed actions,manual,,design,"WCAG 2.1 SC 3.3.1, 3.3.3; GIGW 3.0 SC 4.2.2; BIS IS 17802:2022 §6.4.1",
+UX4G-MIA-009,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Allow users to undo recent actions,manual,,design,WCAG 2.1 SC 3.3.4; GIGW 3.0 SC 4.2.3; BIS IS 17802:2022 §6.4.2,
+UX4G-MIA-010,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Use consistent animations across similar elements,manual,,design,GIGW 3.0 SC 4.4.6; DBIM §6.3.2; BIS IS 17802:2022 §5.1.4,
+UX4G-MIA-011,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Use accordions for secondary information,manual,,design,"WCAG 2.1 SC 2.4.3, 3.2.4; GIGW 3.0 §6.3.2; DBIM §7.3.1",
+UX4G-MIA-012,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Use interactive maps for location-based information,manual,,design,"WCAG 2.1 SC 1.1.1, 1.3.1; GIGW 3.0 §6.3.3",
+UX4G-MIA-013,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Ensure all interactions are keyboard accessible,manual,,design,"WCAG 2.1 SC 2.1.1, 2.1.2; GIGW 3.0 Accessibility",
+UX4G-MIA-014,UX4G Mastersheet v3.0.0,Macro & Micro Interactions and Animations,Provide single-pointer alternatives for multi-touch gestures,manual,,design,WCAG 2.1 SC 2.5.1; WCAG 2.2 Pointer Gestures,
+UX4G-HEL-001,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Provide a dedicated help centre,manual,,usability,WCAG 2.2 SC 2.4.5; GIGW 3.0 Help & Documentation,
+UX4G-HEL-002,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Provide context-sensitive help,manual,,usability,WCAG 2.2 SC 3.3.5; GIGW 3.0 Help & Support,
+UX4G-HEL-003,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Enable searchable help content,manual,,usability,WCAG 2.2 SC 2.4.6; GIGW 3.0 Self-service Support,
+UX4G-HEL-004,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Provide easy-to-access feedback forms,manual,,usability,WCAG 2.2 SC 3.3.2; GIGW 3.0 Feedback Mechanisms,
+UX4G-HEL-005,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Use short surveys or polls for experience feedback,manual,,usability,WCAG 2.2 SC 3.2.2; GIGW 3.0 User Engagement,
+UX4G-HEL-006,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Provide customer support contact options,manual,,usability,WCAG 2.2 SC 2.4.5; GIGW 3.0 §5.4.3.4,
+UX4G-HEL-007,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Display clear and actionable error messages,manual,,usability,"WCAG 2.2 SC 3.3.1, 3.3.3",
+UX4G-HEL-008,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Allow undo or revert actions,manual,,usability,GIGW 3.0 §5.4.4; WCAG 2.2 SC 3.3.4,
+UX4G-HEL-009,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Provide guided walkthroughs for new users,manual,,usability,WCAG 2.2 SC 3.3.5; GIGW 3.0 User Orientation,
+UX4G-HEL-010,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Use tooltips and hints for complex interactions,manual,,usability,WCAG 2.2 SC 1.4.13,
+UX4G-HEL-011,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Acknowledge user feedback immediately,manual,,usability,WCAG 2.2 SC 4.1.3; GIGW 3.0 SC 3.6.1,
+UX4G-HEL-012,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Keep users informed about feedback status,manual,,usability,GIGW 3.0 SC 3.6.1; WCAG 2.2 SC 3.3.2,
+UX4G-HEL-013,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Communicate when feedback leads to improvements,manual,,usability,GIGW 3.0 §8.2; WCAG 2.2 SC 3.3.3,
+UX4G-HEL-014,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Prevent data loss using auto-save,manual,,usability,WCAG 2.2 SC 3.3.4; GIGW 3.0 §6.4,
+UX4G-HEL-015,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Provide recovery options for interrupted tasks,manual,,usability,GIGW 3.0 §6.5; WCAG 2.2 SC 4.1.1,
+UX4G-HEL-016,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Ensure graceful degradation during failures,manual,,usability,WCAG 2.2 SC 4.1.3; GIGW 3.0 §6.6,
+UX4G-HEL-017,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Provide self-service knowledge base,manual,,usability,GIGW 3.0 §8.3; WCAG 2.2 SC 2.4.5,
+UX4G-HEL-018,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Educate users with tips and tutorials,manual,,usability,WCAG 2.2 SC 3.1.5; GIGW 3.0 User Centricity,
+UX4G-HEL-019,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Ensure accessibility of help and feedback features,assisted,,usability,"WCAG 2.1 SC 1.3.1, 2.1.1, 3.3.2, 4.1.2; WCAG 2.2; GIGW 3.0 Accessibility",
+UX4G-HEL-020,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Provide multilingual help and feedback resources,manual,,usability,"WCAG 2.1 SC 3.1.1, 3.1.2; GIGW 3.0 Language Access",
+UX4G-HEL-021,UX4G Mastersheet v3.0.0,"Help, Feedback, and Error Tolerance",Implement automated error and crash reporting,manual,,usability,GIGW 3.0 Website Monitoring; WCAG 2.2 SC 4.1.1; UX4G Error Intelligence,
+UX4G-GSI-001,UX4G Mastersheet v3.0.0,Government Service Integration,Identify relevant government services based on user needs,manual,,usability,GIGW 3.0 §3.1.2; DBIM §5.4.2,
+UX4G-GSI-002,UX4G Mastersheet v3.0.0,Government Service Integration,Define clear use cases for each integrated service,manual,,usability,GIGW 3.0 §3.1.2; DBIM §5.4.2; WCAG 2.1 SC 1.3.1,
+UX4G-GSI-003,UX4G Mastersheet v3.0.0,Government Service Integration,Follow official API documentation and standards,manual,,usability,GIGW 3.0 §3.1.3; DBIM §5.4.3,
+UX4G-GSI-004,UX4G Mastersheet v3.0.0,Government Service Integration,Ensure secure and compliant data exchange,manual,,usability,"GIGW 3.0 §3.1.2, §3.4; DBIM §5.2.1; IT Act 2000",
+UX4G-GSI-005,UX4G Mastersheet v3.0.0,Government Service Integration,Obtain explicit user consent before data sharing,assisted,,usability,GIGW 3.0 §7.5; WCAG 2.2 SC 3.3.4,
+UX4G-GSI-006,UX4G Mastersheet v3.0.0,Government Service Integration,Communicate role and benefits of integrated services,manual,,usability,GIGW 3.0 §5.3,
+UX4G-GSI-007,UX4G Mastersheet v3.0.0,Government Service Integration,Maintain UI consistency for integrated services,manual,,usability,GIGW 3.0 §6.4; WCAG 2.1 SC 3.2.4,
+UX4G-GSI-008,UX4G Mastersheet v3.0.0,Government Service Integration,Ensure intuitive navigation to integrated services,manual,,usability,GIGW 3.0 §6.3; WCAG 2.1 SC 3.2,
+UX4G-GSI-009,UX4G Mastersheet v3.0.0,Government Service Integration,Provide onboarding guidance for integrated services,assisted,,usability,GIGW 3.0 §6.2,
+UX4G-GSI-010,UX4G Mastersheet v3.0.0,Government Service Integration,Leverage Bhashini for multilingual access,assisted,,usability,GIGW 3.0 §6.1,
+UX4G-GSI-011,UX4G Mastersheet v3.0.0,Government Service Integration,Ensure accessibility compliance of integrated services,assisted,,usability,GIGW 3.0 §6.0; WCAG 2.1 AA,
+UX4G-GSI-012,UX4G Mastersheet v3.0.0,Government Service Integration,Communicate updates and changes in integrated services,assisted,,usability,GIGW 3.0 §5.7,
+UX4G-GSI-013,UX4G Mastersheet v3.0.0,Government Service Integration,Provide help and documentation for integrated services,manual,,usability,GIGW 3.0 §4.5; WCAG 2.1 SC 3.3.5,
+UX4G-GSI-014,UX4G Mastersheet v3.0.0,Government Service Integration,Design architecture for scalable integrations,manual,,usability,GIGW 3.0 – Scalability,
+UX4G-GSI-015,UX4G Mastersheet v3.0.0,Government Service Integration,Plan for future government service integrations,manual,,usability,GIGW 3.0 – Emerging Tech,
+UX4G-OF-001,UX4G Mastersheet v3.0.0,Offline Functionality,Identify and support critical offline use cases,assisted,,usability,GIGW 3.0 MAFR-03,
+UX4G-OF-002,UX4G Mastersheet v3.0.0,Offline Functionality,Implement automatic data synchronization,assisted,,usability,GIGW 3.0 MAFR-03,
+UX4G-OF-003,UX4G Mastersheet v3.0.0,Offline Functionality,Provide manual sync control,assisted,,usability,GIGW 3.0 MAFR-03,
+UX4G-OF-004,UX4G Mastersheet v3.0.0,Offline Functionality,Notify users about sync status,assisted,,usability,GIGW 3.0 MAFR-03; WCAG 2.1,
+UX4G-OF-005,UX4G Mastersheet v3.0.0,Offline Functionality,Maintain UI consistency in offline mode,assisted,,usability,GIGW 3.0; WCAG 2.1 §3.2,
+UX4G-OF-006,UX4G Mastersheet v3.0.0,Offline Functionality,Provide meaningful fallback content,assisted,,usability,GIGW 3.0 Lifecycle Mgmt,
+UX4G-OF-007,UX4G Mastersheet v3.0.0,Offline Functionality,Show clear offline error messaging,manual,,usability,GIGW 3.0; WCAG 2.1,AI Support column held 'high' — not an automatability value
+UX4G-OF-008,UX4G Mastersheet v3.0.0,Offline Functionality,Retry failed operations automatically,assisted,,usability,GIGW 3.0 MAFR-03,
+UX4G-OF-009,UX4G Mastersheet v3.0.0,Offline Functionality,Test product thoroughly in online and offline modes,assisted,,usability,GIGW 3.0 – Functional Requirements; BIS IS 17802:2022 (Part 1),
+UX4G-OF-010,UX4G Mastersheet v3.0.0,Offline Functionality,Provide in-product documentation for offline usage,manual,,usability,"GIGW 3.0 MAFR-03; WCAG 2.1 §3.1, §3.3; BIS IS 17802:2022",AI Support column held 'low' — not an automatability value
+UX4G-DVI-001,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,Use simple and non-overwhelming visual design,assisted,,design,"GIGW 3.0 – Visual Design; WCAG 2.1 §3.2, §3.3; BIS IS 17802:2022",
+UX4G-DVI-002,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,Provide text alternatives for charts and graphs,manual,,design,WCAG 2.1 §1.1.1; GIGW 3.0 – Accessibility,AI Support column held 'high' — not an automatability value
+UX4G-DVI-003,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,Ensure sufficient color contrast in data visuals,manual,,design,"WCAG 2.1 §1.4.3, §1.4.11; GIGW 3.0",AI Support column held 'high' — not an automatability value
+UX4G-DVI-004,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,Make charts screen-reader compatible,manual,,design,"WCAG 2.1 §1.1, §4.1; GIGW 3.0; BIS IS 17802",AI Support column held 'high' — not an automatability value
+UX4G-DVI-005,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,Maintain consistent color and typography,manual,,design,GIGW 3.0 – Branding; BIS IS 17802,AI Support column held 'high' — not an automatability value
+UX4G-DVI-006,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,"Use consistent scales, legends, and labels",assisted,,design,BIS IS 17802; GIGW 3.0; WCAG 2.1 §3.2.4,
+UX4G-DVI-007,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,Provide interactive exploration affordances,assisted,,design,GIGW 3.0; BIS IS 17802,
+UX4G-DVI-008,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,Ensure responsiveness across devices,manual,,design,WCAG 2.1 §1.4.10; GIGW 3.0; BIS IS 17802,AI Support column held 'high' — not an automatability value
+UX4G-DVI-009,UX4G Mastersheet v3.0.0,Data Visualisations & Infographics,Use descriptive titles and labels,manual,,design,WCAG 2.1 §1.3.1; GIGW 3.0; BIS IS 17802,AI Support column held 'high' — not an automatability value
+UX4G-PO-001,UX4G Mastersheet v3.0.0,Performance Optimization,Minimize HTTP requests via bundling,manual,,performance,GIGW 3.0 – Performance Optimization,AI Support column held 'high' — not an automatability value
+UX4G-PO-002,UX4G Mastersheet v3.0.0,Performance Optimization,Lazy load media assets,manual,,performance,GIGW 3.0 §6.4.1; BIS IS 17802:2021 §7.3,AI Support column held 'high' — not an automatability value
+UX4G-PO-003,UX4G Mastersheet v3.0.0,Performance Optimization,Load JavaScript asynchronously,manual,,performance,GIGW 3.0; BIS IS 17802:2022 §6.2.1,AI Support column held 'high' — not an automatability value
+UX4G-PO-004,UX4G Mastersheet v3.0.0,Performance Optimization,Use responsive image techniques,manual,,performance,GIGW 3.0; BIS IS 17802:2022 §6.3.3,AI Support column held 'high' — not an automatability value
+UX4G-PO-005,UX4G Mastersheet v3.0.0,Performance Optimization,Compress images,manual,,performance,GIGW 3.0; BIS IS 17802:2022 §6.3.3,AI Support column held 'high' — not an automatability value
+UX4G-PO-006,UX4G Mastersheet v3.0.0,Performance Optimization,Use next-gen image formats,manual,,performance,GIGW 3.0; BIS IS 17802:2022 §6.3.3,AI Support column held 'high' — not an automatability value
+UX4G-PO-007,UX4G Mastersheet v3.0.0,Performance Optimization,Leverage browser caching,manual,,performance,GIGW 3.0; BIS IS 17802:2022 §6.3.4,AI Support column held 'high' — not an automatability value
+UX4G-PO-008,UX4G Mastersheet v3.0.0,Performance Optimization,Use CDN for static assets,manual,,performance,GIGW 3.0; BIS IS 17802:2022 §7.2.1,AI Support column held 'high' — not an automatability value
+UX4G-PO-009,UX4G Mastersheet v3.0.0,Performance Optimization,"Minify CSS, JS, and HTML",manual,,performance,GIGW 3.0; BIS IS 17802:2022 §6.3.5,AI Support column held 'high' — not an automatability value
+UX4G-PO-010,UX4G Mastersheet v3.0.0,Performance Optimization,Remove unused CSS and JS,manual,,performance,GIGW 3.0; BIS IS 17802:2022 §6.3.5,AI Support column held 'high' — not an automatability value
+UX4G-PO-011,UX4G Mastersheet v3.0.0,Performance Optimization,Inline critical CSS,manual,,performance,GIGW 3.0; BIS IS 17802:2022 §6.3.5,AI Support column held 'high' — not an automatability value
+UX4G-PO-012,UX4G Mastersheet v3.0.0,Performance Optimization,Optimize database queries,manual,,performance,"GIGW 3.0 §3.2, §3.4; BIS IS 17802:2022 §6.3.8",AI Support column held 'medium' — not an automatability value
+UX4G-PO-013,UX4G Mastersheet v3.0.0,Performance Optimization,Use appropriate database indexing,manual,,performance,GIGW 3.0 §3.2; BIS IS 17802:2022 §6.3.8,AI Support column held 'medium' — not an automatability value
+UX4G-PO-014,UX4G Mastersheet v3.0.0,Performance Optimization,Implement query caching,manual,,performance,"GIGW 3.0 §3.2, §3.4; BIS IS 17802:2022 §6.3.8",AI Support column held 'medium' — not an automatability value
+UX4G-PO-015,UX4G Mastersheet v3.0.0,Performance Optimization,Enable HTTP/2,manual,,performance,GIGW 3.0 §3.2.2,AI Support column held 'medium' — not an automatability value
+UX4G-PO-016,UX4G Mastersheet v3.0.0,Performance Optimization,Enable file compression (Gzip/Brotli),manual,,performance,GIGW 3.0 §3.2.2,AI Support column held 'medium' — not an automatability value
+UX4G-PO-017,UX4G Mastersheet v3.0.0,Performance Optimization,Implement load balancing,manual,,performance,GIGW 3.0 §3.4.1; BIS IS 17802 Pt.2 §6.4,AI Support column held 'high' — not an automatability value
+UX4G-PO-018,UX4G Mastersheet v3.0.0,Performance Optimization,Ensure full responsiveness across devices,manual,,performance,GIGW 3.0 §3.1.2; WCAG 2.1 SC 1.4.10,AI Support column held 'high' — not an automatability value
+UX4G-PO-019,UX4G Mastersheet v3.0.0,Performance Optimization,Optimize touch interactions,manual,,performance,WCAG 2.1 SC 2.5.5,AI Support column held 'high' — not an automatability value
+UX4G-PO-020,UX4G Mastersheet v3.0.0,Performance Optimization,Use real-time performance monitoring tools,manual,,performance,GIGW 3.0 §3.6.1; BIS IS 17802:2022 Pt.3,AI Support column held 'medium' — not an automatability value
+UX4G-PO-021,UX4G Mastersheet v3.0.0,Performance Optimization,Use feedback to guide optimization,manual,,performance,GIGW 3.0 §4.1.5; BIS IS 17802 Pt.3,AI Support column held 'medium' — not an automatability value
+UX4G-PO-022,UX4G Mastersheet v3.0.0,Performance Optimization,Implement error logging tools,manual,,performance,GIGW 3.0 §3.6.1; BIS IS 17802 Pt.3,AI Support column held 'high' — not an automatability value
+UX4G-PO-023,UX4G Mastersheet v3.0.0,Performance Optimization,Use crash reporting tools,manual,,performance,GIGW 3.0 §3.6.1; BIS IS 17802 Pt.3,AI Support column held 'high' — not an automatability value
+UX4G-PO-024,UX4G Mastersheet v3.0.0,Performance Optimization,Preload critical resources,manual,,performance,GIGW 3.0 §3.4.1,AI Support column held 'high' — not an automatability value
+UX4G-PO-025,UX4G Mastersheet v3.0.0,Performance Optimization,Load critical content first,manual,,performance,GIGW 3.0 §3.4.1; BIS IS 17802 Pt.3,AI Support column held 'high' — not an automatability value
+UX4G-PO-026,UX4G Mastersheet v3.0.0,Performance Optimization,Ensure animations are smooth (no jank),manual,,performance,GIGW 3.0 §3.3.2; WCAG 2.1 SC 3.2.2,AI Support column held 'medium' — not an automatability value
+UX4G-PO-027,UX4G Mastersheet v3.0.0,Performance Optimization,Provide processing feedback,manual,,performance,GIGW 3.0 §3.3.2; WCAG 2.1 SC 3.2.2,AI Support column held 'medium' — not an automatability value
+UX4G-PO-028,UX4G Mastersheet v3.0.0,Performance Optimization,Monitor performance & reliability processes,manual,,performance,GIGW 3.0 Lifecycle Mgmt; UX4G Handbook,AI Support column held 'medium' — not an automatability value
+UX4G-PO-029,UX4G Mastersheet v3.0.0,Performance Optimization,Ensure product reliability (no broken links),manual,,performance,WCAG 2.1 SC 4.1.1; GIGW 3.0 SC 2.10.1,AI Support column held 'high' — not an automatability value
+UX4G-PO-030,UX4G Mastersheet v3.0.0,Performance Optimization,Optimize content delivery for slow networks,manual,,performance,GIGW 3.0 SC 5.4.3; BIS IS 17802 SC 6.2,AI Support column held 'medium' — not an automatability value
+UX4G-PO-031,UX4G Mastersheet v3.0.0,Performance Optimization,Preload essential content,manual,,performance,GIGW 3.0 SC 6.3.1; DBIM 7.2.2,AI Support column held 'medium' — not an automatability value
+UX4G-AL-001,UX4G Mastersheet v3.0.0,Analytics,Integrate relevant analytics systems,manual,,usability,GIGW 3.0 §4.2.3; BIS IS 17802 Pt.4,AI Support column held 'medium' — not an automatability value
+UX4G-AL-002,UX4G Mastersheet v3.0.0,Analytics,Define clear KPIs aligned to objectives,manual,,usability,GIGW 3.0 §4.2.4,AI Support column held 'medium' — not an automatability value
+UX4G-AL-003,UX4G Mastersheet v3.0.0,Analytics,Use heatmaps and session recordings,manual,,usability,GIGW 3.0 §4.2.3; BIS IS 17802 Pt.4,AI Support column held 'medium' — not an automatability value
+UX4G-AL-004,UX4G Mastersheet v3.0.0,Analytics,Track key user events,manual,,usability,GIGW 3.0 §4.2.3; WCAG 2.1 SC 4.1.2,AI Support column held 'medium' — not an automatability value
+UX4G-AL-005,UX4G Mastersheet v3.0.0,Analytics,Segment users for deeper insights,manual,,usability,GIGW 3.0 §4.2.3; BIS IS 17802 Pt.4,AI Support column held 'high' — not an automatability value
+UX4G-AL-006,UX4G Mastersheet v3.0.0,Analytics,Obtain user consent for analytics,manual,,usability,GIGW 3.0 §5.1,AI Support column held 'high' — not an automatability value
+UX4G-AL-007,UX4G Mastersheet v3.0.0,Analytics,Anonymise user data,manual,,usability,GIGW 3.0 §5.1; BIS IS 17802 Pt.4,AI Support column held 'medium' — not an automatability value
+UX4G-AL-008,UX4G Mastersheet v3.0.0,Analytics,Communicate data practices clearly,manual,,usability,GIGW 3.0 §5.1; BIS IS 17802 Pt.4,AI Support column held 'high' — not an automatability value
+UX4G-AL-009,UX4G Mastersheet v3.0.0,Analytics,Use real-time analytics,manual,,usability,GIGW 3.0 §4.2.3,AI Support column held 'medium' — not an automatability value
+UX4G-AL-010,UX4G Mastersheet v3.0.0,Analytics,Integrate crash reporting,manual,,usability,GIGW 3.0 §4.3; BIS IS 17802 Pt.4,AI Support column held 'high' — not an automatability value
+UX4G-AL-011,UX4G Mastersheet v3.0.0,Analytics,Analyse user flows and drop-offs,manual,,usability,GIGW 3.0 §4.2.3,AI Support column held 'medium' — not an automatability value
+UX4G-AL-012,UX4G Mastersheet v3.0.0,Analytics,Create custom dashboards,manual,,usability,GIGW 3.0 §4.2.3,AI Support column held 'medium' — not an automatability value
+UX4G-AL-013,UX4G Mastersheet v3.0.0,Analytics,Generate periodic performance reports,manual,,usability,GIGW 3.0 §4.2.3,AI Support column held 'medium' — not an automatability value
+UX4G-AL-014,UX4G Mastersheet v3.0.0,Analytics,Conduct A/B testing,manual,,usability,GIGW 3.0 §4.2.3; BIS IS 17802 Pt.4,AI Support column held 'low' — not an automatability value
+UX4G-AL-015,UX4G Mastersheet v3.0.0,Analytics,Track usage of help & feedback features,manual,,usability,GIGW 3.0; UX4G Handbook,AI Support column held 'medium' — not an automatability value
+UX4G-SM-001,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Thumb-zone optimised menu placement,manual,,usability,GIGW 3.0 §5.1; WCAG 2.1 SC 2.5.5,AI Support column held 'medium' — not an automatability value
+UX4G-SM-002,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Display personalised user identity,manual,,usability,WCAG 2.1 SC 1.3.1; GIGW 3.0,AI Support column held 'low' — not an automatability value
+UX4G-SM-003,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Logical grouping of navigation items,manual,,usability,WCAG 2.1 SC 2.4.6; GIGW 3.0,AI Support column held 'medium' — not an automatability value
+UX4G-SM-004,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,"Clear, action-oriented menu labels",manual,,usability,WCAG 2.1 SC 2.4.6,AI Support column held 'medium' — not an automatability value
+UX4G-SM-005,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Maintain shallow navigation depth,manual,,usability,WCAG 2.1 SC 2.4.8; GIGW 3.0,AI Support column held 'medium' — not an automatability value
+UX4G-SM-006,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Prioritise high-frequency actions,manual,,usability,WCAG 2.1 SC 2.4.5,AI Support column held 'medium' — not an automatability value
+UX4G-SM-007,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,User identity at top of menu,manual,,usability,WCAG 2.1 SC 1.3.1,AI Support column held 'low' — not an automatability value
+UX4G-SM-008,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Comprehensive account management options,manual,,usability,GIGW 3.0 §5.1,AI Support column held 'medium' — not an automatability value
+UX4G-SM-009,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Easy access to support resources,manual,,usability,WCAG 2.1 SC 3.3.2; GIGW 3.0,AI Support column held 'medium' — not an automatability value
+UX4G-SM-010,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Display organisational metadata,manual,,usability,GIGW 3.0 §5.1.9,AI Support column held 'low' — not an automatability value
+UX4G-SM-011,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Privacy controls and consent management,manual,,usability,GIGW 3.0 §5.4; DPDP Act 2023,AI Support column held 'high' — not an automatability value
+UX4G-SM-012,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,Re-authentication for sensitive actions,manual,,usability,GIGW 3.0 Cybersecurity; WCAG 2.1,AI Support column held 'high' — not an automatability value
+UX4G-SM-013,UX4G Mastersheet v3.0.0,Side/Profile/Avatar Menu,High-performance menu interactions,manual,,usability,GIGW 3.0 Performance; WCAG 2.1,AI Support column held 'high' — not an automatability value
+UX4G-ACC-001,UX4G Mastersheet v3.0.0,Accessibility,Multi-lingual support,manual,,accessibility,"GIGW 3.0 §2.4.1; WCAG 2.1 SC 3.1.1, 3.1.2; BIS IS 17428:2020",AI Support column held 'medium' — not an automatability value
+UX4G-ACC-002,UX4G Mastersheet v3.0.0,Accessibility,Sufficient text–background contrast,manual,,accessibility,"WCAG 2.1 SC 1.4.3, 1.4.6; BIS IS 17802:2022",AI Support column held 'high' — not an automatability value
+UX4G-ACC-003,UX4G Mastersheet v3.0.0,Accessibility,WCAG compliance (overall),manual,,accessibility,WCAG 2.1; GIGW 3.0 §3.1,AI Support column held 'high' — not an automatability value
+UX4G-ACC-004,UX4G Mastersheet v3.0.0,Accessibility,Assistive technology compatibility,manual,,accessibility,"WCAG 2.1 SC 2.1.1, 2.4.3, 2.4.7; GIGW 3.0",AI Support column held 'high' — not an automatability value
+UX4G-ACC-005,UX4G Mastersheet v3.0.0,Accessibility,Keyboard navigation support,manual,,accessibility,"WCAG 2.1 SC 2.1.1, 2.1.2, 2.4.7",AI Support column held 'high' — not an automatability value
+UX4G-ACC-006,UX4G Mastersheet v3.0.0,Accessibility,Ease of use for low-experience users,manual,,accessibility,GIGW 3.0 SC 2.3.1; DBIM,AI Support column held 'medium' — not an automatability value
+UX4G-ACC-007,UX4G Mastersheet v3.0.0,Accessibility,Accessible list items,manual,,accessibility,WCAG 2.1 SC 1.3.1; BIS IS 17802:2022,AI Support column held 'high' — not an automatability value
+UX4G-ACC-008,UX4G Mastersheet v3.0.0,Accessibility,Accessible sorting controls,manual,,accessibility,"WCAG 2.1 SC 1.3.1, 4.1.2; BIS IS 17802:2022",AI Support column held 'medium' — not an automatability value
+UX4G-ACC-009,UX4G Mastersheet v3.0.0,Accessibility,Accessible form design,manual,,accessibility,"WCAG 2.1 SC 3.3.2, 1.4.3; GIGW 3.0",AI Support column held 'high' — not an automatability value
+UX4G-ACC-010,UX4G Mastersheet v3.0.0,Accessibility,Keyboard-accessible form elements,manual,,accessibility,"WCAG 2.1 SC 2.1.1, 2.1.2",AI Support column held 'high' — not an automatability value
+UX4G-ACC-011,UX4G Mastersheet v3.0.0,Accessibility,ARIA landmarks usage,manual,,accessibility,"WCAG 2.1 SC 1.3.1, 4.1.2; GIGW 3.0 §5.2.6",AI Support column held 'high' — not an automatability value
+GOVUX-rti,GovUX-unique,GovUX engine,GIGW mandatory: Right to Information link,automated,govux-engine,gigw,,Statutory (RTI Act 2005); not present in the UX4G mastersheet
+GOVUX-last-updated,GovUX-unique,GovUX engine,GIGW mandatory: last updated / reviewed date,automated,govux-engine,gigw,,
+GOVUX-copyright-policy,GovUX-unique,GovUX engine,GIGW mandatory: copyright policy link,automated,govux-engine,gigw,,
+GOVUX-terms,GovUX-unique,GovUX engine,GIGW mandatory: terms of use link,automated,govux-engine,gigw,,
+GOVUX-accessibility-statement,GovUX-unique,GovUX engine,GIGW mandatory: accessibility statement,automated,govux-engine,gigw,,
+GOVUX-sitemap,GovUX-unique,GovUX engine,GIGW mandatory: sitemap link,automated,govux-engine,gigw,,
+GOVUX-metadata-desc,GovUX-unique,GovUX engine,GIGW mandatory: meta description,automated,govux-engine,gigw,,
+GOVUX-security-headers,GovUX-unique,GovUX engine,HSTS / CSP / X-Frame-Options / X-Content-Type-Options,automated,govux-engine,trust,,
+GOVUX-trackers-consent,GovUX-unique,GovUX engine,Third-party trackers vs DPDP s6 consent,automated,govux-engine,trust,,DPDP Act 2023 s6
+GOVUX-integrity-overlay,GovUX-unique,GovUX engine,Accessibility-overlay widget detection,automated,govux-engine,accessibility,,Anti-gaming: overlays inflate automated a11y scores without fixing anything
+GOVUX-integrity-gaming,GovUX-unique,GovUX engine,Compliance-theatre heuristics,automated,govux-engine,gigw,,"Caps the verdict, never the score"
+GOVUX-pdf-ua,GovUX-unique,GovUX engine,Linked PDF/document accessibility (PDF-UA),assisted,govux-engine,accessibility,,
+GOVUX-cross-browser,GovUX-unique,GovUX engine,Chromium/Firefox/WebKit render + JS error matrix,automated,govux-engine,responsiveness,,
+GOVUX-reflow-overflow,GovUX-unique,GovUX engine,Horizontal overflow at mobile width,automated,govux-engine,responsiveness,,
+GOVUX-broken-links,GovUX-unique,GovUX engine,Broken internal links (4xx/5xx),automated,govux-engine,content,,
+GOVUX-readability,GovUX-unique,GovUX engine,Reading-level / plain-language score,assisted,govux-engine,content,,
+GOVUX-script-lang,GovUX-unique,GovUX engine,Indic script vs declared lang attribute,automated,govux-engine,content,,
+HEU-1,Nielsen heuristics,Usability heuristic,Visibility of system status,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-2,Nielsen heuristics,Usability heuristic,Match between system and the real world,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-3,Nielsen heuristics,Usability heuristic,User control and freedom,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-4,Nielsen heuristics,Usability heuristic,Consistency and standards,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-5,Nielsen heuristics,Usability heuristic,Error prevention,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-6,Nielsen heuristics,Usability heuristic,Recognition rather than recall,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-7,Nielsen heuristics,Usability heuristic,Flexibility and efficiency of use,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-8,Nielsen heuristics,Usability heuristic,Aesthetic and minimalist design,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-9,Nielsen heuristics,Usability heuristic,"Help users recognise, diagnose and recover from errors",manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
+HEU-10,Nielsen heuristics,Usability heuristic,Help and documentation,manual,,usability,Nielsen (1994),Evaluative frame for assessor review; never scored
