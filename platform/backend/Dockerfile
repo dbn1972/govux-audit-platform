@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # bookworm pin: playwright 1.44 --with-deps knows Debian 12's package names
 FROM python:3.12-slim-bookworm AS base
 WORKDIR /app
@@ -16,14 +17,19 @@ COPY audit_engine/package.json audit_engine/
 # otherwise fails GPG signature validation with "invalid signature". Then install
 # the browsers AND their system libraries with --with-deps. No masking retry:
 # if apt fails, the build must fail loudly rather than ship browsers with no libs.
-RUN printf 'Acquire::Check-Valid-Until "false";\nAcquire::Check-Date "false";\n' \
+# BuildKit cache mount keeps npm/playwright downloads across rebuilds.
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/root/.cache/ms-playwright \
+    printf 'Acquire::Check-Valid-Until "false";\nAcquire::Check-Date "false";\n' \
         > /etc/apt/apt.conf.d/99no-check-valid \
     && cd audit_engine && npm install --omit=dev \
     && npx playwright install --with-deps chromium firefox webkit
 
 # Python deps last — the layer most likely to change.
+# BuildKit cache mount keeps pip's download cache across rebuilds.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir -r requirements.txt
 
 # ---- dev: adds pytest/pytest-cov so `docker compose exec api pytest` works
 # out of the box — docker-compose.yml builds this target explicitly.

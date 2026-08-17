@@ -1,7 +1,9 @@
+# syntax=docker/dockerfile:1
 FROM node:20-slim AS base
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+COPY package.json package-lock.json* ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm install
 COPY . .
 EXPOSE 3000
 
@@ -9,7 +11,7 @@ EXPOSE 3000
 FROM base AS dev
 CMD ["npm", "run", "dev"]
 
-# ---- prod: pre-built Next.js app, just start
+# ---- prod: pre-built Next.js app with standalone output
 FROM base AS prod
 RUN npm run build
 CMD ["npm", "run", "start"]
