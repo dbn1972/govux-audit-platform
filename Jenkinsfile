@@ -1,40 +1,105 @@
-// GovUX Audit Platform — Jenkins deploy pipeline (develop → EC2 via SSM)
-// Replaces `aws ssm wait` with a robust poll loop that won't time out on builds.
+import groovy.json.JsonOutput
+
+def runSSM(String command, int maxWaitSeconds = 300) {
+    def parameters = JsonOutput.toJson([commands: [command]])
+
+    def commandId = sh(
+        script: """
+            aws ssm send-command \
+                --region ${AWS_REGION} \
+                --instance-ids ${INSTANCE_ID} \
+                --document-name AWS-RunShellScript \
+                --parameters '${parameters}' \
+                --timeout-seconds ${maxWaitSeconds} \
+                --query "Command.CommandId" \
+                --output text
+        """,
+        returnStdout: true
+    ).trim()
+
+    echo "SSM Command ID : ${commandId} (timeout: ${maxWaitSeconds}s)"
+
+    def elapsed = 0
+    def pollInterval = 15
+
+    while (elapsed < maxWaitSeconds) {
+        sleep(pollInterval)
+        elapsed += pollInterval
+
+        def status = sh(
+            script: """
+                aws ssm get-command-invocation \
+                    --region ${AWS_REGION} \
+                    --command-id ${commandId} \
+                    --instance-id ${INSTANCE_ID} \
+                    --query "Status" \
+                    --output text 2>/dev/null || echo "Pending"
+            """,
+            returnStdout: true
+        ).trim()
+
+        echo "[${elapsed}s] Status: ${status}"
+
+        if (status == 'Success') {
+            echo "Command completed in ${elapsed}s"
+            return
+        }
+
+        if (status in ['Failed', 'TimedOut', 'Cancelled', 'Cancelling']) {
+            def errOutput = sh(
+                script: """
+                    aws ssm get-command-invocation \
+                        --region ${AWS_REGION} \
+                        --command-id ${commandId} \
+                        --instance-id ${INSTANCE_ID} \
+                        --query "StandardErrorContent" \
+                        --output text 2>/dev/null | head -c 3000
+                """,
+                returnStdout: true
+            ).trim()
+            error("SSM command ${status}: ${errOutput}")
+        }
+    }
+
+    error("Timed out after ${maxWaitSeconds}s — command may still be running. ID: ${commandId}")
+}
 
 pipeline {
     agent any
 
     environment {
-        AWS_REGION       = 'ap-south-2'
-        INSTANCE_ID      = 'i-0cc2319aa694bef7a'
-        DEPLOY_TIMEOUT   = '600'   // seconds — 10 min for docker build
-        POLL_INTERVAL    = '15'    // seconds between status checks
-        APP_DIR          = '/opt/govux/app'
-        COMPOSE_DIR      = '/opt/govux/app/platform'
-        ENV_FILE         = '/opt/govux/config/.env'
-        GIT_BRANCH       = 'develop'
-        GIT_REPO         = 'https://github.com/dbn1972/govux-audit-platform.git'
+        AWS_REGION  = "ap-south-2"
+        INSTANCE_ID = "i-0cc2319aa694bef7a"
+        GIT_URL     = "https://github.com/dbn1972/govux-audit-platform.git"
+        GIT_BRANCH  = "${BRANCH_NAME}"
+        REMOTE_DIR  = "/opt/govux/app"
+        ENV_FILE    = "/opt/govux/config/.env"
     }
 
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "*/${GIT_BRANCH}"]],
+                    userRemoteConfigs: [[url: "${GIT_URL}"]]])
             }
         }
 
         stage('Update Code on EC2') {
             steps {
                 script {
-                    def cmd = """
-                        if [ ! -d ${APP_DIR}/.git ]; then
-                            rm -rf ${APP_DIR} && git clone -b ${GIT_BRANCH} ${GIT_REPO} ${APP_DIR};
-                        else
-                            cd ${APP_DIR} && git fetch origin && git checkout ${GIT_BRANCH} && git reset --hard origin/${GIT_BRANCH};
-                        fi
-                    """.stripIndent().trim()
-
-                    ssmRunAndWait(cmd, 120)  // 2 min is plenty for git pull
+                    runSSM(
+                        "if [ ! -d ${REMOTE_DIR}/.git ]; then " +
+                        "rm -rf ${REMOTE_DIR} && " +
+                        "git clone -b ${GIT_BRANCH} ${GIT_URL} ${REMOTE_DIR}; " +
+                        "else " +
+                        "cd ${REMOTE_DIR} && " +
+                        "git fetch origin && " +
+                        "git checkout ${GIT_BRANCH} && " +
+                        "git reset --hard origin/${GIT_BRANCH}; " +
+                        "fi",
+                        120
+                    )
                 }
             }
         }
@@ -42,41 +107,44 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    def cmd = "cd ${COMPOSE_DIR} && docker compose -f docker-compose.prod.yml --env-file ${ENV_FILE} up -d --build --remove-orphans"
-                    ssmRunAndWait(cmd, DEPLOY_TIMEOUT.toInteger())
+                    runSSM(
+                        "cd ${REMOTE_DIR}/platform && " +
+                        "docker compose -f docker-compose.prod.yml " +
+                        "--env-file ${ENV_FILE} " +
+                        "up -d --build --remove-orphans",
+                        600
+                    )
                 }
             }
         }
 
-        stage('Post-Deploy Config') {
+        stage('Configure SMTP') {
             steps {
                 script {
-                    // Configure SMTP settings directly in the database.
-                    // This breaks the chicken-and-egg: can't sign in to configure SMTP,
-                    // can't get OTP without SMTP configured.
-                    def cmd = """cd ${COMPOSE_DIR} && docker compose -f docker-compose.prod.yml exec -T db psql -U \\\${POSTGRES_USER} -d \\\${POSTGRES_DB} -c "
-INSERT INTO app_settings (key, value) VALUES
-  ('email_provider', 'smtp'),
-  ('email_from', 'support.ux4g@digitalindia.gov.in'),
-  ('smtp_host', 'smtp.mgovcloud.in'),
-  ('smtp_port', '465'),
-  ('smtp_user', 'support.ux4g@digitalindia.gov.in')
-ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
-" """
-                    ssmRunAndWait(cmd, 30)
+                    runSSM(
+                        "docker exec -i \$(docker ps -qf name=platform-db-1) psql -U govux -d govux <<'EOSQL'\n" +
+                        "INSERT INTO app_settings (key, value) VALUES\n" +
+                        "  ('email_provider', 'smtp'),\n" +
+                        "  ('email_from', 'support.ux4g@digitalindia.gov.in'),\n" +
+                        "  ('smtp_host', 'smtp.mgovcloud.in'),\n" +
+                        "  ('smtp_port', '465'),\n" +
+                        "  ('smtp_user', 'support.ux4g@digitalindia.gov.in')\n" +
+                        "ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;\n" +
+                        "EOSQL",
+                        30
+                    )
 
-                    // SMTP password is encrypted at rest via Fernet in the app layer.
-                    // Insert it through the API's own encryption path by exec-ing into
-                    // the api container (which has the GOVUX_SECRET_KEY for Fernet).
-                    def pwdCmd = """cd ${COMPOSE_DIR} && docker compose -f docker-compose.prod.yml exec -T api python -c "
-from app.services import settings_store
-from app.database import SessionLocal
-db = SessionLocal()
-settings_store.set_value('smtp_password', 'AK5eP44DE3u8', db, user_id=None)
-db.close()
-print('smtp_password configured (encrypted)')
-" """
-                    ssmRunAndWait(pwdCmd, 30)
+                    runSSM(
+                        "docker exec -i \$(docker ps -qf name=platform-api-1) python <<'EOPY'\n" +
+                        "from app.services import settings_store\n" +
+                        "from app.database import SessionLocal\n" +
+                        "db = SessionLocal()\n" +
+                        "settings_store.set_value('smtp_password', 'AK5eP44DE3u8', db, user_id=None)\n" +
+                        "db.close()\n" +
+                        "print('smtp_password configured')\n" +
+                        "EOPY",
+                        30
+                    )
                 }
             }
         }
@@ -84,91 +152,35 @@ print('smtp_password configured (encrypted)')
         stage('Health Check') {
             steps {
                 script {
-                    def cmd = """
-                        for i in \$(seq 1 40); do
-                            if curl -sf http://localhost:8000/readyz >/dev/null 2>&1 && \\
-                               curl -sf http://localhost:3000/login >/dev/null 2>&1; then
-                                echo "Stack healthy"; exit 0;
-                            fi
-                            sleep 5
-                        done
-                        echo "Health check timed out"; exit 1
-                    """.stripIndent().trim()
-
-                    ssmRunAndWait(cmd, 210)  // 3.5 min for services to start
+                    runSSM(
+                        "for i in \$(seq 1 12); do " +
+                        "STATUS=\$(docker inspect --format={{.State.Health.Status}} platform-api-1 2>/dev/null || echo not_found); " +
+                        "echo API_health_status=\$STATUS; " +
+                        "if [ \"\$STATUS\" = \"healthy\" ]; then " +
+                        "echo API_Health_Check_Passed; " +
+                        "exit 0; " +
+                        "fi; " +
+                        "sleep 10; " +
+                        "done; " +
+                        "echo API_Health_Check_Failed; " +
+                        "docker logs --tail 50 platform-api-1; " +
+                        "exit 1",
+                        180
+                    )
                 }
             }
         }
     }
 
     post {
-        success { echo 'GovUX Deployment Succeeded' }
-        failure { echo 'GovUX Deployment Failed' }
-        always  { cleanWs() }
-    }
-}
-
-// ─── Helper: send SSM command and poll until terminal state ───────────────────
-def ssmRunAndWait(String command, int timeoutSeconds) {
-    def commandId = sh(
-        script: """
-            aws ssm send-command \\
-                --region ${AWS_REGION} \\
-                --instance-ids ${INSTANCE_ID} \\
-                --document-name AWS-RunShellScript \\
-                --parameters '{"commands":["${command.replace("'", "'\\''").replace('"', '\\"')}"]}' \\
-                --timeout-seconds ${timeoutSeconds} \\
-                --query "Command.CommandId" \\
-                --output text
-        """,
-        returnStdout: true
-    ).trim()
-
-    echo "SSM Command ID: ${commandId} (timeout: ${timeoutSeconds}s)"
-
-    def elapsed = 0
-    def pollInterval = POLL_INTERVAL.toInteger()
-
-    while (elapsed < timeoutSeconds) {
-        sleep(pollInterval)
-        elapsed += pollInterval
-
-        def status = sh(
-            script: """
-                aws ssm get-command-invocation \\
-                    --region ${AWS_REGION} \\
-                    --command-id ${commandId} \\
-                    --instance-id ${INSTANCE_ID} \\
-                    --query "Status" \\
-                    --output text 2>/dev/null || echo "Pending"
-            """,
-            returnStdout: true
-        ).trim()
-
-        echo "[${elapsed}s] SSM status: ${status}"
-
-        if (status == 'Success') {
-            echo "Command completed successfully in ${elapsed}s"
-            return
+        success {
+            echo "GovUX Deployment Successful"
         }
-
-        if (status in ['Failed', 'TimedOut', 'Cancelled', 'Cancelling']) {
-            // Grab error output for diagnostics
-            def errOutput = sh(
-                script: """
-                    aws ssm get-command-invocation \\
-                        --region ${AWS_REGION} \\
-                        --command-id ${commandId} \\
-                        --instance-id ${INSTANCE_ID} \\
-                        --query "StandardErrorContent" \\
-                        --output text 2>/dev/null | head -c 3000
-                """,
-                returnStdout: true
-            ).trim()
-
-            error("SSM command ${status}: ${errOutput}")
+        failure {
+            echo "GovUX Deployment Failed"
+        }
+        always {
+            cleanWs()
         }
     }
-
-    error("SSM command timed out after ${timeoutSeconds}s (command may still be running on instance). Command ID: ${commandId}")
 }
