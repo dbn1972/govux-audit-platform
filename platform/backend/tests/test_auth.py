@@ -534,7 +534,7 @@ def test_an_idle_timeout_does_not_kill_the_whole_session_family(client, db, monk
 
 
 # ── seed reconciliation ──────────────────────────────────────────────────────
-# The seed used to bail out the moment steward@indiapost.gov.in existed, so the
+# The seed used to bail out the moment the steward account existed, so the
 # one case worth fixing — a deployment where that address had already been
 # created by self-service sign-in, in its own auto-provisioned org — was the
 # exact case it refused to touch. Local and deployed drifted apart as a result.
@@ -543,22 +543,38 @@ def test_seed_reconciles_a_self_service_account_into_the_demo_org(db):
     from app import models, seed as demo_seed
     demo_seed.seed()
 
+    email, display_name, role = next(u for u in demo_seed.SANDBOX_USERS
+                                     if u[2] == "programme_admin")
+
     # simulate the deployed state: same address, self-service defaults, own org
     stray = models.Organisation(name="stray org", org_type="department")
     db.add(stray); db.flush()
-    u = db.query(models.User).filter(models.User.email == demo_seed.STEWARD_EMAIL).one()
+    u = db.query(models.User).filter(models.User.email == email).one()
     u.org_id, u.role, u.display_name = stray.id, "owner", "steward"
     db.commit()
 
     stats = demo_seed.seed()
 
     db.expire_all()
-    u = db.query(models.User).filter(models.User.email == demo_seed.STEWARD_EMAIL).one()
+    u = db.query(models.User).filter(models.User.email == email).one()
     org = db.get(models.Organisation, u.org_id)
-    assert org.name == demo_seed.ORG_NAME
-    assert u.role == "programme_admin"
-    assert u.display_name == "MeitY/NIC Steward"
+    assert org.name == demo_seed.SANDBOX_ORG
+    assert u.role == role
+    assert u.display_name == display_name
     assert stats["users_updated"] >= 1
+
+
+def test_seed_gives_the_sandbox_one_account_per_role(db):
+    """Every role has a login, or a permission boundary becomes untestable by
+    hand — which is how the contributor screens went unexercised for weeks."""
+    from app import models, seed as demo_seed
+    demo_seed.seed()
+
+    org = (db.query(models.Organisation)
+             .filter(models.Organisation.name == demo_seed.SANDBOX_ORG).one())
+    seeded = {u.role: u.email for u in
+              db.query(models.User).filter(models.User.org_id == org.id).all()}
+    assert seeded == {role: email for email, _, role in demo_seed.SANDBOX_USERS}
 
 
 def test_seeding_twice_creates_nothing_the_second_time(db):

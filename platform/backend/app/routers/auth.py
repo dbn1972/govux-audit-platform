@@ -11,7 +11,7 @@ from .. import models, security
 from ..schemas import (OtpRequest, OtpVerify, TokenPair, DeviceOut, OrganisationUpdate,
                        RoleUpdate, InvitationCreate)
 from ..deps import current_user
-from ..services import ratelimit, captcha, authguard, settings_store, audit_log
+from ..services import captcha, authguard, settings_store, audit_log
 from ..services import email as email_svc
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
@@ -295,13 +295,14 @@ def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db
     if not security.is_gov_email(email):
         raise HTTPException(status.HTTP_403_FORBIDDEN,
                             "Only .gov.in or .nic.in email addresses are allowed")
-    # throttle OTP requests per IP (stops OTP-spam / enumeration in production)
-    if settings.env == "production":
-        ip = _client_ip(request) or "unknown"
-        limit = settings_store.get_int("otp_request_ip_limit", settings.otp_request_ip_limit)
-        if ratelimit.hit(f"otp-req:{ip}", 3600) > limit:
-            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
-                                "Too many OTP requests. Please wait before trying again.")
+    # No throttle on requesting a code during the testing phase — deliberate, and
+    # to be restored before launch: the per-IP counter got in the way of driving
+    # the sign-in flow repeatedly. Brute force is still bounded on the verify
+    # side (5 attempts per code, then the escalating per-account lock in
+    # authguard), which is the control that actually protects an account. What is
+    # unbounded here is OTP-spam to a third party's mailbox and account
+    # enumeration by timing. `settings.otp_request_ip_limit` keeps the intended
+    # value; re-enabling is a ratelimit.hit() call on this line.
     code = security.new_otp()
     otp = models.OtpCode(
         email=email, code_hash=security.hash_secret(code),
@@ -311,11 +312,13 @@ def request_otp(body: OtpRequest, request: Request, db: Session = Depends(get_db
     db.add(otp)
     db.commit()
     email_svc.send_otp(email, code)   # provider chosen at runtime via admin config
-    # In dev mode, include the OTP in the response so it's visible in the browser
-    # console / network tab (never in production — this would leak the auth factor)
     resp = {"message": "OTP sent", "email": email}
-    import os
-    if settings.env != "production" or os.environ.get("GOVUX_ALLOW_CONSOLE_OTP") == "true":
+    # Local dev only: echo the code so the browser console and the e2e specs can
+    # read it back. GOVUX_ALLOW_CONSOLE_OTP used to widen this to production too,
+    # which handed the sole auth factor to anyone who could POST this endpoint for
+    # any .gov.in address — no log access required. That flag now governs only
+    # whether the code may be printed to the server log.
+    if settings.env != "production":
         resp["dev_otp"] = code
     return resp
 

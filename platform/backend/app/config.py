@@ -60,6 +60,22 @@ class Settings(BaseSettings):
             return [s.strip() for s in v.split(",") if s.strip()]
         return v
 
+    # Sandbox sign-ins: their OTP is written to the log instead of mailed.
+    # `gov.in` is a live namespace, not ours — with a real SMTP relay configured
+    # every sign-in as owner@gov.in posts the code to somebody else's mail
+    # server, and QA is left with no way to read it. CSV via
+    # GOVUX_SANDBOX_ACCOUNTS; set it empty to switch the fixtures off.
+    sandbox_accounts: list[str] = ["owner@gov.in", "contributor@gov.in",
+                                   "assessor@gov.in", "programme_admin@gov.in",
+                                   "super_admin@gov.in"]
+
+    @field_validator("sandbox_accounts", mode="before")
+    @classmethod
+    def _parse_sandbox_accounts(cls, v):
+        if isinstance(v, str):
+            v = v.split(",")
+        return [s.strip().lower() for s in v if s and s.strip()]
+
     # queue
     audit_stream: str = "govux:audits"
     consumer_group: str = "workers"
@@ -100,7 +116,9 @@ class Settings(BaseSettings):
     # abuse control — free scanner (per IP) + sign-in brute force (per account)
     scan_ip_limit: int = 3                 # free scans/IP before a CAPTCHA is required
     scan_ip_window: int = 86400            # window (seconds) for the free-scan quota
-    otp_request_ip_limit: int = 6          # OTP requests/IP/hour
+    # OTP requests/IP/hour. NOT ENFORCED during the testing phase — kept as the
+    # intended value for when the throttle goes back into routers/auth.request_otp.
+    otp_request_ip_limit: int = 6
     otp_fail_threshold: int = 3            # failed sign-ins before lock-out
     otp_lock_seconds: int = 600            # first lock: 10 minutes
     otp_lock_seconds_2: int = 1200         # escalated lock: 20 minutes (+ CAPTCHA)

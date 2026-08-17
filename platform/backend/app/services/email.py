@@ -25,7 +25,28 @@ def _is_prod() -> bool:
     return getattr(settings, "env", "dev") == "production"
 
 
+def _is_sandbox(email: str) -> bool:
+    """A seeded test login (owner@gov.in and friends) rather than a real mailbox.
+
+    `gov.in` belongs to the Government of India, not to us: once a real SMTP
+    relay is configured, every sign-in as one of these fixtures mails a live
+    one-time code to a stranger's mail server — and QA, who cannot read that
+    mailbox, cannot sign in at all. Their codes go to the log instead.
+
+    Guarded by _is_prod() for the obvious reason: if these accounts ever exist
+    on a production database, printing their codes would hand a super_admin
+    session to anyone who can read the logs.
+    """
+    if _is_prod():
+        return False
+    return email.strip().lower() in set(getattr(settings, "sandbox_accounts", []))
+
+
 def send_otp(email: str, code: str) -> bool:
+    if _is_sandbox(email):
+        log.info("[OTP·sandbox] to %s: %s  (fixture account — not emailed)", email, code)
+        print(f"[OTP·console] to {email}: {code}")   # dev only
+        return True
     provider = settings_store.get_str("email_provider", "console")
     frm = settings_store.get_str("email_from", "no-reply@govux.gov.in")
     subject = "Your GovUX sign-in code"
@@ -53,6 +74,11 @@ def send(to: str, subject: str, body: str) -> bool:
     """Generic dispatch for everything that ISN'T the OTP (invitations, audit
     notifications, ...). Unlike `send_otp` the body carries no auth factor, so
     the console provider may safely echo it in any environment."""
+    if _is_sandbox(to):
+        # Invitations and audit notifications for the fixtures would go to a real
+        # gov.in mail server too. Same treatment.
+        print(f"[email·console] to {to}: {subject}\n{body}")
+        return True
     provider = settings_store.get_str("email_provider", "console")
     frm = settings_store.get_str("email_from", "no-reply@govux.gov.in")
     try:

@@ -22,7 +22,7 @@ import AxeBuilder from "@axe-core/playwright";
 // Defaults to the programme_admin created by `python -m app.seed`, which is
 // what CI boots — the /admin/* routes below need a steward. Override for a
 // local database seeded differently.
-const EMAIL = process.env.E2E_STEWARD_EMAIL || "steward@indiapost.gov.in";
+const EMAIL = process.env.E2E_STEWARD_EMAIL || "programme_admin@gov.in";
 
 const PAGES = [
   "/dashboard",

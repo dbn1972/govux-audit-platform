@@ -75,7 +75,10 @@ docker compose exec api pytest                  # backend suite (≥80% gate)
 ```
 
 - App: **http://localhost:3000**  ·  API docs: **http://localhost:8000/docs**
-- Demo sign-in email: `steward@indiapost.gov.in` (OTP printed to the API log in dev)
+- Demo sign-in: `owner@gov.in`, `contributor@gov.in`, `assessor@gov.in`,
+  `programme_admin@gov.in`, `super_admin@gov.in` — one account per role. Their OTP is
+  printed to the API log (`docker compose logs api | grep OTP`) and never emailed, whatever
+  mail provider is configured; see `GOVUX_SANDBOX_ACCOUNTS`.
 
 ## Quick start (production)
 

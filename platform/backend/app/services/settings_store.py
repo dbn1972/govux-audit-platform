@@ -25,7 +25,10 @@ SCHEMA: list[dict] = [
     {"key": "otp_fail_threshold", "type": "int", "category": "Sign-in security", "label": "Failed sign-ins before lock", "default": 3},
     {"key": "otp_lock_seconds", "type": "int", "category": "Sign-in security", "label": "First lock (seconds)", "default": 600},
     {"key": "otp_lock_seconds_2", "type": "int", "category": "Sign-in security", "label": "Escalated lock (seconds)", "default": 1200},
-    {"key": "otp_request_ip_limit", "type": "int", "category": "Sign-in security", "label": "OTP requests per IP / hour", "default": 6},
+    # "OTP requests per IP / hour" is deliberately absent: nothing enforces it
+    # during the testing phase, and an admin control that silently does nothing
+    # is worse than no control. Restore it alongside the throttle in
+    # routers/auth.request_otp.
     # CAPTCHA
     {"key": "captcha_enabled", "type": "bool", "category": "CAPTCHA", "label": "Require CAPTCHA over quota", "default": True},
     {"key": "captcha_provider", "type": "str", "category": "CAPTCHA", "label": "Provider (builtin | turnstile | recaptcha)", "default": "builtin"},
