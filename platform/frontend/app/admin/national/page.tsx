@@ -14,6 +14,10 @@ const BAND_MEANING: Record<string, string> = {
 export default function National() {
   const [d, setD] = useState<any>(null);
   const [err, setErr] = useState("");
+  const [exporting, setExporting] = useState(false);
+  // kept apart from `err`: that one means "the dashboard could not load" and
+  // replaces the page, which is the wrong response to a failed download
+  const [exportErr, setExportErr] = useState("");
   useEffect(() => {
     api.national().then(setD).catch((e) => setErr(e?.message || "Could not load national data."));
   }, []);
@@ -36,11 +40,35 @@ export default function National() {
             <Link href="/admin/bulk-scan" className="btn btn-outline-secondary">
               <i className="bi bi-collection me-1" aria-hidden="true" />Bulk scan
             </Link>
-            <button type="button" className="btn btn-primary">
-              <i className="bi bi-download me-1" aria-hidden="true" />Export brief
+            <button type="button" className="btn btn-primary" disabled={exporting}
+              onClick={async () => {
+                setExporting(true);
+                try {
+                  const blob = await api.nationalBrief();
+                  const a = document.createElement("a");
+                  a.href = URL.createObjectURL(blob);
+                  a.download = `govux-national-brief-${new Date().toISOString().slice(0, 10)}.pdf`;
+                  a.click();
+                  URL.revokeObjectURL(a.href);
+                } catch (e: any) {
+                  setExportErr(e?.message || "Could not generate the national brief.");
+                } finally { setExporting(false); }
+              }}>
+              {exporting
+                ? <><span className="spinner-border spinner-border-sm me-2" role="status" />Preparing…</>
+                : <><i className="bi bi-download me-1" aria-hidden="true" />Export brief</>}
             </button>
           </div>
         </div>
+
+        {exportErr && (
+          <div className="alert alert-warning d-flex align-items-center gap-2" role="alert">
+            <i className="bi bi-exclamation-triangle" aria-hidden="true" />
+            <span>{exportErr}</span>
+            <button type="button" className="btn-close ms-auto" aria-label="Dismiss"
+              onClick={() => setExportErr("")} />
+          </div>
+        )}
 
         <div className="gx-stats">
           {[["Domains audited", d.audited, `${d.coverage_pct}% of the register`],

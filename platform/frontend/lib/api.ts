@@ -182,6 +182,12 @@ export const api = {
   listAssessments: (kind?: string) => req(`/v1/assessments${kind ? `?kind=${kind}` : ""}`),
   createAssessment: (body: any) =>
     req("/v1/assessments", { method: "POST", body: JSON.stringify(body) }),
+  nationalBrief: async (): Promise<Blob> => {
+    const r = await fetch("/api/v1/national/brief.pdf",
+      { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });
+    if (!r.ok) throw new Error("Could not generate the national brief");
+    return r.blob();
+  },
   evidencePack: async (taskId: string): Promise<Blob> => {
     const r = await fetch(`/api/v1/audits/${taskId}/evidence`,
       { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });

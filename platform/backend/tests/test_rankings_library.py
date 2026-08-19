@@ -403,3 +403,30 @@ def test_engine_guidelines_never_enter_the_human_review_checklist(db):
               .filter(models.Guideline.id.in_(ENGINE_OTHER_IDS + ENGINE_WCAG_IDS)).all())
     wrong = [g.id for g in rows if g.automation != "automated"]
     assert not wrong, f"engine-decided guidelines not marked automated: {wrong}"
+
+
+# ── national brief (PDF export) ─────────────────────────────────────────────
+# The dashboard button that produces this was decorative for months: styled,
+# clickable, wired to nothing. What matters in the test is that the document
+# carries the same numbers the screen does and that a non-steward can't pull it.
+def test_national_brief_returns_a_pdf_for_a_steward(client, ctx):
+    r = client.get("/v1/national/brief.pdf", headers=ctx["headers"])
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "application/pdf"
+    assert r.content[:5] == b"%PDF-"
+    assert "attachment;" in r.headers.get("content-disposition", "")
+    assert "govux-national-brief-" in r.headers.get("content-disposition", "")
+
+
+def test_national_brief_is_steward_only(client, db, ctx):
+    """An owner may hold every domain in the brief and still not be entitled to
+    the national picture — that is the steward's view, not a tenant's."""
+    from app import models, security
+    u = models.User(email="owner.brief@nic.in", org_id=ctx["org"].id,
+                    display_name="Owner", role="owner")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk-owner")
+    db.add(dev); db.commit()
+    tok = security.issue_access_token(str(u.id), u.role, str(dev.id))
+    r = client.get("/v1/national/brief.pdf", headers={"Authorization": f"Bearer {tok}"})
+    assert r.status_code == 403

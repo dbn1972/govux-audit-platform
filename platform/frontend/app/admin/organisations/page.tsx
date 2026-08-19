@@ -83,40 +83,44 @@ export default function Organisations() {
 
   return (
     <AppShell>
-      <div className="gx-page">
-        <div className="d-flex align-items-center flex-wrap gap-2">
-          <h1 className="h3 mb-0">Organisations</h1>
-          <button className="btn btn-primary btn-sm ms-auto"
-            onClick={() => { setShowNew((v) => !v); setEditing(null); }}>
-            <i className="bi bi-plus-lg me-1" aria-hidden="true" />New organisation
-          </button>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Organisations</h1>
+            <div className="gx-muted">
+              Every ministry, department, state body and PSU on the platform, with how much each is
+              actually using it. Organisations otherwise only appear as a side effect — auto-named
+              from whoever registers the first domain — so names can be corrected here.
+            </div>
+          </div>
+          <div className="gx-actions">
+            <button className="btn btn-primary" aria-expanded={showNew}
+              onClick={() => { setShowNew((v) => !v); setEditing(null); }}>
+              <i className="bi bi-plus-lg me-1" aria-hidden="true" />New organisation
+            </button>
+          </div>
         </div>
-        <p className="text-secondary small">
-          Every ministry, department, state body and PSU on the platform, with how much each is
-          actually using it. Organisations otherwise only appear as a side effect — auto-named
-          from whoever registers the first domain — so names can be corrected here.
-        </p>
 
         {showNew && (
-          <div className="card shadow-sm mb-3"><div className="card-body">
-            <h2 className="h6">New organisation</h2>
+          <div className="gx-card"><div className="gx-card-body">
+            <h2 className="h6 mb-3">New organisation</h2>
             <form className="row g-2 align-items-end" onSubmit={create}>
               <div className="col-md-5">
-                <label className="form-label small fw-semibold" htmlFor="new-name">Name</label>
-                <input id="new-name" required className="form-control form-control-sm"
+                <label className="form-label" htmlFor="new-name">Name</label>
+                <input id="new-name" required className="form-control"
                   placeholder="Ministry of Rural Development"
                   value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </div>
               <div className="col-md-3">
-                <label className="form-label small fw-semibold" htmlFor="new-type">Type</label>
-                <select id="new-type" className="form-select form-select-sm" value={form.org_type}
+                <label className="form-label" htmlFor="new-type">Type</label>
+                <select id="new-type" className="form-select" value={form.org_type}
                   onChange={(e) => setForm({ ...form, org_type: e.target.value })}>
                   {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div className="col-md-2">
-                <label className="form-label small fw-semibold" htmlFor="new-state">State / UT</label>
-                <input id="new-state" className="form-control form-control-sm" placeholder="KA"
+                <label className="form-label" htmlFor="new-state">State / UT</label>
+                <input id="new-state" className="form-control" placeholder="KA"
                   maxLength={8} value={form.state_code}
                   onChange={(e) => setForm({ ...form, state_code: e.target.value.toUpperCase() })} />
               </div>
@@ -133,21 +137,21 @@ export default function Organisations() {
             <h2 className="h6">Edit organisation</h2>
             <form className="row g-2 align-items-end" onSubmit={saveEdit}>
               <div className="col-md-5">
-                <label className="form-label small fw-semibold" htmlFor="ed-name">Name</label>
-                <input id="ed-name" required className="form-control form-control-sm"
+                <label className="form-label" htmlFor="ed-name">Name</label>
+                <input id="ed-name" required className="form-control"
                   value={editing.name}
                   onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
               </div>
               <div className="col-md-3">
-                <label className="form-label small fw-semibold" htmlFor="ed-type">Type</label>
-                <select id="ed-type" className="form-select form-select-sm" value={editing.org_type}
+                <label className="form-label" htmlFor="ed-type">Type</label>
+                <select id="ed-type" className="form-select" value={editing.org_type}
                   onChange={(e) => setEditing({ ...editing, org_type: e.target.value })}>
                   {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div className="col-md-2">
-                <label className="form-label small fw-semibold" htmlFor="ed-state">State / UT</label>
-                <input id="ed-state" className="form-control form-control-sm" maxLength={8}
+                <label className="form-label" htmlFor="ed-state">State / UT</label>
+                <input id="ed-state" className="form-control" maxLength={8}
                   value={editing.state_code || ""}
                   onChange={(e) => setEditing({ ...editing, state_code: e.target.value.toUpperCase() })} />
               </div>
@@ -162,10 +166,10 @@ export default function Organisations() {
         )}
 
         <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
-          <input className="form-control form-control-sm" style={{ maxWidth: 280 }}
+          <input className="form-control" style={{ maxWidth: 280 }}
             placeholder="Search by name…" value={q} aria-label="Search organisations by name"
             onChange={(e) => setQ(e.target.value)} />
-          <select className="form-select form-select-sm" style={{ maxWidth: 180 }}
+          <select className="form-select" style={{ maxWidth: 180 }}
             value={orgType} aria-label="Filter by organisation type"
             onChange={(e) => { setOrgType(e.target.value); setOffset(0); }}>
             <option value="">All types</option>
@@ -179,9 +183,9 @@ export default function Organisations() {
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
         {msg && <div className="alert alert-success py-2" role="status">{msg}</div>}
 
-        <div className="card shadow-sm">
+        <div className="gx-card">
           <div className="table-responsive"><table className="table table-hover align-middle mb-0">
-            <thead className="table-light">
+            <thead>
               <tr>
                 <th>Organisation</th><th>Type</th><th>State / UT</th>
                 <th>Domains</th><th>Users</th><th>Audits</th><th>Avg score</th>

@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
@@ -10,8 +10,9 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from .. import models
 from ..deps import require_role
-from ..services import cache, settings_store, audit_log
+from ..services import cache, settings_store, audit_log, national_brief
 from ..services.scoring import band_for
+from ..config import settings
 
 router = APIRouter(prefix="/v1", tags=["national"])
 
@@ -75,6 +76,27 @@ def _national(db: Session):
         "band_distribution": band_distribution,
         "league": [{"url": u, "score": float(s) if s else None, "band": b} for u, s, b in league],
     }
+
+
+@router.get("/national/brief.pdf")
+def national_brief_pdf(db: Session = Depends(get_db),
+                       user=Depends(require_role("programme_admin", "super_admin"))):
+    """The dashboard as a one-page PDF a steward can circulate.
+
+    Built from the same cached payload the screen renders, so the brief and the
+    dashboard can never disagree — and stamped with the generation time and
+    engine version, which a screen can leave implicit and a document passed
+    around a ministry cannot.
+    """
+    data = cache.get_or_set(cache.cache_key("national"), _ttl(), lambda: _national(db))
+    pdf = national_brief.build(data, engine_version=settings.engine_version)
+    audit_log.record(db, actor_id=getattr(user, "id", None), action="national.brief.export",
+                     target="national", detail={"audited": data.get("audited"),
+                                                "coverage_pct": data.get("coverage_pct")})
+    db.commit()
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
+    return Response(pdf, media_type="application/pdf", headers={
+        "Content-Disposition": f'attachment; filename="govux-national-brief-{stamp}.pdf"'})
 
 
 @router.get("/rankings")

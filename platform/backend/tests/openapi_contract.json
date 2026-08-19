@@ -136,6 +136,10 @@
     "200",
     "422"
   ],
+  "GET /v1/national/brief.pdf": [
+    "200",
+    "422"
+  ],
   "GET /v1/organisations": [
     "200",
     "422"

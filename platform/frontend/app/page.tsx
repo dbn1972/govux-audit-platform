@@ -130,15 +130,15 @@ export default function ScanLanding() {
       </header>
 
       {/* Hero + scanner */}
-      <section id="scanner" style={{ background: "linear-gradient(180deg,#eef4fb 0%,#f8f9fa 100%)" }}>
-        <div className="container py-5">
+      <section id="scanner" className="gx-hero">
+        <div className="container gx-section">
           <div className="row justify-content-center text-center">
             <div className="col-lg-9">
-              <span className="badge rounded-pill px-3 py-2 mb-3" style={{ background: "#e7f0fb", color: NAVY }}>
+              <span className="badge rounded-pill px-3 py-2 mb-3" style={{ background: "var(--gx-brand-tint)", color: NAVY }}>
                 Free · No sign-up · For .gov.in / .nic.in websites
               </span>
-              <h1 className="fw-bold mb-2" style={{ color: NAVY, fontSize: "2.4rem" }}>Free UX4G Website Audit</h1>
-              <p className="text-secondary mb-4" style={{ fontSize: 17 }}>
+              <h1 className="gx-hero-title mb-3">Free UX4G Website Audit</h1>
+              <p className="gx-hero-lead mb-4">
                 Scan any government website against <b>GIGW 3.0</b>, <b>WCAG 2.2 AA accessibility</b>,
                 <b> Core Web Vitals</b> and the <b>DPDP Act 2023</b> — and download a PDF report in seconds.
               </p>
@@ -196,13 +196,22 @@ export default function ScanLanding() {
                     )}
                     {state.status === "completed" && (
                       <div className="d-flex flex-wrap align-items-center gap-4">
-                        <div className="text-center" style={{ minWidth: 120 }}>
-                          <div className="fw-bold" style={{ fontSize: 48, color: NAVY, lineHeight: 1 }}>{state.overall_score}</div>
-                          <div className="text-secondary small">GovUX Score / 100</div>
-                        </div>
-                        <div className="text-center" style={{ minWidth: 90 }}>
-                          <div className="fw-bold" style={{ fontSize: 42, color: bandCol[band] || "#6c757d", lineHeight: 1 }}>{band}</div>
-                          <div className="text-secondary small">Band (A–E)</div>
+                        <div style={{ minWidth: 120 }}>
+                          <div className="gx-label">GovUX score</div>
+                          <div className="gx-score-figure" style={{ color: bandCol[band] || "var(--gx-navy-800)" }}>
+                            {state.overall_score}
+                          </div>
+                          <div className="fw-semibold" style={{ color: bandCol[band] || "var(--gx-text-muted)" }}>
+                            Band {band}
+                          </div>
+                          {/* the same A–E ladder the full report draws, so the
+                              number means the same thing before and after sign-in */}
+                          <div className="gx-scale mt-2" style={{ maxWidth: 160 }} aria-hidden="true">
+                            {["A", "B", "C", "D", "E"].map(b => (
+                              <span key={b} className="gx-scale-step"
+                                style={b === band ? { background: bandCol[b] } : undefined} />
+                            ))}
+                          </div>
                         </div>
                         <div className="flex-grow-1">
                           <div className="fw-semibold" style={{ color: NAVY }}>{state.url}</div>
@@ -222,17 +231,18 @@ export default function ScanLanding() {
       </section>
 
       {/* What we check */}
-      <section id="checks" className="container py-5">
-        <h2 className="fw-bold text-center mb-1" style={{ color: NAVY }}>What every scan checks</h2>
-        <p className="text-secondary text-center mb-4">A single deterministic engine — no black box in the score.</p>
+      <section id="checks" className="container gx-section">
+        <div className="gx-section-head">
+          <h2>What every scan checks</h2>
+          <p>A single deterministic engine — no black box in the score.</p>
+        </div>
         <div className="row g-3">
           {CHECKS.map(([icon, title, desc]) => (
             <div className="col-md-6 col-lg-4" key={title}>
               <div className="card h-100 border-0 shadow-sm">
                 <div className="card-body">
-                  <div className="d-inline-flex align-items-center justify-content-center mb-2"
-                    style={{ width: 42, height: 42, borderRadius: 10, background: "#e7f0fb", color: NAVY }}>
-                    <i className={`bi ${icon}`} style={{ fontSize: 20 }} />
+                  <div className="gx-feature-icon mb-3">
+                    <i className={`bi ${icon}`} aria-hidden="true" />
                   </div>
                   <h3 className="h6 fw-bold" style={{ color: NAVY }}>{title}</h3>
                   <p className="text-secondary small mb-0">{desc}</p>
@@ -244,16 +254,15 @@ export default function ScanLanding() {
       </section>
 
       {/* How it works */}
-      <section id="how" style={{ background: "#eef4fb" }}>
-        <div className="container py-5">
-          <h2 className="fw-bold text-center mb-4" style={{ color: NAVY }}>How it works</h2>
+      <section id="how" className="gx-section-tint">
+        <div className="container gx-section">
+          <div className="gx-section-head"><h2>How it works</h2></div>
           <div className="row g-4 text-center">
             {[["1", "Paste a URL", "Any public .gov.in / .nic.in landing page — no sign-in needed."],
               ["2", "We scan &amp; queue", "One scan at a time; you’ll see your position in the queue."],
               ["3", "Get your score + PDF", "A 0–100 GovUX Score, an A–E band, and a downloadable report."]].map(([n, t, d]) => (
               <div className="col-md-4" key={n}>
-                <div className="d-inline-flex align-items-center justify-content-center text-white fw-bold mb-2"
-                  style={{ width: 44, height: 44, borderRadius: "50%", background: NAVY }}>{n}</div>
+                <div className="gx-step-badge mb-3">{n}</div>
                 <h3 className="h6 fw-bold" style={{ color: NAVY }} dangerouslySetInnerHTML={{ __html: t }} />
                 <p className="text-secondary small" dangerouslySetInnerHTML={{ __html: d }} />
               </div>
@@ -263,16 +272,14 @@ export default function ScanLanding() {
       </section>
 
       {/* CTA for registered deep audits */}
-      <section className="container py-5">
-        <div className="card border-0 shadow-sm" style={{ background: "linear-gradient(135deg,#0a3d7a,#0d6efd)" }}>
-          <div className="card-body text-white d-flex flex-wrap align-items-center justify-content-between gap-3 p-4">
+      <section className="container gx-section">
+        <div className="gx-cta d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-              <h2 className="h4 fw-bold text-white mb-1">Need a deeper audit?</h2>
-              <p className="mb-0 opacity-75">Sign in with your government email to scan up to 10 pages, save reports,
+              <h2 className="h4 mb-1">Need a deeper audit?</h2>
+              <p className="mb-0" style={{ opacity: .85, maxWidth: "60ch" }}>Sign in with your government email to scan up to 10 pages, save reports,
                 track scores over time, and request larger crawls.</p>
             </div>
             <Link href="/login" className="btn btn-light btn-lg fw-semibold" style={{ color: NAVY }}>Sign in with gov email</Link>
-          </div>
         </div>
       </section>
 
