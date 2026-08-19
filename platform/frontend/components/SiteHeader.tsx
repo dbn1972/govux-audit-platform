@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import BrandMark from "@/components/BrandMark";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -11,6 +12,9 @@ import ThemeToggle from "@/components/ThemeToggle";
  *  page can carry the same header without pretending it owns those sections.
  */
 export default function SiteHeader() {
+  // A "Sign in" button on the sign-in page is a control that takes you where you
+  // already are.
+  const onSignIn = usePathname() === "/login";
   return (
     <header className="gx-siteheader">
       <div className="container d-flex align-items-center justify-content-between gap-3 py-2">
@@ -26,7 +30,9 @@ export default function SiteHeader() {
           <Link href="/#how" className="d-none d-md-inline gx-siteheader-link">How it works</Link>
           <Link href="/about-us" className="d-none d-lg-inline gx-siteheader-link">About</Link>
           <ThemeToggle />
-          <Link href="/login" className="btn btn-outline-primary btn-sm">Sign in</Link>
+          {!onSignIn && (
+            <Link href="/login" className="btn btn-outline-primary btn-sm">Sign in</Link>
+          )}
         </nav>
       </div>
     </header>

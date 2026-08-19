@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import BrandMark from "@/components/BrandMark";
-import ThemeToggle from "@/components/ThemeToggle";
+import GovBanner from "@/components/GovBanner";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import { api, setToken } from "@/lib/api";
 
 // Mirrors backend security.is_gov_email: bare @gov.in/@nic.in as well as any subdomain.
@@ -48,19 +49,23 @@ export default function Login() {
     } catch (e: any) { setErr(e.message); setBusy(false); }
   }
 
+  // Sits outside both shells because it is neither a public content page nor a
+  // signed-in screen — but it is still a page of this service, so it carries the
+  // same identity bar, the same masthead and the same skip link as the rest.
   return (
-    <div className="container" style={{ maxWidth: 440 }}>
-      {/* The sign-in card floated on an empty page with no indication of what
-          you were signing in to. An officer arriving from an email link should
-          see the service named before they are asked for their address. */}
-      <div className="d-flex justify-content-end pt-3"><ThemeToggle /></div>
-      <div className="text-center mt-4 mb-4">
-        <BrandMark size={48} />
-        <h1 className="mt-3 mb-1">GovUX Audit Platform</h1>
-        <p className="gx-muted mb-0" style={{ fontSize: ".9375rem" }}>
-          UX &amp; compliance audits for <code>.gov.in</code> and <code>.nic.in</code> services
-        </p>
-      </div>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column",
+                  background: "var(--gx-surface-sunken)" }}>
+      <GovBanner />
+      <SiteHeader />
+
+      <main id="main" tabIndex={-1} style={{ outline: "none", flex: 1 }}>
+        <div className="container" style={{ maxWidth: 440 }}>
+          <div className="text-center mt-5 mb-4">
+            <h1 className="mb-1">Sign in to GovUX Audit</h1>
+            <p className="gx-muted mb-0" style={{ fontSize: ".9375rem" }}>
+              For officers of <code>.gov.in</code> and <code>.nic.in</code> departments
+            </p>
+          </div>
       <div className="gx-card">
         <div className="gx-card-body">
           <h2 className="h5 mb-1">Sign in</h2>
@@ -98,7 +103,11 @@ export default function Login() {
             </>
           )}
         </div>
-      </div>
+        </div>
+        </div>
+      </main>
+
+      <SiteFooter />
     </div>
   );
 }

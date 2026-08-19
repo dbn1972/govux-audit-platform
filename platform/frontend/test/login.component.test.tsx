@@ -7,7 +7,9 @@ import React from "react";
 
 afterEach(cleanup);
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }), usePathname: () => "/",
+}));
 
 const requestOtp = vi.fn();
 vi.mock("@/lib/api", () => ({

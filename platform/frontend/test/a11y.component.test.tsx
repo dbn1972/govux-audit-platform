@@ -21,7 +21,9 @@ import { findA11yViolations } from "./helpers/axe";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }), usePathname: () => "/",
+}));
 vi.mock("@/components/AppShell", () => ({ default: ({ children }: any) => <div>{children}</div> }));
 vi.mock("next/link", () => ({ default: ({ href, children }: any) => <a href={String(href)}>{children}</a> }));
 
