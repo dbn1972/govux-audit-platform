@@ -85,7 +85,7 @@ export default function Domains() {
                 {(rows || []).map(d => (
                   <tr key={d.id}>
                     <td data-label="Domain" className="fw-semibold">{d.url}</td>
-                    <td data-label="Category" className="text-secondary small">{d.category || "—"}</td>
+                    <td data-label="Category" className="gx-muted small">{d.category || "—"}</td>
                     <td data-label="Status">{d.verify_status === "verified"
                       ? (d.verify_method === "steward_override"
                           // an override is verified, but nobody proved anything —
@@ -99,7 +99,7 @@ export default function Domains() {
                       ? <><b>{d.latest_score}</b>{d.latest_band &&
                           <span className="badge ms-1" style={bandStyle(d.latest_band)}>{d.latest_band}</span>}</>
                       : <span className="text-secondary">Not audited</span>}</td>
-                    <td data-label="Last audited" className="text-secondary small">{relative(d.last_audited_at)}</td>
+                    <td data-label="Last audited" className="gx-muted small">{relative(d.last_audited_at)}</td>
                     <td data-label="">{d.verify_status === "verified"
                       ? <Link href={`/audits/new?domain=${d.id}`} className="btn btn-sm btn-link">Audit →</Link>
                       : (<>

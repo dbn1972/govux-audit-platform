@@ -24,10 +24,16 @@ export default function StudioAccess() {
   }
 
   return (
-    <AppShell><div className="gx-page">
-      <h1 className="h3 mb-0">Studio access (tenants)</h1>
-      <p className="text-secondary small">Approve which organisations may use GovUX Studio (the AI prototype
-        generator). Studio is billable — approve tenants deliberately.</p>
+    <AppShell><div className="gx-page gx-stack">
+      <div className="gx-page-head" style={{ marginBottom: 0 }}>
+        <div>
+          <h1 className="mb-1">Studio access</h1>
+          <div className="gx-muted">
+            Which organisations may use GovUX Studio, the AI prototype generator. Studio consumes
+            paid model capacity, so access is granted per organisation rather than by default.
+          </div>
+        </div>
+      </div>
       {err && <div className="alert alert-warning" role="alert">{err}</div>}
       <div className="gx-card"><div className="table-responsive">
         <table className="gx-table gx-responsive">
@@ -38,7 +44,7 @@ export default function StudioAccess() {
             {(rows || []).map((o) => (
               <tr key={o.id}>
                 <td data-label="Organisation" className="fw-semibold">{o.name}</td>
-                <td data-label="Type" className="text-secondary small">{o.org_type}</td>
+                <td data-label="Type"><span className="gx-chip">{o.org_type}</span></td>
                 <td data-label="Runs" className="text-secondary">{o.runs}</td>
                 <td data-label="Studio access">
                   <div className="form-check form-switch mb-0">

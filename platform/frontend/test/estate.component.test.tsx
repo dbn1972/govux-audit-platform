@@ -157,11 +157,13 @@ describe("Estate auto-discovery", () => {
 
     const row = (await screen.findByText("newsite.gov.in")).closest("tr")!;
     expect(within(row).getByText("sitemap")).toBeInTheDocument();
-    expect(within(row).getByText("no")).toBeInTheDocument();
-    expect(within(row).getByText("2026-08-12")).toBeInTheDocument();
+    // "not imported" / "imported" rather than "no" / "yes": the column header is
+    // three rows away by the time you reach the value on a phone
+    expect(within(row).getByText("not imported")).toBeInTheDocument();
+    expect(within(row).getByText(/ago|Today|Yesterday|Aug/)).toBeInTheDocument();
 
     const imported = screen.getByText("known.nic.in").closest("tr")!;
-    expect(within(imported).getByText("yes")).toBeInTheDocument();
+    expect(within(imported).getByText("imported")).toBeInTheDocument();
   });
 
   it("submits the pasted source and reports what was found", async () => {
@@ -177,7 +179,7 @@ describe("Estate auto-discovery", () => {
       { seed: "https://www.india.gov.in/robots.txt",
         body: "Sitemap: https://x.gov.in/sitemap.xml", kind: "auto" },
     ]));
-    expect(await screen.findByText(/Found 7 host\(s\), 3 new\./)).toBeInTheDocument();
+    expect(await screen.findByText(/Found 7 hosts,\s*3 new/)).toBeInTheDocument();
   });
 
   it("refreshes the discovered list after a scan, so new hosts appear", async () => {
@@ -188,6 +190,9 @@ describe("Estate auto-discovery", () => {
     render(<Discovery />);
     expect(await screen.findByText(/Nothing discovered yet/)).toBeInTheDocument();
 
+    // the scan button is disabled until there is something to scan — pasting
+    // nothing and pressing it was a no-op dressed as an action
+    await userEvent.type(screen.getByPlaceholderText(/Sitemap:/), "Sitemap: https://x.gov.in/s.xml");
     await userEvent.click(screen.getByRole("button", { name: /Scan for gov domains/i }));
     expect(await screen.findByText("fresh.gov.in")).toBeInTheDocument();
   });
@@ -199,6 +204,8 @@ describe("Estate auto-discovery", () => {
     const seed = screen.getByDisplayValue("https://www.india.gov.in/robots.txt");
     await userEvent.clear(seed);
     await userEvent.type(seed, "https://mygov.gov.in/robots.txt");
+    // content is what gets scanned; the seed is only recorded alongside it
+    await userEvent.type(screen.getByPlaceholderText(/Sitemap:/), "Sitemap: https://x.gov.in/s.xml");
     await userEvent.click(screen.getByRole("button", { name: /Scan for gov domains/i }));
 
     await waitFor(() => expect(discoveryScan).toHaveBeenCalledWith([

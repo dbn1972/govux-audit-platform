@@ -140,6 +140,10 @@
     "200",
     "422"
   ],
+  "GET /v1/notifications": [
+    "200",
+    "422"
+  ],
   "GET /v1/organisations": [
     "200",
     "422"
@@ -293,6 +297,10 @@
     "422"
   ],
   "POST /v1/domains/{domain_id}/verify": [
+    "200",
+    "422"
+  ],
+  "POST /v1/notifications/read": [
     "200",
     "422"
   ],

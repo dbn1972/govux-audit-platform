@@ -53,6 +53,10 @@
 
   --gx-page-max:1280px;
 
+  /* landing-page washes (declared here, not beside the landing styles, because
+     :root and [data-bs-theme="dark"] tie on specificity and source order decides) */
+  --gx-brand-tint:#e7f0fb; --gx-brand-wash:#eef4fb;
+
   /* Band palette as tokens. These were hexes in lib/score.ts, inlined as
      style={{ color: BAND_COLOR[band] }} on 49 call sites — which meant they
      could not follow a theme: band C is 2.3:1 on a dark surface. The -tint
@@ -498,8 +502,6 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
    here and then signs in should recognise the score object, not meet a second
    design.
    ========================================================================== */
-:root { --gx-brand-tint:#e7f0fb; --gx-brand-wash:#eef4fb; }
-
 .gx-hero { background:linear-gradient(180deg,var(--gx-brand-wash) 0%,var(--gx-surface-sunken) 100%);
            border-bottom:1px solid var(--gx-border); }
 /* One fluid step instead of a fixed 2.4rem: on a phone that headline was
@@ -544,3 +546,94 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
    column it truncates the chosen option, which is the one thing it exists to
    show ("contributo⌄"). The table scrolls in its wrapper instead. */
 .table select.form-select, .gx-table select.form-select { min-width:9.5rem; }
+
+/* ---------------------------------------------------------------------------
+   Menus — account menu and the notification panel
+   ------------------------------------------------------------------------ */
+.gx-menu-wrap { position:relative; }
+.gx-menu { position:absolute; inset-inline-end:0; top:calc(100% + .5rem); z-index:1050;
+           min-width:260px; max-width:min(92vw,380px); padding:.375rem;
+           background:var(--gx-surface); border:1px solid var(--gx-border);
+           border-radius:var(--gx-r-md); box-shadow:var(--gx-shadow-2); }
+.gx-menu-wide { min-width:340px; max-height:70vh; overflow-y:auto; }
+.gx-menu-head { padding:.625rem .75rem; border-bottom:1px solid var(--gx-border);
+                margin-bottom:.25rem; }
+.gx-menu-item { display:flex; align-items:flex-start; gap:.625rem; width:100%;
+                padding:.5rem .75rem; border:0; background:transparent; text-align:start;
+                border-radius:var(--gx-r-sm); color:var(--gx-ink-700);
+                font-size:.875rem; text-decoration:none; }
+.gx-menu-item:hover { background:var(--gx-ink-50); color:var(--gx-navy-800); }
+.gx-menu-item i { color:var(--gx-ink-400); font-size:1rem; line-height:1.4; flex:none; }
+
+/* unread count on the bell */
+.gx-badge-dot { position:absolute; top:2px; inset-inline-end:2px; min-width:16px; height:16px;
+                padding:0 4px; border-radius:var(--gx-r-pill); background:var(--bs-danger);
+                color:#fff; font-size:.625rem; font-weight:700; line-height:16px;
+                text-align:center; }
+
+/* an unread row is marked, not merely bolder — weight alone is invisible to a
+   reader who never saw the read version to compare against */
+.gx-notif-unread { background:var(--bs-primary-bg-subtle); }
+.gx-notif-unread:hover { background:var(--bs-primary-bg-subtle); }
+
+/* Outline buttons pin their colours as literals (Bootstrap compiles them, and
+   ux4g-theme.css darkens them for AA on white). Those same values are 2.6:1 on
+   a dark surface — the filter chips on the library read as disabled. Lift them
+   to the dark palette; hover still fills, so white-on-fill only improves. */
+[data-bs-theme="dark"] .btn-outline-secondary {
+  --bs-btn-color:#b8c2d0; --bs-btn-border-color:#4a5567;
+  --bs-btn-hover-bg:#4a5567; --bs-btn-hover-border-color:#4a5567; --bs-btn-hover-color:#fff;
+  --bs-btn-active-bg:#4a5567; --bs-btn-active-border-color:#4a5567;
+  --bs-btn-disabled-color:#6b7889; --bs-btn-disabled-border-color:#33425e;
+}
+[data-bs-theme="dark"] .btn-outline-primary {
+  --bs-btn-color:#7fb0ee; --bs-btn-border-color:#3d6ea8;
+  --bs-btn-hover-bg:#3d6ea8; --bs-btn-hover-border-color:#3d6ea8; --bs-btn-hover-color:#fff;
+  --bs-btn-active-bg:#3d6ea8; --bs-btn-active-border-color:#3d6ea8;
+}
+[data-bs-theme="dark"] .btn-outline-success {
+  --bs-btn-color:#7fd6a1; --bs-btn-border-color:#2f6b4a;
+  --bs-btn-hover-bg:#2f6b4a; --bs-btn-hover-border-color:#2f6b4a; --bs-btn-hover-color:#fff;
+}
+[data-bs-theme="dark"] .btn-outline-danger {
+  --bs-btn-color:#f09aa3; --bs-btn-border-color:#7d3038;
+  --bs-btn-hover-bg:#7d3038; --bs-btn-hover-border-color:#7d3038; --bs-btn-hover-color:#fff;
+}
+/* .btn-light on the dark landing CTA would be a white slab; keep it readable */
+[data-bs-theme="dark"] .badge.text-bg-light { background:var(--gx-ink-100) !important;
+                                              color:var(--gx-ink-800) !important; }
+
+/* Hard-coded light grounds. 29 call sites reach for .bg-white / .bg-light to
+   mean "a surface" — under dark those paint a white slab with dark text, which
+   is how the settings footnote ended up as a torn strip of daylight. Point them
+   at the surface tokens instead of hunting them down one by one. */
+[data-bs-theme="dark"] .bg-white { background-color:var(--gx-surface) !important; }
+[data-bs-theme="dark"] .bg-light { background-color:var(--gx-surface-muted) !important;
+                                   color:var(--gx-text); }
+[data-bs-theme="dark"] .table-light,
+[data-bs-theme="dark"] .table-light > th { background-color:var(--gx-surface-muted) !important; }
+[data-bs-theme="dark"] .alert-light { background-color:var(--gx-surface-muted);
+                                      border-color:var(--gx-border); color:var(--gx-text); }
+[data-bs-theme="dark"] .btn-light { --bs-btn-bg:var(--gx-ink-100); --bs-btn-color:var(--gx-ink-900);
+                                    --bs-btn-border-color:var(--gx-ink-200);
+                                    --bs-btn-hover-bg:var(--gx-ink-200); --bs-btn-hover-color:var(--gx-ink-950); }
+
+/* ---------------------------------------------------------------------------
+   Progress stepper — the audit pipeline while it runs.
+   ------------------------------------------------------------------------ */
+.gx-steps-rail { display:flex; align-items:flex-start; gap:0; flex-wrap:wrap; }
+.gx-stage { flex:1 1 0; min-width:96px; text-align:center; position:relative; }
+.gx-stage::before { content:""; position:absolute; top:11px; inset-inline-start:-50%;
+                    width:100%; height:2px; background:var(--gx-border); z-index:0; }
+.gx-stage:first-child::before { display:none; }
+.gx-stage-dot { position:relative; z-index:1; width:24px; height:24px; margin-inline:auto;
+                border-radius:50%; display:flex; align-items:center; justify-content:center;
+                background:var(--gx-surface); border:2px solid var(--gx-border);
+                color:var(--gx-ink-400); font-size:.75rem; }
+.gx-stage-name { margin-top:.375rem; font-size:.75rem; color:var(--gx-text-muted);
+                 text-transform:capitalize; }
+.gx-stage-done .gx-stage-dot { background:var(--gx-band-A); border-color:var(--gx-band-A); color:#fff; }
+.gx-stage-done::before { background:var(--gx-band-A); }
+.gx-stage-now .gx-stage-dot { border-color:var(--gx-action); color:var(--gx-action);
+                              box-shadow:0 0 0 4px var(--bs-primary-bg-subtle); }
+.gx-stage-now .gx-stage-name { color:var(--gx-navy-800); font-weight:650; }

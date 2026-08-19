@@ -33,15 +33,20 @@ export default function States() {
               <div className="row g-2">
                 {rows.map((s) => (
                   <div className="col-6 col-md-3 col-lg-2" key={s.code}>
-                    <div className="p-2 rounded text-white" style={{ background: col(s.avg_score) }}>
-                      <div className="small fw-semibold">{s.code}</div>
-                      <div className="fs-4 fw-bold">{s.avg_score}</div>
-                      <div className="small">{s.domains} domain{s.domains === 1 ? "" : "s"}</div>
+                    {/* Was white text on the band colour — legible for A and E,
+                        marginal for C. Band as a left rule on a normal surface
+                        instead, so contrast does not depend on the score. */}
+                    <div className="gx-stat h-100" style={{ borderInlineStart: `3px solid ${col(s.avg_score)}` }}>
+                      <div className="gx-label">{s.code}</div>
+                      <div className="gx-stat-value" style={{ color: col(s.avg_score) }}>{s.avg_score}</div>
+                      <div className="gx-stat-note">{s.domains} domain{s.domains === 1 ? "" : "s"}</div>
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="text-secondary small mt-3 mb-0">Colour reflects the average GovUX Score band.</p>
+              <p className="gx-muted small mt-3 mb-0">
+                Each tile is one state or UT, coloured by the band its average GovUX score falls in.
+              </p>
             </>
           )}
         </div></div>

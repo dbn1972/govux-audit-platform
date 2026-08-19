@@ -70,24 +70,24 @@ export default function Assessments() {
 
         {canWrite && (
           <div className="gx-card mb-4">
+            <div className="gx-card-head"><h2>Record an assessment</h2></div>
             <div className="gx-card-body">
-              <h2 className="h6">Record an assessment</h2>
               <div className="row g-2">
                 <div className="col-md-4">
-                  <label className="form-label small mb-1" htmlFor="as-kind">Type</label>
+                  <label className="form-label" htmlFor="as-kind">Type</label>
                   <select id="as-kind" className="form-select" value={form.kind}
                           onChange={e => set("kind", e.target.value)}>
                     {KINDS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                   </select>
                 </div>
                 <div className="col-md-8">
-                  <label className="form-label small mb-1" htmlFor="as-title">Title</label>
+                  <label className="form-label" htmlFor="as-title">Title</label>
                   <input id="as-title" className="form-control" value={form.title}
                          placeholder="e.g. Annual VAPT of the citizen portal"
                          onChange={e => set("title", e.target.value)} />
                 </div>
                 <div className="col-md-4">
-                  <label className="form-label small mb-1" htmlFor="as-domain">Domain (optional)</label>
+                  <label className="form-label" htmlFor="as-domain">Domain (optional)</label>
                   <select id="as-domain" className="form-select" value={form.domain_id}
                           onChange={e => set("domain_id", e.target.value)}>
                     <option value="">Organisation-wide</option>
@@ -95,18 +95,18 @@ export default function Assessments() {
                   </select>
                 </div>
                 <div className="col-md-4">
-                  <label className="form-label small mb-1" htmlFor="as-agency">Performed by</label>
+                  <label className="form-label" htmlFor="as-agency">Performed by</label>
                   <input id="as-agency" className="form-control" value={form.agency}
                          placeholder="Agency / lab / panel organiser"
                          onChange={e => set("agency", e.target.value)} />
                 </div>
                 <div className="col-md-2">
-                  <label className="form-label small mb-1" htmlFor="as-date">Assessed on</label>
+                  <label className="form-label" htmlFor="as-date">Assessed on</label>
                   <input id="as-date" type="date" className="form-control"
                          value={form.assessed_on} onChange={e => set("assessed_on", e.target.value)} />
                 </div>
                 <div className="col-md-2">
-                  <label className="form-label small mb-1" htmlFor="as-outcome">Outcome</label>
+                  <label className="form-label" htmlFor="as-outcome">Outcome</label>
                   <select id="as-outcome" className="form-select" value={form.outcome}
                           onChange={e => set("outcome", e.target.value)}>
                     {["in_progress", "passed", "partial", "failed"].map(o =>
@@ -114,12 +114,12 @@ export default function Assessments() {
                   </select>
                 </div>
                 <div className="col-md-8">
-                  <label className="form-label small mb-1" htmlFor="as-summary">Summary (optional)</label>
+                  <label className="form-label" htmlFor="as-summary">Summary (optional)</label>
                   <input id="as-summary" className="form-control" value={form.summary}
                          onChange={e => set("summary", e.target.value)} />
                 </div>
                 <div className="col-md-4">
-                  <label className="form-label small mb-1" htmlFor="as-ref">Report ref / certificate no.</label>
+                  <label className="form-label" htmlFor="as-ref">Report ref / certificate no.</label>
                   <input id="as-ref" className="form-control" value={form.report_ref}
                          onChange={e => set("report_ref", e.target.value)} />
                 </div>
@@ -133,20 +133,30 @@ export default function Assessments() {
         )}
 
         <div className="gx-card">
-          <div className="card-body p-0">
-            {!rows && <div className="p-4"><div className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}
+          <div className="gx-card-head">
+            <h2>Recorded assessments</h2>
+            {rows && <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+              {rows.length} record{rows.length === 1 ? "" : "s"}
+            </span>}
+          </div>
+          <div>
+            {!rows && <div className="p-4 text-center"><div className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}
             {rows && rows.length === 0 && (
-              <div className="p-4 text-secondary">
-                No external assessments recorded yet.
-                {canWrite ? " Use the form above to record the first one." :
-                  " An assessor or admin can record VAPT, panel and STQC outcomes here."}
+              <div className="gx-empty">
+                <div className="gx-empty-icon"><i className="bi bi-shield-check" aria-hidden="true" /></div>
+                <h3 className="h6 mt-3 mb-1">No external assessments yet</h3>
+                <p className="gx-muted mb-0">
+                  {canWrite
+                    ? "Record VAPT, native-app accessibility, lived-experience panels or STQC outcomes above — they travel with every evidence pack."
+                    : "An assessor or admin can record VAPT, panel and STQC outcomes here."}
+                </p>
               </div>
             )}
             {rows && rows.length > 0 && (
               <div className="table-responsive">
                 <table className="gx-table">
                   <thead>
-                    <tr className="small text-secondary">
+                    <tr>
                       <th>Type</th><th>Title</th><th>Scope</th><th>Performed by</th>
                       <th>Assessed</th><th>Outcome</th><th>Ref</th>
                     </tr>

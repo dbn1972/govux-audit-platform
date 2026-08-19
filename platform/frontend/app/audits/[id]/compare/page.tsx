@@ -66,7 +66,7 @@ export default function Compare({ params }: { params: { id: string } }) {
 
   return wrap(
     <>
-      <p className="text-secondary small">
+      <p className="gx-muted small">
         Comparing <b>{fmt(data.from_audit!.date)}</b> ({data.from_audit!.score ?? "—"}) against{" "}
         <b>{fmt(data.to_audit!.date)}</b> ({data.to_audit!.score ?? "—"}) — this audit&rsquo;s most recent prior run.
       </p>
@@ -81,7 +81,7 @@ export default function Compare({ params }: { params: { id: string } }) {
           <div className="col-6 col-md-3" key={l}><div className="gx-card"><div className="gx-card-body">
             <div className="text-secondary small fw-semibold">{l}</div>
             <div className="fs-4 fw-bold">{v}</div>
-            <div className="text-secondary small">{s}</div>
+            <div className="gx-muted small">{s}</div>
           </div></div></div>
         ))}
       </div>

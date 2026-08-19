@@ -135,21 +135,26 @@ export default function Studio() {
 
         <div className="col-lg-9">
           {run == null && (
-            <div className="gx-card h-100"><div className="card-body d-flex align-items-center justify-content-center text-secondary" style={{ minHeight: 400 }}>
+            <div className="gx-card h-100"><div className="gx-card-body d-flex align-items-center justify-content-center gx-muted" style={{ minHeight: 400 }}>
               {busy ? <span><span className="spinner-border spinner-border-sm me-2" />Generating and auditing…</span> : "Your generated screens will appear here — like a design board."}
             </div></div>
           )}
           {run?.status === "failed" && <div className="alert alert-danger">Generation failed: {run.error}</div>}
           {run?.status === "generating" && (
-            <div className="gx-card"><div className="card-body text-center py-5 text-secondary">
+            <div className="gx-card"><div className="gx-card-body gx-empty gx-muted">
               <span className="spinner-border text-primary mb-2" /><div>Generating and refining toward the audit target…</div></div></div>
           )}
 
           {run?.status === "scored" && (<>
-            <div className="gx-card mb-3"><div className="card-body d-flex align-items-center flex-wrap gap-2">
+            <div className="gx-card mb-3"><div className="gx-card-body d-flex align-items-center flex-wrap gap-2">
               <div><span className="score-value" style={{ fontSize: 28 }}>{run.score}</span>
                 <span className="badge ms-1" style={bandStyle(run.band)}>Band {run.band}</span></div>
-              <span className="text-secondary small">GovUX static score · {run.iterations} refine(s) · ₹{run.billing?.cost_inr} · {run.billing?.output_tokens} tokens</span>
+              {/* a static analysis of generated markup, not an audit of a live
+                  site — saying which is the difference between a claim and a hint */}
+              <span className="gx-muted small">
+                Static score of the generated markup · {run.iterations} refinement{run.iterations === 1 ? "" : "s"}
+                {run.billing?.cost_inr != null && <> · ₹{run.billing.cost_inr}</>}
+              </span>
               <div className="ms-auto d-flex gap-2">
                 <button className="btn btn-outline-secondary btn-sm" onClick={download}><i className="bi bi-download me-1" aria-hidden="true" />Download .zip</button>
                 <button className={`btn btn-sm ${run.published ? "btn-success" : "btn-primary"}`} onClick={togglePublish}>
@@ -201,7 +206,14 @@ export default function Studio() {
                 </div>
               </div></div>
             )}
-            <p className="text-secondary small mt-2">⚠️ AI-generated draft — human review required before use. A full browser audit runs once deployed to a URL.</p>
+            <div className="gx-callout mt-3">
+              <i className="bi bi-exclamation-triangle" aria-hidden="true" />
+              <div>
+                <b>An AI-generated draft, not a finished service.</b> It needs human review before
+                anyone uses it, and the score above is static analysis of the markup — a real browser
+                audit only runs once it is deployed to a URL.
+              </div>
+            </div>
           </>)}
         </div>
       </div>

@@ -10,16 +10,28 @@ const WEIGHTS = [
 export default function Standards() {
   return (
     <AppShell>
-      <div className="gx-page">
-        <div className="d-flex align-items-center mb-2">
-          <h1 className="mb-1">Standards &amp; rules engine</h1>
-          <span className="badge text-bg-primary-subtle ms-2">Active: v3.2</span>
-          <button className="btn btn-primary ms-auto">Publish new version</button>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">
+              Standards &amp; rules engine
+              <span className="badge text-bg-primary-subtle ms-2" style={{ verticalAlign: "middle" }}>v3.2</span>
+            </h1>
+            <div className="gx-muted">
+              The weights and rule sets every score is produced from. Versioned and change-logged,
+              because a score is only comparable against others computed the same way.
+            </div>
+          </div>
+          <div className="gx-actions">
+            <button className="btn btn-primary">Publish new version</button>
+          </div>
         </div>
-        <p className="text-secondary small">Governance-controlled. Category weights and rule sets are versioned; changes are logged.</p>
         <div className="row g-3">
           <div className="col-lg-7"><div className="gx-card">
-            <div className="gx-card-head">Category weights <span className="text-secondary small">— must total 100%</span></div>
+            <div className="gx-card-head">
+              <h2>Category weights</h2>
+              <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>must total 100%</span>
+            </div>
             <div className="gx-card-body">
               {WEIGHTS.map(([name, wt]) => (
                 <div className="d-flex align-items-center gap-3 my-2" key={name as string}>

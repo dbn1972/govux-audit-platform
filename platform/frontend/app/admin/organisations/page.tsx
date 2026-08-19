@@ -185,7 +185,7 @@ export default function Organisations() {
         {msg && <div className="alert alert-success py-2" role="status">{msg}</div>}
 
         <div className="gx-card">
-          <div className="table-responsive"><table className="gx-table">
+          <div className="table-responsive"><table className="gx-table gx-responsive">
             <thead>
               <tr>
                 <th>Organisation</th><th>Type</th><th>State / UT</th>
@@ -206,24 +206,24 @@ export default function Organisations() {
               )}
               {(rows || []).map((o) => (
                 <tr key={o.id}>
-                  <td className="fw-semibold">{o.name}</td>
-                  <td><span className="badge text-bg-light">{o.org_type}</span></td>
-                  <td className="small">{o.state_code || <span className="text-secondary">—</span>}</td>
-                  <td className="fw-bold">{o.domain_count}</td>
-                  <td>{o.user_count}</td>
-                  <td className="small">
+                  <td data-label="Organisation" className="gx-cell-primary">{o.name}</td>
+                  <td data-label="Type"><span className="badge text-bg-light">{o.org_type}</span></td>
+                  <td data-label="State / UT" className="small">{o.state_code || <span className="gx-muted">—</span>}</td>
+                  <td data-label="Domains" className="fw-bold gx-num">{o.domain_count}</td>
+                  <td data-label="Users" className="gx-num">{o.user_count}</td>
+                  <td data-label="Audits" className="small">
                     {o.audit_count
                       ? <>{o.audit_count}<span className="text-secondary"> · {o.audited_domains} domain{o.audited_domains === 1 ? "" : "s"}</span></>
                       : <span className="text-secondary">none</span>}
                   </td>
-                  <td>{o.avg_score != null
+                  <td data-label="Avg score" className="gx-num">{o.avg_score != null
                     ? <b style={{ color: bandColor(o.avg_score) }}>{o.avg_score}</b>
                     : <span className="text-secondary">—</span>}</td>
-                  <td className="small text-secondary">{fmt(o.last_audited_at)}</td>
-                  <td>{o.studio_enabled
+                  <td data-label="Last audit" className="small gx-muted">{fmt(o.last_audited_at)}</td>
+                  <td data-label="Studio">{o.studio_enabled
                     ? <span className="badge text-bg-success-subtle text-success">Enabled</span>
-                    : <span className="text-secondary small">—</span>}</td>
-                  <td className="text-end">
+                    : <span className="gx-muted small">—</span>}</td>
+                  <td data-label="" className="text-end">
                     <button className="btn btn-sm btn-link"
                       onClick={() => { setEditing(o); setShowNew(false); }}>Edit</button>
                   </td>

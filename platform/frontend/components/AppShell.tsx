@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, setToken } from "@/lib/api";
 import BrandMark from "@/components/BrandMark";
+import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
 
 type NavGroup = { group: string; steward?: boolean; items: NavItem[] };
 type NavItem = string[] & { studio?: boolean };
@@ -173,7 +175,24 @@ export default function AppShell({ children }: { children: ReactNode }) {
     window.location.assign("/login");
   }
 
+  // Sign out sits one line under "Team & Settings" in the rail, and signing back
+  // in means waiting for an emailed code. A misclick costing a round trip
+  // through a mailbox is worth one confirmation.
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+
   // --- idle timeout: 29 min inactive -> warn, 30 min -> auto sign-out -------
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest(".gx-menu-wrap")) setMenuOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("mousedown", close);
+    window.addEventListener("keydown", esc);
+    return () => { window.removeEventListener("mousedown", close); window.removeEventListener("keydown", esc); };
+  }, [menuOpen]);
+
   const [idleWarning, setIdleWarning] = useState(false);
   const [idleSecondsLeft, setIdleSecondsLeft] = useState(60);
   const warnTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -277,15 +296,37 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <span className="gx-brand-name d-sm-none">GovUX</span>
         </Link>
         <div className="ms-auto d-flex align-items-center gap-1">
-          {/* was a bare <i>: an icon that looks like a control but cannot be
-              focused, clicked or announced. Now a real button. */}
-          <Link href="/settings" className="gx-icon-btn" aria-label="Notifications">
-            <i className="bi bi-bell" aria-hidden="true" />
-          </Link>
-          <Link href="/settings" className="gx-avatar text-decoration-none"
-            aria-label={`Account — ${me?.email || "signed in"}`} title={me?.email || ""}>
-            {initials}
-          </Link>
+          <ThemeToggle />
+          <NotificationBell />
+          <div className="gx-menu-wrap">
+            <button type="button" className="gx-avatar" onClick={() => setMenuOpen(o => !o)}
+              aria-haspopup="menu" aria-expanded={menuOpen}
+              aria-label={`Account menu — ${me?.email || "signed in"}`}>
+              {initials}
+            </button>
+            {menuOpen && (
+              <div className="gx-menu" role="menu">
+                {/* the avatar used to be a bare link to /settings, so clicking it
+                    was a guess. Say who you are signed in as, then offer the two
+                    things that follow from that. */}
+                <div className="gx-menu-head">
+                  <div className="fw-semibold text-truncate">{me?.display_name || me?.email || "Signed in"}</div>
+                  <div className="gx-muted text-truncate" style={{ fontSize: ".8125rem" }}>{me?.email}</div>
+                  <div className="gx-muted" style={{ fontSize: ".75rem" }}>
+                    {(me?.role || "").replace(/_/g, " ")}{me?.org_name ? ` · ${me.org_name}` : ""}
+                  </div>
+                </div>
+                <Link href="/settings" role="menuitem" className="gx-menu-item"
+                  onClick={() => setMenuOpen(false)}>
+                  <i className="bi bi-gear" aria-hidden="true" />Team &amp; settings
+                </Link>
+                <button type="button" role="menuitem" className="gx-menu-item"
+                  onClick={() => { setMenuOpen(false); setConfirmSignOut(true); }}>
+                  <i className="bi bi-box-arrow-right" aria-hidden="true" />Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -304,7 +345,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="px-2 pb-3">
-            <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={signOut} />
+            <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={() => setConfirmSignOut(true)} />
           </div>
         </aside>
 
@@ -341,9 +382,30 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <i className="bi bi-x-lg" />
             </button>
           </div>
-          <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={signOut} onNavigate={() => setOpen(false)} />
+          <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={() => setConfirmSignOut(true)} onNavigate={() => setOpen(false)} />
         </div>
       </div>
+
+      {confirmSignOut && (
+        <div role="alertdialog" aria-modal="true" aria-labelledby="signout-title"
+          style={{ position: "fixed", inset: 0, zIndex: 1080, background: "rgba(9,20,40,.45)",
+            display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
+            <div className="gx-card-body text-center">
+              <div className="gx-empty-icon mb-3"><i className="bi bi-box-arrow-right" aria-hidden="true" /></div>
+              <h2 id="signout-title" className="h5">Sign out?</h2>
+              <p className="gx-muted mb-3">
+                You'll need a new one-time code by email to sign back in.
+              </p>
+              <div className="d-flex gap-2 justify-content-center">
+                <button type="button" className="btn btn-outline-secondary"
+                  onClick={() => setConfirmSignOut(false)}>Stay signed in</button>
+                <button type="button" className="btn btn-primary" onClick={signOut}>Sign out</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {idleWarning && (
         <IdleWarning secondsLeft={idleSecondsLeft} onContinue={stayLoggedIn} onSignOut={signOut} />

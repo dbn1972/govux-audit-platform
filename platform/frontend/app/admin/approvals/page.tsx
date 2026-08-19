@@ -78,7 +78,7 @@ export default function Approvals() {
                   <td data-label="Requested by" className="small">{r.user_email || "—"}</td>
                   <td data-label="Domain" className="fw-semibold">{r.domain_url || "—"}</td>
                   <td data-label="Pages"><b>{r.requested_pages}</b></td>
-                  <td data-label="Reason" className="text-secondary small">{r.reason || "—"}</td>
+                  <td data-label="Reason" className="gx-muted small">{r.reason || "—"}</td>
                   <td data-label="Status"><span className={`badge ${statusBadge[r.status] || "text-bg-light"}`}>{r.status}</span></td>
                   <td data-label="">
                     {r.status === "pending" ? (
@@ -88,7 +88,7 @@ export default function Approvals() {
                         <button className="btn btn-sm btn-outline-danger" disabled={busy === r.id}
                           onClick={() => decide(r.id, "rejected")}>Reject</button>
                       </div>
-                    ) : <span className="text-secondary small">decided</span>}
+                    ) : <span className="gx-muted small">decided</span>}
                   </td>
                 </tr>
               ))}

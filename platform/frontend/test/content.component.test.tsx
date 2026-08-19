@@ -96,7 +96,7 @@ describe("External assessments", () => {
 
   it("shows an empty ledger honestly", async () => {
     render(<Assessments />);
-    expect(await screen.findByText(/No external assessments recorded yet/)).toBeInTheDocument();
+    expect(await screen.findByText(/No external assessments yet/)).toBeInTheDocument();
   });
 
   it("surfaces a rejected submission", async () => {

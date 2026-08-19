@@ -37,6 +37,19 @@ _EVENTS = {
 }
 
 
+def record(db: Session, user_id, kind: str, title: str,
+           body: str | None = None, link: str | None = None) -> None:
+    """Persist an in-app notification. Same contract as the mail path: never
+    raise into the caller — a failed notification must not fail the audit that
+    triggered it."""
+    try:
+        db.add(models.Notification(user_id=user_id, kind=kind, title=title,
+                                   body=body, link=link))
+        db.flush()
+    except Exception as exc:               # pragma: no cover - defensive
+        log.warning("could not record notification (%s): %r", kind, exc)
+
+
 def _enabled(event: str) -> bool:
     if not settings_store.get_bool("notify_enabled", True):
         return False          # master switch
@@ -59,6 +72,18 @@ def _send(to: list[str], subject: str, body: str) -> int:
     return sent
 
 
+def _org_admin_ids(db: Session, org_id) -> list:
+    """Same people as _org_admins, by id — an in-app notification is addressed
+    to a user row, not to a mailbox."""
+    if not org_id:
+        return []
+    return [r[0] for r in db.query(models.User.id)
+              .filter(models.User.org_id == org_id,
+                      models.User.is_active.is_(True),
+                      models.User.role.in_(("owner", "programme_admin", "super_admin")))
+              .all()]
+
+
 def _org_admins(db: Session, org_id) -> list[str]:
     """Owners and admins of an org — the people accountable for its domains."""
     if not org_id:
@@ -78,6 +103,16 @@ def audit_completed(db: Session, audit: models.Audit, domain: models.Domain) -> 
     try:
         sent = 0
         url = f"{_base_url()}/audits/{audit.id}/report"
+
+        if audit.requested_by:
+            # Recorded in-app whatever the mail settings say: the email is the
+            # push, this is the record, and switching off a noisy class of mail
+            # should not also erase the history of what happened.
+            record(db, audit.requested_by, "audit_complete",
+                   f"Audit complete: {domain.url}",
+                   f"Scored {audit.overall_score} (Band {audit.band}) across "
+                   f"{audit.pages_done} of {audit.pages_total} pages.",
+                   f"/audits/{audit.id}/report")
 
         if _enabled("notify_audit_complete") and audit.requested_by:
             requester = db.get(models.User, audit.requested_by)
@@ -102,7 +137,7 @@ def _regression(db: Session, audit: models.Audit, domain: models.Domain, url: st
     """Compare against this domain's previous completed audit. Mirrors the
     >=5-point threshold the /admin/alerts screen uses, so the mail and the
     dashboard never disagree about what counts as a regression."""
-    if not _enabled("notify_regression") or audit.overall_score is None:
+    if audit.overall_score is None:
         return 0
     previous = (db.query(models.Audit)
                   .filter(models.Audit.domain_id == domain.id,
@@ -114,6 +149,19 @@ def _regression(db: Session, audit: models.Audit, domain: models.Domain, url: st
         return 0
     drop = float(previous.overall_score) - float(audit.overall_score)
     if drop < 5:
+        return 0
+
+    # Recorded for every org admin regardless of the mail setting: a regression
+    # is the event this platform exists to catch, and "we turned that email off"
+    # is not a reason for it to leave no trace.
+    for admin in _org_admin_ids(db, domain.org_id):
+        record(db, admin, "regression",
+               f"Score regression: {domain.url}",
+               f"Down {drop:.0f} points to {audit.overall_score} (Band {audit.band}) "
+               f"from {previous.overall_score}.",
+               f"/audits/{audit.id}/compare")
+
+    if not _enabled("notify_regression"):
         return 0
     return _send(
         _org_admins(db, domain.org_id),
@@ -151,6 +199,11 @@ def scan_request_raised(db: Session, req: models.ScanRequest, domain: models.Dom
     """A request sitting unseen in /admin/approvals blocks the requester
     indefinitely — the approvers need to know it arrived."""
     try:
+        for admin in _org_admin_ids(db, domain.org_id):
+            record(db, admin, "approval",
+                   f"Approval needed: larger crawl for {domain.url}",
+                   f"{requester.email} requested a {req.requested_pages}-page crawl.",
+                   "/admin/approvals")
         if not _enabled("notify_scan_request"):
             return 0
         return _send(
@@ -167,12 +220,16 @@ def scan_request_raised(db: Session, req: models.ScanRequest, domain: models.Dom
 
 def scan_request_decided(db: Session, req: models.ScanRequest, domain: models.Domain) -> int:
     try:
-        if not _enabled("notify_scan_request") or not req.user_id:
+        if not req.user_id:
             return 0
         requester = db.get(models.User, req.user_id)
         if not requester or not requester.is_active:
             return 0
         verdict = "approved" if req.status == "approved" else "declined"
+        record(db, requester.id, "approval",
+               f"Crawl request {verdict}: {domain.url}",
+               f"Your {req.requested_pages}-page crawl request was {verdict}.",
+               "/audits/new")
         return _send(
             [requester.email],
             f"Your crawl request for {domain.url} was {verdict}",

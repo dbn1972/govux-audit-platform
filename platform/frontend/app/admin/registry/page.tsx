@@ -77,7 +77,12 @@ export default function Registry() {
               onClick={() => run(true)}>{busy ? "Checking…" : "Preview"}</button>
             <button className="btn btn-primary btn-sm" disabled={!previewed || busy}
               onClick={() => run(false)}>Import for real</button>
-            {!previewed && <span className="text-secondary small">Preview first to enable import.</span>}
+            {!previewed && (
+              <span className="gx-muted small">
+                <i className="bi bi-info-circle me-1" aria-hidden="true" />
+                Preview first — the import is checked against the register before anything is written.
+              </span>
+            )}
           </div>
         </div>
 
@@ -98,7 +103,7 @@ export default function Registry() {
                   <div className="col-6 col-md-3" key={String(label)}>
                     <div className="border rounded p-2 text-center">
                       <div className={`h4 mb-0 ${cls}`}>{String(val)}</div>
-                      <div className="small text-secondary">{String(label)}</div>
+                      <div className="small gx-muted">{String(label)}</div>
                     </div>
                   </div>
                 ))}
@@ -118,7 +123,7 @@ export default function Registry() {
 
               {res.errors.length > 0 && (
                 <div className="table-responsive">
-                  <table className="table table-sm mb-0">
+                  <table className="gx-table">
                     <thead><tr><th>Row</th><th>Value</th><th>Problem</th></tr></thead>
                     <tbody>
                       {res.errors.map((e, i) => (

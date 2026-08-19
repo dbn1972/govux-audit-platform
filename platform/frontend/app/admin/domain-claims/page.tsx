@@ -107,7 +107,7 @@ export default function DomainClaims() {
                         {c.verify_status}
                       </span>
                     </td>
-                    <td className="small text-secondary">{fmt(c.created_at)}</td>
+                    <td className="small gx-muted">{fmt(c.created_at)}</td>
                     <td className="text-end">
                       <button className="btn btn-sm btn-outline-danger"
                         disabled={busyId === c.id}

@@ -57,7 +57,10 @@ export default function BulkScan() {
               <option value="all">Entire register</option>
             </select>
             <div className="alert alert-light border small">
-              ⚙️ Enqueued to <code>Redis Streams</code> · consumed by the polyglot worker fleet · idempotent · polite per-domain rate limits.
+              <i className="bi bi-info-circle me-1" aria-hidden="true" />
+              Each domain is queued as its own audit and crawled at a polite rate, so a large
+              estate takes hours rather than minutes. Re-running is safe — a domain already
+              queued is not scanned twice.
             </div>
             {err && <div className="alert alert-warning py-2 small" role="alert">{err}</div>}
             <button className="btn btn-primary w-100" onClick={enqueue} disabled={busy}>
@@ -104,7 +107,7 @@ export default function BulkScan() {
                 </p>
               </>
             ) : (
-              <div className="text-secondary small">
+              <div className="gx-muted small">
                 Submit a bulk scan to enqueue the estate. The batch reference and the number of
                 domains queued will appear here.
               </div>

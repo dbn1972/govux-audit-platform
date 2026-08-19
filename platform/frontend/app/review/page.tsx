@@ -127,7 +127,7 @@ export default function Review() {
           <div className="gx-card">
             <div className="gx-card-body">
               <h2 className="h6 mb-1">Choose an audit to certify</h2>
-              <p className="text-secondary small">
+              <p className="gx-muted small">
                 Only completed audits can be certified. Every report also carries a
                 <b> “Certify (expert review)”</b> action that opens it here directly.
               </p>
@@ -149,7 +149,7 @@ export default function Review() {
                         className="list-group-item d-flex flex-wrap align-items-center gap-3">
                       <div>
                         <div className="fw-semibold">{c.domain}</div>
-                        <div className="text-secondary small">
+                        <div className="gx-muted small">
                           {absolute(c.date)}
                           {c.score != null && <> · score {Math.round(c.score)}</>}
                           {c.compliance_status && <> · {c.compliance_status.replace(/_/g, " ")}</>}
@@ -172,10 +172,10 @@ export default function Review() {
             <div className="card-body d-flex flex-wrap align-items-center gap-3">
               <div>
                 <div className="fw-semibold">{audit.domain}</div>
-                <div className="text-secondary small">Task {taskId}</div>
+                <div className="gx-muted small">Task {taskId}</div>
               </div>
               <div className="ms-auto text-end">
-                <div className="text-secondary small">Current legal verdict</div>
+                <div className="gx-muted small">Current legal verdict</div>
                 <span className={`badge ${VERDICT_STYLE[audit.compliance_status] || "text-bg-secondary"}`}>
                   {(audit.compliance_status || "—").replace(/_/g, " ")}
                 </span>
@@ -234,7 +234,7 @@ export default function Review() {
               </div>
               {data && (
                 <div className="ms-auto text-end">
-                  <div className="text-secondary small">
+                  <div className="gx-muted small">
                     {data.decided} of {data.total} answered
                     {data.failed > 0 && <span className="ms-2 fw-semibold text-danger">{data.failed} not met</span>}
                   </div>

@@ -28,6 +28,12 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${devanagari.variable}`} data-bs-theme="light">
+      <head>
+        {/* Applied before first paint. Reading localStorage in an effect would
+            paint the light theme, then repaint dark — a white flash on every
+            navigation for anyone who chose dark. */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('govux-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-bs-theme',t);}catch(e){}})();` }} />
+      </head>
       <body>
         <div className="govux-strip" />
         {children}

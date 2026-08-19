@@ -353,6 +353,22 @@ CREATE TABLE app_settings (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ---------- in-app notifications ----------
+-- The email in services/notify.py is the push; this is the record, so a missed
+-- mail (or a deployment with that class of mail off) doesn't mean the user
+-- never learns their audit finished.
+CREATE TABLE notifications (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    kind        TEXT NOT NULL,          -- audit_complete | regression | approval | ...
+    title       TEXT NOT NULL,
+    body        TEXT,
+    link        TEXT,                   -- in-app route this is about
+    read_at     TIMESTAMPTZ,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_notif_user_time ON notifications(user_id, created_at DESC);
+
 -- ---------- audit log (tamper-evident accountability) ----------
 CREATE TABLE audit_log (
     id           BIGSERIAL PRIMARY KEY,

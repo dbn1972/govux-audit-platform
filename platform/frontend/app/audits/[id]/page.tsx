@@ -44,31 +44,61 @@ export default function Running({ params }: { params: { id: string } }) {
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
             <h1 className="mb-1">Auditing {status.domain || "…"}</h1>
-            <div className="gx-muted">Task ID <b>{params.id}</b> · runs in the background — you can leave this page.</div>
+            <div className="gx-muted">
+              This page updates itself while the engine works. You can close it — the audit
+              keeps running, and the report will be waiting under Audit History.
+            </div>
           </div>
         </div>
 
-        <div className="gx-card mb-3"><div className="gx-card-body">
-          <div className="d-flex align-items-center flex-wrap gap-2">
-            {STATES.map((s, i) => (
-              <span key={s} className={`badge rounded-pill ${i < idx ? "text-bg-success" : i === idx ? "text-bg-primary" : "text-bg-light"}`}>
-                {i < idx ? "✓ " : i === idx ? "● " : ""}{s}
-              </span>
+        <div className="gx-card"><div className="gx-card-body">
+          {/* A row of badges gave no sense of a pipeline — which stage follows
+              which, or how far along this run is. */}
+          <div className="gx-steps-rail">
+            {STATES.map((st, i) => (
+              <div key={st} className={`gx-stage ${i < idx ? "gx-stage-done" : i === idx ? "gx-stage-now" : ""}`}>
+                <span className="gx-stage-dot">
+                  {i < idx ? <i className="bi bi-check-lg" aria-hidden="true" /> : i + 1}
+                </span>
+                <div className="gx-stage-name">{st}</div>
+              </div>
             ))}
           </div>
-          <div className="text-secondary small mt-2">
-            Status auto-updates by polling <code>GET /v1/audits/{params.id}</code> (WebSocket in production).
+
+          {/* pages crawled: the only number that moves during the long middle */}
+          {!done && status.pages_total > 0 && (
+            <div className="d-flex align-items-center gap-3 mt-4">
+              <span className="gx-meter flex-grow-1">
+                <span style={{ width: `${Math.round((status.pages_done / status.pages_total) * 100)}%`,
+                               background: "var(--gx-action)" }} />
+              </span>
+              <span className="gx-num gx-muted" style={{ fontSize: ".8125rem" }}>
+                {status.pages_done} of {status.pages_total} pages
+              </span>
+            </div>
+          )}
+
+          <div className="gx-muted small mt-3">
+            Task <code>{params.id}</code>
           </div>
         </div></div>
 
         {done ? (
           <div className="alert alert-success d-flex justify-content-between align-items-center">
-            <span>✓ Completed — GovUX Score <b>{status.overall_score}</b> · Band {status.band}
+            <span><i className="bi bi-check-circle-fill me-1" aria-hidden="true" />Completed — GovUX Score <b>{status.overall_score}</b> · Band {status.band}
               {status.guardrail_active && <span className="badge text-bg-warning ms-2">guard-rail active</span>}</span>
             <Link href={`/audits/${params.id}/report`} className="btn btn-primary btn-sm">View report →</Link>
           </div>
         ) : status.status === "failed" ? (
-          <div className="alert alert-danger">Audit failed. It will be retried automatically (dead-letter after N).</div>
+          <div className="alert alert-danger">
+            <b>This audit failed.</b>
+            <div className="small mt-1">
+              It will be retried automatically a few times. If it keeps failing, the site is
+              usually blocking automated tools or timing out — try a smaller page count, or
+              check that the audit network can reach it.
+            </div>
+            <Link href="/audits/new" className="btn btn-outline-secondary btn-sm mt-2">Start another audit</Link>
+          </div>
         ) : status.status === "insufficient_evidence" ? (
           <div className="alert alert-warning">
             <b>We couldn’t capture this site, so no score was issued.</b>

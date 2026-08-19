@@ -47,8 +47,9 @@
                          -apple-system, "Segoe UI", Roboto, "Noto Sans",
                          "Helvetica Neue", Arial, sans-serif;
 
-  /* UX4G brand extras used by GovUX components */
-  --ux-navy:  #0a3d7a;   /* deep blue for headings/brand */
+  /* UX4G brand extras used by GovUX components. --ux-navy defers to the design
+     layer's role token so a theme switch reaches the screens still using it. */
+  --ux-navy:  var(--gx-navy-800, #0a3d7a);
   --ux-saff:  #ff9933;
   --ux-green: #138808;
 }

@@ -31,7 +31,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
       <header className="bg-white border-bottom">
         <div className="container py-2 d-flex align-items-center flex-wrap gap-2">
           <span className="gx-brand-name">GovUX Studio</span>
-          <span className="text-secondary small">· public demo · AI-generated draft</span>
+          <span className="gx-muted small">· public demo · AI-generated draft</span>
           {meta && <span className="badge ms-2" style={bandStyle(meta.band)}>GovUX {meta.score} · Band {meta.band}</span>}
           <div className="ms-auto d-flex gap-2">
             <a className="btn btn-sm btn-outline-success" target="_blank" rel="noopener" href={`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`}>WhatsApp</a>

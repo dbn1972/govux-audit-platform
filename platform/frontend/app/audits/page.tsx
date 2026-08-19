@@ -117,14 +117,14 @@ export default function Audits() {
                 return (
                   <tr key={a.task_id}>
                     <td data-label="Domain" className="fw-semibold">{a.domain}</td>
-                    <td data-label="Date" className="text-secondary small">{a.date ? new Date(a.date).toLocaleString() : "—"}</td>
+                    <td data-label="Date" className="gx-muted small">{a.date ? new Date(a.date).toLocaleString() : "—"}</td>
                     <td data-label="Status"><span className={`badge ${cls}`}>{label}</span></td>
                     <td data-label="Score">
                       {done && a.score != null
                         ? <><b>{a.score}</b>{a.band && <span className="badge ms-1" style={bandStyle(a.band)}>Band {a.band}</span>}</>
                         : <span className="text-secondary">—</span>}
                     </td>
-                    <td data-label="Compliance" className="text-secondary small">{a.compliance_status ? a.compliance_status.replace(/_/g, " ") : "—"}</td>
+                    <td data-label="Compliance" className="gx-muted small">{a.compliance_status ? a.compliance_status.replace(/_/g, " ") : "—"}</td>
                     <td data-label="">
                       {done
                         ? <>

@@ -222,7 +222,7 @@ describe("Alerts", () => {
     render(<Alerts />);
     // the four counters always render (they're the summary tiles); what must be
     // absent is any alert item — and the estate-is-clean message takes its place
-    expect(await screen.findByText(/No exceptions right now/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Nothing to act on/i)).toBeInTheDocument();
     // the label and its number are siblings inside .card-body
     expect(screen.getByText("Band E domains").parentElement).toHaveTextContent("0");
   });

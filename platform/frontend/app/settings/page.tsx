@@ -213,7 +213,7 @@ export default function Settings() {
               <button className="btn btn-primary btn-sm" onClick={saveOrg} disabled={orgBusy}>
                 {orgBusy ? "Saving…" : "Save"}</button>
             ) : (
-              <div className="text-secondary small">Only an owner or admin can edit organisation settings.</div>
+              <div className="gx-muted small">Only an owner or admin can edit organisation settings.</div>
             )}
             {orgMsg && <div className="small mt-2 text-secondary">{orgMsg}</div>}
           </div></div></div>
@@ -275,7 +275,7 @@ export default function Settings() {
           <div className="col-lg-12"><div className="gx-card">
             <div className="gx-card-head">Invite a colleague</div>
             <div className="gx-card-body">
-              <p className="text-secondary small">
+              <p className="gx-muted small">
                 Invited colleagues join <b>this</b> organisation when they first sign in, so you
                 share the same domains, audits and reports. Only .gov.in / .nic.in addresses can
                 be invited.
@@ -297,7 +297,7 @@ export default function Settings() {
                     {inviteBusy ? "Sending…" : "Send invitation"}</button>
                 </form>
               ) : (
-                <div className="text-secondary small">Only an owner or admin can invite colleagues.</div>
+                <div className="gx-muted small">Only an owner or admin can invite colleagues.</div>
               )}
               {inviteMsg && <div className="small mt-2 text-secondary">{inviteMsg}</div>}
             </div>
@@ -354,7 +354,7 @@ export default function Settings() {
                   )}
                   {(devices || []).map(d => (
                     <tr key={d.id}>
-                      <td><b>{d.label || "Device"}</b><div className="text-secondary small">Device key bound</div></td>
+                      <td><b>{d.label || "Device"}</b><div className="gx-muted small">Device key bound</div></td>
                       <td>{d.last_location || "—"}</td>
                       <td className="small">{d.current ? "Now" : relative(d.last_active_at, "—")}</td>
                       <td>{d.current
@@ -385,7 +385,7 @@ export default function Settings() {
 
             <div className="gx-card mt-3"><div className="gx-card-body">
               <h3 className="h6 mb-3">Data &amp; privacy <span className="badge text-bg-primary-subtle ms-1">DPDP</span></h3>
-              <p className="text-secondary small">Under the Digital Personal Data Protection Act, you can access
+              <p className="gx-muted small">Under the Digital Personal Data Protection Act, you can access
                 and erase the personal data we hold about you.</p>
               <div className="d-flex flex-column gap-2">
                 <button className="btn btn-outline-secondary btn-sm" onClick={downloadData} disabled={dpdpBusy}>

@@ -182,6 +182,9 @@ export const api = {
   listAssessments: (kind?: string) => req(`/v1/assessments${kind ? `?kind=${kind}` : ""}`),
   createAssessment: (body: any) =>
     req("/v1/assessments", { method: "POST", body: JSON.stringify(body) }),
+  notifications: () => req("/v1/notifications"),
+  markNotificationsRead: (id?: string) =>
+    req("/v1/notifications/read", { method: "POST", body: JSON.stringify(id ? { id } : {}) }),
   nationalBrief: async (): Promise<Blob> => {
     const r = await fetch("/api/v1/national/brief.pdf",
       { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: "include" });

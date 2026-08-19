@@ -117,7 +117,7 @@ export default function NewAudit() {
                   </div>
                   <div className="d-flex align-items-center flex-wrap gap-2">
                     <span className="badge text-bg-primary-subtle">Covers up to {freePages} pages · free</span>
-                    <span className="text-secondary small">Unlimited audits on your verified domains.</span>
+                    <span className="gx-muted small">Unlimited audits on your verified domains.</span>
                     <button type="button" className="btn btn-sm btn-link ms-auto p-0"
                       onClick={() => { setShowReq((v) => !v); setReqMsg(""); }} disabled={!domainId}>
                       {showReq ? "Cancel" : "Need a deeper crawl? Request approval →"}
@@ -152,7 +152,7 @@ export default function NewAudit() {
             </div></div>
             <div className="gx-card"><div className="gx-card-body">
               <h2 className="h6">Standards &amp; categories</h2>
-              <p className="text-secondary small">All eight scoring categories are always evaluated — the weights are fixed by the GovUX methodology.</p>
+              <p className="gx-muted small">All eight scoring categories are always evaluated — the weights are fixed by the GovUX methodology.</p>
               {CATS.map(([name, wt]) => (
                 <div className="d-flex align-items-center gap-2 border rounded p-2 mb-2" key={name}>
                   <i className="bi bi-check-circle-fill text-success" aria-hidden="true" />
@@ -165,11 +165,11 @@ export default function NewAudit() {
           <div className="col-lg-4">
             <div className="gx-card"><div className="gx-card-body">
               <h2 className="h6">Compatibility matrix</h2>
-              <div className="mb-2"><div className="text-secondary small">Browser engines</div>
+              <div className="mb-2"><div className="gx-muted small">Browser engines</div>
                 <span className="badge text-bg-secondary me-1">Chromium</span>
                 <span className="badge text-bg-secondary me-1">Firefox</span>
                 <span className="badge text-bg-secondary">WebKit</span></div>
-              <div className="mb-3"><div className="text-secondary small">Device sizes</div>
+              <div className="mb-3"><div className="gx-muted small">Device sizes</div>
                 <span className="badge text-bg-secondary me-1">360</span>
                 <span className="badge text-bg-secondary me-1">414</span>
                 <span className="badge text-bg-secondary me-1">768</span>

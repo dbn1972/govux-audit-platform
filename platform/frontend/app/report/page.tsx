@@ -1,4 +1,5 @@
 "use client";
+import AppShell from "@/components/AppShell";
 import { BAND_COLOR, barColor } from "@/lib/score";
 
 // The illustrative twin of /audits/[id]/report — same components, same order,
@@ -20,8 +21,10 @@ export default function SampleReport() {
     label, weight, score, lost: ((100 - score) * weight) / 100,
   })).sort((a, b) => b.lost - a.lost);
 
+  // Reached from the sidebar under Audits, so it needs the sidebar: this page
+  // rendered bare, leaving a signed-in reader on a screen with no way back.
   return (
-    <div className="gx-page gx-stack">
+    <AppShell><div className="gx-page gx-stack">
       <div className="alert alert-info d-flex align-items-center gap-2" role="note">
         <i className="bi bi-info-circle" aria-hidden="true" />
         <span><b>Sample report.</b> An illustrative example of what a GovUX report looks like — not a
@@ -123,6 +126,6 @@ export default function SampleReport() {
         Prioritised issues, remediation plans, cross-browser compatibility and page-coverage views
         appear on a real report.
       </p>
-    </div>
+    </div></AppShell>
   );
 }

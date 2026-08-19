@@ -228,6 +228,21 @@ class ReviewItem(Base):
     )
 
 
+class Notification(Base):
+    """An in-app notification. The email in services/notify.py is the push; this
+    is the record — so a user who missed the mail, or whose deployment has that
+    class of mail switched off, can still find out what happened."""
+    __tablename__ = "notifications"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    kind = Column(Text, nullable=False)      # audit_complete | regression | approval | ...
+    title = Column(Text, nullable=False)
+    body = Column(Text)
+    link = Column(Text)                      # in-app route this is about
+    read_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
 class Finding(Base):
     __tablename__ = "findings"
     id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import BrandMark from "@/components/BrandMark";
+import ThemeToggle from "@/components/ThemeToggle";
 import { BAND_COLOR as bandCol } from "@/lib/score";
 
 // UX4G-aligned public landing page for the FREE single-URL audit (no sign-in).
@@ -124,6 +125,7 @@ export default function ScanLanding() {
           <nav className="d-flex align-items-center gap-3">
             <a href="#checks" className="text-decoration-none d-none d-md-inline" style={{ color: NAVY }}>What we check</a>
             <a href="#how" className="text-decoration-none d-none d-md-inline" style={{ color: NAVY }}>How it works</a>
+            <ThemeToggle />
             <Link href="/login" className="btn btn-outline-primary btn-sm">Sign in</Link>
           </nav>
         </div>
@@ -160,7 +162,7 @@ export default function ScanLanding() {
                       <div className="d-flex align-items-center gap-2 mb-2">
                         <i className="bi bi-shield-check text-warning" />
                         <span className="fw-semibold">Quick check</span>
-                        <span className="text-secondary small">(you’ve used your free scans)</span>
+                        <span className="gx-muted small">(you’ve used your free scans)</span>
                       </div>
                       <label className="form-label small mb-1">{captcha.question}</label>
                       <input className="form-control" inputMode="numeric" value={captchaAns}
@@ -188,7 +190,7 @@ export default function ScanLanding() {
                             ? (state.queue_position > 0 ? `In queue — ${state.queue_position} scan(s) ahead of you` : "You’re next in the queue…")
                             : "Scanning the page…"}
                         </div>
-                        <div className="text-secondary small">Chromium · Firefox · Safari · Lighthouse · axe-core</div>
+                        <div className="gx-muted small">Chromium · Firefox · Safari · Lighthouse · axe-core</div>
                       </div>
                     )}
                     {state.status === "failed" && (
@@ -264,7 +266,7 @@ export default function ScanLanding() {
               <div className="col-md-4" key={n}>
                 <div className="gx-step-badge mb-3">{n}</div>
                 <h3 className="h6 fw-bold" style={{ color: NAVY }} dangerouslySetInnerHTML={{ __html: t }} />
-                <p className="text-secondary small" dangerouslySetInnerHTML={{ __html: d }} />
+                <p className="gx-muted small" dangerouslySetInnerHTML={{ __html: d }} />
               </div>
             ))}
           </div>

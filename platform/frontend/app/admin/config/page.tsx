@@ -55,15 +55,21 @@ export default function ConfigAdmin() {
 
   return (
     <AppShell>
-      <div className="gx-page">
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <h1 className="h3 mb-0">Platform configuration</h1>
-          <button className="btn btn-primary" disabled={!dirty} onClick={save}>
-            <i className="bi bi-check2 me-1" /> Save changes
-          </button>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Platform configuration</h1>
+            <div className="gx-muted">
+              Email delivery, CAPTCHA, rate limits and scan quotas. Changes take effect immediately
+              without a redeploy, and secrets are write-only — saved but never shown again.
+            </div>
+          </div>
+          <div className="gx-actions">
+            <button className="btn btn-primary" disabled={!dirty} onClick={save}>
+              <i className="bi bi-check2 me-1" aria-hidden="true" />Save changes
+            </button>
+          </div>
         </div>
-        <p className="text-secondary small">Email delivery, CAPTCHA, rate limits and scan quotas —
-          editable at runtime, no redeploy. Secrets are write-only (never shown).</p>
         {err && <div className="alert alert-warning py-2">{err}</div>}
         {msg && <div className="alert alert-success py-2">{msg}</div>}
 

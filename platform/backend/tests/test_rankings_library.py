@@ -430,3 +430,64 @@ def test_national_brief_is_steward_only(client, db, ctx):
     tok = security.issue_access_token(str(u.id), u.role, str(dev.id))
     r = client.get("/v1/national/brief.pdf", headers={"Authorization": f"Bearer {tok}"})
     assert r.status_code == 403
+
+
+# ── in-app notifications ────────────────────────────────────────────────────
+# The bell was a link to Settings. These pin the two properties that matter:
+# a user sees their own notifications and nobody else's, and reading is idempotent.
+def test_notifications_are_scoped_to_the_signed_in_user(client, db, ctx):
+    from app import models, security
+    other = models.User(email="other.notif@nic.in", org_id=ctx["org"].id,
+                        display_name="Other", role="owner")
+    db.add(other); db.flush()
+    db.add(models.Notification(user_id=ctx["user"].id, kind="audit_complete",
+                               title="Yours", body="b", link="/x"))
+    db.add(models.Notification(user_id=other.id, kind="audit_complete",
+                               title="Theirs", body="b", link="/y"))
+    db.commit()
+
+    r = client.get("/v1/notifications", headers=ctx["headers"])
+    assert r.status_code == 200
+    titles = [i["title"] for i in r.json()["items"]]
+    assert titles == ["Yours"], titles
+    assert r.json()["unread"] == 1
+
+
+def test_marking_read_is_idempotent_and_scoped(client, db, ctx):
+    db.add(models.Notification(user_id=ctx["user"].id, kind="regression",
+                               title="Score dropped", body="b", link="/z"))
+    db.commit()
+    assert client.post("/v1/notifications/read", json={}, headers=ctx["headers"]).json()["marked"] == 1
+    # already read: nothing left to mark, and no error
+    assert client.post("/v1/notifications/read", json={}, headers=ctx["headers"]).json()["marked"] == 0
+    assert client.get("/v1/notifications", headers=ctx["headers"]).json()["unread"] == 0
+
+
+def test_a_regression_is_recorded_even_with_that_mail_switched_off(db, ctx, monkeypatch):
+    """The event this platform exists to catch must leave a trace regardless of
+    a deployment's mail preferences — turning an email off is not consent to
+    lose the record."""
+    from app.services import notify, settings_store
+    monkeypatch.setattr(settings_store, "get_bool", lambda k, d=True: False)
+
+    domain = models.Domain(org_id=ctx["org"].id, url="regress.gov.in", tld="gov.in",
+                           service_category="information", size_class="small",
+                           verify_status="verified", created_by=ctx["user"].id)
+    db.add(domain); db.flush()
+    old = models.Audit(domain_id=domain.id, status="completed", engine_version="v3.2",
+                       overall_score=80, band="B", requested_by=ctx["user"].id)
+    db.add(old); db.flush()
+    new = models.Audit(domain_id=domain.id, status="completed", engine_version="v3.2",
+                       overall_score=60, band="C", requested_by=ctx["user"].id)
+    db.add(new); db.flush()
+
+    notify._regression(db, new, domain, "http://x/report")
+    db.commit()
+
+    # scoped to THIS domain: other tests in this shared schema also write
+    # kind="regression" rows, and matching on kind alone picks up theirs
+    rows = (db.query(models.Notification)
+              .filter(models.Notification.kind == "regression",
+                      models.Notification.title.contains("regress.gov.in")).all())
+    assert rows, "a 20-point drop left no notification"
+    assert rows[0].link == f"/audits/{new.id}/compare"

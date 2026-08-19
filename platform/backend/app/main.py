@@ -12,7 +12,8 @@ from fastapi.responses import JSONResponse
 
 from .config import settings
 from .routers import (auth, audits, domains, rankings, library, monitoring, ci,
-                      public, scan_requests, admin_config, studio, assessments, registry)
+                      public, scan_requests, admin_config, studio, assessments, registry,
+                      notifications)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -92,6 +93,7 @@ app.include_router(public.router)
 app.include_router(scan_requests.router)
 app.include_router(admin_config.router)
 app.include_router(studio.router)
+app.include_router(notifications.router)
 app.include_router(assessments.router)
 app.include_router(registry.router)
 
