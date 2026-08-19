@@ -53,9 +53,23 @@ def send_otp(email: str, code: str) -> bool:
     body = f"Your GovUX one-time code is {code}. It expires in 5 minutes."
     try:
         if provider == "smtp":
-            return _send_smtp(frm, email, subject, body)
+            ok = _send_smtp(frm, email, subject, body)
+            if not ok and not _is_prod():
+                # SMTP misconfigured but we're in dev/pre-launch mode — fall through
+                # to console so sign-in isn't completely blocked.
+                log.warning("SMTP send failed, falling back to console (GOVUX_ALLOW_CONSOLE_OTP=true)")
+                log.info("[OTP·console-fallback] to %s: %s", email, code)
+                print(f"[OTP·console-fallback] to {email}: {code}")
+                return True
+            return ok
         if provider == "api":
-            return _send_api(email, subject, body)
+            ok = _send_api(email, subject, body)
+            if not ok and not _is_prod():
+                log.warning("API send failed, falling back to console (GOVUX_ALLOW_CONSOLE_OTP=true)")
+                log.info("[OTP·console-fallback] to %s: %s", email, code)
+                print(f"[OTP·console-fallback] to {email}: {code}")
+                return True
+            return ok
         # console provider (dev): print the code. In production this leaks the sole
         # auth factor to logs (SAST-003) — refuse to print it and flag the misconfig.
         if _is_prod():
@@ -74,6 +88,12 @@ def send_otp(email: str, code: str) -> bool:
         return True
     except Exception as exc:
         log.error("email send error: %r", exc)
+        if not _is_prod():
+            # In pre-launch mode, don't let a misconfigured provider block sign-in entirely.
+            log.warning("Falling back to console after exception (GOVUX_ALLOW_CONSOLE_OTP=true)")
+            log.info("[OTP·console-fallback] to %s: %s", email, code)
+            print(f"[OTP·console-fallback] to {email}: {code}")
+            return True
         return False
 
 
