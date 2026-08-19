@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
+import { absoluteTime } from "@/lib/format";
 
 type Row = {
   task_id: string; domain: string; status: string;
@@ -85,7 +86,7 @@ export default function Audits() {
               </button>
             ))}
           </div>
-          <input className="form-control form-control-sm ms-auto" style={{ maxWidth: 240 }}
+          <input className="form-control ms-auto" style={{ maxWidth: 240 }}
             placeholder="Filter by domain…" value={q}
             onChange={(e) => { setQ(e.target.value); setLimit(PAGE); }} aria-label="Filter by domain" />
         </div>
@@ -117,12 +118,14 @@ export default function Audits() {
                 return (
                   <tr key={a.task_id}>
                     <td data-label="Domain" className="fw-semibold">{a.domain}</td>
-                    <td data-label="Date" className="gx-muted small">{a.date ? new Date(a.date).toLocaleString() : "—"}</td>
+                    {/* was toLocaleString(): "18/08/2026, 09:27:34" — seconds
+                        nobody needs, in a day/month order that flips by locale */}
+                    <td data-label="Date" className="gx-muted small">{absoluteTime(a.date)}</td>
                     <td data-label="Status"><span className={`badge ${cls}`}>{label}</span></td>
                     <td data-label="Score">
                       {done && a.score != null
                         ? <><b>{a.score}</b>{a.band && <span className="badge ms-1" style={bandStyle(a.band)}>Band {a.band}</span>}</>
-                        : <span className="text-secondary">—</span>}
+                        : <span className="gx-muted">—</span>}
                     </td>
                     <td data-label="Compliance" className="gx-muted small">{a.compliance_status ? a.compliance_status.replace(/_/g, " ") : "—"}</td>
                     <td data-label="">
@@ -131,7 +134,7 @@ export default function Audits() {
                             <Link href={`/audits/${a.task_id}/report`} className="btn btn-sm btn-link">View report →</Link>
                             {/* the compare screen had no entry point at all — it was
                                 reachable only by typing the URL */}
-                            <Link href={`/audits/${a.task_id}/compare`} className="btn btn-sm btn-link text-secondary">Compare</Link>
+                            <Link href={`/audits/${a.task_id}/compare`} className="btn btn-sm btn-link gx-muted">Compare</Link>
                           </>
                         : <Link href={`/audits/${a.task_id}`} className="btn btn-sm btn-link">View status →</Link>}
                     </td>

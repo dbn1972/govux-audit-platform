@@ -66,7 +66,7 @@ export default function Login() {
           <h2 className="h5 mb-1">Sign in</h2>
           {step === 1 ? (
             <>
-              <p className="text-secondary small mb-3">
+              <p className="gx-muted small mb-3">
                 Enter your official government email. We&apos;ll send a one-time password.
               </p>
               <label htmlFor="login-email" className="form-label">Government email</label>
@@ -79,7 +79,7 @@ export default function Login() {
             </>
           ) : (
             <>
-              <p className="text-secondary small mb-3">
+              <p className="gx-muted small mb-3">
                 Enter the 6-digit OTP sent to <b>{email}</b>.
               </p>
               <label htmlFor="login-otp" className="form-label">One-time password</label>

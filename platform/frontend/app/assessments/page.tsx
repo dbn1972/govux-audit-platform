@@ -166,7 +166,7 @@ export default function Assessments() {
                       <tr key={a.id}>
                         <td className="small">{KIND_LABEL[a.kind] || a.kind}</td>
                         <td className="fw-semibold small">{a.title}
-                          {a.summary && <div className="fw-normal text-secondary">{a.summary}</div>}
+                          {a.summary && <div className="fw-normal gx-muted">{a.summary}</div>}
                         </td>
                         <td className="small">{a.domain || "Org-wide"}</td>
                         <td className="small">{a.agency || "—"}</td>

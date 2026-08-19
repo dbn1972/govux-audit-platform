@@ -70,19 +70,26 @@ export default function Compare({ params }: { params: { id: string } }) {
         Comparing <b>{fmt(data.from_audit!.date)}</b> ({data.from_audit!.score ?? "—"}) against{" "}
         <b>{fmt(data.to_audit!.date)}</b> ({data.to_audit!.score ?? "—"}) — this audit&rsquo;s most recent prior run.
       </p>
-      <div className="row g-3 mb-3">
+      {/* A diff's job is to say which way things went. The four figures were
+          all rendered in the same weight and colour, so "+3 new issues" and
+          "−3 resolved" read identically until you parsed the label. */}
+      <div className="gx-stats">
         {[
           ["Overall change", `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}`,
-            `${data.from_audit!.score ?? "—"} → ${data.to_audit!.score ?? "—"}`],
-          ["New issues", `+${newIssues.length}`, "since last run"],
-          ["Resolved", `−${resolvedIssues.length}`, "fixes confirmed"],
-          ["Coverage", `${coveragePct}%`, `${data.pages_analysed ?? 0} / ${data.pages_total ?? 0} pages`],
-        ].map(([l, v, s]) => (
-          <div className="col-6 col-md-3" key={l}><div className="gx-card"><div className="gx-card-body">
-            <div className="text-secondary small fw-semibold">{l}</div>
-            <div className="fs-4 fw-bold">{v}</div>
-            <div className="gx-muted small">{s}</div>
-          </div></div></div>
+            `${data.from_audit!.score ?? "—"} → ${data.to_audit!.score ?? "—"}`,
+            delta > 0 ? "var(--gx-band-A)" : delta < 0 ? "var(--gx-band-E)" : undefined],
+          ["New issues", `${newIssues.length}`, "not present last run",
+            newIssues.length ? "var(--gx-band-E)" : undefined],
+          ["Resolved", `${resolvedIssues.length}`, "fixes confirmed",
+            resolvedIssues.length ? "var(--gx-band-A)" : undefined],
+          ["Coverage", `${coveragePct}%`, `${data.pages_analysed ?? 0} of ${data.pages_total ?? 0} pages recrawled`,
+            undefined],
+        ].map(([l, v, note, colour]) => (
+          <div className="gx-stat" key={l as string}>
+            <div className="gx-label">{l as string}</div>
+            <div className="gx-stat-value" style={colour ? { color: colour as string } : undefined}>{v as string}</div>
+            <div className="gx-stat-note">{note as string}</div>
+          </div>
         ))}
       </div>
 
@@ -90,11 +97,16 @@ export default function Compare({ params }: { params: { id: string } }) {
         <div className="row g-3 mb-3">
           {newIssues.length > 0 && (
             <div className="col-md-6"><div className="gx-card h-100">
-              <div className="gx-card-head text-danger">New issues</div>
+              <div className="gx-card-head">
+                <h2 style={{ color: "var(--gx-band-E)" }}>
+                  <i className="bi bi-plus-circle me-1" aria-hidden="true" />New issues
+                </h2>
+                <span className="gx-muted ms-auto gx-num">{newIssues.length}</span>
+              </div>
               <ul className="list-group list-group-flush">
                 {newIssues.map(i => (
                   <li key={i.guideline_id} className="list-group-item small">
-                    <span className="badge text-bg-light me-2">{i.guideline_id}</span>{i.title || "—"}
+                    <span className="gx-chip me-2">{i.guideline_id}</span>{i.title || "—"}
                   </li>
                 ))}
               </ul>
@@ -102,11 +114,16 @@ export default function Compare({ params }: { params: { id: string } }) {
           )}
           {resolvedIssues.length > 0 && (
             <div className="col-md-6"><div className="gx-card h-100">
-              <div className="gx-card-head text-success">Resolved issues</div>
+              <div className="gx-card-head">
+                <h2 style={{ color: "var(--gx-band-A)" }}>
+                  <i className="bi bi-check-circle me-1" aria-hidden="true" />Resolved
+                </h2>
+                <span className="gx-muted ms-auto gx-num">{resolvedIssues.length}</span>
+              </div>
               <ul className="list-group list-group-flush">
                 {resolvedIssues.map(i => (
                   <li key={i.guideline_id} className="list-group-item small">
-                    <span className="badge text-bg-light me-2">{i.guideline_id}</span>{i.title || "—"}
+                    <span className="gx-chip me-2">{i.guideline_id}</span>{i.title || "—"}
                   </li>
                 ))}
               </ul>
@@ -116,22 +133,35 @@ export default function Compare({ params }: { params: { id: string } }) {
       )}
 
       <div className="gx-card">
-        <div className="gx-card-head">Page-wise coverage</div>
-        <div className="table-responsive"><table className="gx-table">
-          <thead><tr><th>Page</th><th>Status</th><th>Score</th><th>Δ</th></tr></thead>
+        <div className="gx-card-head">
+          <h2>Page-wise coverage</h2>
+          <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+            A page missing from the newer run keeps its earlier score, marked not recrawled
+          </span>
+        </div>
+        <div className="table-responsive"><table className="gx-table gx-responsive">
+          <thead><tr><th>Page</th><th>Status</th><th>Score</th><th>Change</th></tr></thead>
           <tbody>
             {pages.length === 0 && (
               <tr><td colSpan={4} className="gx-muted text-center py-5">No page-level data captured for either run.</td></tr>
             )}
             {pages.map(p => (
               <tr key={p.url}>
-                <td className="fw-semibold">
+                <td data-label="Page" className="gx-cell-primary">
                   {p.url}{p.new_page && <span className="badge text-bg-info-subtle ms-2">new</span>}
                 </td>
-                <td><span className="badge text-bg-light">{statusLabel(p.status)}</span></td>
-                <td className="fw-bold">{p.score ?? "—"}</td>
-                <td className={`small ${p.delta == null ? "text-secondary" : p.delta >= 0 ? "text-success" : "text-danger"}`}>
-                  {p.delta == null ? "—" : `${p.delta >= 0 ? "+" : ""}${p.delta.toFixed(0)}`}
+                <td data-label="Status"><span className="gx-chip">{statusLabel(p.status)}</span></td>
+                <td data-label="Score" className="fw-bold gx-num">{p.score ?? "—"}</td>
+                <td data-label="Change" className="gx-num fw-semibold"
+                  style={{ color: p.delta == null ? "var(--gx-text-muted)"
+                    : p.delta > 0 ? "var(--gx-band-A)" : p.delta < 0 ? "var(--gx-band-E)" : "var(--gx-text-muted)" }}>
+                  {p.delta == null ? "—" : (
+                    <>
+                      <i className={`bi ${p.delta > 0 ? "bi-arrow-up" : p.delta < 0 ? "bi-arrow-down" : "bi-dash"} me-1`}
+                        aria-hidden="true" />
+                      {Math.abs(p.delta).toFixed(0)}
+                    </>
+                  )}
                 </td>
               </tr>
             ))}

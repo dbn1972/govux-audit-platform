@@ -176,7 +176,7 @@ export default function Organisations() {
             <option value="">All types</option>
             {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
-          <span className="text-secondary small ms-auto">
+          <span className="gx-muted small ms-auto">
             {rows == null ? "Loading…" : total === 0 ? "No matches" : `${from}–${to} of ${total.toLocaleString()}`}
           </span>
         </div>
@@ -213,12 +213,12 @@ export default function Organisations() {
                   <td data-label="Users" className="gx-num">{o.user_count}</td>
                   <td data-label="Audits" className="small">
                     {o.audit_count
-                      ? <>{o.audit_count}<span className="text-secondary"> · {o.audited_domains} domain{o.audited_domains === 1 ? "" : "s"}</span></>
-                      : <span className="text-secondary">none</span>}
+                      ? <>{o.audit_count}<span className="gx-muted"> · {o.audited_domains} domain{o.audited_domains === 1 ? "" : "s"}</span></>
+                      : <span className="gx-muted">none</span>}
                   </td>
                   <td data-label="Avg score" className="gx-num">{o.avg_score != null
                     ? <b style={{ color: bandColor(o.avg_score) }}>{o.avg_score}</b>
-                    : <span className="text-secondary">—</span>}</td>
+                    : <span className="gx-muted">—</span>}</td>
                   <td data-label="Last audit" className="small gx-muted">{fmt(o.last_audited_at)}</td>
                   <td data-label="Studio">{o.studio_enabled
                     ? <span className="badge text-bg-success-subtle text-success">Enabled</span>
@@ -238,7 +238,7 @@ export default function Organisations() {
                 onClick={() => setOffset((o) => Math.max(0, o - PAGE))}>← Previous</button>
               <button className="btn btn-sm btn-outline-secondary" disabled={to >= total}
                 onClick={() => setOffset((o) => o + PAGE)}>Next →</button>
-              <span className="text-secondary small ms-auto">Page {Math.floor(offset / PAGE) + 1} of {Math.ceil(total / PAGE)}</span>
+              <span className="gx-muted small ms-auto">Page {Math.floor(offset / PAGE) + 1} of {Math.ceil(total / PAGE)}</span>
             </div>
           )}
         </div>

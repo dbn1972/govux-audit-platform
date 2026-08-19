@@ -63,7 +63,7 @@ export default function DomainClaims() {
               Contested only (more than one organisation claiming)
             </label>
           </div>
-          <span className="text-secondary small ms-auto">
+          <span className="gx-muted small ms-auto">
             {rows == null ? "Loading…"
               : `${rows.length} unverified host${rows.length === 1 ? "" : "s"}`
                 + (contestedCount ? ` · ${contestedCount} contested` : "")}
@@ -120,7 +120,7 @@ export default function DomainClaims() {
           </table></div>
         </div>
 
-        <p className="text-secondary small mt-2">
+        <p className="gx-muted small mt-2">
           A verified domain never appears here: ownership that has been proven isn&apos;t a
           steward&apos;s to revoke, and removing it would orphan its audit history.
         </p>

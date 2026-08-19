@@ -10,7 +10,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
         <div className="card-body text-center p-4">
           <i className="bi bi-exclamation-triangle text-warning" style={{ fontSize: 34 }} />
           <h1 className="h4 mt-2 mb-1">Something went wrong</h1>
-          <p className="text-secondary">
+          <p className="gx-muted">
             We hit an unexpected error loading this page. Your data is safe — please try again.
           </p>
           <div className="d-flex gap-2 justify-content-center mt-3">

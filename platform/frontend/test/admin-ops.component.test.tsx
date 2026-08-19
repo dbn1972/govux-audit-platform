@@ -238,10 +238,15 @@ describe("Compare & page coverage", () => {
     await screen.findByText(/most recent prior run/);
 
     expect(screen.getByText("+0.1")).toBeInTheDocument();      // improvement carries a +
-    expect(screen.getByText("+1")).toBeInTheDocument();        // new issues
-    expect(screen.getByText("−2")).toBeInTheDocument();        // resolved, with a real minus sign
+    // Direction is stated in words under each count, not by colour alone
+    // (WCAG 1.4.1) and not by a sign that reads oddly — "−2 resolved" is two
+    // resolved issues, not minus two.
+    const newTile = screen.getByText("not present last run").closest(".gx-stat") as HTMLElement;
+    expect(within(newTile).getByText("1")).toBeInTheDocument();
+    const fixedTile = screen.getByText("fixes confirmed").closest(".gx-stat") as HTMLElement;
+    expect(within(fixedTile).getByText("2")).toBeInTheDocument();
     expect(screen.getByText("8%")).toBeInTheDocument();        // 2 of 25 pages
-    expect(screen.getByText("2 / 25 pages")).toBeInTheDocument();
+    expect(screen.getByText("2 of 25 pages recrawled")).toBeInTheDocument();
   });
 
   it("shows a regression without a plus sign", async () => {

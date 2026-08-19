@@ -42,7 +42,7 @@ export default function Methodology() {
                 <td><span className="badge text-bg-success">compliant</span> possible</td></tr>
             </tbody>
           </table></div>
-          <p className="small text-secondary mb-0">An automated run can never yield a full compliance
+          <p className="small gx-muted mb-0">An automated run can never yield a full compliance
             claim — that requires human review. This is enforced in the scoring engine.</p>
         </div></div>
 

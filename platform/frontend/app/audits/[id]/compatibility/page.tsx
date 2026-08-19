@@ -56,7 +56,7 @@ export default function Compatibility({ params }: { params: { id: string } }) {
           </tr>
         ))}</tbody>
       </table></div>
-      <div className="card-footer bg-white small text-secondary">
+      <div className="card-footer bg-white small gx-muted">
         Divergence between engines (a page that loads in Chromium but not WebKit, or overflows only on one) is what surfaces here.
       </div>
     </div>

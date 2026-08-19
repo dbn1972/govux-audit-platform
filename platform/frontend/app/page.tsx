@@ -9,6 +9,18 @@ import { BAND_COLOR as bandCol } from "@/lib/score";
 // This is the page the "UX4G Audit" link on ux4g.gov.in points to.
 
 const NAVY = "var(--ux-navy)";
+
+// Footer destinations. The standards point at the bodies that publish them, not
+// at our summary of them: a reader checking whether we grade correctly needs the
+// source, and these outlive anything we would write about them.
+const FOOTER_LINKS: [string, string][] = [
+  ["Accessibility", "https://www.ux4g.gov.in/foundations/accessibility"],
+  ["GIGW 3.0", "https://guidelines.india.gov.in/"],
+  ["WCAG 2.2 AA", "https://www.w3.org/TR/WCAG22/"],
+  ["Privacy Policy", "https://www.ux4g.gov.in/privacy-policy"],
+  ["Terms", "https://www.ux4g.gov.in/terms-of-use"],
+  ["Contact", "https://www.ux4g.gov.in/contact"],
+];
 const CHECKS = [
   ["bi-universal-access-circle", "Accessibility — WCAG 2.2 AA", "Colour contrast, labels, alt text, keyboard and screen-reader support (axe-core)."],
   ["bi-bank", "GIGW 3.0", "Mandatory government-website elements: policies, contacts, RTI, search, metadata."],
@@ -91,10 +103,14 @@ export default function ScanLanding() {
   const band = state?.band;
 
   return (
-    <main>
+    <div>
       <a href="#scanner" className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-sm btn-dark">Skip to main content</a>
 
       {/* Government of India top bar */}
+      {/* The Government of India banner is fixed in both themes, like the
+          tricolour strip: it is national identity, not our chrome, and a
+          department's masthead does not lighten because a visitor prefers a
+          light UI. Measured 11:1, so it needs no theme variant. */}
       <div style={{ background: "#12243b", color: "#dfe7f1" }}>
         <div className="container d-flex align-items-center justify-content-between py-1" style={{ fontSize: 12.5 }}>
           <span className="d-flex align-items-center gap-2">
@@ -114,6 +130,7 @@ export default function ScanLanding() {
 
       {/* Brand header */}
       <header className="bg-white border-bottom">
+        <a href="#main" className="gx-skip">Skip to main content</a>
         <div className="container d-flex align-items-center justify-content-between py-2">
           <div className="d-flex align-items-center gap-2">
             <BrandMark size={40} />
@@ -132,6 +149,7 @@ export default function ScanLanding() {
       </header>
 
       {/* Hero + scanner */}
+      <main id="main" tabIndex={-1} style={{ outline: "none" }}>
       <section id="scanner" className="gx-hero">
         <div className="container gx-section">
           <div className="row justify-content-center text-center">
@@ -147,7 +165,7 @@ export default function ScanLanding() {
 
               <form onSubmit={start} className="mx-auto" style={{ maxWidth: 640 }}>
                 <div className="input-group input-group-lg shadow-sm">
-                  <span className="input-group-text bg-white"><i className="bi bi-globe2 text-secondary" /></span>
+                  <span className="input-group-text bg-white"><i className="bi bi-globe2 gx-muted" /></span>
                   <input className="form-control" placeholder="e.g. digilocker.gov.in" value={url}
                     onChange={e => setUrl(e.target.value)} aria-label="Website URL to scan" required />
                   <button className="btn btn-primary px-4" disabled={busy || !url}>
@@ -187,7 +205,7 @@ export default function ScanLanding() {
                         <div className="spinner-border text-primary mb-2" role="status" />
                         <div className="fw-semibold" style={{ color: NAVY }}>
                           {state.status === "queued"
-                            ? (state.queue_position > 0 ? `In queue — ${state.queue_position} scan(s) ahead of you` : "You’re next in the queue…")
+                            ? (state.queue_position > 0 ? `In queue — ${state.queue_position} scan${state.queue_position === 1 ? "" : "s"} ahead of you` : "You’re next in the queue…")
                             : "Scanning the page…"}
                         </div>
                         <div className="gx-muted small">Chromium · Firefox · Safari · Lighthouse · axe-core</div>
@@ -217,7 +235,10 @@ export default function ScanLanding() {
                         </div>
                         <div className="flex-grow-1">
                           <div className="fw-semibold" style={{ color: NAVY }}>{state.url}</div>
-                          <div className="text-secondary small mb-2">Scanned {state.url_scan_count} time(s) on GovUX · free single-page scan.</div>
+                          <div className="gx-muted small mb-2">
+                            Scanned {state.url_scan_count} time{state.url_scan_count === 1 ? "" : "s"} on
+                            GovUX · free single-page scan.
+                          </div>
                           <a className="btn btn-primary" href={`/api/v1/public/scan/${scan.scan_id}/pdf`}>
                             <i className="bi bi-file-earmark-arrow-down me-2" />Download PDF report
                           </a>
@@ -247,7 +268,7 @@ export default function ScanLanding() {
                     <i className={`bi ${icon}`} aria-hidden="true" />
                   </div>
                   <h3 className="h6 fw-bold" style={{ color: NAVY }}>{title}</h3>
-                  <p className="text-secondary small mb-0">{desc}</p>
+                  <p className="gx-muted small mb-0">{desc}</p>
                 </div>
               </div>
             </div>
@@ -285,29 +306,43 @@ export default function ScanLanding() {
         </div>
       </section>
 
+      </main>
+
       {/* Footer */}
       <footer className="border-top" style={{ background: "#fff" }}>
         <div className="container py-4">
           <div className="row gy-3">
             <div className="col-md-6">
               <div className="fw-bold" style={{ color: NAVY }}>GovUX Audit Platform</div>
-              <p className="text-secondary small mb-0">A MeitY / NIC initiative to raise the quality, accessibility and
+              <p className="gx-muted small mb-0">A MeitY / NIC initiative to raise the quality, accessibility and
                 compliance of Indian government websites, aligned with UX4G and GIGW 3.0.</p>
             </div>
             <div className="col-md-6">
               <div className="d-flex flex-wrap gap-3 justify-content-md-end small">
-                {["Accessibility", "GIGW 3.0", "WCAG 2.2 AA", "Privacy Policy", "Terms", "RTI", "Contact"].map(l => (
-                  <a key={l} href="#" className="text-decoration-none text-secondary">{l}</a>
+                {/* Every one of these was href="#". On a site that fails other
+                    departments for exactly this, a dead accessibility link is
+                    the worst possible placeholder. RTI is dropped rather than
+                    pointed somewhere approximate — a wrong RTI link is worse
+                    than none. All open externally, and say so for screen
+                    readers (WCAG 3.2.5). */}
+                {FOOTER_LINKS.map(([label, href]) => (
+                  <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+                    className="text-decoration-none gx-muted">
+                    {label}
+                    <i className="bi bi-box-arrow-up-right ms-1" aria-hidden="true"
+                      style={{ fontSize: ".7em" }} />
+                    <span className="visually-hidden"> (opens in a new tab)</span>
+                  </a>
                 ))}
               </div>
             </div>
           </div>
         </div>
         <div className="govux-strip" />
-        <div className="text-center text-secondary py-2" style={{ fontSize: 12 }}>
+        <div className="text-center gx-muted py-2" style={{ fontSize: 12 }}>
           © {new Date().getFullYear()} Government of India · GovUX Audit Platform
         </div>
       </footer>
-    </main>
+    </div>
   );
 }

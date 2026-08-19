@@ -45,7 +45,7 @@ export default function StudioAccess() {
               <tr key={o.id}>
                 <td data-label="Organisation" className="fw-semibold">{o.name}</td>
                 <td data-label="Type"><span className="gx-chip">{o.org_type}</span></td>
-                <td data-label="Runs" className="text-secondary">{o.runs}</td>
+                <td data-label="Runs" className="gx-muted">{o.runs}</td>
                 <td data-label="Studio access">
                   <div className="form-check form-switch mb-0">
                     <input className="form-check-input" type="checkbox" role="switch"

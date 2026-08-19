@@ -96,7 +96,7 @@ export default function Library() {
               <div className="d-flex gap-2 mb-1"><span className="badge text-bg-primary-subtle">{g.id}</span>
                 <span className="badge text-bg-light">{g.family}</span></div>
               <h2 className="h6">{g.title}</h2>
-              <p className="text-secondary small mb-2">{g.plain_language}</p>
+              <p className="gx-muted small mb-2">{g.plain_language}</p>
               {g.good_example && (
                 <div className="alert alert-success py-2 small mb-0">
                   <i className="bi bi-check2 me-1" aria-hidden="true" />{g.good_example}

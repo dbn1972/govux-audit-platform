@@ -126,7 +126,7 @@ export default function Studio() {
                 {history.slice(0, 10).map(h => (
                   <button key={h.id} className="list-group-item list-group-item-action small text-start" onClick={() => openRun(h.id)}>
                     <div className="fw-semibold text-truncate">{h.department || "Untitled"}</div>
-                    <span className="text-secondary">{h.status === "scored" ? `${h.score} · Band ${h.band}` : h.status} · {h.pages} pages</span>
+                    <span className="gx-muted">{h.status === "scored" ? `${h.score} · Band ${h.band}` : h.status} · {h.pages} pages</span>
                   </button>
                 ))}
               </div></div>
@@ -183,7 +183,7 @@ export default function Studio() {
               <div className="d-flex flex-wrap gap-3">
                 {(run.files || []).map((f: string) => (
                   <div key={f} role="button" onClick={() => setZoom(f)} className="border rounded overflow-hidden"
-                    style={{ width: 220, boxShadow: zoom === f ? "0 0 0 2px #4a2bc2" : undefined }}>
+                    style={{ width: 220, boxShadow: zoom === f ? "0 0 0 2px var(--gx-action)" : undefined }}>
                     <div style={{ height: 150, overflow: "hidden", background: "#fff", pointerEvents: "none" }}>
                       <iframe title={f} srcDoc={htmls[f] || ""} sandbox="allow-same-origin"
                         style={{ width: 1180, height: 800, border: 0, transform: "scale(.186)", transformOrigin: "top left" }} />
@@ -201,7 +201,12 @@ export default function Studio() {
                   <span className="ms-auto btn-group btn-group-sm">
                     {DEVICES.map(([l, w]) => <button key={l} className={`btn ${device === w ? "btn-secondary" : "btn-outline-secondary"}`} onClick={() => setDevice(w)}>{l}</button>)}
                   </span></div>
-                <div className="border rounded d-flex justify-content-center" style={{ background: "#f6f8fa", overflow: "auto" }}>
+                {/* the surround is chrome and follows the theme; the two #fff
+                    below are the PAGE the prototype renders on — a generated
+                    government page is white in both themes, and tinting it
+                    would misrepresent what was built */}
+                <div className="border rounded d-flex justify-content-center"
+                  style={{ background: "var(--gx-surface-sunken)", overflow: "auto" }}>
                   <iframe title="preview" srcDoc={htmls[zoom] || ""} sandbox="allow-same-origin" style={{ width: device, height: 640, border: 0, background: "#fff" }} />
                 </div>
               </div></div>

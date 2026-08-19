@@ -54,7 +54,12 @@ export default function Registry() {
         </div>
 
         <div className="gx-card mb-3">
-          <div className="gx-card-head">CSV extract</div>
+          <div className="gx-card-head">
+            <h2>CSV extract</h2>
+            <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+              Preview, then import — nothing is written until you do
+            </span>
+          </div>
           <div className="gx-card-body">
             <div className="d-flex flex-wrap gap-2 align-items-center mb-2">
               <input type="file" accept=".csv,text/csv" className="form-control"
@@ -72,10 +77,11 @@ export default function Registry() {
               <code>state_code</code>, <code>category</code>. Up to 5,000 rows per import.
             </div>
           </div>
-          <div className="card-footer bg-white d-flex gap-2 align-items-center">
-            <button className="btn btn-outline-primary btn-sm" disabled={!csv.trim() || busy}
+          <div className="gx-card-body d-flex gap-2 align-items-center flex-wrap"
+            style={{ borderTop: "1px solid var(--gx-border)", background: "var(--gx-surface-muted)" }}>
+            <button className="btn btn-outline-primary" disabled={!csv.trim() || busy}
               onClick={() => run(true)}>{busy ? "Checking…" : "Preview"}</button>
-            <button className="btn btn-primary btn-sm" disabled={!previewed || busy}
+            <button className="btn btn-primary" disabled={!previewed || busy}
               onClick={() => run(false)}>Import for real</button>
             {!previewed && (
               <span className="gx-muted small">
@@ -94,26 +100,32 @@ export default function Registry() {
               {res.dry_run ? "Preview — nothing has been saved" : "Import complete"}
             </div>
             <div className="gx-card-body">
-              <div className="row g-3 mb-3">
-                {[["Rows read", res.total_rows, ""],
-                  [res.dry_run ? "Would import" : "Imported", res.imported, "text-success"],
-                  ["Duplicates skipped", res.duplicates, "text-secondary"],
-                  ["Invalid rows", res.invalid, res.invalid ? "text-danger" : "text-secondary"],
-                ].map(([label, val, cls]) => (
-                  <div className="col-6 col-md-3" key={String(label)}>
-                    <div className="border rounded p-2 text-center">
-                      <div className={`h4 mb-0 ${cls}`}>{String(val)}</div>
-                      <div className="small gx-muted">{String(label)}</div>
+              <div className="gx-stats mb-4">
+                {[["Rows read", res.total_rows, undefined, "in the file"],
+                  [res.dry_run ? "Would import" : "Imported", res.imported,
+                   "var(--gx-band-A)", res.dry_run ? "new to the register" : "added to the register"],
+                  ["Duplicates skipped", res.duplicates, undefined, "already known"],
+                  ["Invalid rows", res.invalid, res.invalid ? "var(--gx-band-E)" : undefined,
+                   res.invalid ? "listed below" : "nothing rejected"],
+                ].map(([label, val, colour, note]) => (
+                  <div className="gx-stat" key={String(label)}>
+                    <div className="gx-label">{String(label)}</div>
+                    <div className="gx-stat-value" style={colour ? { color: colour as string } : undefined}>
+                      {String(val)}
                     </div>
+                    <div className="gx-stat-note">{String(note)}</div>
                   </div>
                 ))}
               </div>
 
               {res.new_organisations.length > 0 && (
                 <>
-                  <div className="fw-semibold small mb-1">
-                    New organisations ({res.new_organisations.length})
-                  </div>
+                  {/* an import creates organisations as a side effect; naming
+                      them is how a steward catches "Dept of Posts" arriving
+                      alongside the "Department of Posts" that already exists */}
+                  <h3 className="h6 mb-1">
+                    Organisations this import creates ({res.new_organisations.length})
+                  </h3>
                   <p className="small">
                     {res.new_organisations.slice(0, 40).join(" · ")}
                     {res.new_organisations.length > 40 && ` … and ${res.new_organisations.length - 40} more`}
@@ -123,14 +135,16 @@ export default function Registry() {
 
               {res.errors.length > 0 && (
                 <div className="table-responsive">
-                  <table className="gx-table">
+                  <table className="gx-table gx-responsive">
                     <thead><tr><th>Row</th><th>Value</th><th>Problem</th></tr></thead>
                     <tbody>
                       {res.errors.map((e, i) => (
                         <tr key={i}>
-                          <td className="small">{e.row}</td>
-                          <td className="small font-monospace">{e.url || <span className="text-secondary">—</span>}</td>
-                          <td className="small text-danger">{e.error}</td>
+                          <td data-label="Row" className="small gx-num">{e.row}</td>
+                          <td data-label="Value" className="small font-monospace">
+                            {e.url || <span className="gx-muted">—</span>}</td>
+                          <td data-label="Problem" className="small" style={{ color: "var(--gx-band-E)" }}>
+                            {e.error}</td>
                         </tr>
                       ))}
                     </tbody>

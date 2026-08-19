@@ -165,7 +165,8 @@ export default function Settings() {
   async function revokeOthers() {
     const others = (devices || []).filter((d) => !d.current);
     if (others.length === 0) return;
-    if (!confirm(`Sign out ${others.length} other device(s)? They'll need a fresh OTP to sign back in.`)) return;
+    if (!confirm(`Sign out ${others.length} other device${others.length === 1 ? "" : "s"}? `
+      + "They'll need a fresh one-time code to sign back in.")) return;
     setBusy(true); setErr("");
     try {
       await Promise.all(others.map((d) => api.revokeDevice(d.id)));
@@ -215,7 +216,7 @@ export default function Settings() {
             ) : (
               <div className="gx-muted small">Only an owner or admin can edit organisation settings.</div>
             )}
-            {orgMsg && <div className="small mt-2 text-secondary">{orgMsg}</div>}
+            {orgMsg && <div className="small mt-2 gx-muted">{orgMsg}</div>}
           </div></div></div>
 
           <div className="col-lg-6"><div className="gx-card h-100">
@@ -255,13 +256,13 @@ export default function Settings() {
                           <span className="badge text-bg-light">{m.role}</span>
                         )}
                       </td>
-                      <td>{teamBusyId === m.id && <span className="spinner-border spinner-border-sm text-secondary" role="status" aria-label="Saving" />}</td>
+                      <td>{teamBusyId === m.id && <span className="spinner-border spinner-border-sm gx-muted" role="status" aria-label="Saving" />}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table></div>
-            <div className="card-footer bg-white small text-secondary">
+            <div className="card-footer bg-white small gx-muted">
               {canGrantSteward
                 ? "As a super_admin you can grant any role, including programme_admin/super_admin."
                 : canManageTeam
@@ -299,7 +300,7 @@ export default function Settings() {
               ) : (
                 <div className="gx-muted small">Only an owner or admin can invite colleagues.</div>
               )}
-              {inviteMsg && <div className="small mt-2 text-secondary">{inviteMsg}</div>}
+              {inviteMsg && <div className="small mt-2 gx-muted">{inviteMsg}</div>}
             </div>
 
             {invites != null && invites.length > 0 && (
@@ -364,7 +365,7 @@ export default function Settings() {
                   ))}
                 </tbody>
               </table></div>
-              <div className="card-footer bg-white small text-secondary">
+              <div className="card-footer bg-white small gx-muted">
                 🛡️ Sessions are device-bound: a short-lived access token + a rotating, device-keyed refresh token keep you
                 signed in on trusted devices (Gmail-style). Sensitive actions still require a fresh OTP.
               </div>
@@ -380,7 +381,7 @@ export default function Settings() {
                   <label className="form-check-label" htmlFor={`notif-${n}`}>{n}</label>
                 </div>
               ))}
-              <p className="text-secondary small mb-0 mt-2">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
+              <p className="gx-muted small mb-0 mt-2">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
             </div></div>
 
             <div className="gx-card mt-3"><div className="gx-card-body">
@@ -393,7 +394,7 @@ export default function Settings() {
                 <button className="btn btn-outline-danger btn-sm" onClick={eraseAccount} disabled={dpdpBusy}>
                   <i className="bi bi-trash me-1" />Delete my account &amp; data</button>
               </div>
-              {dpdpMsg && <div className="small mt-2 text-secondary">{dpdpMsg}</div>}
+              {dpdpMsg && <div className="small mt-2 gx-muted">{dpdpMsg}</div>}
             </div></div>
           </div>
         </div>

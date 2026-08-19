@@ -65,6 +65,24 @@ export default function RegisterDomain() {
           </div>
         </div>
 
+        {/* Registering and verifying are two steps with a wait in between —
+            DNS propagates, a file has to be published — and the screen gave no
+            sense of that shape. Same stepper the audit run uses. */}
+        <div className="gx-card"><div className="gx-card-body">
+          <div className="gx-steps-rail" style={{ maxWidth: 420 }}>
+            {[["Register the domain", 1], ["Prove ownership", 2]].map(([label, n]) => (
+              <div key={label as string}
+                className={`gx-stage ${step > (n as number) ? "gx-stage-done"
+                  : step === n ? "gx-stage-now" : ""}`}>
+                <span className="gx-stage-dot">
+                  {step > (n as number) ? <i className="bi bi-check-lg" aria-hidden="true" /> : n}
+                </span>
+                <div className="gx-stage-name" style={{ textTransform: "none" }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </div></div>
+
         {step === 1 ? (
           <div className="gx-card"><div className="gx-card-body">
             <label className="form-label" htmlFor="domain-url">Website domain</label>
@@ -73,7 +91,11 @@ export default function RegisterDomain() {
               <input id="domain-url" className="form-control" placeholder="tracking.indiapost.nic.in"
                 value={url} onChange={e => setUrl(e.target.value)} />
             </div>
-            {err && <div className="text-danger small mt-1">✗ {err}</div>}
+            {err && (
+              <div className="small mt-2" style={{ color: "var(--gx-band-E)" }} role="alert">
+                <i className="bi bi-exclamation-circle me-1" aria-hidden="true" />{err}
+              </div>
+            )}
             <button className="btn btn-primary mt-3" onClick={register} disabled={busy}>
               {busy ? "Registering…" : "Register domain"}</button>
           </div></div>
@@ -94,7 +116,7 @@ export default function RegisterDomain() {
                   checked={method === "dns_txt"} onChange={() => setMethod("dns_txt")} />
                 <label className="form-check-label" htmlFor="m-dns">
                   <b>DNS TXT record</b>
-                  <span className="d-block text-secondary small">
+                  <span className="d-block gx-muted small">
                     Best if you manage the domain&apos;s DNS zone.
                   </span>
                 </label>
@@ -104,7 +126,7 @@ export default function RegisterDomain() {
                   checked={method === "file_upload"} onChange={() => setMethod("file_upload")} />
                 <label className="form-check-label" htmlFor="m-file">
                   <b>File on your website</b>
-                  <span className="d-block text-secondary small">
+                  <span className="d-block gx-muted small">
                     Best if DNS is managed elsewhere but you can publish a file.
                   </span>
                 </label>

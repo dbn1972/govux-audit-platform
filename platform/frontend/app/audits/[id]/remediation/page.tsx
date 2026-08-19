@@ -42,7 +42,7 @@ export default function Remediation({ params }: { params: { id: string } }) {
                     <span className="badge bg-secondary">{f.category}</span>
                   </div>
                   <div className="mt-1">{f.remediation}</div>
-                  {f.code_hint && <div className="text-secondary small font-monospace mt-1" style={{ overflowWrap: "anywhere" }}>{f.code_hint}</div>}
+                  {f.code_hint && <div className="gx-muted small font-monospace mt-1" style={{ overflowWrap: "anywhere" }}>{f.code_hint}</div>}
                 </div>
                 <span className="badge text-bg-success" title="impact x effort priority">
                   P{f.priority}

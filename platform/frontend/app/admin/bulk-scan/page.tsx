@@ -76,7 +76,8 @@ export default function BulkScan() {
             {result ? (
               <>
                 <div className="alert alert-success">
-                  Batch <b>{result.batch_id?.slice(0, 8)}</b> — <b>{result.enqueued}</b> domain(s) enqueued.
+                  Batch <b>{result.batch_id?.slice(0, 8)}</b> — <b>{result.enqueued}</b>{" "}
+                  domain{result.enqueued === 1 ? "" : "s"} enqueued.
                   Each becomes an independent task processed in the background.
                 </div>
                 {progress && (
@@ -87,7 +88,7 @@ export default function BulkScan() {
                       <div className={`progress-bar${progress.finished ? "" : " progress-bar-striped progress-bar-animated"}`}
                         style={{ width: `${progress.percent}%` }}>{progress.percent}%</div>
                     </div>
-                    <div className="d-flex justify-content-between mt-2 small text-secondary">
+                    <div className="d-flex justify-content-between mt-2 small gx-muted">
                       <span>{progress.done} / {progress.total} done</span>
                       <span>
                         {progress.finished
@@ -101,7 +102,7 @@ export default function BulkScan() {
                         used to show. */}
                   </>
                 )}
-                <p className="small text-secondary mt-2 mb-0">
+                <p className="small gx-muted mt-2 mb-0">
                   Each domain is a separate audit — open them in{" "}
                   <Link href="/audits">Audit History</Link>.
                 </p>

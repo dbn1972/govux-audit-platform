@@ -637,3 +637,101 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 .gx-stage-now .gx-stage-dot { border-color:var(--gx-action); color:var(--gx-action);
                               box-shadow:0 0 0 4px var(--bs-primary-bg-subtle); }
 .gx-stage-now .gx-stage-name { color:var(--gx-navy-800); font-weight:650; }
+
+/* ---------------------------------------------------------------------------
+   Guided review — the densest interaction in the product. An assessor answers
+   hundreds of these in a sitting, so the answer control holds one position on
+   every row and answered rows are marked, not merely different.
+   ------------------------------------------------------------------------ */
+.gx-check { display:grid; gap:var(--gx-space-4); align-items:start;
+            grid-template-columns:1fr auto; padding:var(--gx-space-4) var(--gx-space-5);
+            border-bottom:1px solid var(--gx-border); border-inline-start:3px solid transparent; }
+.gx-check:last-child { border-bottom:0; }
+.gx-check-title { font-weight:600; font-size:.9375rem; line-height:1.4; margin-bottom:.25rem; }
+.gx-check-meta { display:flex; flex-wrap:wrap; gap:.375rem; align-items:center; }
+
+/* answered state: a rule and a wash, so "what is left" is visible while
+   scrolling rather than something you read button by button */
+.gx-check-pass { border-inline-start-color:var(--gx-band-A); background:var(--bs-success-bg-subtle); }
+.gx-check-fail { border-inline-start-color:var(--gx-band-E); background:var(--bs-danger-bg-subtle); }
+.gx-check-na   { border-inline-start-color:var(--gx-ink-300); background:var(--gx-surface-muted); }
+
+.gx-check-actions { display:flex; flex-direction:column; align-items:flex-end; gap:.375rem;
+                    min-width:190px; }
+@media (max-width:767.98px) {
+  .gx-check { grid-template-columns:1fr; }
+  .gx-check-actions { align-items:stretch; min-width:0; }
+  .gx-check-actions .btn-group { width:100%; }
+}
+
+/* running totals, pinned under the filters where they stay in view */
+.gx-review-progress { position:sticky; top:60px; z-index:5;
+                      display:flex; flex-wrap:wrap; gap:var(--gx-space-4); align-items:center;
+                      padding:var(--gx-space-3) var(--gx-space-5);
+                      background:var(--gx-surface); border:1px solid var(--gx-border);
+                      border-radius:var(--gx-r-md); box-shadow:var(--gx-shadow-1); }
+
+/* Inline code. --bs-code-color is #b02a6a, chosen to clear AA on white; on the
+   dark surface it is 3.2:1, and it is what the guideline ids on the issues
+   table are set in. Form controls, progress tracks and list rows are the other
+   Bootstrap components that carry a light ground of their own. */
+[data-bs-theme="dark"] { --bs-code-color:#f2a3c4; }
+[data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
+  background-color:var(--gx-surface-muted); border-color:var(--gx-border-strong);
+  color:var(--gx-text);
+}
+[data-bs-theme="dark"] .form-control::placeholder { color:var(--gx-ink-400); }
+[data-bs-theme="dark"] .input-group-text { background-color:var(--gx-surface-muted);
+                                           border-color:var(--gx-border-strong);
+                                           color:var(--gx-text-muted); }
+[data-bs-theme="dark"] .progress { background-color:var(--gx-ink-100); }
+[data-bs-theme="dark"] .list-group-item { background-color:transparent;
+                                          border-color:var(--gx-border); color:var(--gx-text); }
+
+/* ---------------------------------------------------------------------------
+   Tables flush against a card's corners.
+
+   A card is rounded but does NOT clip (overflow:hidden would kill sticky
+   headers and cut off any menu opened inside one). So when a table is the
+   card's first child, the grey thead paints a square corner inside the rounded
+   one; when a .gx-card-head sits above it, the head covers those corners and
+   the same table looks fine. That is why only some tables looked wrong.
+
+   Round the corner cells themselves instead. Separate borders are required for
+   a cell's radius to be honoured — the collapsed model discards it.
+   ------------------------------------------------------------------------ */
+.gx-card > .table-responsive:first-child > table,
+.gx-card > table:first-child { border-collapse:separate; border-spacing:0; }
+
+.gx-card > .table-responsive:first-child thead tr:first-child th:first-child,
+.gx-card > table:first-child thead tr:first-child th:first-child {
+  border-start-start-radius:var(--gx-r-md);
+}
+.gx-card > .table-responsive:first-child thead tr:first-child th:last-child,
+.gx-card > table:first-child thead tr:first-child th:last-child {
+  border-start-end-radius:var(--gx-r-md);
+}
+
+/* and the foot of the card: a hovered last row would otherwise square the
+   bottom corners the same way */
+.gx-card > .table-responsive:last-child tbody tr:last-child td:first-child,
+.gx-card > table:last-child tbody tr:last-child td:first-child {
+  border-end-start-radius:var(--gx-r-md);
+}
+.gx-card > .table-responsive:last-child tbody tr:last-child td:last-child,
+.gx-card > table:last-child tbody tr:last-child td:last-child {
+  border-end-end-radius:var(--gx-r-md);
+}
+
+/* ---------------------------------------------------------------------------
+   Skip link (WCAG 2.4.1). Off-screen until focused, then a real, visible
+   control — not the `display:none` version that is announced by nothing and
+   reachable by no one.
+   ------------------------------------------------------------------------ */
+.gx-skip { position:absolute; inset-inline-start:.5rem; top:-3rem; z-index:1100;
+           padding:.5rem .875rem; border-radius:var(--gx-r-sm);
+           background:var(--gx-navy-800); color:var(--gx-text-invert);
+           font-weight:600; text-decoration:none;
+           transition:top .12s ease-out; }
+.gx-skip:focus { top:.5rem; color:var(--gx-text-invert); }
+[data-bs-theme="dark"] .gx-skip { background:var(--gx-action); color:#06203f; }

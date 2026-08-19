@@ -39,7 +39,7 @@ export default function Trends({ params }: { params: { id: string } }) {
             <div key={h.task_id} className="text-center flex-grow-1">
               <div style={{ height: `${(h.score / max) * 150}px`, background: "#0d6efd", borderRadius: "6px 6px 0 0" }} />
               <div className="fw-bold mt-1">{Math.round(h.score)}</div>
-              <div className="text-secondary" style={{ fontSize: 10 }}>{fmt(h.date)}</div>
+              <div className="gx-muted" style={{ fontSize: 10 }}>{fmt(h.date)}</div>
             </div>
           ))}
         </div>
@@ -54,7 +54,9 @@ export default function Trends({ params }: { params: { id: string } }) {
             return (
               <tr key={h.task_id}><td className="small">{fmt(h.date)}</td>
                 <td className="fw-bold">{Math.round(h.score)}</td>
-                <td className={`small ${delta == null ? "text-secondary" : delta >= 0 ? "text-success" : "text-danger"}`}>
+                <td className="small gx-num fw-semibold" style={{
+                  color: delta == null ? "var(--gx-text-muted)"
+                    : delta > 0 ? "var(--gx-band-A)" : delta < 0 ? "var(--gx-band-E)" : "var(--gx-text-muted)" }}>
                   {delta == null ? "baseline" : `${delta >= 0 ? "+" : ""}${delta}`}</td></tr>
             );
           })}</tbody>

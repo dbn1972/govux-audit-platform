@@ -132,7 +132,7 @@ export default function Review() {
                 <b> “Certify (expert review)”</b> action that opens it here directly.
               </p>
               {choices === null && (
-                <div className="spinner-border spinner-border-sm text-secondary" role="status">
+                <div className="spinner-border spinner-border-sm gx-muted" role="status">
                   <span className="visually-hidden">Loading audits…</span>
                 </div>
               )}
@@ -179,7 +179,7 @@ export default function Review() {
                 <span className={`badge ${VERDICT_STYLE[audit.compliance_status] || "text-bg-secondary"}`}>
                   {(audit.compliance_status || "—").replace(/_/g, " ")}
                 </span>
-                <span className="text-secondary small ms-2">({audit.confidence || "automated_only"})</span>
+                <span className="gx-muted small ms-2">({audit.confidence || "automated_only"})</span>
               </div>
             </div>
           </div>
@@ -232,92 +232,122 @@ export default function Review() {
                     <option key={c.name} value={c.name}>{c.name} ({c.count})</option>)}
                 </select>
               </div>
-              {data && (
-                <div className="ms-auto text-end">
-                  <div className="gx-muted small">
-                    {data.decided} of {data.total} answered
-                    {data.failed > 0 && <span className="ms-2 fw-semibold text-danger">{data.failed} not met</span>}
-                  </div>
-                  <div className="progress mt-1" style={{ width: 220, height: 6 }}
-                    role="progressbar" aria-label="Review progress"
-                    aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-                    <div className="progress-bar" style={{ width: `${pct}%` }} />
-                  </div>
-                  {/* Pass rate over ANSWERED items only, N/A excluded. Shown as a
-                      compliance rating, not the GovUX score — that stays
-                      deterministic and engine-derived. */}
-                  {data.rating != null && (
-                    <div className="small mt-1">
-                      Compliance rating <b>{data.rating}%</b>
-                      <span className="text-secondary"> ({data.passed} met / {data.passed + data.failed} assessed)</span>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
+          </div>
+        )}
+
+        {/* Was tucked into the corner of the filter bar. An assessor asks "how
+            far am I" constantly across a few hundred rows, so it follows them
+            down the page instead. */}
+        {taskId && data && (
+          <div className="gx-review-progress">
+            <div style={{ minWidth: 180 }}>
+              <div className="gx-label">Progress</div>
+              <div className="fw-semibold gx-num">{data.decided} of {data.total} answered</div>
+            </div>
+            <div className="flex-grow-1" style={{ minWidth: 160 }}>
+              <div className="progress" style={{ height: 8 }}
+                role="progressbar" aria-label="Review progress"
+                aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+                <div className="progress-bar" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+            {data.failed > 0 && (
+              <div className="text-end">
+                <div className="gx-label">Not met</div>
+                <div className="fw-bold gx-num" style={{ color: "var(--gx-band-E)" }}>{data.failed}</div>
+              </div>
+            )}
+            {/* Pass rate over ANSWERED items only, N/A excluded. A compliance
+                rating, NOT the GovUX score — that stays engine-derived. */}
+            {data.rating != null && (
+              <div className="text-end">
+                <div className="gx-label">Compliance rating</div>
+                <div className="fw-bold gx-num">{data.rating}%
+                  <span className="gx-muted fw-normal" style={{ fontSize: ".8125rem" }}>
+                    {" "}({data.passed} met of {data.passed + data.failed})
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {err && <div className="alert alert-warning py-2" role="alert">✗ {err}</div>}
         {loading && (
-          <div className="text-secondary small py-3">
+          <div className="gx-muted small py-3">
             <span className="spinner-border spinner-border-sm me-2" role="status" />Loading…
           </div>
         )}
 
         {data && !loading && (
           <div className="gx-card">
-            <div className="list-group list-group-flush">
+            <div>
               {data.items.length === 0 && (
-                <div className="list-group-item text-secondary small">
-                  No guidelines match this filter.
+                <div className="gx-muted text-center py-5">
+                  No guidelines match this filter. Widen the tier or category to see more.
                 </div>
               )}
               {data.items.map((it: any) => (
-                <div className="list-group-item" key={it.guideline_id}>
-                  <div className="d-flex flex-wrap gap-2 align-items-center">
-                    <span className="badge text-bg-primary-subtle">{it.guideline_id}</span>
-                    <span className="badge text-bg-light border">{it.category}</span>
-                    {it.severity && <span className="badge text-bg-light border">{it.severity}</span>}
-                    {it.automation === "assisted" && (
-                      <span className="badge text-bg-info-subtle" title="Machine gathers evidence, a human decides">
-                        assisted
-                      </span>
+                <div key={it.guideline_id}
+                  className={`gx-check ${it.decision === "pass" ? "gx-check-pass"
+                    : it.decision === "fail" ? "gx-check-fail"
+                    : it.decision === "not_applicable" ? "gx-check-na" : ""}`}>
+                  <div>
+                    {/* the question leads; its provenance follows. The title was
+                        third in reading order behind four badges. */}
+                    <div className="gx-check-title">{it.title}</div>
+                    <div className="gx-check-meta">
+                      <span className="gx-chip">{it.guideline_id}</span>
+                      <span className="gx-chip">{it.category}</span>
+                      {it.severity && <span className="gx-chip">{it.severity}</span>}
+                      {it.automation === "assisted" && (
+                        <span className="badge text-bg-info-subtle"
+                          title="Machine gathers evidence, a human decides">assisted</span>
+                      )}
+                    </div>
+                    {it.issue && <div className="gx-muted small mt-2">{it.issue}</div>}
+                    {it.advice && (
+                      <details className="small mt-2">
+                        <summary style={{ cursor: "pointer", color: "var(--bs-link-color)" }}>
+                          How to meet it
+                        </summary>
+                        <div className="mt-2">{it.advice}</div>
+                        {it.good_example && <div className="mt-1"><b>Pass:</b> {it.good_example}</div>}
+                        {it.bad_example && <div className="mt-1"><b>Fail:</b> {it.bad_example}</div>}
+                        {it.reference && <div className="gx-muted mt-1">{it.reference}</div>}
+                      </details>
                     )}
-                    <b className="w-100 mt-1">{it.title}</b>
+                    {it.note && <div className="gx-muted small mt-2"><i>Note:</i> {it.note}</div>}
                   </div>
-                  {it.issue && <div className="text-secondary small mt-1">{it.issue}</div>}
-                  {it.advice && (
-                    <details className="small mt-1">
-                      <summary className="text-primary" style={{ cursor: "pointer" }}>
-                        How to meet it
-                      </summary>
-                      <div className="mt-1">{it.advice}</div>
-                      {it.good_example && <div className="mt-1"><b>Pass:</b> {it.good_example}</div>}
-                      {it.bad_example && <div className="mt-1"><b>Fail:</b> {it.bad_example}</div>}
-                      {it.reference && <div className="text-secondary mt-1">{it.reference}</div>}
-                    </details>
-                  )}
-                  <div className="btn-group btn-group-sm mt-2" role="group"
-                    aria-label={`Decision for ${it.guideline_id}`}>
-                    {DECISIONS.map(o => (
-                      <button key={o.value} type="button" disabled={savingId === it.guideline_id}
-                        onClick={() => decide(it.guideline_id, o.value)}
-                        className={`btn ${it.decision === o.value ? "btn-primary" : "btn-outline-secondary"}`}>
-                        {o.label}
-                      </button>
-                    ))}
+
+                  <div className="gx-check-actions">
+                    <div className="btn-group btn-group-sm" role="group"
+                      aria-label={`Does the site meet ${it.guideline_id}?`}>
+                      {DECISIONS.map(o => (
+                        <button key={o.value} type="button" disabled={savingId === it.guideline_id}
+                          onClick={() => decide(it.guideline_id, o.value)}
+                          aria-pressed={it.decision === o.value}
+                          className={`btn ${it.decision === o.value ? "btn-primary" : "btn-outline-secondary"}`}>
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                    {savingId === it.guideline_id && (
+                      <span className="gx-muted" style={{ fontSize: ".75rem" }}>Saving…</span>
+                    )}
                   </div>
-                  {it.note && <div className="text-secondary small mt-1"><i>Note:</i> {it.note}</div>}
                 </div>
               ))}
             </div>
 
-            <div className="card-footer bg-white">
-              <label htmlFor="review-notes" className="form-label small fw-semibold mb-1">
-                Assessor notes (optional)
+            <div className="gx-card-body" style={{ borderTop: "1px solid var(--gx-border)",
+                                                    background: "var(--gx-surface-muted)" }}>
+              <h2 className="h6 mb-3">Sign off</h2>
+              <label htmlFor="review-notes" className="form-label">
+                Assessor notes <span className="gx-muted fw-normal">(optional)</span>
               </label>
-              <textarea id="review-notes" className="form-control form-control-sm mb-2" rows={2}
+              <textarea id="review-notes" className="form-control mb-3" rows={2}
                 value={notes} onChange={e => setNotes(e.target.value)}
                 placeholder="e.g. keyboard trap on the payment step; alt text accurate on all banners." />
               {result ? (
@@ -327,18 +357,35 @@ export default function Review() {
                   <b>{result.status.replace(/_/g, " ")}</b> — {result.reason}
                 </div>
               ) : (
-                <div className="d-flex flex-wrap gap-2 align-items-center">
-                  <button className="btn btn-success btn-sm" disabled={!taskId || busy || anyFail}
-                    onClick={() => signOff(true)}
-                    title={anyFail ? "Resolve failing items before certifying" : ""}>
-                    {busy ? "Recording…" : "✓ Certify compliant"}
-                  </button>
-                  <button className="btn btn-outline-danger btn-sm" disabled={!taskId || busy}
-                    onClick={() => signOff(false)}>
-                    Reject — needs work
-                  </button>
-                  <span className="text-secondary small ms-1">Assessor decision is audit-logged.</span>
-                </div>
+                <>
+                  {/* the reason certification is blocked was a title attribute:
+                      invisible to keyboard and touch, which is most of the
+                      people this platform exists for */}
+                  {anyFail && (
+                    <div className="gx-callout mb-3">
+                      <i className="bi bi-exclamation-triangle" aria-hidden="true" />
+                      <div>
+                        <b>{data.failed} item{data.failed === 1 ? "" : "s"} answered “No”.</b> A site
+                        cannot be certified compliant while a guideline is unmet — fix them and
+                        re-answer, or reject this review as needing work.
+                      </div>
+                    </div>
+                  )}
+                  <div className="d-flex flex-wrap gap-2 align-items-center">
+                    <button className="btn btn-success" disabled={!taskId || busy || anyFail}
+                      onClick={() => signOff(true)}>
+                      <i className="bi bi-patch-check me-1" aria-hidden="true" />
+                      {busy ? "Recording…" : "Certify compliant"}
+                    </button>
+                    <button className="btn btn-outline-danger" disabled={!taskId || busy}
+                      onClick={() => signOff(false)}>
+                      Reject — needs work
+                    </button>
+                    <span className="gx-muted small ms-1">
+                      Either decision is recorded against your account in the audit log.
+                    </span>
+                  </div>
+                </>
               )}
             </div>
           </div>

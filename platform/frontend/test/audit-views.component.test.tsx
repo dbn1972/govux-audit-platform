@@ -81,7 +81,7 @@ describe("Document accessibility", () => {
     const link = await screen.findByRole("link", { name: /form\.pdf/ });
     expect(link).toHaveAttribute("href", "https://posts.gov.in/form.pdf");
     // opens off-site, so it must not leak the referrer or expose window.opener
-    expect(link).toHaveAttribute("rel", "noreferrer");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
     const row = link.closest("tr")!;
     expect(within(row).getByText("42")).toBeInTheDocument();
     expect(within(row).getByText("3")).toBeInTheDocument();

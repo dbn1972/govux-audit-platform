@@ -98,7 +98,7 @@ export default function Domains() {
                     <td data-label="Latest score">{d.latest_score != null
                       ? <><b>{d.latest_score}</b>{d.latest_band &&
                           <span className="badge ms-1" style={bandStyle(d.latest_band)}>{d.latest_band}</span>}</>
-                      : <span className="text-secondary">Not audited</span>}</td>
+                      : <span className="gx-muted">Not audited</span>}</td>
                     <td data-label="Last audited" className="gx-muted small">{relative(d.last_audited_at)}</td>
                     <td data-label="">{d.verify_status === "verified"
                       ? <Link href={`/audits/new?domain=${d.id}`} className="btn btn-sm btn-link">Audit →</Link>
@@ -107,7 +107,7 @@ export default function Domains() {
                               and re-registering an existing domain 409s */}
                           <Link href={`/domains/new?domain=${d.id}`} className="btn btn-sm btn-link">Verify →</Link>
                           {isSteward && (
-                            <button className="btn btn-sm btn-link text-secondary"
+                            <button className="btn btn-sm btn-link gx-muted"
                               onClick={() => { setOverriding(d.id); setReason(""); setErr(""); }}>
                               Override
                             </button>
@@ -122,7 +122,7 @@ export default function Domains() {
                         <label className="form-label" htmlFor="override-reason">
                           Why is this domain being verified without proof?
                         </label>
-                        <div className="text-secondary small mb-2">
+                        <div className="gx-muted small mb-2">
                           Recorded against your account in the audit log, and the domain is marked
                           as an override rather than DNS-proven.
                         </div>

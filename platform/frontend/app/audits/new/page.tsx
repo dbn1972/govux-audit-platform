@@ -86,7 +86,7 @@ export default function NewAudit() {
             <div className="gx-card mb-3"><div className="gx-card-body">
               <label className="form-label" htmlFor="audit-domain">Domain</label>
               {domains == null ? (
-                <div className="d-flex align-items-center gap-2 text-secondary">
+                <div className="d-flex align-items-center gap-2 gx-muted">
                   <span className="spinner-border spinner-border-sm text-primary" role="status" /> Loading your verified domains…
                 </div>
               ) : noDomains ? (
@@ -143,7 +143,7 @@ export default function NewAudit() {
                             {reqBusy ? "Sending…" : "Submit request"}</button>
                         </div>
                       </div>
-                      <div className="text-secondary small mt-2">A programme steward reviews and approves larger crawls.</div>
+                      <div className="gx-muted small mt-2">A programme steward reviews and approves larger crawls.</div>
                     </div>
                   )}
                   {reqMsg && <div className="small mt-2">{reqMsg}</div>}

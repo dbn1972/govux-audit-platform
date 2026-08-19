@@ -131,7 +131,7 @@ describe("Guided manual review", () => {
     render(<Review />);
     await screen.findByText(/Define the organisation's purpose/);
 
-    const row = screen.getByText("UX4G-ABT-001").closest(".list-group-item")!;
+    const row = screen.getByText("UX4G-ABT-001").closest(".gx-check")!;
     await userEvent.click(within(row as HTMLElement).getByRole("button", { name: "No" }));
 
     await waitFor(() =>
@@ -141,7 +141,7 @@ describe("Guided manual review", () => {
   it("reflects decisions already recorded against the audit", async () => {
     render(<Review />);
     await screen.findByText(/Search returns relevant results/);
-    const row = screen.getByText("UX4G-SEA-001").closest(".list-group-item")!;
+    const row = screen.getByText("UX4G-SEA-001").closest(".gx-check")!;
     // an already-failed item comes back selected, not blank
     expect(within(row as HTMLElement).getByRole("button", { name: "No" })).toHaveClass("btn-primary");
     expect(screen.getByText(/top hit unrelated/)).toBeInTheDocument();
@@ -211,7 +211,7 @@ describe("Guided manual review", () => {
     expect(screen.getByText(/Compliance rating/)).toBeInTheDocument();
     expect(screen.getByText("75%")).toBeInTheDocument();
     // 5 answered but only 4 assessed — the N/A is excluded from the rate
-    expect(screen.getByText(/3 met \/ 4 assessed/)).toBeInTheDocument();
+    expect(screen.getByText(/3 met of 4/)).toBeInTheDocument();
   });
 
   it("shows no rating until something has actually been answered", async () => {
@@ -223,7 +223,7 @@ describe("Guided manual review", () => {
   it("the rating updates as answers are given, rather than going stale", async () => {
     render(<Review />);
     await screen.findByText(/Define the organisation's purpose/);
-    const row = screen.getByText("UX4G-ABT-001").closest(".list-group-item")!;
+    const row = screen.getByText("UX4G-ABT-001").closest(".gx-check")!;
     await userEvent.click(within(row as HTMLElement).getByRole("button", { name: "Yes" }));
     // fixture already carries one "fail" -> 1 met of 2 assessed
     expect(await screen.findByText("50%")).toBeInTheDocument();

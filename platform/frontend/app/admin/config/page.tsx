@@ -91,7 +91,7 @@ export default function ConfigAdmin() {
               <div className="gx-card-head d-flex align-items-center">
                 <i className="bi bi-activity me-2" />Live health
                 <span className="badge bg-success-subtle text-success-emphasis ms-2">auto · 5s</span>
-                <span className="ms-auto text-secondary" style={{ fontSize: 11 }}>
+                <span className="ms-auto gx-muted" style={{ fontSize: 11 }}>
                   Prometheus: <code>GET /metrics</code>
                 </span>
               </div>
@@ -100,7 +100,7 @@ export default function ConfigAdmin() {
                   {tiles.map(([label, val, warn]) => (
                     <div className="col-6 col-md-3" key={label}>
                       <div className="border rounded p-2 h-100">
-                        <div className="text-secondary" style={{ fontSize: 11 }}>{label}</div>
+                        <div className="gx-muted" style={{ fontSize: 11 }}>{label}</div>
                         <div className="fw-bold" style={{ fontSize: 18, color: warn ? BAND_COLOR.E : "var(--ux-navy)" }}>
                           {val ?? "—"}
                         </div>
@@ -128,7 +128,7 @@ export default function ConfigAdmin() {
                     <label className="col-sm-6 col-form-label" htmlFor={`cfg-${s.key}`}>
                       {s.label}
                       {s.is_override && <span className="badge bg-info-subtle text-info-emphasis ms-2">overridden</span>}
-                      <div className="text-secondary" style={{ fontSize: 11 }}><code>{s.key}</code></div>
+                      <div className="gx-muted" style={{ fontSize: 11 }}><code>{s.key}</code></div>
                     </label>
                     <div className="col-sm-6">
                       {s.type === "bool" ? (
@@ -157,7 +157,7 @@ export default function ConfigAdmin() {
               })}
               {cat.name.startsWith("Email") && (
                 <div className="border-top pt-3 mt-2">
-                  <label className="form-label small text-secondary">Send a test email (uses the saved provider)</label>
+                  <label className="form-label small gx-muted">Send a test email (uses the saved provider)</label>
                   <div className="input-group" style={{ maxWidth: 460 }}>
                     <input className="form-control" type="email" placeholder="you@nic.in"
                       value={testTo} onChange={e => setTestTo(e.target.value)} />

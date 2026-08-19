@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, setToken } from "@/lib/api";
 import BrandMark from "@/components/BrandMark";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useFocusTrap } from "@/components/useFocusTrap";
 import NotificationBell from "@/components/NotificationBell";
 
 type NavGroup = { group: string; steward?: boolean; items: NavItem[] };
@@ -130,11 +131,13 @@ function AccessDenied() {
 
 function IdleWarning({ secondsLeft, onContinue, onSignOut }:
   { secondsLeft: number; onContinue: () => void; onSignOut: () => void }) {
+  const panel = useRef<HTMLDivElement>(null);
+  useFocusTrap(true, panel);   // mounted only while the warning is up
   return (
     <div role="alertdialog" aria-modal="true" aria-labelledby="idle-warning-title"
       style={{ position: "fixed", inset: 0, zIndex: 1080, background: "rgba(9,20,40,.45)",
         display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div className="card shadow" style={{ maxWidth: 420, width: "92%" }}>
+      <div ref={panel} className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
         <div className="card-body p-4 text-center">
           <div className="gx-empty-icon mb-3"><i className="bi bi-hourglass-split" aria-hidden="true" /></div>
           <h2 id="idle-warning-title" className="h5">Still there?</h2>
@@ -179,6 +182,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // in means waiting for an emailed code. A misclick costing a round trip
   // through a mailbox is worth one confirmation.
   const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const signOutPanel = useRef<HTMLDivElement>(null);
+  useFocusTrap(confirmSignOut, signOutPanel);
 
   // --- idle timeout: 29 min inactive -> warn, 30 min -> auto sign-out -------
   const [menuOpen, setMenuOpen] = useState(false);
@@ -280,6 +285,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div>
+      {/* First tab stop on every signed-in page. Without it a keyboard user
+          walks all ~25 rail links before reaching the content, on every
+          navigation — the bypass-blocks failure this platform reports on
+          other people's sites. */}
+      <a href="#main" className="gx-skip">Skip to main content</a>
+
       <header className="gx-topbar d-flex align-items-center px-3 sticky-top" style={{ zIndex: 1040 }}>
         {/* hamburger — only on tablet/mobile (<lg) */}
         <button type="button" ref={triggerRef} onClick={() => setOpen(true)}
@@ -349,7 +360,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
 
-        <main className="flex-grow-1" style={{ background: "var(--bs-body-bg)", minWidth: 0 }}>
+        {/* tabIndex -1 so the skip link can move focus here, not merely scroll */}
+        <main id="main" tabIndex={-1} className="flex-grow-1"
+          style={{ background: "var(--bs-body-bg)", minWidth: 0, outline: "none" }}>
           {denied ? <AccessDenied /> : children}
         </main>
       </div>
@@ -390,7 +403,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <div role="alertdialog" aria-modal="true" aria-labelledby="signout-title"
           style={{ position: "fixed", inset: 0, zIndex: 1080, background: "rgba(9,20,40,.45)",
             display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
+          <div ref={signOutPanel} className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
             <div className="gx-card-body text-center">
               <div className="gx-empty-icon mb-3"><i className="bi bi-box-arrow-right" aria-hidden="true" /></div>
               <h2 id="signout-title" className="h5">Sign out?</h2>

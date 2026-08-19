@@ -61,7 +61,7 @@ export default function League() {
                   <td data-label="Score" className="gx-num fw-bold">{r.score ?? "—"}</td>
                   <td data-label="Band">{r.band
                     ? <span className="badge" style={bandStyle(r.band)}>{r.band}</span>
-                    : <span className="text-secondary">—</span>}</td></tr>
+                    : <span className="gx-muted">—</span>}</td></tr>
               ))}</tbody>
             </table></div>
           </div></div>
@@ -76,7 +76,7 @@ export default function League() {
                 <button className={`btn btn-sm ${pub === "public" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setPub("public")}>
                   <i className="bi bi-globe2 me-1" aria-hidden="true" />Public (opt-in)</button>
               </div>
-              <p className="text-secondary small mb-0">
+              <p className="gx-muted small mb-0">
                 Rankings default to the internal steward view. Public publication is a MeitY policy decision — GSA/EU precedent.
               </p>
             </div></div>

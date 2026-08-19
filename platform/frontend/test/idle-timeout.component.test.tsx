@@ -88,3 +88,40 @@ describe("AppShell idle timeout", () => {
     expect(logout).toHaveBeenCalledTimes(1);
   });
 });
+
+// ── keyboard access ─────────────────────────────────────────────────────────
+// The shell is what a keyboard user meets on every screen, and it was failing
+// the two things this platform reports other departments for.
+describe("AppShell keyboard access", () => {
+  it("offers a skip link as the first focusable thing on the page", async () => {
+    await mountSignedIn();
+    // WCAG 2.4.1: without this, reaching content means tabbing the whole rail
+    // — around 25 links — on every navigation.
+    const skip = screen.getByRole("link", { name: /skip to main content/i });
+    expect(skip).toHaveAttribute("href", "#main");
+
+    const focusables = Array.from(document.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'));
+    expect(focusables[0]).toBe(skip);
+  });
+
+  it("points the skip link at a main landmark that can take focus", async () => {
+    await mountSignedIn();
+    const main = document.getElementById("main");
+    expect(main?.tagName).toBe("MAIN");
+    // -1 so the link moves focus there rather than only scrolling the page
+    expect(main).toHaveAttribute("tabindex", "-1");
+  });
+
+  it("moves focus into the sign-out dialog it opens", async () => {
+    await mountSignedIn();
+    const signOutNav = screen.getByRole("button", { name: /^sign out$/i });
+    await act(async () => { signOutNav.click(); });
+
+    const dialog = screen.getByRole("alertdialog");
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    // aria-modal is a promise that focus is inside it; nothing was announced
+    // while focus stayed on the page behind the overlay.
+    expect(dialog.contains(document.activeElement)).toBe(true);
+  });
+});
