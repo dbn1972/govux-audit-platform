@@ -56,13 +56,15 @@ export default function Assessments() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
-        <h1 className="h3" style={{ color: "var(--ux-navy)" }}>External assessments</h1>
-        <p className="text-secondary small">
-          The assurance work automation cannot do — security VAPT, native-app accessibility,
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">External assessments</h1>
+            <div className="gx-muted">The assurance work automation cannot do — security VAPT, native-app accessibility,
           lived-experience panels with disabled users, and STQC certification outcomes. Records
-          here appear in each audit&rsquo;s <b>evidence pack</b>; they never change the automated score.
-        </p>
+          here appear in each audit&rsquo;s <b>evidence pack</b>; they never change the automated score.</div>
+          </div>
+        </div>
 
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
 

@@ -16,9 +16,13 @@ export default function Ministries() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3">Ministries &amp; departments</h1>
-        <p className="text-secondary small">Quality grouped by organisation, latest audit per domain.</p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Ministries &amp; departments</h1>
+            <div className="gx-muted">Quality grouped by organisation, latest audit per domain.</div>
+          </div>
+        </div>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
         <div className="card shadow-sm"><div className="table-responsive">
           <table className="table table-hover align-middle mb-0">

@@ -28,12 +28,14 @@ export default function Monitoring() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Continuous monitoring</h1>
-        <p className="text-secondary small">
-          Schedule recurring audits so the estate is watched continuously — the GSA model —
-          rather than only on request.
-        </p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Continuous monitoring</h1>
+            <div className="gx-muted">Schedule recurring audits so the estate is watched continuously — the GSA model —
+          rather than only on request.</div>
+          </div>
+        </div>
         {err && <div className="alert alert-warning py-2">{err}</div>}
 
         <div className="card shadow-sm mb-3"><div className="card-body">

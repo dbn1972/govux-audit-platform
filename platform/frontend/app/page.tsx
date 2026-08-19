@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import BrandMark from "@/components/BrandMark";
 import { BAND_COLOR as bandCol } from "@/lib/score";
 
 // UX4G-aligned public landing page for the FREE single-URL audit (no sign-in).
@@ -114,11 +115,10 @@ export default function ScanLanding() {
       <header className="bg-white border-bottom">
         <div className="container d-flex align-items-center justify-content-between py-2">
           <div className="d-flex align-items-center gap-2">
-            <span className="d-inline-flex align-items-center justify-content-center text-white fw-bold"
-              style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg,#0a3d7a,#0d6efd)" }}>GX</span>
-            <div style={{ lineHeight: 1.1 }}>
-              <div className="fw-bold" style={{ color: NAVY, fontSize: 18 }}>GovUX Audit</div>
-              <div className="text-secondary" style={{ fontSize: 11.5 }}>UX4G · GIGW 3.0 · WCAG 2.2 AA</div>
+            <BrandMark size={40} />
+            <div>
+              <div className="gx-brand-name" style={{ fontSize: 18 }}>GovUX Audit</div>
+              <div className="gx-brand-sub">UX4G · GIGW 3.0 · WCAG 2.2 AA</div>
             </div>
           </div>
           <nav className="d-flex align-items-center gap-3">

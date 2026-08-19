@@ -83,7 +83,7 @@ export default function Studio() {
   };
 
   return (
-    <AppShell><div className="container-fluid p-4" style={{ maxWidth: 1320 }}>
+    <AppShell><div className="gx-page">
       <h1 className="h3 mb-0">Design Studio</h1>
       <p className="text-secondary small">Describe your site — Studio generates UX4G-conformant, accessible, cross-linked
         pages and refines them until they pass the GovUX audit. AI generates; the deterministic engine scores. Preview the
@@ -145,9 +145,11 @@ export default function Studio() {
                 <span className="badge ms-1" style={{ background: (bandColor[run.band] || "#5c636a") + "22", color: bandColor[run.band] || "#5c636a" }}>Band {run.band}</span></div>
               <span className="text-secondary small">GovUX static score · {run.iterations} refine(s) · ₹{run.billing?.cost_inr} · {run.billing?.output_tokens} tokens</span>
               <div className="ms-auto d-flex gap-2">
-                <button className="btn btn-outline-secondary btn-sm" onClick={download}>⬇ Download .zip</button>
+                <button className="btn btn-outline-secondary btn-sm" onClick={download}><i className="bi bi-download me-1" aria-hidden="true" />Download .zip</button>
                 <button className={`btn btn-sm ${run.published ? "btn-success" : "btn-primary"}`} onClick={togglePublish}>
-                  {run.published ? "✓ Published — Unpublish" : "🌐 Publish public demo"}</button>
+                  {run.published
+                    ? <><i className="bi bi-check2 me-1" aria-hidden="true" />Published — Unpublish</>
+                    : <><i className="bi bi-globe2 me-1" aria-hidden="true" />Publish public demo</>}</button>
               </div>
             </div></div>
 

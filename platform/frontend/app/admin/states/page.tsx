@@ -17,9 +17,13 @@ export default function States() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3">States &amp; Union Territories</h1>
-        <p className="text-secondary small">Average GovUX Score across state government websites, latest audit per domain.</p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">States &amp; Union Territories</h1>
+            <div className="gx-muted">Average GovUX Score across state government websites, latest audit per domain.</div>
+          </div>
+        </div>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
         <div className="card shadow-sm"><div className="card-body">
           {rows == null && <div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}

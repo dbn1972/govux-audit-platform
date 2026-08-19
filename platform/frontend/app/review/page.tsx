@@ -112,13 +112,15 @@ export default function Review() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 980 }}>
-        <h1 className="h3">Guided manual review</h1>
-        <p className="text-secondary small">
-          Expert review of a completed audit against the GIGW&nbsp;3.0 / UX4G guideline set —
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Guided manual review</h1>
+            <div className="gx-muted">Expert review of a completed audit against the GIGW&nbsp;3.0 / UX4G guideline set —
           the items automation cannot judge. A full <b>compliant</b> verdict requires this
-          human sign-off; automated evidence alone can only reach <i>partially compliant</i>.
-        </p>
+          human sign-off; automated evidence alone can only reach <i>partially compliant</i>.</div>
+          </div>
+        </div>
 
         {!taskId && (
           <div className="card shadow-sm">

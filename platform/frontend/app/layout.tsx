@@ -1,13 +1,24 @@
-import { Inter } from "next/font/google";
-// UX4G Design System = Bootstrap 5 foundation + UX4G theme overrides + app layer
+import { Noto_Sans, Noto_Sans_Devanagari } from "next/font/google";
+// UX4G Design System = Bootstrap 5 foundation + UX4G theme overrides + design layer
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./ux4g-theme.css";
+import "./design-system.css";
 import "./globals.css";
 import type { ReactNode } from "react";
 
-// UX4G-style clean sans (swap for the exact UX4G font / add Noto Sans for Indic scripts)
-const font = Inter({ subsets: ["latin"], variable: "--font-ux4g", display: "swap" });
+// Noto Sans, with its Devanagari companion loaded alongside rather than later:
+// the platform is destined to run bilingually, and a face swapped in at that
+// point changes every line length and column width on 62 screens. Both are
+// self-hosted by next/font at build time — no request leaves the origin.
+const sans = Noto_Sans({
+  subsets: ["latin"], weight: ["400", "500", "600", "700"],
+  variable: "--font-ux4g", display: "swap",
+});
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"], weight: ["400", "500", "600", "700"],
+  variable: "--font-ux4g-deva", display: "swap",
+});
 
 export const metadata = {
   title: "GovUX Audit Platform",
@@ -16,7 +27,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={font.variable} data-bs-theme="light">
+    <html lang="en" className={`${sans.variable} ${devanagari.variable}`} data-bs-theme="light">
       <body>
         <div className="govux-strip" />
         {children}

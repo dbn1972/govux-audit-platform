@@ -71,9 +71,13 @@ export default function NewAudit() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3">Configure audit</h1>
-        <p className="text-secondary small">Submitting returns a task ID instantly; the audit runs in the background.</p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Configure audit</h1>
+            <div className="gx-muted">Submitting returns a task ID instantly; the audit runs in the background.</div>
+          </div>
+        </div>
 
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
@@ -171,7 +175,7 @@ export default function NewAudit() {
                 <span className="badge text-bg-secondary me-1">768</span>
                 <span className="badge text-bg-secondary">1440</span></div>
               <button className="btn btn-primary w-100" onClick={submit} disabled={busy || !domainId}>
-                {busy ? "Submitting…" : "▶ Submit — get task ID"}</button>
+                {busy ? "Submitting…" : <><i className="bi bi-play-fill me-1" aria-hidden="true" />Submit — get task ID</>}</button>
             </div></div>
           </div>
         </div>

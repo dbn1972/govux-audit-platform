@@ -42,15 +42,17 @@ export default function DomainClaims() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
-        <h1 className="h3">Domain claims</h1>
-        <p className="text-secondary small">
-          Registering a domain is a <b>claim</b>, not ownership — several organisations may claim
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Domain claims</h1>
+            <div className="gx-muted">Registering a domain is a <b>claim</b>, not ownership — several organisations may claim
           the same host and each must prove control by DNS or file. Whoever proves it first wins
           and the rest are superseded automatically. This screen is for the cases proof can&apos;t
           settle: a claim nobody ever verifies still occupies the host, and only a steward can
-          release it.
-        </p>
+          release it.</div>
+          </div>
+        </div>
 
         <div className="d-flex flex-wrap gap-3 align-items-center mb-3">
           <div className="form-check">

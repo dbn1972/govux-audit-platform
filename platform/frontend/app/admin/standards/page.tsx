@@ -10,7 +10,7 @@ const WEIGHTS = [
 export default function Standards() {
   return (
     <AppShell>
-      <div className="container-fluid p-4">
+      <div className="gx-page">
         <div className="d-flex align-items-center mb-2">
           <h1 className="h3 mb-0">Standards &amp; rules engine</h1>
           <span className="badge text-bg-primary-subtle ms-2">Active: v3.2</span>

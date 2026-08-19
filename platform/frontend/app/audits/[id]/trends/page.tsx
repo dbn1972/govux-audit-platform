@@ -15,9 +15,13 @@ export default function Trends({ params }: { params: { id: string } }) {
       .catch(e => { setErr(e?.message || "Could not load history."); setHist([]); });
   }, [params.id]);
 
-  const wrap = (b: React.ReactNode) => <AppShell><div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
-    <h1 className="h3">Score trend &amp; history</h1>
-    <p className="text-secondary small">Every re-audit is a versioned, dated snapshot.</p>
+  const wrap = (b: React.ReactNode) => <AppShell><div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Score trend &amp; history</h1>
+            <div className="gx-muted">Every re-audit is a versioned, dated snapshot.</div>
+          </div>
+        </div>
     <AuditNav id={params.id} />{b}</div></AppShell>;
 
   if (err) return wrap(<div className="alert alert-warning" role="alert">{err}</div>);

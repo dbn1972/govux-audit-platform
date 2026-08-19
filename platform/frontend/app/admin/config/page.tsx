@@ -55,7 +55,7 @@ export default function ConfigAdmin() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 820 }}>
+      <div className="gx-page">
         <div className="d-flex justify-content-between align-items-center mb-1">
           <h1 className="h3 mb-0" style={{ color: "var(--ux-navy)" }}>Platform configuration</h1>
           <button className="btn btn-primary" disabled={!dirty} onClick={save}>

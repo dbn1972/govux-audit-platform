@@ -6,7 +6,7 @@ import AppShell from "@/components/AppShell";
 export default function Methodology() {
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 960 }}>
+      <div className="gx-page">
         <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Scoring methodology</h1>
         <p className="text-secondary">How the GovUX Score is produced, and its limits — stated openly.</p>
 

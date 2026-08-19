@@ -39,9 +39,13 @@ export default function BulkScan() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3">Bulk scan &amp; estate discovery</h1>
-        <p className="text-secondary small">Scan the whole estate, not one site at a time. Each domain is enqueued as an independent task.</p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Bulk scan &amp; estate discovery</h1>
+            <div className="gx-muted">Scan the whole estate, not one site at a time. Each domain is enqueued as an independent task.</div>
+          </div>
+        </div>
 
         <div className="row g-3">
           <div className="col-lg-6"><div className="card shadow-sm"><div className="card-body">
@@ -57,7 +61,7 @@ export default function BulkScan() {
             </div>
             {err && <div className="alert alert-warning py-2 small" role="alert">{err}</div>}
             <button className="btn btn-primary w-100" onClick={enqueue} disabled={busy}>
-              {busy ? "Enqueuing…" : "▶ Enqueue bulk scan"}</button>
+              {busy ? "Enqueuing…" : <><i className="bi bi-play-fill me-1" aria-hidden="true" />Enqueue bulk scan</>}</button>
             <div className="form-text mt-2">
               Loading domains from a spreadsheet? Use{" "}
               <Link href="/admin/registry">Register Import</Link> instead.

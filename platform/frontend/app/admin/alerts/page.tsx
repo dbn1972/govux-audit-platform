@@ -21,9 +21,13 @@ export default function Alerts() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3">Exception alerts</h1>
-        <p className="text-secondary small">Where quality is at risk — so the programme office can intervene early.</p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Exception alerts</h1>
+            <div className="gx-muted">Where quality is at risk — so the programme office can intervene early.</div>
+          </div>
+        </div>
 
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
         {!err && !data && (

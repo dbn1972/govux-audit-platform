@@ -42,14 +42,16 @@ export default function Registry() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
-        <h1 className="h3">National register import</h1>
-        <p className="text-secondary small">
-          Bulk-load the .gov.in / .nic.in estate so the National Dashboard, League Table and the
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">National register import</h1>
+            <div className="gx-muted">Bulk-load the .gov.in / .nic.in estate so the National Dashboard, League Table and the
           ministry / state roll-ups report against a real denominator. Imported domains are
           recorded as <b>known</b>, not verified — DNS-TXT verification remains the only way an
-          organisation claims ownership and unlocks auditing.
-        </p>
+          organisation claims ownership and unlocks auditing.</div>
+          </div>
+        </div>
 
         <div className="card shadow-sm mb-3">
           <div className="card-header bg-white fw-semibold">CSV extract</div>

@@ -40,9 +40,13 @@ export default function Running({ params }: { params: { id: string } }) {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3">Auditing {status.domain || "…"}</h1>
-        <p className="text-secondary small">Task ID <b>{params.id}</b> · runs in the background — you can leave this page.</p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Auditing {status.domain || "…"}</h1>
+            <div className="gx-muted">Task ID <b>{params.id}</b> · runs in the background — you can leave this page.</div>
+          </div>
+        </div>
 
         <div className="card shadow-sm mb-3"><div className="card-body">
           <div className="d-flex align-items-center flex-wrap gap-2">

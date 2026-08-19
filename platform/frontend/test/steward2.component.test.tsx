@@ -22,12 +22,14 @@ vi.mock("@/components/AppShell", () => ({ default: ({ children }: any) => <div>{
 vi.mock("next/link", () => ({ default: ({ href, children }: any) => <a href={String(href)}>{children}</a> }));
 
 const listDomains = vi.fn();
+const me = vi.fn();
 const national = vi.fn();
 const domainClaims = vi.fn();
 const releaseClaim = vi.fn();
 vi.mock("@/lib/api", () => ({
   api: {
     listDomains: (...a: any[]) => listDomains(...a),
+    me: (...a: any[]) => me(...a),
     national: (...a: any[]) => national(...a),
     domainClaims: (...a: any[]) => domainClaims(...a),
     releaseClaim: (...a: any[]) => releaseClaim(...a),
@@ -39,8 +41,11 @@ import National from "@/app/admin/national/page";
 import DomainClaims from "@/app/admin/domain-claims/page";
 
 beforeEach(() => {
-  [listDomains, national, domainClaims, releaseClaim].forEach((m) => m.mockReset());
+  [listDomains, me, national, domainClaims, releaseClaim].forEach((m) => m.mockReset());
   listDomains.mockResolvedValue([]);
+  // the dashboard names the organisation it is reporting on, so identity is
+  // part of the screen now rather than only the shell around it
+  me.mockResolvedValue({ email: "owner@gov.in", org_name: "GovUX QA Sandbox", role: "owner" });
   national.mockResolvedValue({
     domains_total: 0, audited: 0, coverage_pct: 0, avg_score: null,
     band_distribution: { A: 0, B: 0, C: 0, D: 0, E: 0 }, league: [],
@@ -58,9 +63,11 @@ describe("Dashboard", () => {
       { id: "3", url: "c.gov.in", verify_status: "failed" },
     ]);
     render(<Dashboard />);
-    expect(await screen.findByText("3 registered domain(s)")).toBeInTheDocument();
+    // the subtitle now names the organisation as well, and pluralises properly
+    // ("3 registered domains", not "domain(s)"), so match the count not the line
+    expect(await screen.findByText(/3 registered domains/)).toBeInTheDocument();
 
-    // label and value are siblings inside .card-body, so go up one level
+    // label and value are siblings inside the stat tile, so go up one level
     expect(screen.getByText("Verified").parentElement).toHaveTextContent("1");
     // anything not verified is pending work — failed counts as pending, not as done
     expect(screen.getByText("Pending verification").parentElement).toHaveTextContent("2");
@@ -91,7 +98,8 @@ describe("National dashboard", () => {
     render(<National />);
 
     expect(await screen.findByText("62.4")).toBeInTheDocument();
-    expect(screen.getByText("44.4% coverage")).toBeInTheDocument();
+    // coverage is never a bare percentage — it is stated against the register
+    expect(screen.getByText("44.4% of the register")).toBeInTheDocument();
     expect(screen.getByText("9")).toBeInTheDocument();          // register size
     expect(screen.getByText("indiapost.gov.in")).toBeInTheDocument();
   });

@@ -1,0 +1,459 @@
+/* ============================================================================
+   GovUX design layer — semantic tokens + the primitives the product actually
+   uses (page, card, stat, table, pill, meter, brand).
+
+   Sits ON TOP of ux4g-theme.css: that file maps UX4G onto Bootstrap's own
+   variables, this one adds the vocabulary Bootstrap has no opinion about —
+   a neutral ramp, a type scale, spacing rhythm, elevation. Bootstrap's tokens
+   are then pointed AT these, so stock components inherit the system instead of
+   being overridden one at a time.
+
+   Every colour is declared as a token here and used nowhere else as a literal,
+   so a dark theme is a second :root block rather than a rewrite. No toggle
+   ships yet — see [data-bs-theme="dark"] at the foot for the seam.
+   ========================================================================== */
+
+:root {
+  /* -- neutral ramp: cool, so it sits under the navy without going muddy ---- */
+  --gx-ink-950:#0a1222; --gx-ink-900:#121c2e; --gx-ink-800:#1e2a40;
+  --gx-ink-700:#2f3d55; --gx-ink-600:#475569; --gx-ink-500:#5c636a;
+  --gx-ink-400:#8592a6; --gx-ink-300:#b8c2d0; --gx-ink-200:#dde3ea;
+  --gx-ink-100:#eef2f6; --gx-ink-50:#f6f8fa;
+
+  /* -- brand ---------------------------------------------------------------
+     navy carries identity (rail, headings, mark), blue carries action. Two
+     roles, never swapped: if everything is brand-coloured nothing reads as
+     clickable. */
+  --gx-navy-900:#06203f; --gx-navy-800:#0a3d7a; --gx-navy-600:#14539e;
+  --gx-action:#0d6efd; --gx-action-strong:#0a58ca;
+  --gx-saffron:#ff9933; --gx-green:#138808;
+
+  /* -- surfaces ------------------------------------------------------------ */
+  --gx-surface:#ffffff;
+  --gx-surface-sunken:#f4f7fa;   /* page ground */
+  --gx-surface-muted:#f9fbfc;    /* table headers, inset rows */
+  --gx-border:#e3e8ef;
+  --gx-border-strong:#cdd6e2;
+
+  /* -- text ---------------------------------------------------------------- */
+  --gx-text:#121c2e;
+  --gx-text-muted:#5c636a;       /* AA on every surface above */
+  --gx-text-invert:#ffffff;
+
+  /* -- elevation: borders do the work; shadow only lifts what floats ------- */
+  --gx-shadow-1:0 1px 2px rgba(9,20,40,.05);
+  --gx-shadow-2:0 8px 24px -8px rgba(9,20,40,.18);
+
+  /* -- shape --------------------------------------------------------------- */
+  --gx-r-sm:.5rem; --gx-r-md:.75rem; --gx-r-lg:1rem; --gx-r-pill:999px;
+
+  /* -- rhythm: 4px base; these are the only gaps used between blocks ------- */
+  --gx-space-1:.25rem; --gx-space-2:.5rem;  --gx-space-3:.75rem;
+  --gx-space-4:1rem;   --gx-space-5:1.5rem; --gx-space-6:2rem; --gx-space-7:3rem;
+
+  --gx-page-max:1280px;
+
+  /* -- point Bootstrap at the system so stock components inherit ----------- */
+  --bs-body-bg:var(--gx-surface-sunken);
+  --bs-body-color:var(--gx-text);
+  --bs-border-color:var(--gx-border);
+  --bs-emphasis-color:var(--gx-ink-900);
+  --bs-body-font-size:.9375rem;      /* 15px — 16 is loose for dense tables */
+  --bs-body-line-height:1.55;
+}
+
+/* ---------------------------------------------------------------------------
+   Type. One scale, used everywhere. Data uses tabular figures so columns of
+   numbers line up and a score doesn't reflow as it counts.
+   ------------------------------------------------------------------------ */
+body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+
+/* Element AND Bootstrap's size classes: 33 screens were written as
+   `<h1 className="h3">`, which would otherwise opt every page title out of the
+   scale and back into Bootstrap's defaults. */
+h1,.gx-h1,.h1 { font-size:1.5rem;   line-height:1.25; font-weight:700; letter-spacing:-.015em; }
+h2,.gx-h2,.h2 { font-size:1.1875rem;line-height:1.3;  font-weight:650; letter-spacing:-.01em; }
+h3,.gx-h3,.h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
+.h4 { font-size:1.0625rem; font-weight:650; }
+.h5,.h6 { font-size:.9375rem; font-weight:650; letter-spacing:0; }
+/* a page title written as `<h1 class="h3">` is still the page title */
+main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
+.gx-display { font-size:2rem; line-height:1.1; font-weight:700; letter-spacing:-.025em;
+              color:var(--gx-navy-800); font-variant-numeric:tabular-nums slashed-zero; }
+
+/* micro label — the workhorse for stat captions, table heads, meta rows */
+.gx-label { font-size:.6875rem; font-weight:700; letter-spacing:.07em;
+            text-transform:uppercase; color:var(--gx-text-muted); }
+
+.gx-num { font-variant-numeric:tabular-nums slashed-zero; font-feature-settings:"tnum" 1; }
+.gx-muted { color:var(--gx-text-muted); }
+
+/* ---------------------------------------------------------------------------
+   Page frame
+   ------------------------------------------------------------------------ */
+.gx-page { max-width:var(--gx-page-max); margin-inline:auto;
+           padding:var(--gx-space-6) var(--gx-space-5) var(--gx-space-7); }
+@media (max-width:575.98px){ .gx-page { padding:var(--gx-space-5) var(--gx-space-4); } }
+
+.gx-page-head { display:flex; align-items:flex-end; gap:var(--gx-space-4);
+                flex-wrap:wrap; margin-bottom:var(--gx-space-5); }
+.gx-page-head .gx-actions { margin-inline-start:auto; display:flex; gap:var(--gx-space-2); }
+
+/* section rhythm: everything between blocks is one value, not eyeballed */
+.gx-stack > * + * { margin-top:var(--gx-space-5); }
+
+/* ---------------------------------------------------------------------------
+   Card — a bordered surface. Deliberately flat: on a screen that is mostly
+   cards, shadows on all of them read as noise rather than hierarchy.
+   ------------------------------------------------------------------------ */
+.gx-card { background:var(--gx-surface); border:1px solid var(--gx-border);
+           border-radius:var(--gx-r-md); box-shadow:var(--gx-shadow-1); }
+.gx-card-head { display:flex; align-items:center; gap:var(--gx-space-3);
+                padding:var(--gx-space-4) var(--gx-space-5);
+                border-bottom:1px solid var(--gx-border); }
+.gx-card-head h2,.gx-card-head h3 { margin:0; }
+.gx-card-head .gx-actions { margin-inline-start:auto; }
+.gx-card-body { padding:var(--gx-space-5); }
+
+/* ---------------------------------------------------------------------------
+   Stat tile. Label above, figure below — the figure is the object, the label
+   is its caption, so the eye lands on the number first.
+   ------------------------------------------------------------------------ */
+.gx-stats { display:grid; gap:var(--gx-space-3);
+            grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); }
+.gx-stat { background:var(--gx-surface); border:1px solid var(--gx-border);
+           border-radius:var(--gx-r-md); padding:var(--gx-space-4) var(--gx-space-5);
+           box-shadow:var(--gx-shadow-1); }
+.gx-stat-value { font-size:1.875rem; font-weight:700; line-height:1.15;
+                 color:var(--gx-navy-800); font-variant-numeric:tabular-nums slashed-zero; }
+.gx-stat-note { font-size:.8125rem; color:var(--gx-text-muted); }
+
+/* ---------------------------------------------------------------------------
+   Table. Government work is table work: keep rows scannable, give the first
+   column the weight, and keep the head quiet so data leads.
+   ------------------------------------------------------------------------ */
+.gx-table { width:100%; margin:0; border-collapse:separate; border-spacing:0; }
+.gx-table thead th { background:var(--gx-surface-muted);
+                     font-size:.6875rem; font-weight:700; letter-spacing:.07em;
+                     text-transform:uppercase; color:var(--gx-text-muted);
+                     padding:.625rem var(--gx-space-5); white-space:nowrap;
+                     border-bottom:1px solid var(--gx-border); }
+.gx-table tbody td { padding:.875rem var(--gx-space-5); vertical-align:middle;
+                     border-bottom:1px solid var(--gx-border); }
+.gx-table tbody tr:last-child td { border-bottom:0; }
+.gx-table tbody tr:hover { background:var(--gx-ink-50); }
+.gx-table .gx-cell-primary { font-weight:600; color:var(--gx-navy-800); }
+
+/* ---------------------------------------------------------------------------
+   Status pill. Subtle ground + emphasis text — the AA-safe pairing already
+   established in globals.css, given a consistent shape.
+   ------------------------------------------------------------------------ */
+.gx-pill { display:inline-flex; align-items:center; gap:.375rem;
+           padding:.1875rem .5rem; border-radius:var(--gx-r-pill);
+           font-size:.75rem; font-weight:600; line-height:1.4; white-space:nowrap; }
+.gx-pill::before { content:""; width:.375rem; height:.375rem; border-radius:50%;
+                   background:currentColor; flex:none; }
+.gx-pill-ok    { background:var(--bs-success-bg-subtle); color:var(--bs-success-text-emphasis); }
+.gx-pill-wait  { background:var(--bs-warning-bg-subtle); color:var(--bs-warning-text-emphasis); }
+.gx-pill-off   { background:var(--gx-ink-100);           color:var(--gx-ink-600); }
+.gx-pill-bad   { background:var(--bs-danger-bg-subtle);  color:var(--bs-danger-text-emphasis); }
+
+/* chip — a quiet metadata tag, no status meaning */
+.gx-chip { display:inline-block; padding:.125rem .4375rem; border-radius:var(--gx-r-sm);
+           background:var(--gx-ink-100); color:var(--gx-ink-600);
+           font-size:.75rem; font-weight:500; }
+
+/* ---------------------------------------------------------------------------
+   Meter — a score as a line. Paired with the number, never replacing it.
+   ------------------------------------------------------------------------ */
+.gx-meter { height:6px; border-radius:var(--gx-r-pill); background:var(--gx-ink-100);
+            overflow:hidden; min-width:64px; }
+.gx-meter > span { display:block; height:100%; border-radius:inherit; }
+
+/* ---------------------------------------------------------------------------
+   Brand mark. A verification seal: the national tricolour drawn as a check
+   inside a navy field. Replaces the "GX" gradient tile, which said nothing
+   about what this platform does.
+   ------------------------------------------------------------------------ */
+.gx-brand { display:inline-flex; align-items:center; gap:.625rem;
+            text-decoration:none; color:inherit; }
+.gx-brand-mark { position:relative; overflow:hidden;
+                 width:34px; height:34px; flex:none; border-radius:9px;
+                 background:linear-gradient(150deg,var(--gx-navy-800),var(--gx-navy-900));
+                 display:inline-flex; align-items:center; justify-content:center;
+                 box-shadow:inset 0 0 0 1px rgba(255,255,255,.08); }
+/* No tricolour inside the mark: the identity strip already runs across the top
+   of every page, and two tricolours 40px apart read as indecision. The mark
+   stays legible down to a 16px favicon, which a three-stop bar would not. */
+.gx-brand-name { font-weight:700; letter-spacing:-.015em; color:var(--gx-navy-800);
+                 line-height:1.1; }
+.gx-brand-sub { display:block; font-size:.6875rem; font-weight:600; letter-spacing:.06em;
+                text-transform:uppercase; color:var(--gx-text-muted); }
+
+/* ---------------------------------------------------------------------------
+   Navigation rail
+   ------------------------------------------------------------------------ */
+.gx-rail { width:252px; background:var(--gx-surface); border-inline-end:1px solid var(--gx-border); }
+.gx-rail-group { padding:var(--gx-space-4) var(--gx-space-3) var(--gx-space-1); }
+.gx-nav-link { display:flex; align-items:center; gap:.625rem; position:relative;
+               padding:.5rem .625rem; margin-bottom:.125rem; border-radius:var(--gx-r-sm);
+               font-size:.875rem; font-weight:500; color:var(--gx-ink-700);
+               text-decoration:none; border:0; background:transparent; width:100%;
+               text-align:start; }
+.gx-nav-link i { font-size:1rem; color:var(--gx-ink-400); flex:none; }
+.gx-nav-link:hover { background:var(--gx-ink-50); color:var(--gx-navy-800); }
+.gx-nav-link:hover i { color:var(--gx-navy-600); }
+.gx-nav-link[aria-current="page"] { background:var(--bs-primary-bg-subtle);
+                                    color:var(--gx-navy-800); font-weight:650; }
+.gx-nav-link[aria-current="page"] i { color:var(--gx-navy-800); }
+.gx-nav-link[aria-current="page"]::before { content:""; position:absolute; inset-inline-start:0;
+  top:.375rem; bottom:.375rem; width:3px; border-radius:var(--gx-r-pill);
+  background:var(--gx-navy-800); }
+
+/* context block at the top of the rail: which organisation, which role */
+.gx-context { padding:var(--gx-space-4) var(--gx-space-4) var(--gx-space-3);
+              border-bottom:1px solid var(--gx-border); }
+.gx-context-org { font-weight:650; font-size:.875rem; color:var(--gx-navy-800);
+                  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ---------------------------------------------------------------------------
+   Top bar
+   ------------------------------------------------------------------------ */
+.gx-topbar { height:60px; background:var(--gx-surface);
+             border-bottom:1px solid var(--gx-border); }
+.gx-icon-btn { display:inline-flex; align-items:center; justify-content:center;
+               width:36px; height:36px; border-radius:var(--gx-r-sm); border:0;
+               background:transparent; color:var(--gx-ink-600); font-size:1.0625rem; }
+.gx-icon-btn:hover { background:var(--gx-ink-50); color:var(--gx-navy-800); }
+.gx-avatar { width:34px; height:34px; border-radius:50%; border:0;
+             background:var(--gx-navy-800); color:var(--gx-text-invert);
+             font-size:.8125rem; font-weight:650; letter-spacing:.02em;
+             display:inline-flex; align-items:center; justify-content:center; }
+
+/* ---------------------------------------------------------------------------
+   First-run / empty state. The dashboard's blank half was the single biggest
+   UX failure here: a new account saw three zeroes and no next step.
+   ------------------------------------------------------------------------ */
+.gx-empty { text-align:center; padding:var(--gx-space-6) var(--gx-space-5); }
+.gx-empty-icon { width:52px; height:52px; border-radius:var(--gx-r-md); margin-inline:auto;
+                 background:var(--bs-primary-bg-subtle); color:var(--gx-navy-800);
+                 display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+.gx-steps { display:grid; gap:var(--gx-space-3); text-align:start;
+            grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+            margin-top:var(--gx-space-5); }
+.gx-step { border:1px solid var(--gx-border); border-radius:var(--gx-r-md);
+           padding:var(--gx-space-4); background:var(--gx-surface-muted); }
+.gx-step-n { width:24px; height:24px; border-radius:50%; background:var(--gx-navy-800);
+             color:var(--gx-text-invert); font-size:.75rem; font-weight:700;
+             display:inline-flex; align-items:center; justify-content:center; }
+
+/* ---------------------------------------------------------------------------
+   Focus. One visible treatment everywhere, including inside the navy rail.
+   ------------------------------------------------------------------------ */
+:where(a,button,input,select,textarea,[tabindex]):focus-visible {
+  outline:2px solid var(--gx-action-strong); outline-offset:2px; border-radius:var(--gx-r-sm);
+}
+
+/* ---------------------------------------------------------------------------
+   Dark seam. Nothing ships against this yet — it exists so the tokens above
+   are provably sufficient: redefining this block is the whole job later.
+   ------------------------------------------------------------------------ */
+[data-bs-theme="dark"] {
+  --gx-surface:#111a2b; --gx-surface-sunken:#0a1222; --gx-surface-muted:#162033;
+  --gx-border:#25324a; --gx-border-strong:#33425e;
+  --gx-text:#e8eef7; --gx-text-muted:#a8b4c6;
+}
+
+/* ---------------------------------------------------------------------------
+   Small screens. Two corrections the desktop grid gets wrong on a phone:
+   stat tiles collapsing to one enormous column, and page actions stranded on
+   a right-aligned second line where the thumb doesn't sit.
+   ------------------------------------------------------------------------ */
+@media (max-width:575.98px) {
+  .gx-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .gx-stat { padding:var(--gx-space-3) var(--gx-space-4); }
+  .gx-stat-value { font-size:1.5rem; }
+  .gx-page-head .gx-actions { margin-inline-start:0; width:100%; }
+  .gx-page-head .gx-actions > * { flex:1 1 0; justify-content:center; }
+  .gx-card-head,.gx-card-body { padding-inline:var(--gx-space-4); }
+  .gx-table tbody td,.gx-table thead th { padding-inline:var(--gx-space-4); }
+}
+
+/* ============================================================================
+   Legacy mapping — the 37 screens written before this system exists all use
+   plain Bootstrap markup (.card.shadow-sm, .table, .card-header, .form-control).
+   Rather than rewrite every one, point those classes at the tokens: the whole
+   product moves onto the system at once, and per-screen work becomes structural
+   (hierarchy, empty states, grouping) rather than cosmetic.
+   ========================================================================== */
+
+/* Cards. `shadow-sm` is applied nearly everywhere, which flattens the meaning
+   out of elevation — override it to the system's single resting shadow. */
+.card { border-color:var(--gx-border); border-radius:var(--gx-r-md);
+        box-shadow:var(--gx-shadow-1) !important; }
+.card-header { background:var(--gx-surface) !important; border-bottom-color:var(--gx-border);
+               padding:var(--gx-space-4) var(--gx-space-5);
+               font-weight:650; color:var(--gx-navy-800); }
+.card-body { padding:var(--gx-space-5); }
+.card-footer { background:var(--gx-surface-muted); border-top-color:var(--gx-border); }
+
+/* Tables. Same quiet head and roomy rows as .gx-table, applied to the stock
+   class so untouched screens read alike. */
+.table > :not(caption) > * > * { padding:.875rem var(--gx-space-5);
+                                 border-bottom-color:var(--gx-border); }
+.table > thead th, .table-light > th, .table thead.table-light th {
+  background:var(--gx-surface-muted) !important; color:var(--gx-text-muted) !important;
+  font-size:.6875rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+  white-space:nowrap; border-bottom-color:var(--gx-border); }
+.table-hover > tbody > tr:hover > * { background:var(--gx-ink-50); --bs-table-accent-bg:transparent; }
+.table td, .table th { vertical-align:middle; }
+
+/* Numbers in tables line up: a column of scores that jitters as digits change
+   is the fastest way to make data look untrustworthy. */
+.table td:has(b), .table td .gx-num, .fs-3, .fs-4, .display-6 {
+  font-variant-numeric:tabular-nums slashed-zero; }
+
+/* Controls */
+.btn { font-weight:600; border-radius:var(--gx-r-sm); padding-inline:1rem; }
+.btn-sm { border-radius:var(--gx-r-sm); }
+.form-control, .form-select { border-color:var(--gx-border-strong); border-radius:var(--gx-r-sm);
+                              padding:.5rem .75rem; }
+.form-control:focus, .form-select:focus { border-color:var(--gx-action);
+  box-shadow:0 0 0 .2rem rgba(13,110,253,.15); }
+.form-label { font-weight:600; font-size:.875rem; color:var(--gx-ink-700); margin-bottom:.375rem; }
+.form-text { color:var(--gx-text-muted); }
+.input-group-text { background:var(--gx-surface-muted); border-color:var(--gx-border-strong); }
+
+/* Badges: pill-shaped and calmer, matching .gx-pill so the two never disagree */
+.badge { font-weight:600; border-radius:var(--gx-r-pill); padding:.3125rem .5625rem; }
+
+/* Alerts: a left rule instead of a full tinted box, which shouts less on a page
+   that may carry several at once */
+.alert { border-radius:var(--gx-r-md); border-width:0 0 0 3px; }
+
+/* Nav tabs used by the report and audit views */
+.nav-tabs { border-bottom-color:var(--gx-border); gap:.25rem; }
+.nav-tabs .nav-link { border:0; border-bottom:2px solid transparent; border-radius:0;
+                      color:var(--gx-text-muted); font-weight:600; padding:.5rem .875rem; }
+.nav-tabs .nav-link:hover { color:var(--gx-navy-800); border-bottom-color:var(--gx-border-strong); }
+.nav-tabs .nav-link.active { color:var(--gx-navy-800); background:transparent;
+                             border-bottom-color:var(--gx-navy-800); }
+
+/* Bootstrap containers that remain (the public landing page uses .container)
+   keep the page frame's max width, so the signed-in and signed-out sides of the
+   product measure the same. Screens now use .gx-page directly. */
+main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inline:auto; }
+
+/* The score bar predates the meter; keep one implementation. */
+.score-bar { height:6px; border-radius:var(--gx-r-pill); background:var(--gx-ink-100); }
+.score-value { font-size:2.5rem; font-weight:700; letter-spacing:-.025em;
+               color:var(--gx-navy-800); font-variant-numeric:tabular-nums slashed-zero; }
+
+/* ============================================================================
+   Audit report
+   ========================================================================== */
+
+/* The verdict block. Two panels side by side, deliberately: the GovUX score is
+   a UX measure and the compliance verdict is a legal one, and the platform's
+   own rule is that the two are never conflated. The old report expressed that
+   separation as a badge inside a paragraph. */
+.gx-verdict { display:grid; gap:var(--gx-space-4); grid-template-columns:1.6fr 1fr; }
+@media (max-width:991.98px){ .gx-verdict { grid-template-columns:1fr; } }
+
+.gx-score { display:flex; align-items:flex-start; gap:var(--gx-space-5); flex-wrap:wrap; }
+.gx-score-figure { font-size:3.5rem; line-height:1; font-weight:700; letter-spacing:-.03em;
+                   font-variant-numeric:tabular-nums slashed-zero; }
+
+/* Band scale — "C" means nothing without the ladder it sits on. */
+.gx-scale { display:flex; gap:3px; margin-top:.625rem; }
+.gx-scale-step { flex:1; height:6px; border-radius:var(--gx-r-pill); background:var(--gx-ink-100); }
+.gx-scale-labels { display:flex; justify-content:space-between; margin-top:.25rem;
+                   font-size:.6875rem; font-weight:600; color:var(--gx-text-muted); }
+
+/* Severity tiles double as filters into the issues view. */
+.gx-sev { display:grid; gap:var(--gx-space-3); grid-template-columns:repeat(4,1fr); }
+@media (max-width:575.98px){ .gx-sev { grid-template-columns:repeat(2,1fr); } }
+.gx-sev-tile { display:block; text-decoration:none; background:var(--gx-surface);
+               border:1px solid var(--gx-border); border-left:3px solid currentColor;
+               border-radius:var(--gx-r-md); padding:var(--gx-space-3) var(--gx-space-4);
+               box-shadow:var(--gx-shadow-1); }
+.gx-sev-tile:hover { border-color:currentColor; box-shadow:var(--gx-shadow-2); }
+.gx-sev-count { font-size:1.75rem; font-weight:700; line-height:1.1;
+                font-variant-numeric:tabular-nums; }
+.gx-sev-name { display:block; font-size:.75rem; font-weight:700; letter-spacing:.06em;
+               text-transform:uppercase; color:var(--gx-text-muted); }
+
+/* Category rows, ordered by what is costing the most rather than by name. */
+.gx-cat { display:grid; align-items:center; gap:var(--gx-space-4);
+          grid-template-columns:minmax(150px,1.1fr) minmax(120px,2fr) auto auto;
+          padding:.6875rem var(--gx-space-5); border-bottom:1px solid var(--gx-border); }
+.gx-cat:last-child { border-bottom:0; }
+.gx-cat:hover { background:var(--gx-ink-50); }
+.gx-cat-score { font-weight:700; font-variant-numeric:tabular-nums; min-width:2.5rem;
+                text-align:end; }
+.gx-cat-cost { font-size:.8125rem; color:var(--gx-text-muted); min-width:6.5rem; text-align:end;
+               font-variant-numeric:tabular-nums; }
+@media (max-width:767.98px){
+  .gx-cat { grid-template-columns:1fr auto; row-gap:.375rem; }
+  .gx-cat .gx-meter { grid-column:1 / -1; }
+  .gx-cat-cost { grid-column:1 / -1; text-align:start; }
+}
+
+/* A callout that carries a consequence — guard-rail, integrity flag. Heavier
+   than an alert because these change what the report is allowed to claim. */
+.gx-callout { display:flex; gap:var(--gx-space-3); padding:var(--gx-space-4) var(--gx-space-5);
+              border-radius:var(--gx-r-md); border:1px solid var(--bs-warning-border-subtle);
+              background:var(--bs-warning-bg-subtle); color:var(--bs-warning-text-emphasis); }
+.gx-callout-danger { border-color:var(--bs-danger-border-subtle);
+                     background:var(--bs-danger-bg-subtle); color:var(--bs-danger-text-emphasis); }
+.gx-callout i { font-size:1.125rem; flex:none; }
+
+/* Definition row for report metadata: label above value, several across. */
+.gx-meta { display:flex; flex-wrap:wrap; gap:var(--gx-space-5); }
+.gx-meta-item .gx-label { display:block; margin-bottom:.125rem; }
+.gx-meta-item div:last-child { font-weight:600; font-size:.875rem; }
+
+/* Measure. A subtitle that runs the full 1280px is a line of ~180 characters —
+   the eye loses the return sweep. Cap explanatory text at a readable measure;
+   tables and data are exempt because they are scanned, not read. */
+.gx-page-head .gx-muted { max-width:76ch; }
+.gx-card-body > p, .gx-empty p { max-width:78ch; }
+.gx-empty p { margin-inline:auto; }
+
+/* ============================================================================
+   Public landing page. Same tokens as the product: someone who scans a site
+   here and then signs in should recognise the score object, not meet a second
+   design.
+   ========================================================================== */
+:root { --gx-brand-tint:#e7f0fb; --gx-brand-wash:#eef4fb; }
+
+.gx-hero { background:linear-gradient(180deg,var(--gx-brand-wash) 0%,var(--gx-surface-sunken) 100%);
+           border-bottom:1px solid var(--gx-border); }
+/* One fluid step instead of a fixed 2.4rem: on a phone that headline was
+   wrapping to four lines, on a 27" monitor it was smaller than the section
+   headings below it. */
+.gx-hero-title { font-size:clamp(1.875rem,1.2rem + 2.4vw,3rem); line-height:1.1;
+                 font-weight:700; letter-spacing:-.025em; color:var(--gx-navy-800); }
+.gx-hero-lead { font-size:clamp(1rem,.95rem + .3vw,1.125rem); color:var(--gx-ink-600);
+                max-width:60ch; margin-inline:auto; }
+
+.gx-section { padding-block:var(--gx-space-7); }
+.gx-section-tint { background:var(--gx-brand-wash); }
+.gx-section-head { text-align:center; margin-bottom:var(--gx-space-6); }
+.gx-section-head h2 { font-size:1.5rem; letter-spacing:-.015em; }
+.gx-section-head p { color:var(--gx-text-muted); max-width:60ch; margin:.5rem auto 0; }
+
+/* Feature and step tiles */
+.gx-feature-icon { width:42px; height:42px; border-radius:var(--gx-r-md);
+                   background:var(--gx-brand-tint); color:var(--gx-navy-800);
+                   display:inline-flex; align-items:center; justify-content:center;
+                   font-size:1.25rem; }
+.gx-step-badge { width:44px; height:44px; border-radius:50%; background:var(--gx-navy-800);
+                 color:var(--gx-text-invert); font-weight:700;
+                 display:inline-flex; align-items:center; justify-content:center; }
+
+/* The closing call to action */
+.gx-cta { border-radius:var(--gx-r-lg); color:var(--gx-text-invert);
+          background:linear-gradient(135deg,var(--gx-navy-800),var(--gx-action));
+          padding:var(--gx-space-6); }
+.gx-cta h2 { color:var(--gx-text-invert); }

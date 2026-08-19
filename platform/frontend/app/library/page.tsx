@@ -22,9 +22,13 @@ export default function Library() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3">Guideline library</h1>
-        <p className="text-secondary small">Every check explained in plain language with a good example.</p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Guideline library</h1>
+            <div className="gx-muted">Every check explained in plain language with a good example.</div>
+          </div>
+        </div>
         <div className="mb-3 d-flex gap-2 flex-wrap">
           {["", "WCAG", "GIGW", "UX4G", "CWV"].map(f => (
             <button key={f} onClick={() => setFam(f)}

@@ -19,7 +19,7 @@ export default function Documents({ params }: { params: { id: string } }) {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
+      <div className="gx-page">
         <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Document accessibility</h1>
         <AuditNav id={params.id} />
         {err && <div className="alert alert-warning" role="alert">{err}</div>}

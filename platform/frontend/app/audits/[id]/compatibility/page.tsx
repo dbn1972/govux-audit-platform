@@ -26,9 +26,13 @@ export default function Compatibility({ params }: { params: { id: string } }) {
       .catch(e => setErr(e?.message || "Report not ready."));
   }, [params.id]);
 
-  const wrap = (b: React.ReactNode) => <AppShell><div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
-    <h1 className="h3">Responsiveness &amp; compatibility</h1>
-    <p className="text-secondary small">Each site is rendered in three real browser engines — Chromium, Firefox and WebKit (Safari/iOS).</p>
+  const wrap = (b: React.ReactNode) => <AppShell><div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Responsiveness &amp; compatibility</h1>
+            <div className="gx-muted">Each site is rendered in three real browser engines — Chromium, Firefox and WebKit (Safari/iOS).</div>
+          </div>
+        </div>
     <AuditNav id={params.id} />{b}</div></AppShell>;
 
   if (err) return wrap(<div className="alert alert-warning" role="alert">{err}</div>);

@@ -62,14 +62,18 @@ describe("Audit report", () => {
     expect(screen.getByText("Band C")).toBeInTheDocument();
     // invariant #2: the legal verdict is its own statement, not a restyled band
     expect(screen.getByText(/partially compliant/)).toBeInTheDocument();
-    expect(screen.getByText(/automated evidence/)).toBeInTheDocument();
+    // "automated only" rather than "automated evidence": the verdict panel's job
+    // is to say what the evidence CANNOT support, which is the ceiling on it
+    expect(screen.getByText(/automated only/i)).toBeInTheDocument();
   });
 
   it("says so when the guard-rail capped the band", async () => {
     auditReport.mockResolvedValue({ ...REPORT, guardrail_active: true, band: "C" });
     render(<Report params={{ id: "t1" }} />);
-    expect(await screen.findByText(/guard-rail/)).toBeInTheDocument();
-    expect(screen.getByText(/capping the band until fixed/)).toBeInTheDocument();
+    expect(await screen.findByText(/guard-rail active/i)).toBeInTheDocument();
+    // says what it costs (the cap) and how to clear it, not merely that it fired
+    expect(screen.getByText(/band capped at C/i)).toBeInTheDocument();
+    expect(screen.getByText(/lifts as soon as it is fixed/i)).toBeInTheDocument();
   });
 
   it("surfaces an integrity flag instead of silently capping the verdict", async () => {
@@ -126,7 +130,8 @@ describe("Prioritised issues", () => {
     expect(await screen.findByText("Buttons must have discernible text")).toBeInTheDocument();
     expect(screen.getByText(/Add an aria-label/)).toBeInTheDocument();
     expect(screen.getByText("WCAG-4.1.2")).toBeInTheDocument();
-    expect(screen.getByText("3 findings from the audit engine, ranked by severity.")).toBeInTheDocument();
+    // the count now carries a line about fixing criticals first, so match the count
+    expect(screen.getByText(/3 findings from the audit engine/)).toBeInTheDocument();
   });
 
   it("filters by severity, with counts on the buttons", async () => {
@@ -147,7 +152,7 @@ describe("Prioritised issues", () => {
     render(<Issues params={{ id: "t1" }} />);
     await screen.findByText("Broken link");
     await userEvent.click(screen.getByRole("button", { name: /^critical 0$/ }));
-    expect(screen.getByText(/No issues in this filter/)).toBeInTheDocument();
+    expect(screen.getByText(/No issues at this severity/)).toBeInTheDocument();
   });
 
   it("labels AI guidance as advisory and attaches it to the right finding", async () => {

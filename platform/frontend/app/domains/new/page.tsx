@@ -57,9 +57,13 @@ export default function RegisterDomain() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 720 }}>
-        <h1 className="h3">{resumeId ? "Verify a domain" : "Register & verify a domain"}</h1>
-        <p className="text-secondary small">Only <b>.gov.in</b> and <b>.nic.in</b> domains can be audited.</p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">{resumeId ? "Verify a domain" : "Register & verify a domain"}</h1>
+            <div className="gx-muted">Only <b>.gov.in</b> and <b>.nic.in</b> domains can be audited.</div>
+          </div>
+        </div>
 
         {step === 1 ? (
           <div className="card shadow-sm"><div className="card-body">

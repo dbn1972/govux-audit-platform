@@ -36,7 +36,7 @@ export default function Approvals() {
   const pending = (rows || []).filter((r) => r.status === "pending").length;
 
   return (
-    <AppShell><div className="container-fluid p-4" style={{ maxWidth: 1100 }}>
+    <AppShell><div className="gx-page">
       <h1 className="h3 mb-0">Larger-crawl approvals</h1>
       <p className="text-secondary small">
         Domain owners may audit up to the free page limit; deeper crawls need a steward’s approval.

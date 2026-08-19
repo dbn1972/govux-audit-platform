@@ -61,15 +61,15 @@ export default function Audits() {
   }, [rows]);
 
   return (
-    <AppShell><div className="container-fluid p-4" style={{ maxWidth: 1240 }}>
+    <AppShell><div className="gx-page">
       <div className="d-flex align-items-end flex-wrap gap-2 mb-3">
         <div>
-          <h1 className="h3 mb-0">Audit history</h1>
-          <div className="text-secondary small">
-            {rows == null ? "Loading…" : `${filtered.length} of ${rows.length} audit(s) across ${isSuperAdmin ? "all organisations" : "your organisation"}`}
+          <h1 className="mb-1">Audit history</h1>
+          <div className="gx-muted">
+            {rows == null ? "Loading…" : `${filtered.length} of ${rows.length} audit${rows.length === 1 ? "" : "s"} across ${isSuperAdmin ? "all organisations" : "your organisation"}`}
           </div>
         </div>
-        <Link href="/audits/new" className="btn btn-primary ms-auto">▶ New audit</Link>
+        <Link href="/audits/new" className="btn btn-primary ms-auto"><i className="bi bi-play-fill me-1" aria-hidden="true" />New audit</Link>
       </div>
 
       {err && <div className="alert alert-warning" role="alert">{err}</div>}
@@ -91,10 +91,10 @@ export default function Audits() {
         </div>
       )}
 
-      <div className="card shadow-sm">
+      <div className="gx-card">
         <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0 gx-responsive">
-            <thead className="table-light">
+          <table className="gx-table gx-responsive">
+            <thead>
               <tr><th>Domain</th><th>Date</th><th>Status</th><th>Score</th><th>Compliance</th><th></th></tr>
             </thead>
             <tbody>

@@ -26,12 +26,14 @@ export default function Discovery() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4">
-        <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Estate auto-discovery</h1>
-        <p className="text-secondary small">
-          Find government sites nobody registered — paste a sitemap, robots.txt or page source and
-          we extract every <code>.gov.in</code> / <code>.nic.in</code> host.
-        </p>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Estate auto-discovery</h1>
+            <div className="gx-muted">Find government sites nobody registered — paste a sitemap, robots.txt or page source and
+          we extract every <code>.gov.in</code> / <code>.nic.in</code> host.</div>
+          </div>
+        </div>
         {err && <div className="alert alert-warning py-2">{err}</div>}
 
         <div className="card shadow-sm mb-3"><div className="card-body">

@@ -83,12 +83,12 @@ export default function Organisations() {
 
   return (
     <AppShell>
-      <div className="container-fluid p-4" style={{ maxWidth: 1320 }}>
+      <div className="gx-page">
         <div className="d-flex align-items-center flex-wrap gap-2">
           <h1 className="h3 mb-0">Organisations</h1>
           <button className="btn btn-primary btn-sm ms-auto"
             onClick={() => { setShowNew((v) => !v); setEditing(null); }}>
-            ＋ New organisation
+            <i className="bi bi-plus-lg me-1" aria-hidden="true" />New organisation
           </button>
         </div>
         <p className="text-secondary small">

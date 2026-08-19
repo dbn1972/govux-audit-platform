@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, setToken } from "@/lib/api";
+import BrandMark from "@/components/BrandMark";
 
 type NavGroup = { group: string; steward?: boolean; items: NavItem[] };
 type NavItem = string[] & { studio?: boolean };
@@ -86,22 +87,19 @@ function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
     <nav aria-label="Primary">
       {filteredGroups.map(g => (
         <div key={g.group}>
-          <div className="text-secondary text-uppercase fw-bold px-2 pt-3 pb-1" style={{ fontSize: 10.5, letterSpacing: ".04em" }}>{g.group}</div>
+          <div className="gx-rail-group gx-label">{g.group}</div>
           {g.items.map(([label, href, icon]) => {
             const active = href === activeHref;
             return (
               <Link key={href} href={href} onClick={onNavigate}
-                aria-current={active ? "page" : undefined}
-                className={`d-flex align-items-center gap-2 px-2 py-2 rounded text-decoration-none mb-1 ${active ? "text-white" : "text-body"}`}
-                style={active ? { background: "#0a3d7a" } : {}}>
-                <i className={`bi ${icon}`} /> <span style={{ fontSize: 13.5 }}>{label}</span>
+                aria-current={active ? "page" : undefined} className="gx-nav-link">
+                <i className={`bi ${icon}`} aria-hidden="true" /> <span>{label}</span>
               </Link>
             );
           })}
           {g.group === "Account" && (
-            <button type="button" onClick={onSignOut}
-              className="d-flex align-items-center gap-2 px-2 py-2 rounded text-decoration-none mb-1 text-body w-100 text-start border-0 bg-transparent">
-              <i className="bi bi-box-arrow-right" /> <span style={{ fontSize: 13.5 }}>Sign out</span>
+            <button type="button" onClick={onSignOut} className="gx-nav-link">
+              <i className="bi bi-box-arrow-right" aria-hidden="true" /> <span>Sign out</span>
             </button>
           )}
         </div>
@@ -115,7 +113,7 @@ function AccessDenied() {
     <div className="container-fluid p-4">
       <div className="card shadow-sm mx-auto mt-5" style={{ maxWidth: 520 }}>
         <div className="card-body text-center p-4">
-          <div className="display-6 mb-2" aria-hidden="true">🔒</div>
+          <div className="gx-empty-icon mb-3"><i className="bi bi-shield-lock" aria-hidden="true" /></div>
           <h1 className="h4" style={{ color: "var(--ux-navy)" }}>This area is for MeitY/NIC stewards</h1>
           <p className="text-secondary">
             National oversight, rankings, monitoring and platform configuration are available to
@@ -136,7 +134,7 @@ function IdleWarning({ secondsLeft, onContinue, onSignOut }:
         display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="card shadow" style={{ maxWidth: 420, width: "92%" }}>
         <div className="card-body p-4 text-center">
-          <div className="display-6 mb-2" aria-hidden="true">⏳</div>
+          <div className="gx-empty-icon mb-3"><i className="bi bi-hourglass-split" aria-hidden="true" /></div>
           <h2 id="idle-warning-title" className="h5">Still there?</h2>
           <p className="text-secondary mb-3">
             You've been inactive — for your security, you'll be signed out in{" "}
@@ -263,33 +261,51 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div>
-      <nav className="navbar navbar-expand bg-white border-bottom px-3 sticky-top" style={{ zIndex: 1040 }}>
+      <header className="gx-topbar d-flex align-items-center px-3 sticky-top" style={{ zIndex: 1040 }}>
         {/* hamburger — only on tablet/mobile (<lg) */}
         <button type="button" ref={triggerRef} onClick={() => setOpen(true)}
-          className="btn btn-link text-body p-0 me-2 d-lg-none border-0"
-          aria-label="Open navigation menu" aria-expanded={open} aria-controls="app-drawer"
-          style={{ fontSize: 22, lineHeight: 1 }}>
-          <i className="bi bi-list" />
+          className="gx-icon-btn me-2 d-lg-none"
+          aria-label="Open navigation menu" aria-expanded={open} aria-controls="app-drawer">
+          <i className="bi bi-list" aria-hidden="true" />
         </button>
-        <span className="navbar-brand d-flex align-items-center gap-2 fw-bold me-0">
-          <span className="d-inline-flex align-items-center justify-content-center text-white fw-bold"
-            style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg,#0a3d7a,#0d6efd)" }}>GX</span>
-          <span className="d-none d-sm-inline">GovUX <span className="text-secondary fw-normal small">Audit Platform</span></span>
-          <span className="d-inline d-sm-none">GovUX</span>
-        </span>
-        <div className="ms-auto d-flex align-items-center gap-3">
-          <i className="bi bi-bell text-secondary" />
-          <span className="rounded-circle text-white d-inline-flex align-items-center justify-content-center"
-            title={me?.email || ""}
-            style={{ width: 34, height: 34, background: "#0a3d7a", fontSize: 13 }}>{initials}</span>
+        <Link href="/dashboard" className="gx-brand">
+          <BrandMark />
+          <span className="d-none d-sm-block">
+            <span className="gx-brand-name">GovUX</span>
+            <span className="gx-brand-sub">Audit Platform</span>
+          </span>
+          <span className="gx-brand-name d-sm-none">GovUX</span>
+        </Link>
+        <div className="ms-auto d-flex align-items-center gap-1">
+          {/* was a bare <i>: an icon that looks like a control but cannot be
+              focused, clicked or announced. Now a real button. */}
+          <Link href="/settings" className="gx-icon-btn" aria-label="Notifications">
+            <i className="bi bi-bell" aria-hidden="true" />
+          </Link>
+          <Link href="/settings" className="gx-avatar text-decoration-none"
+            aria-label={`Account — ${me?.email || "signed in"}`} title={me?.email || ""}>
+            {initials}
+          </Link>
         </div>
-      </nav>
+      </header>
 
       <div className="d-flex">
         {/* desktop rail — sticky, self-scrolling, hidden below lg */}
-        <aside className="border-end bg-white p-2 d-none d-lg-block flex-shrink-0"
-          style={{ width: 236, position: "sticky", top: 60, height: "calc(100vh - 60px)", overflowY: "auto" }}>
-          <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={signOut} />
+        <aside className="gx-rail d-none d-lg-block flex-shrink-0"
+          style={{ position: "sticky", top: 60, height: "calc(100vh - 60px)", overflowY: "auto" }}>
+          {/* Which organisation am I acting for, and as what? Stewards and
+              owners see very different screens under the same nav labels, and
+              nothing on the page said which one you were. */}
+          <div className="gx-context">
+            <div className="gx-label mb-1">Signed in as</div>
+            <div className="gx-context-org">{me?.org_name || me?.email || "—"}</div>
+            <div className="gx-muted" style={{ fontSize: ".75rem" }}>
+              {(me?.role || "").replace(/_/g, " ") || "\u00a0"}
+            </div>
+          </div>
+          <div className="px-2 pb-3">
+            <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={signOut} />
+          </div>
         </aside>
 
         <main className="flex-grow-1" style={{ background: "var(--bs-body-bg)", minWidth: 0 }}>

@@ -41,8 +41,11 @@
   /* shape & type */
   --bs-border-radius:    .5rem;
   --bs-border-radius-lg: .75rem;
-  --bs-font-sans-serif:  var(--font-ux4g), system-ui, -apple-system, "Segoe UI",
-                         Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  /* Devanagari sits in the stack ahead of the system fallbacks so Hindi text
+     renders in the matching face rather than whatever the OS substitutes. */
+  --bs-font-sans-serif:  var(--font-ux4g), var(--font-ux4g-deva), system-ui,
+                         -apple-system, "Segoe UI", Roboto, "Noto Sans",
+                         "Helvetica Neue", Arial, sans-serif;
 
   /* UX4G brand extras used by GovUX components */
   --ux-navy:  #0a3d7a;   /* deep blue for headings/brand */

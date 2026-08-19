@@ -24,7 +24,7 @@ export default function StudioAccess() {
   }
 
   return (
-    <AppShell><div className="container-fluid p-4" style={{ maxWidth: 900 }}>
+    <AppShell><div className="gx-page">
       <h1 className="h3 mb-0">Studio access (tenants)</h1>
       <p className="text-secondary small">Approve which organisations may use GovUX Studio (the AI prototype
         generator). Studio is billable — approve tenants deliberately.</p>

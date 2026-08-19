@@ -36,7 +36,7 @@ export default function Compare({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   const wrap = (b: React.ReactNode) => (
-    <AppShell><div className="container-fluid p-4" style={{ maxWidth: 1240 }}>
+    <AppShell><div className="gx-page">
       <h1 className="h3">Compare &amp; page coverage</h1>
       <AuditNav id={params.id} />
       <p className="text-secondary small">Diff two dated snapshots + per-page coverage.</p>
