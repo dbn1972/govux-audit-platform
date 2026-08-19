@@ -17,9 +17,15 @@ COPY audit_engine/package.json audit_engine/
 # otherwise fails GPG signature validation with "invalid signature". Then install
 # the browsers AND their system libraries with --with-deps. No masking retry:
 # if apt fails, the build must fail loudly rather than ship browsers with no libs.
-# BuildKit cache mount keeps npm/playwright downloads across rebuilds.
+# The browsers must land in an image LAYER, not a build cache. A BuildKit cache
+# mount is discarded when its RUN finishes, and for playwright that mount point
+# is the install destination rather than a download cache — so this step used to
+# "succeed" while shipping an image with no browsers in it, and the engine died
+# at runtime with `Executable doesn't exist at /root/.cache/ms-playwright/...`.
+# PLAYWRIGHT_BROWSERS_PATH puts them somewhere a layer keeps, and is read again
+# at runtime so node finds them. The npm mount stays: that one really is a cache.
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=cache,target=/root/.cache/ms-playwright \
     printf 'Acquire::Check-Valid-Until "false";\nAcquire::Check-Date "false";\n' \
         > /etc/apt/apt.conf.d/99no-check-valid \
     && cd audit_engine && npm install --omit=dev \
