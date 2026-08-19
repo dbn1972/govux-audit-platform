@@ -7,10 +7,17 @@ export default function Methodology() {
   return (
     <AppShell>
       <div className="gx-page">
-        <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Scoring methodology</h1>
-        <p className="text-secondary">How the GovUX Score is produced, and its limits — stated openly.</p>
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Scoring methodology</h1>
+            <div className="gx-muted">
+              How the GovUX score is produced, and what it cannot tell you — stated openly, because a
+              score nobody can interrogate is a score nobody should act on.
+            </div>
+          </div>
+        </div>
 
-        <div className="card shadow-sm mb-3"><div className="card-body">
+        <div className="gx-card mb-3"><div className="gx-card-body">
           <h2 className="h5">Two verdicts, never conflated</h2>
           <p className="mb-2">Every audit produces two independent results:</p>
           <ul>
@@ -22,7 +29,7 @@ export default function Methodology() {
           </ul>
         </div></div>
 
-        <div className="card shadow-sm mb-3"><div className="card-body">
+        <div className="gx-card mb-3"><div className="gx-card-body">
           <h2 className="h5">Two-tier rigour</h2>
           <p className="mb-2">Automated testing catches only ~30–40% of WCAG issues (UK GDS / Deque).
             So our methodology is explicit:</p>
@@ -39,7 +46,7 @@ export default function Methodology() {
             claim — that requires human review. This is enforced in the scoring engine.</p>
         </div></div>
 
-        <div className="card shadow-sm"><div className="card-body">
+        <div className="gx-card"><div className="gx-card-body">
           <h2 className="h5">No accessibility overlays</h2>
           <p className="mb-0">Overlay widgets (accessiBe / UserWay-type) create legal risk and a false
             sense of compliance. The engine <b>flags</b> them and we require the underlying markup to be

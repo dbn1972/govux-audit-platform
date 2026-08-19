@@ -25,7 +25,7 @@ export default function States() {
           </div>
         </div>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
-        <div className="card shadow-sm"><div className="card-body">
+        <div className="gx-card"><div className="gx-card-body">
           {rows == null && <div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}
           {rows?.length === 0 && !err && <div className="text-secondary text-center py-4">No state-tagged organisations audited yet.</div>}
           {rows && rows.length > 0 && (

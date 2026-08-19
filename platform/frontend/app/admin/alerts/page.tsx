@@ -41,13 +41,13 @@ export default function Alerts() {
                 ["Regressed this month", data.regressed_count, "#fd7e14"],
                 ["Never audited", data.never_audited_count.toLocaleString(), "#ffc107"],
                 ["New critical spikes", data.critical_spike_count, "#dc3545"]].map(([l, v, c]) => (
-                <div className="col-6 col-md-3" key={l as string}><div className="card shadow-sm" style={{ borderLeft: `4px solid ${c}` }}>
-                  <div className="card-body"><div className="text-secondary small">{l}</div>
+                <div className="col-6 col-md-3" key={l as string}><div className="gx-card" style={{ borderLeft: `4px solid ${c}` }}>
+                  <div className="gx-card-body"><div className="text-secondary small">{l}</div>
                     <div className="fs-3 fw-bold" style={{ color: c as string }}>{v as any}</div></div>
                 </div></div>
               ))}
             </div>
-            <div className="card shadow-sm"><div className="list-group list-group-flush">
+            <div className="gx-card"><div className="list-group list-group-flush">
               {data.alerts.length === 0 && (
                 <div className="list-group-item text-secondary text-center py-4">
                   No exceptions right now — the estate is clean against these checks.

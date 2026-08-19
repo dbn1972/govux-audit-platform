@@ -84,15 +84,21 @@ export default function Studio() {
 
   return (
     <AppShell><div className="gx-page">
-      <h1 className="h3 mb-0">Design Studio</h1>
-      <p className="text-secondary small">Describe your site — Studio generates UX4G-conformant, accessible, cross-linked
-        pages and refines them until they pass the GovUX audit. AI generates; the deterministic engine scores. Preview the
-        screens, publish a public demo, and share it.</p>
+      <div className="gx-page-head" style={{ marginBottom: 0 }}>
+        <div>
+          <h1 className="mb-1">Design Studio</h1>
+          <div className="gx-muted">
+            Describe your service and Studio generates UX4G-conformant, accessible, cross-linked
+            pages, refining them until they pass the audit. AI generates; the deterministic engine
+            scores — the two never swap roles.
+          </div>
+        </div>
+      </div>
       {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
       <div className="row g-3">
         <div className="col-lg-3">
-          <div className="card shadow-sm mb-3"><div className="card-body">
+          <div className="gx-card mb-3"><div className="gx-card-body">
             <label className="form-label" htmlFor="s-dept">Organisation</label>
             <input id="s-dept" className="form-control mb-2" value={department} onChange={e => setDepartment(e.target.value)} placeholder="Department of Posts" />
             <label className="form-label" htmlFor="s-purpose">Purpose</label>
@@ -115,7 +121,7 @@ export default function Studio() {
           </div></div>
 
           {history.length > 0 && (
-            <div className="card shadow-sm"><div className="card-header bg-white fw-semibold small">Your prototypes</div>
+            <div className="gx-card"><div className="gx-card-head">Your prototypes</div>
               <div className="list-group list-group-flush">
                 {history.slice(0, 10).map(h => (
                   <button key={h.id} className="list-group-item list-group-item-action small text-start" onClick={() => openRun(h.id)}>
@@ -129,18 +135,18 @@ export default function Studio() {
 
         <div className="col-lg-9">
           {run == null && (
-            <div className="card shadow-sm h-100"><div className="card-body d-flex align-items-center justify-content-center text-secondary" style={{ minHeight: 400 }}>
+            <div className="gx-card h-100"><div className="card-body d-flex align-items-center justify-content-center text-secondary" style={{ minHeight: 400 }}>
               {busy ? <span><span className="spinner-border spinner-border-sm me-2" />Generating and auditing…</span> : "Your generated screens will appear here — like a design board."}
             </div></div>
           )}
           {run?.status === "failed" && <div className="alert alert-danger">Generation failed: {run.error}</div>}
           {run?.status === "generating" && (
-            <div className="card shadow-sm"><div className="card-body text-center py-5 text-secondary">
+            <div className="gx-card"><div className="card-body text-center py-5 text-secondary">
               <span className="spinner-border text-primary mb-2" /><div>Generating and refining toward the audit target…</div></div></div>
           )}
 
           {run?.status === "scored" && (<>
-            <div className="card shadow-sm mb-3"><div className="card-body d-flex align-items-center flex-wrap gap-2">
+            <div className="gx-card mb-3"><div className="card-body d-flex align-items-center flex-wrap gap-2">
               <div><span className="score-value" style={{ fontSize: 28 }}>{run.score}</span>
                 <span className="badge ms-1" style={{ background: (bandColor[run.band] || "#5c636a") + "22", color: bandColor[run.band] || "#5c636a" }}>Band {run.band}</span></div>
               <span className="text-secondary small">GovUX static score · {run.iterations} refine(s) · ₹{run.billing?.cost_inr} · {run.billing?.output_tokens} tokens</span>
@@ -167,7 +173,7 @@ export default function Studio() {
             )}
 
             {/* Figma-style board of screens */}
-            <div className="card shadow-sm mb-3"><div className="card-body">
+            <div className="gx-card mb-3"><div className="gx-card-body">
               <div className="d-flex align-items-center mb-2"><span className="fw-semibold">Screens ({run.files?.length})</span></div>
               <div className="d-flex flex-wrap gap-3">
                 {(run.files || []).map((f: string) => (
@@ -185,7 +191,7 @@ export default function Studio() {
 
             {/* Expanded preview of the selected screen */}
             {zoom && (
-              <div className="card shadow-sm"><div className="card-body">
+              <div className="gx-card"><div className="gx-card-body">
                 <div className="d-flex align-items-center mb-2"><span className="fw-semibold small">{zoom}</span>
                   <span className="ms-auto btn-group btn-group-sm">
                     {DEVICES.map(([l, w]) => <button key={l} className={`btn ${device === w ? "btn-secondary" : "btn-outline-secondary"}`} onClick={() => setDevice(w)}>{l}</button>)}

@@ -12,20 +12,20 @@ export default function Standards() {
     <AppShell>
       <div className="gx-page">
         <div className="d-flex align-items-center mb-2">
-          <h1 className="h3 mb-0">Standards &amp; rules engine</h1>
+          <h1 className="mb-1">Standards &amp; rules engine</h1>
           <span className="badge text-bg-primary-subtle ms-2">Active: v3.2</span>
           <button className="btn btn-primary ms-auto">Publish new version</button>
         </div>
         <p className="text-secondary small">Governance-controlled. Category weights and rule sets are versioned; changes are logged.</p>
         <div className="row g-3">
-          <div className="col-lg-7"><div className="card shadow-sm">
-            <div className="card-header bg-white fw-semibold">Category weights <span className="text-secondary small">— must total 100%</span></div>
-            <div className="card-body">
+          <div className="col-lg-7"><div className="gx-card">
+            <div className="gx-card-head">Category weights <span className="text-secondary small">— must total 100%</span></div>
+            <div className="gx-card-body">
               {WEIGHTS.map(([name, wt]) => (
                 <div className="d-flex align-items-center gap-3 my-2" key={name as string}>
                   <div style={{ width: 220, fontSize: 13 }}>{name}</div>
                   <div className="score-bar flex-grow-1"><i style={{ width: `${(wt as number) * 4}%`, background: "#0d6efd" }} /></div>
-                  <b style={{ width: 40, textAlign: "right", color: "var(--ux-navy)" }}>{wt}%</b>
+                  <b style={{ width: 40, textAlign: "right", color: "var(--gx-navy-800)" }}>{wt}%</b>
                 </div>
               ))}
               <div className="alert alert-light border small mt-2 mb-0">
@@ -33,9 +33,9 @@ export default function Standards() {
               </div>
             </div>
           </div></div>
-          <div className="col-lg-5"><div className="card shadow-sm">
-            <div className="card-header bg-white fw-semibold">Guard-rail rules</div>
-            <div className="card-body">
+          <div className="col-lg-5"><div className="gx-card">
+            <div className="gx-card-head">Guard-rail rules</div>
+            <div className="gx-card-body">
               {[["Critical accessibility failure caps at Band C", true],
                 ["No HTTPS caps at Band D", true],
                 ["Missing mandatory GIGW elements caps at Band B", false]].map(([label, on]) => (

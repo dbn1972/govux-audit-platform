@@ -36,7 +36,7 @@ export default function Discovery() {
         </div>
         {err && <div className="alert alert-warning py-2">{err}</div>}
 
-        <div className="card shadow-sm mb-3"><div className="card-body">
+        <div className="gx-card mb-3"><div className="gx-card-body">
           <label className="form-label small">Source URL (for the record)</label>
           <input className="form-control mb-2" value={seed} onChange={e => setSeed(e.target.value)} />
           <label className="form-label small">Fetched content (sitemap XML / robots.txt / HTML)</label>
@@ -51,7 +51,7 @@ export default function Discovery() {
           </div>}
         </div></div>
 
-        <div className="card shadow-sm"><div className="table-responsive"><table className="table mb-0">
+        <div className="gx-card"><div className="table-responsive"><table className="table mb-0">
           <thead><tr><th>Discovered host</th><th>Source</th><th>Imported</th><th>When</th></tr></thead>
           <tbody>
             {rows.map((d, i) => (

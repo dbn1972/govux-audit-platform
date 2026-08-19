@@ -32,7 +32,7 @@ export default function Trends({ params }: { params: { id: string } }) {
   const asc = [...hist].reverse();   // oldest → newest for the bar chart
   return wrap(
     <div className="row g-3">
-      <div className="col-lg-8"><div className="card shadow-sm h-100"><div className="card-body">
+      <div className="col-lg-8"><div className="gx-card h-100"><div className="gx-card-body">
         <h2 className="h6">GovUX Score over time</h2>
         <div className="d-flex align-items-end gap-4 mt-3" style={{ height: 180 }}>
           {asc.map(h => (
@@ -44,8 +44,8 @@ export default function Trends({ params }: { params: { id: string } }) {
           ))}
         </div>
       </div></div></div>
-      <div className="col-lg-4"><div className="card shadow-sm h-100">
-        <div className="card-header bg-white fw-semibold">Audit history</div>
+      <div className="col-lg-4"><div className="gx-card h-100">
+        <div className="gx-card-head">Audit history</div>
         <div className="table-responsive"><table className="table table-hover mb-0">
           <thead><tr><th>Date</th><th>Score</th><th>Δ</th></tr></thead>
           <tbody>{hist.map((h, i) => {

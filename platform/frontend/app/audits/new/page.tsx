@@ -83,7 +83,7 @@ export default function NewAudit() {
 
         <div className="row g-3">
           <div className="col-lg-8">
-            <div className="card shadow-sm mb-3"><div className="card-body">
+            <div className="gx-card mb-3"><div className="gx-card-body">
               <label className="form-label" htmlFor="audit-domain">Domain</label>
               {domains == null ? (
                 <div className="d-flex align-items-center gap-2 text-secondary">
@@ -150,7 +150,7 @@ export default function NewAudit() {
                 </div>
               )}
             </div></div>
-            <div className="card shadow-sm"><div className="card-body">
+            <div className="gx-card"><div className="gx-card-body">
               <h2 className="h6">Standards &amp; categories</h2>
               <p className="text-secondary small">All eight scoring categories are always evaluated — the weights are fixed by the GovUX methodology.</p>
               {CATS.map(([name, wt]) => (
@@ -163,7 +163,7 @@ export default function NewAudit() {
             </div></div>
           </div>
           <div className="col-lg-4">
-            <div className="card shadow-sm"><div className="card-body">
+            <div className="gx-card"><div className="gx-card-body">
               <h2 className="h6">Compatibility matrix</h2>
               <div className="mb-2"><div className="text-secondary small">Browser engines</div>
                 <span className="badge text-bg-secondary me-1">Chromium</span>

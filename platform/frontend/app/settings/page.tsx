@@ -189,8 +189,8 @@ export default function Settings() {
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
         <div className="row g-3 mb-3">
-          <div className="col-lg-6"><div className="card shadow-sm"><div className="card-body">
-            <h2 className="h6">Organisation</h2>
+          <div className="col-lg-6"><div className="gx-card"><div className="gx-card-body">
+            <h2 className="h6 mb-3">Organisation</h2>
             <div className="mb-2">
               <label className="form-label" htmlFor="org-name">Name</label>
               <input id="org-name" className="form-control" value={orgName}
@@ -214,8 +214,8 @@ export default function Settings() {
             {orgMsg && <div className="small mt-2 text-secondary">{orgMsg}</div>}
           </div></div></div>
 
-          <div className="col-lg-6"><div className="card shadow-sm h-100">
-            <div className="card-header bg-white fw-semibold">Team members</div>
+          <div className="col-lg-6"><div className="gx-card h-100">
+            <div className="gx-card-head">Team members</div>
             {teamErr && <div className="alert alert-warning m-2 mb-0 py-1 small" role="alert">{teamErr}</div>}
             <div className="table-responsive"><table className="table table-sm align-middle mb-0">
               <thead><tr><th>Member</th><th>Role</th><th></th></tr></thead>
@@ -268,9 +268,9 @@ export default function Settings() {
         </div>
 
         <div className="row g-3 mb-3">
-          <div className="col-lg-12"><div className="card shadow-sm">
-            <div className="card-header bg-white fw-semibold">Invite a colleague</div>
-            <div className="card-body">
+          <div className="col-lg-12"><div className="gx-card">
+            <div className="gx-card-head">Invite a colleague</div>
+            <div className="gx-card-body">
               <p className="text-secondary small">
                 Invited colleagues join <b>this</b> organisation when they first sign in, so you
                 share the same domains, audits and reports. Only .gov.in / .nic.in addresses can
@@ -329,8 +329,8 @@ export default function Settings() {
 
         <div className="row g-3">
           <div className="col-lg-8">
-            <div className="card shadow-sm">
-              <div className="card-header bg-white d-flex align-items-center">
+            <div className="gx-card">
+              <div className="gx-card-head d-flex align-items-center">
                 <span className="fw-semibold">Trusted devices &amp; active sessions</span>
                 <button className="btn btn-sm btn-outline-secondary ms-auto" onClick={revokeOthers}
                   disabled={busy || !(devices || []).some((d) => !d.current)}>
@@ -366,8 +366,8 @@ export default function Settings() {
             </div>
           </div>
           <div className="col-lg-4">
-            <div className="card shadow-sm"><div className="card-body">
-              <h2 className="h6">Notifications</h2>
+            <div className="gx-card"><div className="gx-card-body">
+              <h2 className="h6 mb-3">Notifications</h2>
               {["Audit completed", "New critical issue", "Score regression"].map(n => (
                 <div className="form-check form-switch" key={n}>
                   <input className="form-check-input" type="checkbox" id={`notif-${n}`}
@@ -378,8 +378,8 @@ export default function Settings() {
               <p className="text-secondary small mb-0 mt-2">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
             </div></div>
 
-            <div className="card shadow-sm mt-3"><div className="card-body">
-              <h2 className="h6">Data &amp; privacy <span className="badge text-bg-primary-subtle ms-1">DPDP</span></h2>
+            <div className="gx-card mt-3"><div className="gx-card-body">
+              <h2 className="h6 mb-3">Data &amp; privacy <span className="badge text-bg-primary-subtle ms-1">DPDP</span></h2>
               <p className="text-secondary small">Under the Digital Personal Data Protection Act, you can access
                 and erase the personal data we hold about you.</p>
               <div className="d-flex flex-column gap-2">

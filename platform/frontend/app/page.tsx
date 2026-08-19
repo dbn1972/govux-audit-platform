@@ -178,8 +178,8 @@ export default function ScanLanding() {
           {state && (
             <div className="row justify-content-center mt-4" aria-live="polite" aria-atomic="true">
               <div className="col-lg-8">
-                <div className="card shadow-sm border-0">
-                  <div className="card-body">
+                <div className="gx-card">
+                  <div className="gx-card-body">
                     {state.status !== "completed" && state.status !== "failed" && (
                       <div className="text-center py-3">
                         <div className="spinner-border text-primary mb-2" role="status" />
@@ -239,8 +239,8 @@ export default function ScanLanding() {
         <div className="row g-3">
           {CHECKS.map(([icon, title, desc]) => (
             <div className="col-md-6 col-lg-4" key={title}>
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-body">
+              <div className="gx-card h-100">
+                <div className="gx-card-body">
                   <div className="gx-feature-icon mb-3">
                     <i className={`bi ${icon}`} aria-hidden="true" />
                   </div>

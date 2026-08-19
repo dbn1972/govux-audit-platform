@@ -36,10 +36,16 @@ export default function Compare({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   const wrap = (b: React.ReactNode) => (
-    <AppShell><div className="gx-page">
-      <h1 className="h3">Compare &amp; page coverage</h1>
+    <AppShell><div className="gx-page gx-stack">
+      <div className="gx-page-head" style={{ marginBottom: 0 }}>
+        <div>
+          <h1 className="mb-1">Compare &amp; page coverage</h1>
+          <div className="gx-muted">
+            What changed between two dated snapshots, and which pages the crawl actually reached.
+          </div>
+        </div>
+      </div>
       <AuditNav id={params.id} />
-      <p className="text-secondary small">Diff two dated snapshots + per-page coverage.</p>
       {b}
     </div></AppShell>
   );
@@ -72,9 +78,9 @@ export default function Compare({ params }: { params: { id: string } }) {
           ["Resolved", `−${resolvedIssues.length}`, "fixes confirmed"],
           ["Coverage", `${coveragePct}%`, `${data.pages_analysed ?? 0} / ${data.pages_total ?? 0} pages`],
         ].map(([l, v, s]) => (
-          <div className="col-6 col-md-3" key={l}><div className="card shadow-sm"><div className="card-body">
+          <div className="col-6 col-md-3" key={l}><div className="gx-card"><div className="gx-card-body">
             <div className="text-secondary small fw-semibold">{l}</div>
-            <div className="fs-4 fw-bold" style={{ color: "var(--ux-navy)" }}>{v}</div>
+            <div className="fs-4 fw-bold">{v}</div>
             <div className="text-secondary small">{s}</div>
           </div></div></div>
         ))}
@@ -83,8 +89,8 @@ export default function Compare({ params }: { params: { id: string } }) {
       {(newIssues.length > 0 || resolvedIssues.length > 0) && (
         <div className="row g-3 mb-3">
           {newIssues.length > 0 && (
-            <div className="col-md-6"><div className="card shadow-sm h-100">
-              <div className="card-header bg-white fw-semibold text-danger">New issues</div>
+            <div className="col-md-6"><div className="gx-card h-100">
+              <div className="gx-card-head text-danger">New issues</div>
               <ul className="list-group list-group-flush">
                 {newIssues.map(i => (
                   <li key={i.guideline_id} className="list-group-item small">
@@ -95,8 +101,8 @@ export default function Compare({ params }: { params: { id: string } }) {
             </div></div>
           )}
           {resolvedIssues.length > 0 && (
-            <div className="col-md-6"><div className="card shadow-sm h-100">
-              <div className="card-header bg-white fw-semibold text-success">Resolved issues</div>
+            <div className="col-md-6"><div className="gx-card h-100">
+              <div className="gx-card-head text-success">Resolved issues</div>
               <ul className="list-group list-group-flush">
                 {resolvedIssues.map(i => (
                   <li key={i.guideline_id} className="list-group-item small">
@@ -109,8 +115,8 @@ export default function Compare({ params }: { params: { id: string } }) {
         </div>
       )}
 
-      <div className="card shadow-sm">
-        <div className="card-header bg-white fw-semibold">Page-wise coverage</div>
+      <div className="gx-card">
+        <div className="gx-card-head">Page-wise coverage</div>
         <div className="table-responsive"><table className="gx-table">
           <thead><tr><th>Page</th><th>Status</th><th>Score</th><th>Δ</th></tr></thead>
           <tbody>
@@ -119,7 +125,7 @@ export default function Compare({ params }: { params: { id: string } }) {
             )}
             {pages.map(p => (
               <tr key={p.url}>
-                <td className="fw-semibold" style={{ color: "var(--ux-navy)" }}>
+                <td className="fw-semibold">
                   {p.url}{p.new_page && <span className="badge text-bg-info-subtle ms-2">new</span>}
                 </td>
                 <td><span className="badge text-bg-light">{statusLabel(p.status)}</span></td>

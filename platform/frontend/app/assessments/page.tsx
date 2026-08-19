@@ -69,9 +69,9 @@ export default function Assessments() {
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
         {canWrite && (
-          <div className="card shadow-sm mb-4">
-            <div className="card-body">
-              <h2 className="h6" style={{ color: "var(--ux-navy)" }}>Record an assessment</h2>
+          <div className="gx-card mb-4">
+            <div className="gx-card-body">
+              <h2 className="h6">Record an assessment</h2>
               <div className="row g-2">
                 <div className="col-md-4">
                   <label className="form-label small mb-1" htmlFor="as-kind">Type</label>
@@ -132,7 +132,7 @@ export default function Assessments() {
           </div>
         )}
 
-        <div className="card shadow-sm">
+        <div className="gx-card">
           <div className="card-body p-0">
             {!rows && <div className="p-4"><div className="spinner-border text-primary" /></div>}
             {rows && rows.length === 0 && (

@@ -48,7 +48,7 @@ export default function BulkScan() {
         </div>
 
         <div className="row g-3">
-          <div className="col-lg-6"><div className="card shadow-sm"><div className="card-body">
+          <div className="col-lg-6"><div className="gx-card"><div className="gx-card-body">
             <h2 className="h6">Start a bulk scan</h2>
             <label className="form-label" htmlFor="scope">Scope</label>
             <select id="scope" className="form-select mb-3" value={scope}
@@ -68,7 +68,7 @@ export default function BulkScan() {
             </div>
           </div></div></div>
 
-          <div className="col-lg-6"><div className="card shadow-sm h-100"><div className="card-body">
+          <div className="col-lg-6"><div className="gx-card h-100"><div className="gx-card-body">
             <h2 className="h6">Batch status</h2>
             {result ? (
               <>

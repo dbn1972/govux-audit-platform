@@ -44,7 +44,7 @@ export default function Library() {
 
         <div className="row g-3">
           {shown.map(g => (
-            <div className="col-md-6" key={g.id}><div className="card shadow-sm h-100"><div className="card-body">
+            <div className="col-md-6" key={g.id}><div className="gx-card h-100"><div className="gx-card-body">
               <div className="d-flex gap-2 mb-1"><span className="badge text-bg-primary-subtle">{g.id}</span>
                 <span className="badge text-bg-light">{g.family}</span></div>
               <h2 className="h6">{g.title}</h2>

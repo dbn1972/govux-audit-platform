@@ -111,7 +111,7 @@ function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
 function AccessDenied() {
   return (
     <div className="container-fluid p-4">
-      <div className="card shadow-sm mx-auto mt-5" style={{ maxWidth: 520 }}>
+      <div className="gx-card mx-auto mt-5" style={{ maxWidth: 520 }}>
         <div className="card-body text-center p-4">
           <div className="gx-empty-icon mb-3"><i className="bi bi-shield-lock" aria-hidden="true" /></div>
           <h1 className="h4" style={{ color: "var(--ux-navy)" }}>This area is for MeitY/NIC stewards</h1>

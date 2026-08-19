@@ -133,7 +133,7 @@ export default function Organisations() {
         )}
 
         {editing && (
-          <div className="card shadow-sm mb-3 border-primary"><div className="card-body">
+          <div className="gx-card mb-3" style={{ borderColor: "var(--gx-action)" }}><div className="gx-card-body">
             <h2 className="h6">Edit organisation</h2>
             <form className="row g-2 align-items-end" onSubmit={saveEdit}>
               <div className="col-md-5">
@@ -205,7 +205,7 @@ export default function Organisations() {
               )}
               {(rows || []).map((o) => (
                 <tr key={o.id}>
-                  <td className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{o.name}</td>
+                  <td className="fw-semibold">{o.name}</td>
                   <td><span className="badge text-bg-light">{o.org_type}</span></td>
                   <td className="small">{o.state_code || <span className="text-secondary">—</span>}</td>
                   <td className="fw-bold">{o.domain_count}</td>

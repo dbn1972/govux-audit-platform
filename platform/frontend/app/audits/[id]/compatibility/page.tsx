@@ -40,9 +40,9 @@ export default function Compatibility({ params }: { params: { id: string } }) {
   if (browsers.length === 0) return wrap(<div className="text-secondary text-center py-5">No cross-browser results captured for this audit.</div>);
 
   return wrap(
-    <div className="card shadow-sm">
-      <div className="card-header bg-white fw-semibold">Cross-browser matrix</div>
-      <div className="table-responsive"><table className="table align-middle text-center mb-0">
+    <div className="gx-card">
+      <div className="gx-card-head">Cross-browser matrix</div>
+      <div className="table-responsive"><table className="gx-table text-center">
         <thead><tr>
           <th className="text-start">Engine</th><th>Loads</th><th>Horizontal overflow</th>
           <th>Broken images</th><th>JS errors</th></tr></thead>

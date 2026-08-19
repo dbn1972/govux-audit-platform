@@ -38,7 +38,7 @@ export default function Monitoring() {
         </div>
         {err && <div className="alert alert-warning py-2">{err}</div>}
 
-        <div className="card shadow-sm mb-3"><div className="card-body">
+        <div className="gx-card mb-3"><div className="gx-card-body">
           <div className="row g-2 align-items-end">
             <div className="col-md-6">
               <label className="form-label small" htmlFor="monitor-domain">Domain</label>
@@ -65,7 +65,7 @@ export default function Monitoring() {
           </div>
         </div></div>
 
-        <div className="card shadow-sm"><div className="table-responsive"><table className="table mb-0">
+        <div className="gx-card"><div className="table-responsive"><table className="table mb-0">
           <thead><tr><th>Domain</th><th>Cadence</th><th>Next run</th><th>Last run</th><th></th></tr></thead>
           <tbody>
             {rows.map(s => (

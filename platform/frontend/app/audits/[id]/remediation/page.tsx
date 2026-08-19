@@ -18,22 +18,26 @@ export default function Remediation({ params }: { params: { id: string } }) {
 
   return (
     <AppShell>
-      <div className="gx-page">
-        <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Remediation plan</h1>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Remediation plan</h1>
+            <div className="gx-muted">
+              Fixes ordered by impact against effort — highest value for lowest cost first. The
+              guidance is advisory and never affects the score.
+            </div>
+          </div>
+        </div>
         <AuditNav id={params.id} />
-        <p className="text-secondary small">
-          Fixes ordered by impact × effort — highest-value, lowest-cost first. Guidance is advisory
-          and never affects the score.
-        </p>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
         <div className="d-flex flex-column gap-2">
           {items.map((f, i) => (
-            <div className="card shadow-sm" key={i}>
+            <div className="gx-card" key={i}>
               <div className="card-body d-flex gap-3 align-items-start">
                 <span className="badge text-bg-primary" style={{ minWidth: 34 }}>#{i + 1}</span>
                 <div className="flex-grow-1" style={{ minWidth: 0 }}>
                   <div className="d-flex flex-wrap gap-2 align-items-center">
-                    <b style={{ color: "var(--ux-navy)" }}>{f.title || f.guideline}</b>
+                    <b>{f.title || f.guideline}</b>
                     <span className={`badge ${SEV[f.severity as keyof typeof SEV] || "text-bg-light"}`}>{f.severity}</span>
                     <span className="badge bg-secondary">{f.category}</span>
                   </div>

@@ -53,9 +53,9 @@ export default function Registry() {
           </div>
         </div>
 
-        <div className="card shadow-sm mb-3">
-          <div className="card-header bg-white fw-semibold">CSV extract</div>
-          <div className="card-body">
+        <div className="gx-card mb-3">
+          <div className="gx-card-head">CSV extract</div>
+          <div className="gx-card-body">
             <div className="d-flex flex-wrap gap-2 align-items-center mb-2">
               <input type="file" accept=".csv,text/csv" className="form-control"
                 style={{ maxWidth: 320 }} aria-label="Choose a CSV file" onChange={onFile} />
@@ -84,11 +84,11 @@ export default function Registry() {
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
         {res && (
-          <div className="card shadow-sm">
-            <div className="card-header bg-white fw-semibold">
+          <div className="gx-card">
+            <div className="gx-card-head">
               {res.dry_run ? "Preview — nothing has been saved" : "Import complete"}
             </div>
-            <div className="card-body">
+            <div className="gx-card-body">
               <div className="row g-3 mb-3">
                 {[["Rows read", res.total_rows, ""],
                   [res.dry_run ? "Would import" : "Imported", res.imported, "text-success"],

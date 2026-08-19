@@ -84,7 +84,7 @@ export default function Domains() {
                 )}
                 {(rows || []).map(d => (
                   <tr key={d.id}>
-                    <td data-label="Domain" className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{d.url}</td>
+                    <td data-label="Domain" className="fw-semibold">{d.url}</td>
                     <td data-label="Category" className="text-secondary small">{d.category || "—"}</td>
                     <td data-label="Status">{d.verify_status === "verified"
                       ? (d.verify_method === "steward_override"

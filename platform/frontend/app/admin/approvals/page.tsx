@@ -58,7 +58,7 @@ export default function Approvals() {
       </div>
       {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
-      <div className="card shadow-sm">
+      <div className="gx-card">
         <div className="table-responsive">
           <table className="gx-table gx-responsive">
             <thead>
@@ -76,7 +76,7 @@ export default function Approvals() {
               {(rows || []).map((r) => (
                 <tr key={r.id}>
                   <td data-label="Requested by" className="small">{r.user_email || "—"}</td>
-                  <td data-label="Domain" className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{r.domain_url || "—"}</td>
+                  <td data-label="Domain" className="fw-semibold">{r.domain_url || "—"}</td>
                   <td data-label="Pages"><b>{r.requested_pages}</b></td>
                   <td data-label="Reason" className="text-secondary small">{r.reason || "—"}</td>
                   <td data-label="Status"><span className={`badge ${statusBadge[r.status] || "text-bg-light"}`}>{r.status}</span></td>

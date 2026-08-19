@@ -57,7 +57,7 @@ export default function ConfigAdmin() {
     <AppShell>
       <div className="gx-page">
         <div className="d-flex justify-content-between align-items-center mb-1">
-          <h1 className="h3 mb-0" style={{ color: "var(--ux-navy)" }}>Platform configuration</h1>
+          <h1 className="h3 mb-0">Platform configuration</h1>
           <button className="btn btn-primary" disabled={!dirty} onClick={save}>
             <i className="bi bi-check2 me-1" /> Save changes
           </button>
@@ -81,15 +81,15 @@ export default function ConfigAdmin() {
             ["DB pool in use", `${p.checked_out ?? "—"} / ${p.size ?? "—"}`, (p.checked_out ?? 0) >= (p.size ?? 999)],
           ];
           return (
-            <div className="card shadow-sm mb-3">
-              <div className="card-header bg-white fw-semibold d-flex align-items-center" style={{ color: "var(--ux-navy)" }}>
+            <div className="gx-card mb-3">
+              <div className="gx-card-head d-flex align-items-center">
                 <i className="bi bi-activity me-2" />Live health
                 <span className="badge bg-success-subtle text-success-emphasis ms-2">auto · 5s</span>
                 <span className="ms-auto text-secondary" style={{ fontSize: 11 }}>
                   Prometheus: <code>GET /metrics</code>
                 </span>
               </div>
-              <div className="card-body">
+              <div className="gx-card-body">
                 <div className="row g-2">
                   {tiles.map(([label, val, warn]) => (
                     <div className="col-6 col-md-3" key={label}>
@@ -108,9 +108,9 @@ export default function ConfigAdmin() {
         })()}
 
         {cats.map(cat => (
-          <div className="card shadow-sm mb-3" key={cat.name}>
-            <div className="card-header bg-white fw-semibold" style={{ color: "var(--ux-navy)" }}>{cat.name}</div>
-            <div className="card-body">
+          <div className="gx-card mb-3" key={cat.name}>
+            <div className="gx-card-head">{cat.name}</div>
+            <div className="gx-card-body">
               {cat.settings.map((s: any) => {
                 const val = s.key in edits ? edits[s.key] : s.value;
                 return (

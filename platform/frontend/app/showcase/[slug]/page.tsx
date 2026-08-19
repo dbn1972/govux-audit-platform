@@ -24,11 +24,13 @@ export default function Showcase({ params }: { params: { slug: string } }) {
   const src = (f: string) => `/api/v1/public/showcase/${slug}/${f}`;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f6f8fa" }}>
-      <div style={{ height: 4, background: "linear-gradient(90deg,#ff7700 33%,#fff 33% 66%,#008000 66%)" }} />
+    <div style={{ minHeight: "100vh", background: "var(--gx-surface-sunken)" }}>
+      {/* the platform's own identity strip — this page had its own hand-rolled
+          tricolour in three different oranges and greens to the rest of the app */}
+      <div className="govux-strip" />
       <header className="bg-white border-bottom">
         <div className="container py-2 d-flex align-items-center flex-wrap gap-2">
-          <span className="fw-bold" style={{ color: "#4a2bc2" }}>GovUX Studio</span>
+          <span className="gx-brand-name">GovUX Studio</span>
           <span className="text-secondary small">· public demo · AI-generated draft</span>
           {meta && <span className="badge ms-2" style={{ background: (bandColor[meta.band] || "#5c636a") + "22", color: bandColor[meta.band] || "#5c636a" }}>GovUX {meta.score} · Band {meta.band}</span>}
           <div className="ms-auto d-flex gap-2">
@@ -40,16 +42,29 @@ export default function Showcase({ params }: { params: { slug: string } }) {
         </div>
       </header>
 
-      <div className="container py-4">
+      <div className="container gx-section" style={{ paddingBlock: "2rem" }}>
         {err && <div className="alert alert-warning">{err}</div>}
         {meta && (<>
-          <h1 className="h3" style={{ color: "#171717" }}>{meta.title}</h1>
-          <p className="text-secondary">{meta.purpose}</p>
+          <div className="gx-page-head" style={{ marginBottom: "1rem" }}>
+            <div>
+              <h1 className="mb-1">{meta.title}</h1>
+              <div className="gx-muted">{meta.purpose}</div>
+            </div>
+          </div>
+
+          <div className="gx-callout mb-4">
+            <i className="bi bi-info-circle" aria-hidden="true" />
+            <div>
+              <b>An AI-generated prototype, not a government service.</b> Built with GovUX Studio on
+              the UX4G Design System to demonstrate a design direction. Nothing here is official, and
+              no form on it submits anywhere.
+            </div>
+          </div>
 
           <div className="d-flex flex-wrap gap-3 mb-3">
             {(meta.files || []).map((f: string) => (
               <div key={f} role="button" onClick={() => setActive(f)} className="border rounded overflow-hidden bg-white"
-                style={{ width: 220, boxShadow: active === f ? "0 0 0 2px #4a2bc2" : undefined }}>
+                style={{ width: 220, boxShadow: active === f ? "0 0 0 2px var(--gx-action)" : undefined }}>
                 <div style={{ height: 150, overflow: "hidden", pointerEvents: "none" }}>
                   <iframe title={f} src={src(f)} sandbox="allow-same-origin"
                     style={{ width: 1180, height: 800, border: 0, transform: "scale(.186)", transformOrigin: "top left" }} />
@@ -60,7 +75,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
           </div>
 
           {active && (
-            <div className="card shadow-sm"><div className="card-body">
+            <div className="gx-card"><div className="gx-card-body">
               <div className="d-flex align-items-center mb-2"><span className="fw-semibold small">{active}</span>
                 <span className="ms-auto btn-group btn-group-sm">
                   {DEVICES.map(([l, w]) => <button key={l} className={`btn ${device === w ? "btn-secondary" : "btn-outline-secondary"}`} onClick={() => setDevice(w)}>{l}</button>)}
@@ -70,7 +85,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
               </div>
             </div></div>
           )}
-          <p className="text-secondary small mt-3">This is an AI-generated prototype for demonstration, built with GovUX Studio on the UX4G Design System. Not an official government website.</p>
+
         </>)}
       </div>
     </div>

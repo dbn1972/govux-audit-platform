@@ -72,7 +72,7 @@ export default function DomainClaims() {
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
         {msg && <div className="alert alert-success py-2" role="status">{msg}</div>}
 
-        <div className="card shadow-sm">
+        <div className="gx-card">
           <div className="table-responsive"><table className="gx-table">
             <thead>
               <tr><th>Domain</th><th>Claimed by</th><th>Status</th><th>Claimed</th><th></th></tr>
@@ -92,7 +92,7 @@ export default function DomainClaims() {
                 r.claims.map((c, i) => (
                   <tr key={c.id}>
                     {/* only label the host once per group, so a contested host reads as one thing */}
-                    <td className="fw-semibold" style={{ color: "var(--ux-navy)" }}>
+                    <td className="fw-semibold">
                       {i === 0 ? r.url : ""}
                       {i === 0 && r.contested &&
                         <span className="badge text-bg-warning-subtle ms-2">

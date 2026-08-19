@@ -29,7 +29,7 @@ export default function StudioAccess() {
       <p className="text-secondary small">Approve which organisations may use GovUX Studio (the AI prototype
         generator). Studio is billable — approve tenants deliberately.</p>
       {err && <div className="alert alert-warning" role="alert">{err}</div>}
-      <div className="card shadow-sm"><div className="table-responsive">
+      <div className="gx-card"><div className="table-responsive">
         <table className="gx-table gx-responsive">
           <thead><tr><th>Organisation</th><th>Type</th><th>Runs</th><th>Studio access</th></tr></thead>
           <tbody>
@@ -37,7 +37,7 @@ export default function StudioAccess() {
             {rows?.length === 0 && !err && <tr><td colSpan={4} className="text-secondary text-center py-4">No organisations.</td></tr>}
             {(rows || []).map((o) => (
               <tr key={o.id}>
-                <td data-label="Organisation" className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{o.name}</td>
+                <td data-label="Organisation" className="fw-semibold">{o.name}</td>
                 <td data-label="Type" className="text-secondary small">{o.org_type}</td>
                 <td data-label="Runs" className="text-secondary">{o.runs}</td>
                 <td data-label="Studio access">

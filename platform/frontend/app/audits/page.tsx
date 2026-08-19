@@ -116,7 +116,7 @@ export default function Audits() {
                 const done = a.status === "completed";
                 return (
                   <tr key={a.task_id}>
-                    <td data-label="Domain" className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{a.domain}</td>
+                    <td data-label="Domain" className="fw-semibold">{a.domain}</td>
                     <td data-label="Date" className="text-secondary small">{a.date ? new Date(a.date).toLocaleString() : "—"}</td>
                     <td data-label="Status"><span className={`badge ${cls}`}>{label}</span></td>
                     <td data-label="Score">

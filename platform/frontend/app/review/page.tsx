@@ -123,8 +123,8 @@ export default function Review() {
         </div>
 
         {!taskId && (
-          <div className="card shadow-sm">
-            <div className="card-body">
+          <div className="gx-card">
+            <div className="gx-card-body">
               <h2 className="h6 mb-1">Choose an audit to certify</h2>
               <p className="text-secondary small">
                 Only completed audits can be certified. Every report also carries a
@@ -147,7 +147,7 @@ export default function Review() {
                     <li key={c.task_id}
                         className="list-group-item d-flex flex-wrap align-items-center gap-3">
                       <div>
-                        <div className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{c.domain}</div>
+                        <div className="fw-semibold">{c.domain}</div>
                         <div className="text-secondary small">
                           {c.date ? new Date(c.date).toLocaleDateString() : "—"}
                           {c.score != null && <> · score {Math.round(c.score)}</>}
@@ -167,10 +167,10 @@ export default function Review() {
         )}
 
         {taskId && audit && (
-          <div className="card shadow-sm mb-3">
+          <div className="gx-card mb-3">
             <div className="card-body d-flex flex-wrap align-items-center gap-3">
               <div>
-                <div className="fw-semibold" style={{ color: "var(--ux-navy)" }}>{audit.domain}</div>
+                <div className="fw-semibold">{audit.domain}</div>
                 <div className="text-secondary small">Task {taskId}</div>
               </div>
               <div className="ms-auto text-end">
@@ -185,7 +185,7 @@ export default function Review() {
         )}
 
         {taskId && (
-          <div className="card shadow-sm mb-3">
+          <div className="gx-card mb-3">
             <div className="card-body d-flex flex-wrap gap-3 align-items-end">
               <div>
                 <span className="form-label small fw-semibold mb-1 d-block">Platform</span>
@@ -265,7 +265,7 @@ export default function Review() {
         )}
 
         {data && !loading && (
-          <div className="card shadow-sm">
+          <div className="gx-card">
             <div className="list-group list-group-flush">
               {data.items.length === 0 && (
                 <div className="list-group-item text-secondary small">

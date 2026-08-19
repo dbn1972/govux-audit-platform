@@ -48,7 +48,7 @@ export default function Running({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <div className="card shadow-sm mb-3"><div className="card-body">
+        <div className="gx-card mb-3"><div className="gx-card-body">
           <div className="d-flex align-items-center flex-wrap gap-2">
             {STATES.map((s, i) => (
               <span key={s} className={`badge rounded-pill ${i < idx ? "text-bg-success" : i === idx ? "text-bg-primary" : "text-bg-light"}`}>
@@ -86,7 +86,7 @@ export default function Running({ params }: { params: { id: string } }) {
             <Link href="/audits/new" className="btn btn-outline-secondary btn-sm mt-2">Start a new audit →</Link>
           </div>
         ) : (
-          <div className="card shadow-sm"><div className="card-body">
+          <div className="gx-card"><div className="gx-card-body">
             <div className="d-flex align-items-center gap-2">
               <div className="spinner-border spinner-border-sm text-primary" role="status" />
               <span>Running the engine — Playwright · Lighthouse · axe-core · GIGW rules · responsiveness matrix…</span>

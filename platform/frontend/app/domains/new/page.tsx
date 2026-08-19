@@ -66,7 +66,7 @@ export default function RegisterDomain() {
         </div>
 
         {step === 1 ? (
-          <div className="card shadow-sm"><div className="card-body">
+          <div className="gx-card"><div className="gx-card-body">
             <label className="form-label" htmlFor="domain-url">Website domain</label>
             <div className="input-group">
               <span className="input-group-text">https://</span>
@@ -78,9 +78,9 @@ export default function RegisterDomain() {
               {busy ? "Registering…" : "Register domain"}</button>
           </div></div>
         ) : (
-          <div className="card shadow-sm"><div className="card-body">
+          <div className="gx-card"><div className="gx-card-body">
             <span className="badge text-bg-warning-subtle mb-2">Not yet verified</span>
-            {url && <div className="fw-semibold mb-2" style={{ color: "var(--ux-navy)" }}>{url}</div>}
+            {url && <div className="fw-semibold mb-2">{url}</div>}
 
             {/* Both proofs demonstrate the same thing — control of the domain —
                 so the choice is purely about which one you can actually complete.

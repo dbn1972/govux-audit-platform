@@ -19,15 +19,19 @@ export default function Documents({ params }: { params: { id: string } }) {
 
   return (
     <AppShell>
-      <div className="gx-page">
-        <h1 className="h3" style={{ color: "var(--ux-navy)" }}>Document accessibility</h1>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Document accessibility</h1>
+            <div className="gx-muted">
+              Government runs on PDFs. Each linked document is checked for a tagged structure, a
+              title and a declared language — the PDF/UA basics a screen reader depends on.
+            </div>
+          </div>
+        </div>
         <AuditNav id={params.id} />
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
-        <p className="text-secondary small">
-          Government runs on PDFs. Each linked document is checked for a tagged structure, a title and
-          a declared language (PDF/UA basics).
-        </p>
-        <div className="card shadow-sm"><div className="table-responsive">
+        <div className="gx-card"><div className="table-responsive">
           <table className="gx-table">
             <thead><tr>
               <th>Document</th><th>Type</th><th>Pages</th><th>Tagged</th>
