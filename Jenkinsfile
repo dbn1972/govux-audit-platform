@@ -118,31 +118,22 @@ pipeline {
             }
         }
 
-        stage('Configure SMTP') {
+        stage('Fix OTP Delivery') {
             steps {
                 script {
+                    // Set email_provider to console so OTP goes to container logs.
+                    // After sign-in, configure SMTP from Admin > Settings UI.
                     runSSM(
                         "docker exec -i \$(docker ps -qf name=platform-db-1) psql -U govux -d govux <<'EOSQL'\n" +
-                        "INSERT INTO app_settings (key, value) VALUES\n" +
-                        "  ('email_provider', 'smtp'),\n" +
-                        "  ('email_from', 'support.ux4g@digitalindia.gov.in'),\n" +
-                        "  ('smtp_host', 'smtp.mgovcloud.in'),\n" +
-                        "  ('smtp_port', '465'),\n" +
-                        "  ('smtp_user', 'support.ux4g@digitalindia.gov.in')\n" +
+                        "INSERT INTO app_settings (key, value) VALUES ('email_provider', 'console')\n" +
                         "ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;\n" +
                         "EOSQL",
                         30
                     )
 
+                    // Flush Redis cache so API picks up the new value immediately
                     runSSM(
-                        "docker exec -i \$(docker ps -qf name=platform-api-1) python <<'EOPY'\n" +
-                        "from app.services import settings_store\n" +
-                        "from app.database import SessionLocal\n" +
-                        "db = SessionLocal()\n" +
-                        "settings_store.set_value('smtp_password', 'AK5eP44DE3u8', db, user_id=None)\n" +
-                        "db.close()\n" +
-                        "print('smtp_password configured')\n" +
-                        "EOPY",
+                        "docker exec \$(docker ps -qf name=platform-redis-1) redis-cli DEL govux:settings",
                         30
                     )
                 }
@@ -153,7 +144,7 @@ pipeline {
             steps {
                 script {
                     runSSM(
-                        "for i in \$(seq 1 12); do " +
+                        "for i in \$(seq 1 24); do " +
                         "STATUS=\$(docker inspect --format={{.State.Health.Status}} platform-api-1 2>/dev/null || echo not_found); " +
                         "echo API_health_status=\$STATUS; " +
                         "if [ \"\$STATUS\" = \"healthy\" ]; then " +
@@ -165,7 +156,7 @@ pipeline {
                         "echo API_Health_Check_Failed; " +
                         "docker logs --tail 50 platform-api-1; " +
                         "exit 1",
-                        180
+                        300
                     )
                 }
             }
