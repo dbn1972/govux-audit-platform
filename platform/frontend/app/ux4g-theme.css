@@ -50,19 +50,10 @@
   /* UX4G brand extras used by GovUX components. --ux-navy defers to the design
      layer's role token so a theme switch reaches the screens still using it. */
   --ux-navy:  var(--gx-navy-800, #0a3d7a);
-  --ux-saff:  #ff9933;
-  --ux-green: #138808;
 }
 
 /* headings/brand in UX4G deep blue */
 h1, h2, h3, .navbar-brand, .h1, .h2, .h3 { color: var(--ux-navy); }
-
-/* national tricolour identity strip */
-.govux-strip {
-  height: 4px;
-  background: linear-gradient(90deg,
-    var(--ux-saff) 0 33%, #fff 33% 66%, var(--ux-green) 66% 100%);
-}
 
 /* GovUX score-band utilities. These were picked to clear 4.5:1 ON WHITE, but
    the band badges paint the colour over a 13.3% tint OF ITSELF — a background

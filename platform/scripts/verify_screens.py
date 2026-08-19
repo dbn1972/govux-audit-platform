@@ -31,10 +31,11 @@ FE = os.path.join(WEB, "app")
 GREEN, RED, DIM, RESET = "\033[92m", "\033[91m", "\033[2m", "\033[0m"
 results = []
 
-# Routes that mount no AppShell on purpose: the public landing page and the
-# published-prototype view are outside the signed-in chrome; /login is handled
-# separately since it is the way in.
-NO_SHELL = ("/", "/report", "/showcase/[slug]")
+# Routes that mount no AppShell on purpose: everything a visitor can reach
+# without an account sits outside the signed-in chrome and carries PublicShell
+# instead. /login is handled separately since it is the way in.
+NO_SHELL = ("/", "/showcase/[slug]",
+            "/about-us", "/privacy-policy", "/term-and-conditions", "/contact")
 
 # Routes with no inbound link, each with the reason it is entered another way.
 # Keep this short and justified — it is the escape hatch that lets the

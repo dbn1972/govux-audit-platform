@@ -32,10 +32,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* Applied before first paint. Reading localStorage in an effect would
             paint the light theme, then repaint dark — a white flash on every
             navigation for anyone who chose dark. */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('govux-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-bs-theme',t);}catch(e){}})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem('govux-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}d.setAttribute('data-bs-theme',t);var f=Number(localStorage.getItem('govux-font-scale'));if(f>=90&&f<=140){d.style.fontSize=f+'%';}}catch(e){}})();` }} />
       </head>
       <body>
-        <div className="govux-strip" />
         {children}
       </body>
     </html>

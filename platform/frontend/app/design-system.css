@@ -26,7 +26,6 @@
      clickable. */
   --gx-navy-900:#06203f; --gx-navy-800:#0a3d7a; --gx-navy-600:#14539e;
   --gx-action:#0d6efd; --gx-action-strong:#0a58ca;
-  --gx-saffron:#ff9933; --gx-green:#138808;
 
   /* -- surfaces ------------------------------------------------------------ */
   --gx-surface:#ffffff;
@@ -184,9 +183,8 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
 .gx-meter > span { display:block; height:100%; border-radius:inherit; }
 
 /* ---------------------------------------------------------------------------
-   Brand mark. A verification seal: the national tricolour drawn as a check
-   inside a navy field. Replaces the "GX" gradient tile, which said nothing
-   about what this platform does.
+   Brand mark. A verification seal: a check inside a navy field. Replaces the
+   "GX" gradient tile, which said nothing about what this platform does.
    ------------------------------------------------------------------------ */
 .gx-brand { display:inline-flex; align-items:center; gap:.625rem;
             text-decoration:none; color:inherit; }
@@ -195,9 +193,8 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
                  background:linear-gradient(150deg,var(--gx-navy-800),var(--gx-navy-900));
                  display:inline-flex; align-items:center; justify-content:center;
                  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08); }
-/* No tricolour inside the mark: the identity strip already runs across the top
-   of every page, and two tricolours 40px apart read as indecision. The mark
-   stays legible down to a 16px favicon, which a three-stop bar would not. */
+/* The mark carries no national colours: identity here is the wordmark and the
+   navy, and the mark stays legible down to a 16px favicon. */
 .gx-brand-name { font-weight:700; letter-spacing:-.015em; color:var(--gx-navy-800);
                  line-height:1.1; }
 .gx-brand-sub { display:block; font-size:.6875rem; font-weight:600; letter-spacing:.06em;
@@ -332,8 +329,7 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
 [data-bs-theme="dark"] .band-C { color:var(--gx-band-C) } [data-bs-theme="dark"] .band-D { color:var(--gx-band-D) }
 [data-bs-theme="dark"] .band-E { color:var(--gx-band-E) }
 
-/* The tricolour strip and the brand mark keep their national colours in both
-   themes — those are not ours to re-tune for contrast. */
+
 
 /* ---------------------------------------------------------------------------
    Small screens. Two corrections the desktop grid gets wrong on a phone:
@@ -735,3 +731,123 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
            transition:top .12s ease-out; }
 .gx-skip:focus { top:.5rem; color:var(--gx-text-invert); }
 [data-bs-theme="dark"] .gx-skip { background:var(--gx-action); color:#06203f; }
+
+/* ---------------------------------------------------------------------------
+   Public content pages — about, privacy, terms. Long-form reading, so the
+   measure is tighter than the app's and the rhythm is set by the prose rather
+   than by cards.
+   ------------------------------------------------------------------------ */
+.gx-prose { max-width:68ch; }
+.gx-prose h2 { font-size:1.25rem; margin:2.5rem 0 .75rem; letter-spacing:-.01em; }
+.gx-prose h2:first-of-type { margin-top:0; }
+.gx-prose h3 { font-size:1rem; margin:1.75rem 0 .5rem; }
+.gx-prose p { margin:0 0 1rem; }
+.gx-prose ul { margin:0 0 1.25rem; padding-inline-start:1.25rem; }
+.gx-prose li { margin-bottom:.5rem; }
+.gx-prose dt { font-weight:650; margin-top:1rem; }
+.gx-prose dd { margin:0 0 .75rem; color:var(--gx-ink-700); }
+.gx-prose .gx-lead { font-size:1.0625rem; color:var(--gx-ink-600); margin-bottom:2rem; }
+
+/* ---------------------------------------------------------------------------
+   Site footer — one implementation, on every page including the signed-in ones.
+   Kept low: it is a destination for the few people who need it, not a second
+   navigation competing with the rail.
+   ------------------------------------------------------------------------ */
+.gx-footer { background:var(--gx-surface); border-top:1px solid var(--gx-border); margin-top:auto; }
+.gx-footer-inner {
+  max-width:var(--gx-page-max); margin-inline:auto;
+  padding:var(--gx-space-6) var(--gx-space-5) var(--gx-space-5);
+  display:grid; gap:var(--gx-space-6); grid-template-columns:minmax(260px,1.2fr) 2fr;
+}
+@media (max-width:767.98px){ .gx-footer-inner { grid-template-columns:1fr; } }
+
+.gx-footer-brand { display:flex; gap:var(--gx-space-3); align-items:flex-start; }
+.gx-footer-brand code { font-size:.9em; }
+
+.gx-footer-nav { display:grid; gap:var(--gx-space-5);
+                 grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); align-content:start; }
+.gx-footer-nav h2 { margin:0 0 .625rem; }
+.gx-footer-nav ul { list-style:none; margin:0; padding:0; }
+.gx-footer-nav li { margin-bottom:.4375rem; }
+.gx-footer-nav a { font-size:.875rem; color:var(--gx-ink-700); text-decoration:none; }
+.gx-footer-nav a:hover { color:var(--gx-navy-800); text-decoration:underline; }
+
+.gx-footer-legal {
+  border-top:1px solid var(--gx-border);
+  padding:var(--gx-space-3) var(--gx-space-5);
+  font-size:.75rem; color:var(--gx-text-muted);
+}
+.gx-footer-legal > span { display:block; max-width:var(--gx-page-max); margin-inline:auto; }
+
+/* ---------------------------------------------------------------------------
+   Long-form documents — policies, terms, about. Two columns: the prose, and an
+   index that stays put, because nobody reads a privacy policy in order.
+   ------------------------------------------------------------------------ */
+.gx-doc { display:grid; gap:var(--gx-space-7); align-items:start;
+          grid-template-columns:minmax(0,1fr) 15rem; }
+@media (max-width:991.98px){ .gx-doc { grid-template-columns:1fr; gap:var(--gx-space-5); } }
+
+.gx-toc { position:sticky; top:76px; }
+@media (max-width:991.98px){
+  .gx-toc { position:static; order:-1; padding:var(--gx-space-4);
+            background:var(--gx-surface); border:1px solid var(--gx-border);
+            border-radius:var(--gx-r-md); }
+}
+.gx-toc h2 { margin:0 0 .625rem; }
+.gx-toc ol { list-style:none; margin:0; padding:0; }
+.gx-toc a { display:block; padding:.3125rem .75rem; font-size:.8125rem; line-height:1.4;
+            color:var(--gx-text-muted); text-decoration:none;
+            border-inline-start:2px solid var(--gx-border); }
+.gx-toc a:hover { color:var(--gx-navy-800); border-inline-start-color:var(--gx-border-strong); }
+.gx-toc a[aria-current] { color:var(--gx-navy-800); font-weight:600;
+                          border-inline-start-color:var(--gx-navy-800); }
+
+/* anchored headings must clear the sticky top bar */
+.gx-prose h2[id] { scroll-margin-top:5rem; }
+
+/* document masthead: title, one-line summary, and the facts a reader checks
+   before trusting a policy — who published it and how to reach them */
+.gx-doc-head { border-bottom:1px solid var(--gx-border); padding-bottom:var(--gx-space-5);
+               margin-bottom:var(--gx-space-6); }
+.gx-doc-meta { display:flex; flex-wrap:wrap; gap:var(--gx-space-5); margin-top:var(--gx-space-4); }
+.gx-doc-meta div { display:flex; flex-direction:column; gap:.125rem; }
+.gx-doc-meta dd { margin:0; font-size:.875rem; font-weight:600; }
+
+/* feature grid on the about page */
+.gx-feature-grid { display:grid; gap:var(--gx-space-3);
+                   grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); margin:0 0 1.5rem; }
+.gx-feature-card { background:var(--gx-surface); border:1px solid var(--gx-border);
+                   border-radius:var(--gx-r-md); padding:var(--gx-space-4); }
+.gx-feature-card h3 { margin:.75rem 0 .25rem; font-size:.9375rem; }
+.gx-feature-card p { margin:0; font-size:.8125rem; color:var(--gx-text-muted); }
+
+/* ---------------------------------------------------------------------------
+   Government of India bar. Fixed in both themes — national identity is not our
+   chrome, and a department's masthead does not lighten because a visitor
+   prefers a light UI. Measured 11:1.
+   ------------------------------------------------------------------------ */
+.gx-govbar { background:#12243b; color:#dfe7f1; font-size:.78125rem; padding-block:.25rem; }
+.gx-govbar-dept { color:#b9c4d6; }
+.gx-textsize { display:inline-flex; gap:.125rem; }
+.gx-textsize button {
+  min-width:30px; min-height:26px; padding:0 .25rem; border:0; border-radius:var(--gx-r-sm);
+  background:transparent; color:#dfe7f1; font-size:.8125rem; line-height:1;
+}
+.gx-textsize button:hover:not(:disabled) { background:rgba(255,255,255,.14); }
+.gx-textsize button:disabled { opacity:.45; }
+.gx-textsize button:focus-visible { outline:2px solid #dfe7f1; outline-offset:1px; }
+
+/* signed-out masthead — one implementation for the landing page and every
+   public content page */
+.gx-siteheader { background:var(--gx-surface); border-bottom:1px solid var(--gx-border); }
+.gx-siteheader-link { color:var(--gx-navy-800); text-decoration:none; font-size:.9375rem; }
+.gx-siteheader-link:hover { text-decoration:underline; }
+
+/* Policy links at the foot of the rail. The signed-in screens carry no footer —
+   it read as marketing chrome inside a workspace — but a government platform
+   still has to expose its own privacy policy from inside the product. */
+.gx-rail-legal { display:flex; flex-wrap:wrap; gap:.75rem;
+                 padding:var(--gx-space-3) var(--gx-space-4) var(--gx-space-5);
+                 border-top:1px solid var(--gx-border); }
+.gx-rail-legal a { font-size:.75rem; color:var(--gx-text-muted); text-decoration:none; }
+.gx-rail-legal a:hover { color:var(--gx-navy-800); text-decoration:underline; }

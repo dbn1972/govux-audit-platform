@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import BrandMark from "@/components/BrandMark";
 import ThemeToggle from "@/components/ThemeToggle";
+import SiteFooter from "@/components/SiteFooter";
+import GovBanner from "@/components/GovBanner";
+import SiteHeader from "@/components/SiteHeader";
 import { BAND_COLOR as bandCol } from "@/lib/score";
 
 // UX4G-aligned public landing page for the FREE single-URL audit (no sign-in).
@@ -10,17 +13,6 @@ import { BAND_COLOR as bandCol } from "@/lib/score";
 
 const NAVY = "var(--ux-navy)";
 
-// Footer destinations. The standards point at the bodies that publish them, not
-// at our summary of them: a reader checking whether we grade correctly needs the
-// source, and these outlive anything we would write about them.
-const FOOTER_LINKS: [string, string][] = [
-  ["Accessibility", "https://www.ux4g.gov.in/foundations/accessibility"],
-  ["GIGW 3.0", "https://guidelines.india.gov.in/"],
-  ["WCAG 2.2 AA", "https://www.w3.org/TR/WCAG22/"],
-  ["Privacy Policy", "https://www.ux4g.gov.in/privacy-policy"],
-  ["Terms", "https://www.ux4g.gov.in/terms-of-use"],
-  ["Contact", "https://www.ux4g.gov.in/contact"],
-];
 const CHECKS = [
   ["bi-universal-access-circle", "Accessibility — WCAG 2.2 AA", "Colour contrast, labels, alt text, keyboard and screen-reader support (axe-core)."],
   ["bi-bank", "GIGW 3.0", "Mandatory government-website elements: policies, contacts, RTI, search, metadata."],
@@ -36,12 +28,10 @@ export default function ScanLanding() {
   const [state, setState] = useState<any>(null);      // status payload
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
-  const [fontScale, setFontScale] = useState(100);
   const [captcha, setCaptcha] = useState<any>(null);   // {captcha_id, question}
   const [captchaAns, setCaptchaAns] = useState("");
   const poll = useRef<any>(null);
 
-  useEffect(() => { document.documentElement.style.fontSize = fontScale + "%"; }, [fontScale]);
   useEffect(() => () => clearInterval(poll.current), []);
 
   function preCheck(raw: string): string | null {
@@ -104,49 +94,9 @@ export default function ScanLanding() {
 
   return (
     <div>
-      <a href="#scanner" className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-sm btn-dark">Skip to main content</a>
+      <GovBanner />
 
-      {/* Government of India top bar */}
-      {/* The Government of India banner is fixed in both themes, like the
-          tricolour strip: it is national identity, not our chrome, and a
-          department's masthead does not lighten because a visitor prefers a
-          light UI. Measured 11:1, so it needs no theme variant. */}
-      <div style={{ background: "#12243b", color: "#dfe7f1" }}>
-        <div className="container d-flex align-items-center justify-content-between py-1" style={{ fontSize: 12.5 }}>
-          <span className="d-flex align-items-center gap-2">
-            <span aria-hidden>🇮🇳</span> <b>Government of India</b>
-            <span className="d-none d-sm-inline" style={{ color: "#b9c4d6" }}>| Ministry of Electronics &amp; Information Technology</span>
-          </span>
-          <span className="d-flex align-items-center gap-3">
-            <span className="btn-group" role="group" aria-label="Text size">
-              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1", minWidth: 30, minHeight: 24 }} onClick={() => setFontScale(s => Math.min(140, s + 10))} aria-label="Increase text size">A+</button>
-              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1", minWidth: 30, minHeight: 24 }} onClick={() => setFontScale(100)} aria-label="Reset text size">A</button>
-              <button className="btn btn-sm btn-link text-decoration-none py-0 px-1" style={{ color: "#dfe7f1", minWidth: 30, minHeight: 24 }} onClick={() => setFontScale(s => Math.max(80, s - 10))} aria-label="Decrease text size">A−</button>
-            </span>
-            <span className="d-none d-sm-inline">English ▾</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Brand header */}
-      <header className="bg-white border-bottom">
-        <a href="#main" className="gx-skip">Skip to main content</a>
-        <div className="container d-flex align-items-center justify-content-between py-2">
-          <div className="d-flex align-items-center gap-2">
-            <BrandMark size={40} />
-            <div>
-              <div className="gx-brand-name" style={{ fontSize: 18 }}>GovUX Audit</div>
-              <div className="gx-brand-sub">UX4G · GIGW 3.0 · WCAG 2.2 AA</div>
-            </div>
-          </div>
-          <nav className="d-flex align-items-center gap-3">
-            <a href="#checks" className="text-decoration-none d-none d-md-inline" style={{ color: NAVY }}>What we check</a>
-            <a href="#how" className="text-decoration-none d-none d-md-inline" style={{ color: NAVY }}>How it works</a>
-            <ThemeToggle />
-            <Link href="/login" className="btn btn-outline-primary btn-sm">Sign in</Link>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Hero + scanner */}
       <main id="main" tabIndex={-1} style={{ outline: "none" }}>
@@ -308,41 +258,7 @@ export default function ScanLanding() {
 
       </main>
 
-      {/* Footer */}
-      <footer className="border-top" style={{ background: "#fff" }}>
-        <div className="container py-4">
-          <div className="row gy-3">
-            <div className="col-md-6">
-              <div className="fw-bold" style={{ color: NAVY }}>GovUX Audit Platform</div>
-              <p className="gx-muted small mb-0">A MeitY / NIC initiative to raise the quality, accessibility and
-                compliance of Indian government websites, aligned with UX4G and GIGW 3.0.</p>
-            </div>
-            <div className="col-md-6">
-              <div className="d-flex flex-wrap gap-3 justify-content-md-end small">
-                {/* Every one of these was href="#". On a site that fails other
-                    departments for exactly this, a dead accessibility link is
-                    the worst possible placeholder. RTI is dropped rather than
-                    pointed somewhere approximate — a wrong RTI link is worse
-                    than none. All open externally, and say so for screen
-                    readers (WCAG 3.2.5). */}
-                {FOOTER_LINKS.map(([label, href]) => (
-                  <a key={label} href={href} target="_blank" rel="noopener noreferrer"
-                    className="text-decoration-none gx-muted">
-                    {label}
-                    <i className="bi bi-box-arrow-up-right ms-1" aria-hidden="true"
-                      style={{ fontSize: ".7em" }} />
-                    <span className="visually-hidden"> (opens in a new tab)</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="govux-strip" />
-        <div className="text-center gx-muted py-2" style={{ fontSize: 12 }}>
-          © {new Date().getFullYear()} Government of India · GovUX Audit Platform
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

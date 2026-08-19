@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, setToken } from "@/lib/api";
 import BrandMark from "@/components/BrandMark";
 import ThemeToggle from "@/components/ThemeToggle";
+import GovBanner from "@/components/GovBanner";
 import { useFocusTrap } from "@/components/useFocusTrap";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -285,11 +286,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div>
-      {/* First tab stop on every signed-in page. Without it a keyboard user
-          walks all ~25 rail links before reaching the content, on every
-          navigation — the bypass-blocks failure this platform reports on
-          other people's sites. */}
-      <a href="#main" className="gx-skip">Skip to main content</a>
+      <GovBanner />
 
       <header className="gx-topbar d-flex align-items-center px-3 sticky-top" style={{ zIndex: 1040 }}>
         {/* hamburger — only on tablet/mobile (<lg) */}
@@ -357,6 +354,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="px-2 pb-3">
             <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={() => setConfirmSignOut(true)} />
+          </div>
+          <div className="gx-rail-legal">
+            <Link href="/privacy-policy">Privacy</Link>
+            <Link href="/term-and-conditions">Terms</Link>
+            <Link href="/contact">Contact</Link>
           </div>
         </aside>
 

@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 
 import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
+import SiteFooter from "@/components/SiteFooter";
+import GovBanner from "@/components/GovBanner";
 const DEVICES: [string, number][] = [["Mobile", 375], ["Tablet", 768], ["Desktop", 1180]];
 
 export default function Showcase({ params }: { params: { slug: string } }) {
@@ -25,9 +27,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gx-surface-sunken)" }}>
-      {/* the platform's own identity strip — this page had its own hand-rolled
-          tricolour in three different oranges and greens to the rest of the app */}
-      <div className="govux-strip" />
+      <GovBanner />
       <header className="bg-white border-bottom">
         <div className="container py-2 d-flex align-items-center flex-wrap gap-2">
           <span className="gx-brand-name">GovUX Studio</span>
@@ -88,6 +88,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
 
         </>)}
       </div>
+      <SiteFooter />
     </div>
   );
 }
