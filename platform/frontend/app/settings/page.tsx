@@ -176,21 +176,29 @@ export default function Settings() {
 
   return (
     <AppShell>
-      <div className="gx-page">
-        <h1 className="h3">Team &amp; settings</h1>
+      <div className="gx-page gx-stack">
+        <div className="gx-page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1 className="mb-1">Team &amp; settings</h1>
+            <div className="gx-muted">
+              Your organisation, who can act on its behalf, the devices holding a session, and what
+              the platform emails you about.
+            </div>
+          </div>
+        </div>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
         <div className="row g-3 mb-3">
           <div className="col-lg-6"><div className="card shadow-sm"><div className="card-body">
             <h2 className="h6">Organisation</h2>
             <div className="mb-2">
-              <label className="form-label small fw-semibold" htmlFor="org-name">Name</label>
-              <input id="org-name" className="form-control form-control-sm" value={orgName}
+              <label className="form-label" htmlFor="org-name">Name</label>
+              <input id="org-name" className="form-control" value={orgName}
                 onChange={(e) => setOrgName(e.target.value)} disabled={!canEditOrg} />
             </div>
             <div className="mb-2">
-              <label className="form-label small fw-semibold" htmlFor="org-state">State / UT</label>
-              <select id="org-state" className="form-select form-select-sm" value={orgState}
+              <label className="form-label" htmlFor="org-state">State / UT</label>
+              <select id="org-state" className="form-select" value={orgState}
                 onChange={(e) => setOrgState(e.target.value)} disabled={!canEditOrg}>
                 <option value="">— Not set —</option>
                 {STATES.map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
@@ -210,7 +218,7 @@ export default function Settings() {
             <div className="card-header bg-white fw-semibold">Team members</div>
             {teamErr && <div className="alert alert-warning m-2 mb-0 py-1 small" role="alert">{teamErr}</div>}
             <div className="table-responsive"><table className="table table-sm align-middle mb-0">
-              <thead className="table-light"><tr><th>Member</th><th>Role</th><th></th></tr></thead>
+              <thead><tr><th>Member</th><th>Role</th><th></th></tr></thead>
               <tbody>
                 {team == null && (
                   <tr><td colSpan={3} className="text-center py-3">
@@ -229,7 +237,7 @@ export default function Settings() {
                         {m.is_you && <span className="badge text-bg-secondary-subtle ms-1">you</span>}</td>
                       <td>
                         {editable ? (
-                          <select className="form-select form-select-sm" value={m.role}
+                          <select className="form-select" value={m.role}
                             /* Names the person, not just "Role": in a table of
                                these a screen reader otherwise announces a column
                                of identical unlabelled dropdowns. */
@@ -270,11 +278,11 @@ export default function Settings() {
               </p>
               {canManageTeam ? (
                 <form className="d-flex flex-wrap gap-2 align-items-start" onSubmit={sendInvite}>
-                  <input type="email" required className="form-control form-control-sm"
+                  <input type="email" required className="form-control"
                     style={{ maxWidth: 300 }} placeholder="colleague@ministry.gov.in"
                     aria-label="Colleague's government email address"
                     value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
-                  <select className="form-select form-select-sm" style={{ maxWidth: 180 }}
+                  <select className="form-select" style={{ maxWidth: 180 }}
                     aria-label="Role to invite them as"
                     value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
                     {ROLES.filter((r) => canGrantSteward
@@ -292,7 +300,7 @@ export default function Settings() {
 
             {invites != null && invites.length > 0 && (
               <div className="table-responsive"><table className="table table-sm align-middle mb-0">
-                <thead className="table-light">
+                <thead>
                   <tr><th>Pending invitation</th><th>Role</th><th>Expires</th><th></th></tr>
                 </thead>
                 <tbody>
@@ -328,8 +336,8 @@ export default function Settings() {
                   disabled={busy || !(devices || []).some((d) => !d.current)}>
                   {busy ? "Signing out…" : "Sign out all others"}</button>
               </div>
-              <div className="table-responsive"><table className="table table-hover align-middle mb-0">
-                <thead className="table-light"><tr><th>Device</th><th>Location</th><th>Last active</th><th></th></tr></thead>
+              <div className="table-responsive"><table className="gx-table">
+                <thead><tr><th>Device</th><th>Location</th><th>Last active</th><th></th></tr></thead>
                 <tbody>
                   {devices == null && (
                     <tr><td colSpan={4} className="text-center py-4">

@@ -84,7 +84,7 @@ export default function NewAudit() {
         <div className="row g-3">
           <div className="col-lg-8">
             <div className="card shadow-sm mb-3"><div className="card-body">
-              <label className="form-label fw-semibold" htmlFor="audit-domain">Domain</label>
+              <label className="form-label" htmlFor="audit-domain">Domain</label>
               {domains == null ? (
                 <div className="d-flex align-items-center gap-2 text-secondary">
                   <span className="spinner-border spinner-border-sm text-primary" role="status" /> Loading your verified domains…
@@ -105,7 +105,7 @@ export default function NewAudit() {
               )}
               {!noDomains && domains != null && (
                 <div className="mt-3 pt-3 border-top">
-                  <label className="form-label fw-semibold" htmlFor="audit-depth">Pages to crawl</label>
+                  <label className="form-label" htmlFor="audit-depth">Pages to crawl</label>
                   <div className="d-flex align-items-center gap-2 mb-3">
                     {[1, 2, 5, 10].map((n) => (
                       <button key={n} type="button"
@@ -128,13 +128,13 @@ export default function NewAudit() {
                       <div className="row g-2 align-items-end">
                         <div className="col-auto">
                           <label className="form-label small mb-1" htmlFor="req-pages">Pages requested</label>
-                          <input id="req-pages" type="number" min={freePages + 1} className="form-control form-control-sm"
+                          <input id="req-pages" type="number" min={freePages + 1} className="form-control"
                             style={{ width: 110 }} value={reqPages}
                             onChange={(e) => setReqPages(parseInt(e.target.value) || freePages + 1)} />
                         </div>
                         <div className="col">
                           <label className="form-label small mb-1" htmlFor="req-reason">Reason (optional)</label>
-                          <input id="req-reason" className="form-control form-control-sm" placeholder="e.g. full portal audit before launch"
+                          <input id="req-reason" className="form-control" placeholder="e.g. full portal audit before launch"
                             value={reqReason} onChange={(e) => setReqReason(e.target.value)} />
                         </div>
                         <div className="col-auto">

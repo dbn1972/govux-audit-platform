@@ -205,7 +205,7 @@ export default function Review() {
               </div>
               <div>
                 <label htmlFor="rev-tier" className="form-label small fw-semibold mb-1">Enforcement tier</label>
-                <select id="rev-tier" className="form-select form-select-sm" style={{ minWidth: 170 }}
+                <select id="rev-tier" className="form-select" style={{ minWidth: 170 }}
                   value={tier} onChange={e => setTier(e.target.value)}>
                   {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
                   <option value="">All tiers</option>
@@ -213,7 +213,7 @@ export default function Review() {
               </div>
               <div>
                 <label htmlFor="rev-std" className="form-label small fw-semibold mb-1">Compliance</label>
-                <select id="rev-std" className="form-select form-select-sm" style={{ minWidth: 180 }}
+                <select id="rev-std" className="form-select" style={{ minWidth: 180 }}
                   value={standard} onChange={e => setStandard(e.target.value)}>
                   <option value="">All compliances ({data?.reviewable_total ?? "—"})</option>
                   {(data?.standards || []).map((s: any) =>
@@ -222,7 +222,7 @@ export default function Review() {
               </div>
               <div>
                 <label htmlFor="rev-cat" className="form-label small fw-semibold mb-1">Category</label>
-                <select id="rev-cat" className="form-select form-select-sm" style={{ minWidth: 260 }}
+                <select id="rev-cat" className="form-select" style={{ minWidth: 260 }}
                   value={category} onChange={e => setCategory(e.target.value)}>
                   <option value="">All categories</option>
                   {/* counts up front, as the UX4G self-check does — otherwise

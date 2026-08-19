@@ -73,8 +73,8 @@ export default function DomainClaims() {
         {msg && <div className="alert alert-success py-2" role="status">{msg}</div>}
 
         <div className="card shadow-sm">
-          <div className="table-responsive"><table className="table align-middle mb-0">
-            <thead className="table-light">
+          <div className="table-responsive"><table className="gx-table">
+            <thead>
               <tr><th>Domain</th><th>Claimed by</th><th>Status</th><th>Claimed</th><th></th></tr>
             </thead>
             <tbody>

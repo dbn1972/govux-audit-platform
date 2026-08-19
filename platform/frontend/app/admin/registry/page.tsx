@@ -57,7 +57,7 @@ export default function Registry() {
           <div className="card-header bg-white fw-semibold">CSV extract</div>
           <div className="card-body">
             <div className="d-flex flex-wrap gap-2 align-items-center mb-2">
-              <input type="file" accept=".csv,text/csv" className="form-control form-control-sm"
+              <input type="file" accept=".csv,text/csv" className="form-control"
                 style={{ maxWidth: 320 }} aria-label="Choose a CSV file" onChange={onFile} />
               <button className="btn btn-sm btn-outline-secondary"
                 onClick={() => { setCsv(SAMPLE); setRes(null); }}>Use sample</button>
@@ -119,7 +119,7 @@ export default function Registry() {
               {res.errors.length > 0 && (
                 <div className="table-responsive">
                   <table className="table table-sm mb-0">
-                    <thead className="table-light"><tr><th>Row</th><th>Value</th><th>Problem</th></tr></thead>
+                    <thead><tr><th>Row</th><th>Value</th><th>Problem</th></tr></thead>
                     <tbody>
                       {res.errors.map((e, i) => (
                         <tr key={i}>

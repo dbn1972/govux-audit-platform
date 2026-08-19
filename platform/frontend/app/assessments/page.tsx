@@ -75,20 +75,20 @@ export default function Assessments() {
               <div className="row g-2">
                 <div className="col-md-4">
                   <label className="form-label small mb-1" htmlFor="as-kind">Type</label>
-                  <select id="as-kind" className="form-select form-select-sm" value={form.kind}
+                  <select id="as-kind" className="form-select" value={form.kind}
                           onChange={e => set("kind", e.target.value)}>
                     {KINDS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                   </select>
                 </div>
                 <div className="col-md-8">
                   <label className="form-label small mb-1" htmlFor="as-title">Title</label>
-                  <input id="as-title" className="form-control form-control-sm" value={form.title}
+                  <input id="as-title" className="form-control" value={form.title}
                          placeholder="e.g. Annual VAPT of the citizen portal"
                          onChange={e => set("title", e.target.value)} />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label small mb-1" htmlFor="as-domain">Domain (optional)</label>
-                  <select id="as-domain" className="form-select form-select-sm" value={form.domain_id}
+                  <select id="as-domain" className="form-select" value={form.domain_id}
                           onChange={e => set("domain_id", e.target.value)}>
                     <option value="">Organisation-wide</option>
                     {domains.map((d: any) => <option key={d.id} value={d.id}>{d.url}</option>)}
@@ -96,18 +96,18 @@ export default function Assessments() {
                 </div>
                 <div className="col-md-4">
                   <label className="form-label small mb-1" htmlFor="as-agency">Performed by</label>
-                  <input id="as-agency" className="form-control form-control-sm" value={form.agency}
+                  <input id="as-agency" className="form-control" value={form.agency}
                          placeholder="Agency / lab / panel organiser"
                          onChange={e => set("agency", e.target.value)} />
                 </div>
                 <div className="col-md-2">
                   <label className="form-label small mb-1" htmlFor="as-date">Assessed on</label>
-                  <input id="as-date" type="date" className="form-control form-control-sm"
+                  <input id="as-date" type="date" className="form-control"
                          value={form.assessed_on} onChange={e => set("assessed_on", e.target.value)} />
                 </div>
                 <div className="col-md-2">
                   <label className="form-label small mb-1" htmlFor="as-outcome">Outcome</label>
-                  <select id="as-outcome" className="form-select form-select-sm" value={form.outcome}
+                  <select id="as-outcome" className="form-select" value={form.outcome}
                           onChange={e => set("outcome", e.target.value)}>
                     {["in_progress", "passed", "partial", "failed"].map(o =>
                       <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
@@ -115,12 +115,12 @@ export default function Assessments() {
                 </div>
                 <div className="col-md-8">
                   <label className="form-label small mb-1" htmlFor="as-summary">Summary (optional)</label>
-                  <input id="as-summary" className="form-control form-control-sm" value={form.summary}
+                  <input id="as-summary" className="form-control" value={form.summary}
                          onChange={e => set("summary", e.target.value)} />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label small mb-1" htmlFor="as-ref">Report ref / certificate no.</label>
-                  <input id="as-ref" className="form-control form-control-sm" value={form.report_ref}
+                  <input id="as-ref" className="form-control" value={form.report_ref}
                          onChange={e => set("report_ref", e.target.value)} />
                 </div>
               </div>
@@ -144,7 +144,7 @@ export default function Assessments() {
             )}
             {rows && rows.length > 0 && (
               <div className="table-responsive">
-                <table className="table table-hover align-middle mb-0">
+                <table className="gx-table">
                   <thead>
                     <tr className="small text-secondary">
                       <th>Type</th><th>Title</th><th>Scope</th><th>Performed by</th>

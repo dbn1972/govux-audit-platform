@@ -119,7 +119,7 @@ export default function Domains() {
                   <tr>
                     <td colSpan={6} className="bg-light">
                       <div className="p-2">
-                        <label className="form-label small fw-semibold" htmlFor="override-reason">
+                        <label className="form-label" htmlFor="override-reason">
                           Why is this domain being verified without proof?
                         </label>
                         <div className="text-secondary small mb-2">
@@ -127,7 +127,7 @@ export default function Domains() {
                           as an override rather than DNS-proven.
                         </div>
                         <div className="d-flex flex-wrap gap-2 align-items-start">
-                          <input id="override-reason" className="form-control form-control-sm"
+                          <input id="override-reason" className="form-control"
                             style={{ maxWidth: 460 }} value={reason}
                             placeholder="e.g. DNS held by a third-party vendor; ownership confirmed by letter"
                             onChange={(e) => setReason(e.target.value)} />

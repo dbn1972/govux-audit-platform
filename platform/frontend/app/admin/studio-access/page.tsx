@@ -30,8 +30,8 @@ export default function StudioAccess() {
         generator). Studio is billable — approve tenants deliberately.</p>
       {err && <div className="alert alert-warning" role="alert">{err}</div>}
       <div className="card shadow-sm"><div className="table-responsive">
-        <table className="table table-hover align-middle mb-0 gx-responsive">
-          <thead className="table-light"><tr><th>Organisation</th><th>Type</th><th>Runs</th><th>Studio access</th></tr></thead>
+        <table className="gx-table gx-responsive">
+          <thead><tr><th>Organisation</th><th>Type</th><th>Runs</th><th>Studio access</th></tr></thead>
           <tbody>
             {rows == null && <tr><td colSpan={4} className="text-center py-4"><span className="spinner-border spinner-border-sm text-primary" /></td></tr>}
             {rows?.length === 0 && !err && <tr><td colSpan={4} className="text-secondary text-center py-4">No organisations.</td></tr>}

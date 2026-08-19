@@ -67,7 +67,7 @@ export default function Login() {
               <p className="text-secondary small mb-3">
                 Enter your official government email. We&apos;ll send a one-time password.
               </p>
-              <label htmlFor="login-email" className="form-label fw-semibold">Government email</label>
+              <label htmlFor="login-email" className="form-label">Government email</label>
               <input id="login-email" type="email" autoComplete="email" className="form-control" value={email}
                 onChange={e => setEmail(e.target.value)} placeholder="name.dept@nic.in" />
               <div className="form-text">Only <b>.gov.in</b> / <b>.nic.in</b> are accepted.</div>
@@ -80,7 +80,7 @@ export default function Login() {
               <p className="text-secondary small mb-3">
                 Enter the 6-digit OTP sent to <b>{email}</b>.
               </p>
-              <label htmlFor="login-otp" className="form-label fw-semibold">One-time password</label>
+              <label htmlFor="login-otp" className="form-label">One-time password</label>
               <input id="login-otp" className="form-control text-center" inputMode="numeric" maxLength={6}
                 autoComplete="one-time-code" aria-label="6-digit one-time password"
                 value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ""))}

@@ -93,17 +93,17 @@ export default function Studio() {
       <div className="row g-3">
         <div className="col-lg-3">
           <div className="card shadow-sm mb-3"><div className="card-body">
-            <label className="form-label fw-semibold" htmlFor="s-dept">Organisation</label>
+            <label className="form-label" htmlFor="s-dept">Organisation</label>
             <input id="s-dept" className="form-control mb-2" value={department} onChange={e => setDepartment(e.target.value)} placeholder="Department of Posts" />
-            <label className="form-label fw-semibold" htmlFor="s-purpose">Purpose</label>
+            <label className="form-label" htmlFor="s-purpose">Purpose</label>
             <textarea id="s-purpose" className="form-control mb-2" rows={2} value={purpose} onChange={e => setPurpose(e.target.value)} placeholder="Citizen services portal" />
-            <label className="form-label fw-semibold" htmlFor="s-pages">Pages (comma-separated)</label>
+            <label className="form-label" htmlFor="s-pages">Pages (comma-separated)</label>
             <input id="s-pages" className="form-control mb-2" value={pagesText} onChange={e => setPagesText(e.target.value)} />
             <div className="row g-2">
-              <div className="col-6"><label className="form-label fw-semibold small" htmlFor="s-lang">Language</label>
-                <input id="s-lang" className="form-control form-control-sm" value={language} onChange={e => setLanguage(e.target.value)} /></div>
-              <div className="col-6"><label className="form-label fw-semibold small" htmlFor="s-mode">Theme</label>
-                <select id="s-mode" className="form-select form-select-sm" value={mode} onChange={e => setMode(e.target.value)}>
+              <div className="col-6"><label className="form-label" htmlFor="s-lang">Language</label>
+                <input id="s-lang" className="form-control" value={language} onChange={e => setLanguage(e.target.value)} /></div>
+              <div className="col-6"><label className="form-label" htmlFor="s-mode">Theme</label>
+                <select id="s-mode" className="form-select" value={mode} onChange={e => setMode(e.target.value)}>
                   <option value="light">Light</option><option value="dark">Dark</option></select></div>
             </div>
             <label className="form-label fw-semibold small mt-2" htmlFor="s-accent">Accent</label>

@@ -111,8 +111,8 @@ export default function Compare({ params }: { params: { id: string } }) {
 
       <div className="card shadow-sm">
         <div className="card-header bg-white fw-semibold">Page-wise coverage</div>
-        <div className="table-responsive"><table className="table table-hover align-middle mb-0">
-          <thead className="table-light"><tr><th>Page</th><th>Status</th><th>Score</th><th>Δ</th></tr></thead>
+        <div className="table-responsive"><table className="gx-table">
+          <thead><tr><th>Page</th><th>Status</th><th>Score</th><th>Δ</th></tr></thead>
           <tbody>
             {pages.length === 0 && (
               <tr><td colSpan={4} className="text-secondary text-center py-4">No page-level data captured for either run.</td></tr>

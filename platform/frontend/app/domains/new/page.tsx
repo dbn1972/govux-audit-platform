@@ -67,7 +67,7 @@ export default function RegisterDomain() {
 
         {step === 1 ? (
           <div className="card shadow-sm"><div className="card-body">
-            <label className="form-label fw-semibold" htmlFor="domain-url">Website domain</label>
+            <label className="form-label" htmlFor="domain-url">Website domain</label>
             <div className="input-group">
               <span className="input-group-text">https://</span>
               <input id="domain-url" className="form-control" placeholder="tracking.indiapost.nic.in"

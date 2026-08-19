@@ -36,18 +36,32 @@ export default function Approvals() {
   const pending = (rows || []).filter((r) => r.status === "pending").length;
 
   return (
-    <AppShell><div className="gx-page">
-      <h1 className="h3 mb-0">Larger-crawl approvals</h1>
-      <p className="text-secondary small">
-        Domain owners may audit up to the free page limit; deeper crawls need a steward’s approval.
-        {rows != null && ` ${pending} pending.`}
-      </p>
+    <AppShell><div className="gx-page gx-stack">
+      <div className="gx-page-head" style={{ marginBottom: 0 }}>
+        <div>
+          <h1 className="mb-1">Larger-crawl approvals</h1>
+          <div className="gx-muted">
+            Domain owners may audit up to the free page limit; deeper crawls need a steward’s approval.
+          </div>
+        </div>
+        {/* the queue depth is the reason to be on this screen, so it belongs in
+            the head rather than trailing the explanation as a sentence */}
+        {/* shown at zero as well: "0 pending" is the answer to the question a
+            steward opens this screen with, and colour carries the state */}
+        {rows != null && (
+          <div className="gx-actions">
+            <span className={`gx-pill ${pending > 0 ? "gx-pill-wait" : "gx-pill-ok"}`}>
+              {pending} pending
+            </span>
+          </div>
+        )}
+      </div>
       {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
       <div className="card shadow-sm">
         <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0 gx-responsive">
-            <thead className="table-light">
+          <table className="gx-table gx-responsive">
+            <thead>
               <tr><th>Requested by</th><th>Domain</th><th>Pages</th><th>Reason</th><th>Status</th><th></th></tr>
             </thead>
             <tbody>

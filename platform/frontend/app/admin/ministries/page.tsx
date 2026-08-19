@@ -25,8 +25,8 @@ export default function Ministries() {
         </div>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
         <div className="card shadow-sm"><div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light"><tr><th>#</th><th>Ministry / Department</th><th>Domains</th><th>Avg score</th><th>Band</th></tr></thead>
+          <table className="gx-table">
+            <thead><tr><th>#</th><th>Ministry / Department</th><th>Domains</th><th>Avg score</th><th>Band</th></tr></thead>
             <tbody>
               {rows == null && <tr><td colSpan={5} className="text-center py-4"><span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" /></td></tr>}
               {rows?.length === 0 && !err && <tr><td colSpan={5} className="text-secondary text-center py-4">No audited organisations yet.</td></tr>}

@@ -28,8 +28,8 @@ export default function Documents({ params }: { params: { id: string } }) {
           a declared language (PDF/UA basics).
         </p>
         <div className="card shadow-sm"><div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light"><tr>
+          <table className="gx-table">
+            <thead><tr>
               <th>Document</th><th>Type</th><th>Pages</th><th>Tagged</th>
               <th>Title</th><th>Language</th><th>Score</th><th>Issues</th>
             </tr></thead>

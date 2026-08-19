@@ -43,7 +43,7 @@ export default function Compatibility({ params }: { params: { id: string } }) {
     <div className="card shadow-sm">
       <div className="card-header bg-white fw-semibold">Cross-browser matrix</div>
       <div className="table-responsive"><table className="table align-middle text-center mb-0">
-        <thead className="table-light"><tr>
+        <thead><tr>
           <th className="text-start">Engine</th><th>Loads</th><th>Horizontal overflow</th>
           <th>Broken images</th><th>JS errors</th></tr></thead>
         <tbody>{browsers.map(b => (

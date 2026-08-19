@@ -50,7 +50,7 @@ export default function BulkScan() {
         <div className="row g-3">
           <div className="col-lg-6"><div className="card shadow-sm"><div className="card-body">
             <h2 className="h6">Start a bulk scan</h2>
-            <label className="form-label fw-semibold" htmlFor="scope">Scope</label>
+            <label className="form-label" htmlFor="scope">Scope</label>
             <select id="scope" className="form-select mb-3" value={scope}
               onChange={e => setScope(e.target.value)}>
               <option value="never_audited">All never-audited domains</option>

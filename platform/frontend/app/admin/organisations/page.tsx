@@ -184,7 +184,7 @@ export default function Organisations() {
         {msg && <div className="alert alert-success py-2" role="status">{msg}</div>}
 
         <div className="gx-card">
-          <div className="table-responsive"><table className="table table-hover align-middle mb-0">
+          <div className="table-responsive"><table className="gx-table">
             <thead>
               <tr>
                 <th>Organisation</th><th>Type</th><th>State / UT</th>

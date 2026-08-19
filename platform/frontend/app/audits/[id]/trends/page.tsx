@@ -47,7 +47,7 @@ export default function Trends({ params }: { params: { id: string } }) {
       <div className="col-lg-4"><div className="card shadow-sm h-100">
         <div className="card-header bg-white fw-semibold">Audit history</div>
         <div className="table-responsive"><table className="table table-hover mb-0">
-          <thead className="table-light"><tr><th>Date</th><th>Score</th><th>Δ</th></tr></thead>
+          <thead><tr><th>Date</th><th>Score</th><th>Δ</th></tr></thead>
           <tbody>{hist.map((h, i) => {
             const prev = hist[i + 1];   // next in the newest-first list = older run
             const delta = prev ? Math.round(h.score - prev.score) : null;
