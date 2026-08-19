@@ -34,7 +34,7 @@ export default function StudioAccess() {
           <thead><tr><th>Organisation</th><th>Type</th><th>Runs</th><th>Studio access</th></tr></thead>
           <tbody>
             {rows == null && <tr><td colSpan={4} className="text-center py-4"><span className="spinner-border spinner-border-sm text-primary" /></td></tr>}
-            {rows?.length === 0 && !err && <tr><td colSpan={4} className="text-secondary text-center py-4">No organisations.</td></tr>}
+            {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted text-center py-5">No organisations.</td></tr>}
             {(rows || []).map((o) => (
               <tr key={o.id}>
                 <td data-label="Organisation" className="fw-semibold">{o.name}</td>

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api, setToken } from "@/lib/api";
+import { relative, absolute } from "@/lib/format";
 
 // States & UTs roll-up (/admin/states) groups by this code — short, so it fits
 // the compact tile grid there. No canonical list existed anywhere before this.
@@ -188,9 +189,12 @@ export default function Settings() {
         </div>
         {err && <div className="alert alert-warning" role="alert">{err}</div>}
 
+        {/* Grouped rather than a flat grid: who we are, who can act for us,
+            then how the account is secured and what it tells us about. */}
+        <h2 className="gx-section-label">Organisation &amp; people</h2>
         <div className="row g-3 mb-3">
-          <div className="col-lg-6"><div className="gx-card"><div className="gx-card-body">
-            <h2 className="h6 mb-3">Organisation</h2>
+          <div className="col-lg-6"><div className="gx-card h-100"><div className="gx-card-body">
+            <h3 className="h6 mb-3">Organisation</h3>
             <div className="mb-2">
               <label className="form-label" htmlFor="org-name">Name</label>
               <input id="org-name" className="form-control" value={orgName}
@@ -226,7 +230,7 @@ export default function Settings() {
                   </td></tr>
                 )}
                 {team?.length === 0 && !teamErr && (
-                  <tr><td colSpan={3} className="text-secondary text-center py-3">No team members found.</td></tr>
+                  <tr><td colSpan={3} className="gx-muted text-center py-5">No team members found.</td></tr>
                 )}
                 {(team || []).map((m) => {
                   const stewardOnly = m.role === "programme_admin" || m.role === "super_admin";
@@ -311,7 +315,7 @@ export default function Settings() {
                       <td className="small">
                         {i.expired
                           ? <span className="text-danger">Expired</span>
-                          : new Date(i.expires_at).toLocaleDateString()}
+                          : absolute(i.expires_at)}
                       </td>
                       <td className="text-end">
                         {canManageTeam && (
@@ -327,6 +331,7 @@ export default function Settings() {
           </div></div>
         </div>
 
+        <h2 className="gx-section-label">Security &amp; preferences</h2>
         <div className="row g-3">
           <div className="col-lg-8">
             <div className="gx-card">
@@ -345,13 +350,13 @@ export default function Settings() {
                     </td></tr>
                   )}
                   {devices?.length === 0 && !err && (
-                    <tr><td colSpan={4} className="text-secondary text-center py-4">No active sessions found.</td></tr>
+                    <tr><td colSpan={4} className="gx-muted text-center py-5">No active sessions found.</td></tr>
                   )}
                   {(devices || []).map(d => (
                     <tr key={d.id}>
                       <td><b>{d.label || "Device"}</b><div className="text-secondary small">Device key bound</div></td>
                       <td>{d.last_location || "—"}</td>
-                      <td className="small">{d.current ? "Now" : (d.last_active_at ? new Date(d.last_active_at).toLocaleDateString() : "—")}</td>
+                      <td className="small">{d.current ? "Now" : relative(d.last_active_at, "—")}</td>
                       <td>{d.current
                         ? <span className="badge text-bg-success-subtle text-success">This device</span>
                         : <button className="btn btn-sm btn-link text-danger" onClick={() => revoke(d.id)}>Revoke</button>}</td>
@@ -367,7 +372,7 @@ export default function Settings() {
           </div>
           <div className="col-lg-4">
             <div className="gx-card"><div className="gx-card-body">
-              <h2 className="h6 mb-3">Notifications</h2>
+              <h3 className="h6 mb-3">Notifications</h3>
               {["Audit completed", "New critical issue", "Score regression"].map(n => (
                 <div className="form-check form-switch" key={n}>
                   <input className="form-check-input" type="checkbox" id={`notif-${n}`}
@@ -379,7 +384,7 @@ export default function Settings() {
             </div></div>
 
             <div className="gx-card mt-3"><div className="gx-card-body">
-              <h2 className="h6 mb-3">Data &amp; privacy <span className="badge text-bg-primary-subtle ms-1">DPDP</span></h2>
+              <h3 className="h6 mb-3">Data &amp; privacy <span className="badge text-bg-primary-subtle ms-1">DPDP</span></h3>
               <p className="text-secondary small">Under the Digital Personal Data Protection Act, you can access
                 and erase the personal data we hold about you.</p>
               <div className="d-flex flex-column gap-2">

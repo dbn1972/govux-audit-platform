@@ -134,7 +134,7 @@ export default function Assessments() {
 
         <div className="gx-card">
           <div className="card-body p-0">
-            {!rows && <div className="p-4"><div className="spinner-border text-primary" /></div>}
+            {!rows && <div className="p-4"><div className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}
             {rows && rows.length === 0 && (
               <div className="p-4 text-secondary">
                 No external assessments recorded yet.

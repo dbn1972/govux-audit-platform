@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
-import { BAND_COLOR as bandBg } from "@/lib/score";
+import { BAND_COLOR as bandBg, bandStyle } from "@/lib/score";
 
 export default function League() {
   const [cat, setCat] = useState("transactional");
@@ -54,13 +54,13 @@ export default function League() {
               <thead><tr><th>#</th><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
               <tbody>
                 {rows == null && <tr><td colSpan={4} className="text-center py-4"><span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" /></td></tr>}
-                {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted text-center py-4">No audited domains in this segment yet.</td></tr>}
+                {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted text-center py-5">No audited domains in this segment yet.</td></tr>}
                 {(rows || []).map((r, i) => (
                 <tr key={r.url}><td data-label="Rank" className="gx-num gx-muted">{i + 1}</td>
                   <td data-label="Domain" className="gx-cell-primary">{r.url}</td>
                   <td data-label="Score" className="gx-num fw-bold">{r.score ?? "—"}</td>
                   <td data-label="Band">{r.band
-                    ? <span className="badge" style={{ background: bandBg[r.band] + "22", color: bandBg[r.band] }}>{r.band}</span>
+                    ? <span className="badge" style={bandStyle(r.band)}>{r.band}</span>
                     : <span className="text-secondary">—</span>}</td></tr>
               ))}</tbody>
             </table></div>

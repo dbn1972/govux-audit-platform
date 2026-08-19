@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import { BAND_COLOR as bandColor } from "@/lib/score";
+import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
 const DEVICES: [string, number][] = [["Mobile", 375], ["Tablet", 768], ["Desktop", 1180]];
 
 export default function Showcase({ params }: { params: { slug: string } }) {
@@ -32,7 +32,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
         <div className="container py-2 d-flex align-items-center flex-wrap gap-2">
           <span className="gx-brand-name">GovUX Studio</span>
           <span className="text-secondary small">· public demo · AI-generated draft</span>
-          {meta && <span className="badge ms-2" style={{ background: (bandColor[meta.band] || "#5c636a") + "22", color: bandColor[meta.band] || "#5c636a" }}>GovUX {meta.score} · Band {meta.band}</span>}
+          {meta && <span className="badge ms-2" style={bandStyle(meta.band)}>GovUX {meta.score} · Band {meta.band}</span>}
           <div className="ms-auto d-flex gap-2">
             <a className="btn btn-sm btn-outline-success" target="_blank" rel="noopener" href={`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`}>WhatsApp</a>
             <a className="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}>Facebook</a>

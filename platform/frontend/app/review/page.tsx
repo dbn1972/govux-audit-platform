@@ -3,6 +3,7 @@ import AppShell from "@/components/AppShell";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { relative, absolute } from "@/lib/format";
 
 // The checklist used to be three prompts hard-coded here, and the answers were
 // never sent anywhere — they drove a local "can you certify?" gate and vanished
@@ -149,7 +150,7 @@ export default function Review() {
                       <div>
                         <div className="fw-semibold">{c.domain}</div>
                         <div className="text-secondary small">
-                          {c.date ? new Date(c.date).toLocaleDateString() : "—"}
+                          {absolute(c.date)}
                           {c.score != null && <> · score {Math.round(c.score)}</>}
                           {c.compliance_status && <> · {c.compliance_status.replace(/_/g, " ")}</>}
                         </div>

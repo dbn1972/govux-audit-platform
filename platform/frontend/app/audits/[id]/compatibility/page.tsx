@@ -37,7 +37,7 @@ export default function Compatibility({ params }: { params: { id: string } }) {
 
   if (err) return wrap(<div className="alert alert-warning" role="alert">{err}</div>);
   if (!browsers) return wrap(<div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
-  if (browsers.length === 0) return wrap(<div className="text-secondary text-center py-5">No cross-browser results captured for this audit.</div>);
+  if (browsers.length === 0) return wrap(<div className="gx-muted text-center py-5">No cross-browser results captured for this audit.</div>);
 
   return wrap(
     <div className="gx-card">

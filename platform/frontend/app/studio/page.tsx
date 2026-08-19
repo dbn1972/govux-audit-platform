@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
-import { BAND_COLOR as bandColor } from "@/lib/score";
+import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
 const ACCENTS = [["ux4g-purple #4a2bc2", "UX4G Purple (default)"], ["ux4g-saffron #f70", "Saffron"], ["ux4g-green #080", "Green"]];
 const DEVICES: [string, number][] = [["Mobile", 375], ["Tablet", 768], ["Desktop", 1180]];
 
@@ -148,7 +148,7 @@ export default function Studio() {
           {run?.status === "scored" && (<>
             <div className="gx-card mb-3"><div className="card-body d-flex align-items-center flex-wrap gap-2">
               <div><span className="score-value" style={{ fontSize: 28 }}>{run.score}</span>
-                <span className="badge ms-1" style={{ background: (bandColor[run.band] || "#5c636a") + "22", color: bandColor[run.band] || "#5c636a" }}>Band {run.band}</span></div>
+                <span className="badge ms-1" style={bandStyle(run.band)}>Band {run.band}</span></div>
               <span className="text-secondary small">GovUX static score · {run.iterations} refine(s) · ₹{run.billing?.cost_inr} · {run.billing?.output_tokens} tokens</span>
               <div className="ms-auto d-flex gap-2">
                 <button className="btn btn-outline-secondary btn-sm" onClick={download}><i className="bi bi-download me-1" aria-hidden="true" />Download .zip</button>

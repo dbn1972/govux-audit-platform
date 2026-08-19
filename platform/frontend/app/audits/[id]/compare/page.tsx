@@ -121,7 +121,7 @@ export default function Compare({ params }: { params: { id: string } }) {
           <thead><tr><th>Page</th><th>Status</th><th>Score</th><th>Δ</th></tr></thead>
           <tbody>
             {pages.length === 0 && (
-              <tr><td colSpan={4} className="text-secondary text-center py-4">No page-level data captured for either run.</td></tr>
+              <tr><td colSpan={4} className="gx-muted text-center py-5">No page-level data captured for either run.</td></tr>
             )}
             {pages.map(p => (
               <tr key={p.url}>

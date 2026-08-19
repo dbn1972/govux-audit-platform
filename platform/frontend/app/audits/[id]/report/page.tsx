@@ -12,7 +12,7 @@ const NAMES: Record<string, [string, number]> = {
   responsiveness: ["Responsiveness", 10], content: ["Content quality", 7], trust: ["Trust & security", 6],
 };
 const BANDS = ["A", "B", "C", "D", "E"] as const;
-const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "");
+import { absolute as fmtDate } from "@/lib/format";
 // CWV lab thresholds (good/needs/poor)
 const cwvJudge = (metric: string, v: number | null) => {
   if (v == null) return ["—", "#5c636a"];

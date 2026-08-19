@@ -53,6 +53,15 @@
 
   --gx-page-max:1280px;
 
+  /* Band palette as tokens. These were hexes in lib/score.ts, inlined as
+     style={{ color: BAND_COLOR[band] }} on 49 call sites — which meant they
+     could not follow a theme: band C is 2.3:1 on a dark surface. The -tint
+     values replace the `hex + "22"` concatenation those call sites used. */
+  --gx-band-A:#116932; --gx-band-B:#0c655e; --gx-band-C:#9a4508;
+  --gx-band-D:#a6370a; --gx-band-E:#b91c1c; --gx-band-none:#5c636a;
+  --gx-band-A-tint:#1169321f; --gx-band-B-tint:#0c655e1f; --gx-band-C-tint:#9a45081f;
+  --gx-band-D-tint:#a6370a1f; --gx-band-E-tint:#b91c1c1f; --gx-band-none-tint:#5c636a1f;
+
   /* -- point Bootstrap at the system so stock components inherit ----------- */
   --bs-body-bg:var(--gx-surface-sunken);
   --bs-body-color:var(--gx-text);
@@ -255,14 +264,72 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
 }
 
 /* ---------------------------------------------------------------------------
-   Dark seam. Nothing ships against this yet — it exists so the tokens above
-   are provably sufficient: redefining this block is the whole job later.
+   Dark theme. Not a filter over the light one: surfaces climb as they come
+   forward (sunken page < surface < muted), borders lighten rather than darken,
+   and the tints that carry meaning are rebuilt at low opacity so a pill keeps
+   its hue without glowing. No toggle ships yet, but this renders correctly
+   under data-bs-theme="dark" — which is what makes the token layer worth having.
    ------------------------------------------------------------------------ */
 [data-bs-theme="dark"] {
-  --gx-surface:#111a2b; --gx-surface-sunken:#0a1222; --gx-surface-muted:#162033;
-  --gx-border:#25324a; --gx-border-strong:#33425e;
-  --gx-text:#e8eef7; --gx-text-muted:#a8b4c6;
+  --gx-ink-950:#f6f8fa; --gx-ink-900:#e8eef7; --gx-ink-800:#d3dbe6;
+  --gx-ink-700:#b8c2d0; --gx-ink-600:#9aa6b6; --gx-ink-500:#8592a6;
+  --gx-ink-400:#6b7889; --gx-ink-300:#4a5567; --gx-ink-200:#33425e;
+  --gx-ink-100:#1e2a40; --gx-ink-50:#182238;
+
+  --gx-navy-900:#0a1a2e; --gx-navy-800:#7fb0ee; --gx-navy-600:#a8caf5;
+  --gx-action:#4d94ff; --gx-action-strong:#7fb0ee;
+
+  --gx-surface:#111a2b;
+  --gx-surface-sunken:#0a1222;
+  --gx-surface-muted:#162033;
+  --gx-border:#25324a;
+  --gx-border-strong:#33425e;
+
+  --gx-text:#e8eef7;
+  --gx-text-muted:#a8b4c6;
+  --gx-text-invert:#0a1222;
+
+  --gx-shadow-1:0 1px 2px rgba(0,0,0,.4);
+  --gx-shadow-2:0 8px 24px -8px rgba(0,0,0,.6);
+
+  --gx-brand-tint:#16294a; --gx-brand-wash:#0e1a2e;
+
+  /* Bootstrap's own tokens follow, including the subtle pairs the pills and
+     badges are built from — those are light-theme values by default and would
+     otherwise paint pale grounds under pale text. */
+  --bs-body-bg:var(--gx-surface-sunken);
+  --bs-body-color:var(--gx-text);
+  --bs-border-color:var(--gx-border);
+  --bs-emphasis-color:var(--gx-ink-900);
+  --bs-link-color:#7fb0ee; --bs-link-hover-color:#a8caf5;
+  --bs-secondary-color:var(--gx-text-muted); --bs-tertiary-color:var(--gx-text-muted);
+  --bs-primary-bg-subtle:#16294a; --bs-primary-text-emphasis:#9cc4f7;
+  --bs-success-bg-subtle:#0f2a1c; --bs-success-text-emphasis:#7fd6a1;
+  --bs-warning-bg-subtle:#332409; --bs-warning-text-emphasis:#f2c46b;
+  --bs-danger-bg-subtle:#3a1418;  --bs-danger-text-emphasis:#f09aa3;
+  --bs-info-bg-subtle:#0e2a33;    --bs-info-text-emphasis:#7fd0e6;
+  --bs-secondary-bg-subtle:#1e2a40; --bs-secondary-text-emphasis:#b8c2d0;
 }
+
+/* The AA-safe overrides in globals.css pin muted text to a light-theme grey;
+   under dark that value is 2.4:1. Follow the token instead. */
+[data-bs-theme="dark"] .text-secondary,
+[data-bs-theme="dark"] .text-muted { color:var(--gx-text-muted) !important; }
+
+/* Band colours are tuned for white grounds and go muddy on a dark one; these
+   are the same hues lifted until they clear 4.5:1 against --gx-surface. */
+[data-bs-theme="dark"] {
+  --gx-band-A:#5dc98a; --gx-band-B:#54c9bd; --gx-band-C:#e39a5c;
+  --gx-band-D:#ef8b63; --gx-band-E:#f08a90; --gx-band-none:#a8b4c6;
+  --gx-band-A-tint:#5dc98a26; --gx-band-B-tint:#54c9bd26; --gx-band-C-tint:#e39a5c26;
+  --gx-band-D-tint:#ef8b6326; --gx-band-E-tint:#f08a9026; --gx-band-none-tint:#a8b4c626;
+}
+[data-bs-theme="dark"] .band-A { color:var(--gx-band-A) } [data-bs-theme="dark"] .band-B { color:var(--gx-band-B) }
+[data-bs-theme="dark"] .band-C { color:var(--gx-band-C) } [data-bs-theme="dark"] .band-D { color:var(--gx-band-D) }
+[data-bs-theme="dark"] .band-E { color:var(--gx-band-E) }
+
+/* The tricolour strip and the brand mark keep their national colours in both
+   themes — those are not ours to re-tune for contrast. */
 
 /* ---------------------------------------------------------------------------
    Small screens. Two corrections the desktop grid gets wrong on a phone:
@@ -273,8 +340,11 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
   .gx-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .gx-stat { padding:var(--gx-space-3) var(--gx-space-4); }
   .gx-stat-value { font-size:1.5rem; }
-  .gx-page-head .gx-actions { margin-inline-start:0; width:100%; }
-  .gx-page-head .gx-actions > * { flex:1 1 0; justify-content:center; }
+  /* Actions wrap two-up rather than sharing one row: three buttons splitting
+     375px broke "Evidence pack" across two lines and "See prioritised issues"
+     across three. Anything that doesn't fit takes the next line whole. */
+  .gx-page-head .gx-actions { margin-inline-start:0; width:100%; flex-wrap:wrap; }
+  .gx-page-head .gx-actions > * { flex:1 1 45%; justify-content:center; white-space:nowrap; }
   .gx-card-head,.gx-card-body { padding-inline:var(--gx-space-4); }
   .gx-table tbody td,.gx-table thead th { padding-inline:var(--gx-space-4); }
 }
@@ -394,9 +464,12 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 .gx-cat-cost { font-size:.8125rem; color:var(--gx-text-muted); min-width:6.5rem; text-align:end;
                font-variant-numeric:tabular-nums; }
 @media (max-width:767.98px){
-  .gx-cat { grid-template-columns:1fr auto; row-gap:.375rem; }
-  .gx-cat .gx-meter { grid-column:1 / -1; }
-  .gx-cat-cost { grid-column:1 / -1; text-align:start; }
+  /* name · score · cost on one line, meter spanning underneath. The earlier
+     stack put the share on its own left-aligned line below a right-aligned
+     count, so a five-band distribution ran to two phone screens. */
+  .gx-cat { grid-template-columns:1fr auto auto; row-gap:.25rem; column-gap:var(--gx-space-3); }
+  .gx-cat .gx-meter { grid-column:1 / -1; order:3; }
+  .gx-cat-cost { min-width:0; text-align:end; }
 }
 
 /* A callout that carries a consequence — guard-rail, integrity flag. Heavier
@@ -457,3 +530,17 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
           background:linear-gradient(135deg,var(--gx-navy-800),var(--gx-action));
           padding:var(--gx-space-6); }
 .gx-cta h2 { color:var(--gx-text-invert); }
+
+/* Section label — groups cards under a named concern. Six cards of equal weight
+   in a grid tell a reader nothing about what belongs with what; a label and a
+   rule cost one line and restore the grouping. */
+.gx-section-label { display:flex; align-items:center; gap:var(--gx-space-3);
+                    font-size:.6875rem; font-weight:700; letter-spacing:.07em;
+                    text-transform:uppercase; color:var(--gx-text-muted);
+                    margin-bottom:var(--gx-space-3); }
+.gx-section-label::after { content:""; flex:1; height:1px; background:var(--gx-border); }
+
+/* A select inside a table keeps its value readable: squeezed to a narrow
+   column it truncates the chosen option, which is the one thing it exists to
+   show ("contributo⌄"). The table scrolls in its wrapper instead. */
+.table select.form-select, .gx-table select.form-select { min-width:9.5rem; }

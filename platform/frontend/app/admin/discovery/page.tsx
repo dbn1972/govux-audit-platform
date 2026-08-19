@@ -62,7 +62,7 @@ export default function Discovery() {
                 <td className="small text-secondary">{d.discovered_at?.slice(0, 10)}</td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={4} className="text-secondary text-center py-4">Nothing discovered yet.</td></tr>}
+            {!rows.length && <tr><td colSpan={4} className="gx-muted text-center py-5">Nothing discovered yet.</td></tr>}
           </tbody>
         </table></div></div>
       </div>

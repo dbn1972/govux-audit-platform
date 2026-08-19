@@ -71,7 +71,7 @@ export default function Approvals() {
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={6} className="text-secondary text-center py-4">No crawl requests yet.</td></tr>
+                <tr><td colSpan={6} className="gx-muted text-center py-5">No crawl requests yet.</td></tr>
               )}
               {(rows || []).map((r) => (
                 <tr key={r.id}>

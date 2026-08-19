@@ -9,7 +9,8 @@ type Claim = {
 };
 type Row = { url: string; contested: boolean; claims: Claim[] };
 
-const fmt = (s: string | null) => (s ? new Date(s).toLocaleDateString() : "—");
+import { relative } from "@/lib/format";
+const fmt = (s: string | null) => relative(s, "—");
 
 export default function DomainClaims() {
   const [rows, setRows] = useState<Row[] | null>(null);
@@ -84,7 +85,7 @@ export default function DomainClaims() {
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={5} className="text-secondary text-center py-4">
+                <tr><td colSpan={5} className="gx-muted text-center py-5">
                   No unverified claims — every registered domain has proven ownership.
                 </td></tr>
               )}

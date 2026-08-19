@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { bandFor, barColor, BAND_COLOR } from "../lib/score";
+import { bandFor, barColor, BAND_COLOR, BAND_HEX, BAND_SURFACE } from "../lib/score";
 
 const rgb = (hex: string) =>
   [0, 2, 4].map((i) => parseInt(hex.replace("#", "").slice(i, i + 2), 16));
@@ -18,7 +18,7 @@ function contrast(fg: string, bg: string): number {
 }
 
 /** Bootstrap's card/table surface (--bs-body-bg), not white. */
-const SURFACE = "#f8f9fa";
+const SURFACE = BAND_SURFACE.light;
 
 /**
  * The band badges are drawn as `background: colour + "22"` with the same colour
@@ -46,8 +46,14 @@ describe("score bands (mirror backend engine)", () => {
     expect(bandFor(0)).toBe("E");
   });
 
-  it("has a colour for every band", () => {
-    for (const b of ["A", "B", "C", "D", "E"]) expect(BAND_COLOR[b]).toMatch(/^#[0-9a-f]{6}$/i);
+  it("has a colour for every band, in both themes", () => {
+    // BAND_COLOR hands out tokens so the palette can follow a theme; the hexes
+    // behind them are what gets measured below.
+    for (const b of ["A", "B", "C", "D", "E"]) {
+      expect(BAND_COLOR[b]).toBe(`var(--gx-band-${b})`);
+      expect(BAND_HEX.light[b]).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(BAND_HEX.dark[b]).toMatch(/^#[0-9a-f]{6}$/i);
+    }
   });
 
   // Asserts the band each score maps to, not a hex. Pinning literals here is
@@ -62,20 +68,23 @@ describe("score bands (mirror backend engine)", () => {
 
   // This used to measure against white only, and passed while four of the five
   // bands were failing at 3.99–4.34 on the tint they are actually drawn on.
-  it("every band + bar colour clears WCAG AA on the surfaces it is drawn on", () => {
-    const swatches = [
-      ...["A", "B", "C", "D", "E"].map((b) => [`band ${b}`, BAND_COLOR[b]] as const),
-      ...[90, 75, 65, 40, 10].map((s) => [`bar ${s}`, barColor(s)] as const),
-    ];
-    for (const [name, hex] of swatches) {
-      // as a badge, on its own 13.3% tint — the tightest of the three
-      expect(contrast(hex, tintOf(hex)), `${name} (${hex}) on its own tint`)
-        .toBeGreaterThanOrEqual(4.5);
-      // and as plain text, on a card and on white
-      expect(contrast(hex, SURFACE), `${name} (${hex}) on ${SURFACE}`)
-        .toBeGreaterThanOrEqual(4.5);
-      expect(contrast(hex, "#ffffff"), `${name} (${hex}) on white`)
-        .toBeGreaterThanOrEqual(4.5);
+  // Now both themes: a dark palette that fails is exactly as unreadable.
+  it.each(["light", "dark"] as const)(
+    "every %s band clears WCAG AA on the surfaces it is drawn on", (theme) => {
+      const surface = BAND_SURFACE[theme];
+      for (const b of ["A", "B", "C", "D", "E"]) {
+        const hex = BAND_HEX[theme][b];
+        // as a badge, on its own tint over the surface — the tightest of the three
+        expect(contrast(hex, tintOf(hex, surface)), `band ${b} (${hex}) on its own tint`)
+          .toBeGreaterThanOrEqual(4.5);
+        expect(contrast(hex, surface), `band ${b} (${hex}) on ${surface}`)
+          .toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+  it("bar colours are band colours, so they inherit that guarantee", () => {
+    for (const s of [90, 75, 65, 40, 10]) {
+      expect(Object.values(BAND_COLOR)).toContain(barColor(s));
     }
   });
 });

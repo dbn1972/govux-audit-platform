@@ -4,7 +4,7 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 
-import { BAND_COLOR as bandBg } from "@/lib/score";
+import { BAND_COLOR as bandBg, bandStyle } from "@/lib/score";
 
 const BANDS = ["A", "B", "C", "D", "E"] as const;
 const BAND_MEANING: Record<string, string> = {
@@ -134,7 +134,7 @@ export default function National() {
                   <thead><tr><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
                   <tbody>
                     {(d.league || []).length === 0 && (
-                      <tr><td colSpan={3} className="gx-muted text-center py-4">No scored audits yet.</td></tr>
+                      <tr><td colSpan={3} className="gx-muted text-center py-5">No scored audits yet.</td></tr>
                     )}
                     {(d.league || []).map((r: any) => (
                       <tr key={r.url}>
@@ -142,7 +142,7 @@ export default function National() {
                         <td data-label="Score" className="gx-num fw-bold">{r.score ?? "—"}</td>
                         <td data-label="Band">
                           {r.band
-                            ? <span className="badge" style={{ background: bandBg[r.band] + "22", color: bandBg[r.band] }}>{r.band}</span>
+                            ? <span className="badge" style={bandStyle(r.band)}>{r.band}</span>
                             : <span className="gx-muted">—</span>}
                         </td>
                       </tr>

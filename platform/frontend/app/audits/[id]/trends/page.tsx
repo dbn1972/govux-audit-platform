@@ -5,7 +5,7 @@ import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
 type H = { task_id: string; date: string; score: number; band: string };
-const fmt = (iso: string) => { try { return new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); } catch { return iso; } };
+import { absolute as fmt } from "@/lib/format";
 
 export default function Trends({ params }: { params: { id: string } }) {
   const [hist, setHist] = useState<H[] | null>(null);
@@ -26,7 +26,7 @@ export default function Trends({ params }: { params: { id: string } }) {
 
   if (err) return wrap(<div className="alert alert-warning" role="alert">{err}</div>);
   if (!hist) return wrap(<div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
-  if (hist.length === 0) return wrap(<div className="text-secondary text-center py-5">No completed audits yet for this domain — run one to start the trend.</div>);
+  if (hist.length === 0) return wrap(<div className="gx-muted text-center py-5">No completed audits yet for this domain — run one to start the trend.</div>);
 
   const max = 100;
   const asc = [...hist].reverse();   // oldest → newest for the bar chart

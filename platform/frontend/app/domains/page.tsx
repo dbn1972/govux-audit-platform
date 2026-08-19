@@ -10,8 +10,8 @@ type Domain = {
   latest_score?: number | null; latest_band?: string | null; last_audited_at?: string | null;
 };
 
-import { BAND_COLOR as bandColor } from "@/lib/score";
-const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString() : "—");
+import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
+import { relative } from "@/lib/format";
 
 export default function Domains() {
   const [rows, setRows] = useState<Domain[] | null>(null);
@@ -74,11 +74,11 @@ export default function Domains() {
               <tbody>
                 {rows == null && (
                   <tr><td colSpan={6} className="text-center py-4">
-                    <span className="spinner-border spinner-border-sm text-primary me-2" />Loading…
+                    <span className="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true" />Loading…
                   </td></tr>
                 )}
                 {rows?.length === 0 && !err && (
-                  <tr><td colSpan={6} className="text-secondary text-center py-4">
+                  <tr><td colSpan={6} className="gx-muted text-center py-5">
                     No domains yet. <Link href="/domains/new">Register your first domain →</Link>
                   </td></tr>
                 )}
@@ -97,9 +97,9 @@ export default function Domains() {
                       : <span className="badge text-bg-warning-subtle">Pending</span>}</td>
                     <td data-label="Latest score">{d.latest_score != null
                       ? <><b>{d.latest_score}</b>{d.latest_band &&
-                          <span className="badge ms-1" style={{ background: (bandColor[d.latest_band] || "#5c636a") + "22", color: bandColor[d.latest_band] || "#5c636a" }}>{d.latest_band}</span>}</>
+                          <span className="badge ms-1" style={bandStyle(d.latest_band)}>{d.latest_band}</span>}</>
                       : <span className="text-secondary">Not audited</span>}</td>
-                    <td data-label="Last audited" className="text-secondary small">{fmtDate(d.last_audited_at)}</td>
+                    <td data-label="Last audited" className="text-secondary small">{relative(d.last_audited_at)}</td>
                     <td data-label="">{d.verify_status === "verified"
                       ? <Link href={`/audits/new?domain=${d.id}`} className="btn btn-sm btn-link">Audit →</Link>
                       : (<>

@@ -49,7 +49,7 @@ export default function Documents({ params }: { params: { id: string } }) {
                   <td>{d.issues}</td>
                 </tr>
               ))}
-              {!docs.length && <tr><td colSpan={8} className="text-center text-secondary py-4">
+              {!docs.length && <tr><td colSpan={8} className="gx-muted text-center py-5">
                 No documents were discovered in this audit.</td></tr>}
             </tbody>
           </table>

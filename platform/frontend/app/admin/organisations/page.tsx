@@ -14,7 +14,8 @@ const TYPES = ["ministry", "department", "state", "ut", "psu", "other"];
 const PAGE = 25;
 const bandColor = (s: number) =>
   s >= 75 ? BAND_COLOR.A : s >= 60 ? BAND_COLOR.C : BAND_COLOR.E;
-const fmt = (s: string | null) => (s ? new Date(s).toLocaleDateString() : "—");
+import { relative } from "@/lib/format";
+const fmt = (s: string | null) => relative(s, "—");
 
 export default function Organisations() {
   const [rows, setRows] = useState<Org[] | null>(null);
@@ -199,7 +200,7 @@ export default function Organisations() {
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={10} className="text-secondary text-center py-4">
+                <tr><td colSpan={10} className="gx-muted text-center py-5">
                   No organisations match this search.
                 </td></tr>
               )}

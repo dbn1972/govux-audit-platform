@@ -4,23 +4,12 @@ import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { api } from "@/lib/api";
 import { BAND_COLOR as bandColor, bandFor } from "@/lib/score";
+import { relative } from "@/lib/format";
 
 type Domain = {
   id: string; url: string; verify_status: string; category?: string | null;
   latest_score?: number | null; latest_band?: string | null; last_audited_at?: string | null;
 };
-
-/** "3 days ago" beats "14/08/2026" here: the question this column answers is
- *  "is this stale?", and a reader shouldn't have to do date arithmetic. */
-function fmtWhen(s?: string | null) {
-  if (!s) return "Never";
-  const days = Math.floor((Date.now() - new Date(s).getTime()) / 86400000);
-  if (days <= 0) return "Today";
-  if (days === 1) return "Yesterday";
-  if (days < 30) return `${days} days ago`;
-  if (days < 365) return `${Math.floor(days / 30)} months ago`;
-  return new Date(s).toLocaleDateString();
-}
 
 export default function Dashboard() {
   const [domains, setDomains] = useState<Domain[] | null>(null);
@@ -153,7 +142,7 @@ export default function Dashboard() {
             <tbody>
               {domains == null && (
                 <tr><td colSpan={5} className="text-center py-4">
-                  <span className="spinner-border spinner-border-sm text-primary me-2" />Loading…
+                  <span className="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true" />Loading…
                 </td></tr>
               )}
               {domains?.length === 0 && !err && (
@@ -186,7 +175,7 @@ export default function Dashboard() {
                       </div>
                     ) : <span className="gx-muted">Not audited</span>}
                   </td>
-                  <td data-label="Last audited" className="gx-muted">{fmtWhen(d.last_audited_at)}</td>
+                  <td data-label="Last audited" className="gx-muted">{relative(d.last_audited_at)}</td>
                   <td data-label="" className="text-end">
                     {d.verify_status === "verified"
                       ? <Link href={`/audits/new?domain=${d.id}`} className="btn btn-sm btn-outline-primary">Run audit</Link>

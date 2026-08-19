@@ -82,7 +82,7 @@ export default function Monitoring() {
                   <i className="bi bi-trash" aria-hidden="true" /></button></td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={5} className="text-secondary text-center py-4">No monitors yet.</td></tr>}
+            {!rows.length && <tr><td colSpan={5} className="gx-muted text-center py-5">No monitors yet.</td></tr>}
           </tbody>
         </table></div></div>
       </div>

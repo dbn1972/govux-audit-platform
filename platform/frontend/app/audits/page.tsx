@@ -9,7 +9,7 @@ type Row = {
   score: number | null; band: string | null; compliance_status: string | null; date: string;
 };
 
-import { BAND_COLOR as bandColor } from "@/lib/score";
+import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
 const PROGRESS = ["queued", "crawling", "analyzing", "scoring"];
 const PAGE = 15;
 
@@ -104,12 +104,12 @@ export default function Audits() {
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={6} className="text-secondary text-center py-4">
+                <tr><td colSpan={6} className="gx-muted text-center py-5">
                   No audits yet. <Link href="/audits/new">Run your first audit →</Link>
                 </td></tr>
               )}
               {rows != null && rows.length > 0 && filtered.length === 0 && (
-                <tr><td colSpan={6} className="text-secondary text-center py-4">No audits match this filter.</td></tr>
+                <tr><td colSpan={6} className="gx-muted text-center py-5">No audits match this filter.</td></tr>
               )}
               {shown.map((a) => {
                 const [cls, label] = statusBadge(a.status);
@@ -121,7 +121,7 @@ export default function Audits() {
                     <td data-label="Status"><span className={`badge ${cls}`}>{label}</span></td>
                     <td data-label="Score">
                       {done && a.score != null
-                        ? <><b>{a.score}</b>{a.band && <span className="badge ms-1" style={{ background: (bandColor[a.band] || "#5c636a") + "22", color: bandColor[a.band] || "#5c636a" }}>Band {a.band}</span>}</>
+                        ? <><b>{a.score}</b>{a.band && <span className="badge ms-1" style={bandStyle(a.band)}>Band {a.band}</span>}</>
                         : <span className="text-secondary">—</span>}
                     </td>
                     <td data-label="Compliance" className="text-secondary small">{a.compliance_status ? a.compliance_status.replace(/_/g, " ") : "—"}</td>

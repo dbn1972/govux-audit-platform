@@ -50,7 +50,7 @@ export default function Remediation({ params }: { params: { id: string } }) {
               </div>
             </div>
           ))}
-          {!items.length && <div className="text-secondary text-center py-5">No findings to remediate.</div>}
+          {!items.length && <div className="gx-muted text-center py-5">No findings to remediate.</div>}
         </div>
       </div>
     </AppShell>
