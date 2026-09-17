@@ -212,18 +212,44 @@ CREATE INDEX ix_guidelines_platform    ON guidelines(applies_website, applies_ap
 -- One assessor decision per guideline per audit. Without this the review
 -- screen's per-item answers lived only in browser state and were lost on
 -- navigation, leaving a legal verdict with no recorded reasoning behind it.
+-- A review with no engine run behind it: a domain nobody has crawled yet, one
+-- the crawler cannot reach, or a native app. Yields a compliance verdict and a
+-- completion rating — never a GovUX score, which stays engine-derived.
+CREATE TABLE manual_assessments (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id        UUID NOT NULL REFERENCES organisations(id),
+    domain_id     UUID REFERENCES domains(id) ON DELETE SET NULL,  -- null for an app
+    subject       TEXT NOT NULL,                    -- domain url, or an app's name
+    platform      TEXT NOT NULL DEFAULT 'website',  -- website | app
+    status        TEXT NOT NULL DEFAULT 'in_progress',
+    verdict       TEXT,
+    notes         TEXT,
+    created_by    UUID REFERENCES users(id),
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    signed_off_at TIMESTAMPTZ,
+    CONSTRAINT chk_ma_platform CHECK (platform IN ('website','app')),
+    CONSTRAINT chk_ma_status   CHECK (status IN ('in_progress','signed_off'))
+);
+CREATE INDEX idx_ma_org_time ON manual_assessments(org_id, created_at DESC);
+
 CREATE TABLE review_items (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    audit_id     UUID NOT NULL REFERENCES audits(id) ON DELETE CASCADE,
-    guideline_id TEXT NOT NULL REFERENCES guidelines(id) ON DELETE RESTRICT,
-    decision     TEXT NOT NULL,
-    note         TEXT,
-    decided_by   UUID NOT NULL REFERENCES users(id),
-    decided_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT uq_review_item UNIQUE (audit_id, guideline_id),
-    CONSTRAINT chk_review_decision CHECK (decision IN ('pass','fail','not_applicable'))
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    -- exactly one subject: an engine audit, or a standalone manual assessment
+    audit_id      UUID REFERENCES audits(id) ON DELETE CASCADE,
+    assessment_id UUID REFERENCES manual_assessments(id) ON DELETE CASCADE,
+    guideline_id  TEXT NOT NULL REFERENCES guidelines(id) ON DELETE RESTRICT,
+    decision      TEXT NOT NULL,
+    note          TEXT,
+    decided_by    UUID NOT NULL REFERENCES users(id),
+    decided_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT chk_review_decision CHECK (decision IN ('pass','fail','not_applicable')),
+    CONSTRAINT chk_review_item_subject CHECK ((audit_id IS NOT NULL) <> (assessment_id IS NOT NULL))
 );
 CREATE INDEX ix_review_items_audit ON review_items(audit_id);
+CREATE UNIQUE INDEX uq_review_item_audit      ON review_items(audit_id, guideline_id)
+    WHERE audit_id IS NOT NULL;
+CREATE UNIQUE INDEX uq_review_item_assessment ON review_items(assessment_id, guideline_id)
+    WHERE assessment_id IS NOT NULL;
 
 -- ---------- findings ----------
 CREATE TABLE findings (

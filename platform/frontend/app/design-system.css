@@ -13,6 +13,40 @@
    ships yet — see [data-bs-theme="dark"] at the foot for the seam.
    ========================================================================== */
 
+/* ============================================================================
+   UX4G token rebase (Option A — keep the tuned GovUX brand).
+
+   The UX4G package ships a purple primary ramp (#6a4eff family). Every UX4G
+   component reads its colour from the numbered --ux4g-color-primary-* scale via
+   semantic aliases (--ux4g-bg-primary-strong drives .ux4g-btn-primary, etc.),
+   so re-pointing that ONE scale re-themes the whole system to the GovUX brand —
+   the token cascade the package documents, no !important needed.
+
+   The brand is navy (#0a3d7a) for the strong fills white text sits on, easing
+   to the action blue (#0d6efd) through the mid range, and to washes at the top.
+   These values are the ones already tuned to clear WCAG 2.2 AA in this product.
+   ========================================================================== */
+:root {
+  --ux4g-color-primary-50:#eef4fb;
+  --ux4g-color-primary-100:#d7e6f8;
+  --ux4g-color-primary-200:#aecdf1;
+  --ux4g-color-primary-300:#7fb0ee;
+  --ux4g-color-primary-400:#3d8bfd;
+  --ux4g-color-primary-500:#0d6efd;   /* action blue */
+  --ux4g-color-primary-600:#0a58ca;   /* action-strong — links/hover as text */
+  --ux4g-color-primary-700:#0a3d7a;   /* GovUX navy — primary fills */
+  --ux4g-color-primary-800:#082f5e;
+  --ux4g-color-primary-900:#06203f;
+  --ux4g-color-primary-950:#041428;
+}
+/* Dark theme lifts the brand toward the lighter steps so it reads on dark
+   grounds, mirroring the navy→light-blue move the gx layer already makes. */
+[data-theme="dark"] {
+  --ux4g-color-primary-500:#4d94ff;
+  --ux4g-color-primary-600:#7fb0ee;
+  --ux4g-color-primary-700:#a8caf5;
+}
+
 :root {
   /* -- neutral ramp: cool, so it sits under the navy without going muddy ---- */
   --gx-ink-950:#0a1222; --gx-ink-900:#121c2e; --gx-ink-800:#1e2a40;
@@ -851,3 +885,34 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
                  border-top:1px solid var(--gx-border); }
 .gx-rail-legal a { font-size:.75rem; color:var(--gx-text-muted); text-decoration:none; }
 .gx-rail-legal a:hover { color:var(--gx-navy-800); text-decoration:underline; }
+
+/* ---------------------------------------------------------------------------
+   Review workflow. 151 foundational items — 400+ across all tiers — rendered as
+   one page is a form nobody finishes and nobody can find their place in. The
+   reviewer works one category at a time; this is the rail that lets them.
+   ------------------------------------------------------------------------ */
+.gx-review-layout { display:grid; gap:var(--gx-space-5); align-items:start;
+                    grid-template-columns:16rem minmax(0,1fr); }
+@media (max-width:991.98px){ .gx-review-layout { grid-template-columns:1fr; } }
+
+.gx-catrail { position:sticky; top:76px; max-height:calc(100vh - 96px); overflow-y:auto;
+              background:var(--gx-surface); border:1px solid var(--gx-border);
+              border-radius:var(--gx-r-md); padding:var(--gx-space-2); }
+@media (max-width:991.98px){ .gx-catrail { position:static; max-height:none; } }
+
+.gx-catrail-item { display:flex; align-items:center; gap:.5rem; width:100%;
+                   padding:.5rem .625rem; border:0; background:transparent;
+                   border-radius:var(--gx-r-sm); text-align:start;
+                   font-size:.8125rem; color:var(--gx-ink-700); line-height:1.35; }
+.gx-catrail-item:hover { background:var(--gx-ink-50); }
+.gx-catrail-item[aria-current="true"] { background:var(--bs-primary-bg-subtle);
+                                        color:var(--gx-navy-800); font-weight:650; }
+.gx-catrail-count { margin-inline-start:auto; font-size:.6875rem; font-variant-numeric:tabular-nums;
+                    color:var(--gx-text-muted); white-space:nowrap; }
+.gx-catrail-item[aria-current="true"] .gx-catrail-count { color:var(--gx-navy-800); }
+/* a finished category is marked, so the rail doubles as the progress map */
+.gx-catrail-done .gx-catrail-count { color:var(--gx-band-A); font-weight:700; }
+
+.gx-review-pager { display:flex; align-items:center; gap:var(--gx-space-3);
+                   padding:var(--gx-space-4) var(--gx-space-5);
+                   border-top:1px solid var(--gx-border); }

@@ -12,8 +12,12 @@ afterEach(cleanup);   // no globals:true, so unmount between tests explicitly
 vi.mock("@/components/AppShell", () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
+// forwards the rest of the props: these links carry an onClick, because
+// /review and /review?assessment=… are one route and the URL alone moves
+// nothing. A double that swallowed it would test a link that does not exist.
 vi.mock("next/link", () => ({
-  default: ({ href, children }: any) => <a href={typeof href === "string" ? href : "#"}>{children}</a>,
+  default: ({ href, children, ...rest }: any) =>
+    <a href={typeof href === "string" ? href : "#"} {...rest}>{children}</a>,
 }));
 
 const auditStatus = vi.fn();
@@ -21,6 +25,14 @@ const reviewAudit = vi.fn();
 const reviewChecklist = vi.fn();
 const setReviewItem = vi.fn();
 const listAudits = vi.fn();
+// the picker now also offers a review with no audit behind it, so the screen
+// asks for the domain list and any assessments already open
+const listDomains = vi.fn();
+const manualAssessments = vi.fn();
+const createManualAssessment = vi.fn();
+const assessmentChecklist = vi.fn();
+const setAssessmentItem = vi.fn();
+const signOffAssessment = vi.fn();
 vi.mock("@/lib/api", () => ({
   api: {
     auditStatus: (...a: any[]) => auditStatus(...a),
@@ -28,6 +40,12 @@ vi.mock("@/lib/api", () => ({
     reviewChecklist: (...a: any[]) => reviewChecklist(...a),
     setReviewItem: (...a: any[]) => setReviewItem(...a),
     listAudits: (...a: any[]) => listAudits(...a),
+    listDomains: (...a: any[]) => listDomains(...a),
+    manualAssessments: (...a: any[]) => manualAssessments(...a),
+    createManualAssessment: (...a: any[]) => createManualAssessment(...a),
+    assessmentChecklist: (...a: any[]) => assessmentChecklist(...a),
+    setAssessmentItem: (...a: any[]) => setAssessmentItem(...a),
+    signOffAssessment: (...a: any[]) => signOffAssessment(...a),
   },
 }));
 
@@ -40,9 +58,13 @@ const AUDIT = {
 
 const checklist = (over: any = {}) => ({
   task_id: "T1",
-  categories: [{ name: "About Us", count: 8 }, { name: "Search", count: 9 }],
+  categories: [{ name: "About Us", count: 8, answered: 0 },
+               { name: "Search", count: 9, answered: 0 }],
   standards: [{ name: "GIGW", count: 347 }, { name: "WCAG", count: 217 }],
-  reviewable_total: 379, total: 2, decided: 0, failed: 0, passed: 0, rating: null,
+  // subject-wide, as the API returns them: the second item below is already
+  // answered "fail", so a fixture claiming 0 decided would be describing a
+  // payload the server cannot produce
+  reviewable_total: 379, total: 2, decided: 1, failed: 1, passed: 0, rating: 0,
   items: [
     { guideline_id: "UX4G-ABT-001", category: "About Us", title: "Define the organisation's purpose",
       issue: "Purpose or mission is missing.", advice: "Add a concise Our Purpose section.",
@@ -58,12 +80,16 @@ const checklist = (over: any = {}) => ({
 
 describe("Guided manual review", () => {
   beforeEach(() => {
-    [auditStatus, reviewAudit, reviewChecklist, setReviewItem, listAudits]
+    [auditStatus, reviewAudit, reviewChecklist, setReviewItem, listAudits,
+     listDomains, manualAssessments, createManualAssessment, assessmentChecklist,
+     setAssessmentItem, signOffAssessment]
       .forEach(m => m.mockReset());
     auditStatus.mockResolvedValue(AUDIT);
     reviewChecklist.mockResolvedValue(checklist());
     setReviewItem.mockResolvedValue({ ok: true });
     listAudits.mockResolvedValue([]);
+    listDomains.mockResolvedValue([]);
+    manualAssessments.mockResolvedValue([]);
     window.history.pushState({}, "", "/review?audit=T1");
   });
 
@@ -91,6 +117,8 @@ describe("Guided manual review", () => {
 
     it("points at New Audit when there is nothing to certify yet", async () => {
       listAudits.mockResolvedValue([]);
+    listDomains.mockResolvedValue([]);
+    manualAssessments.mockResolvedValue([]);
       render(<Review />);
       expect(await screen.findByText(/No completed audits yet/)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "New Audit" }))
@@ -155,6 +183,12 @@ describe("Guided manual review", () => {
   });
 
   it("certifying calls the API and shows the new compliant verdict", async () => {
+    // nothing unmet — the default fixture carries a failure, which the test
+    // above proves blocks this button
+    reviewChecklist.mockResolvedValue(checklist({
+      decided: 1, passed: 1, failed: 0, rating: 100,
+      items: [{ ...checklist().items[0], decision: "pass" }],
+    }));
     reviewAudit.mockResolvedValue({
       compliance: { status: "compliant", reason: "expert-reviewed, no critical failures" },
     });
@@ -179,7 +213,7 @@ describe("Guided manual review", () => {
   it("loads no checklist until an audit is chosen", async () => {
     window.history.pushState({}, "", "/review");   // no ?audit=
     render(<Review />);
-    expect(await screen.findByText(/Choose an audit to certify/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Certify a completed audit/i)).toBeInTheDocument();
     expect(auditStatus).not.toHaveBeenCalled();
     expect(reviewChecklist).not.toHaveBeenCalled();
   });
@@ -201,7 +235,7 @@ describe("Guided manual review", () => {
     await screen.findByText(/Define the organisation's purpose/);
     await userEvent.selectOptions(screen.getByLabelText(/Compliance/i), "WCAG");
     await waitFor(() => expect(reviewChecklist).toHaveBeenLastCalledWith("T1",
-      { enforcement: "Foundational", category: undefined, standard: "WCAG", platform: "website" }));
+      { enforcement: "Foundational", category: "About Us", standard: "WCAG", platform: "website" }));
   });
 
   it("reports a compliance rating over answered items, ignoring N/A", async () => {
@@ -215,7 +249,11 @@ describe("Guided manual review", () => {
   });
 
   it("shows no rating until something has actually been answered", async () => {
-    render(<Review />);   // rating: null
+    reviewChecklist.mockResolvedValue(checklist({
+      decided: 0, failed: 0, passed: 0, rating: null,
+      items: [checklist().items[0]],          // nothing answered anywhere
+    }));
+    render(<Review />);
     await screen.findByText(/Define the organisation's purpose/);
     expect(screen.queryByText(/Compliance rating/)).not.toBeInTheDocument();
   });
@@ -236,8 +274,185 @@ describe("Guided manual review", () => {
     expect(screen.getByRole("button", { name: "Website" })).toHaveAttribute("aria-pressed", "true");
 
     await userEvent.click(screen.getByRole("button", { name: "Mobile app" }));
+    // a category is always in play now — the screen never loads all 151 at once
     await waitFor(() => expect(reviewChecklist).toHaveBeenLastCalledWith("T1",
-      { enforcement: "Foundational", category: undefined, standard: undefined, platform: "app" }));
+      { enforcement: "Foundational", category: "About Us", standard: undefined, platform: "app" }));
     expect(screen.getByRole("button", { name: "Mobile app" })).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
+// ── review without an audit ────────────────────────────────────────────────
+// The whole point of the change: an org with three registered domains could
+// review exactly the one it had audited, and a mobile app had no route in.
+describe("assessing without an audit", () => {
+  beforeEach(() => {
+    window.history.pushState({}, "", "/review");
+    listDomains.mockResolvedValue([
+      { id: "d1", url: "indiapost.gov.in" },
+      { id: "d2", url: "ippbonline.gov.in" },
+    ]);
+  });
+
+  it("offers every registered domain, not only the audited ones", async () => {
+    listAudits.mockResolvedValue([]);          // nothing has been crawled at all
+    render(<Review />);
+    const picker = await screen.findByLabelText(/website/i);
+    expect(within(picker).getByRole("option", { name: "indiapost.gov.in" })).toBeInTheDocument();
+    expect(within(picker).getByRole("option", { name: "ippbonline.gov.in" })).toBeInTheDocument();
+  });
+
+  it("starts an app assessment, which has no domain behind it", async () => {
+    createManualAssessment.mockResolvedValue({ id: "A1" });
+    assessmentChecklist.mockResolvedValue({
+      assessment_id: "A1", subject: "India Post Mobile", platform: "app",
+      items: [], categories: [], standards: [], total: 0, decided: 0,
+      passed: 0, failed: 0, rating: null, reviewable_total: 0,
+    });
+    render(<Review />);
+
+    await userEvent.type(await screen.findByLabelText(/mobile app/i), "India Post Mobile");
+    await userEvent.click(screen.getByRole("button", { name: /start app/i }));
+
+    await waitFor(() => expect(createManualAssessment).toHaveBeenCalledWith(
+      { subject: "India Post Mobile", platform: "app" }));
+    await waitFor(() => expect(assessmentChecklist).toHaveBeenCalled());
+  });
+});
+
+// ── the assessment route, end to end ───────────────────────────────────────
+// Everything below this line was gated on `?audit=`: an assessment rendered a
+// checklist with no subject, no filters, no progress, and a Certify button that
+// could never be clicked — several hundred answers with no way to record a
+// verdict at the end of them.
+describe("a standalone assessment", () => {
+  const assessment = (over: any = {}) => ({
+    ...checklist(), assessment_id: "A1", subject: "ncsc.dop.gov.in",
+    platform: "website", status: "in_progress", verdict: null, ...over,
+  });
+  const answered = (over: any = {}) => assessment({
+    decided: 1, passed: 1, failed: 0, rating: 100,
+    items: [{ ...checklist().items[0], decision: "pass" }], ...over,
+  });
+
+  beforeEach(() => {
+    window.history.pushState({}, "", "/review?assessment=A1");
+    assessmentChecklist.mockResolvedValue(assessment());
+    setAssessmentItem.mockResolvedValue({ ok: true });
+  });
+
+  it("names the subject being assessed", async () => {
+    render(<Review />);
+    expect(await screen.findByText("ncsc.dop.gov.in")).toBeInTheDocument();
+    expect(screen.getByText(/assessing website/i)).toBeInTheDocument();
+  });
+
+  it("carries the same filters and progress an audit-backed review has", async () => {
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    expect(screen.getByLabelText(/enforcement tier/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^category$/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 of 379 answered/)).toBeInTheDocument();
+    // the platform is what the subject IS, fixed when the assessment started —
+    // offering it as a toggle would re-scope answers already recorded
+    expect(screen.queryByRole("button", { name: "Mobile app" })).not.toBeInTheDocument();
+  });
+
+  it("sends no platform, so an app assessment is not answered against the website set", async () => {
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    await waitFor(() => expect(assessmentChecklist).toHaveBeenLastCalledWith(
+      "A1", { enforcement: "Foundational", category: "About Us" }));
+  });
+
+  it("can actually be signed off", async () => {
+    assessmentChecklist.mockResolvedValue(answered());
+    signOffAssessment.mockResolvedValue({ verdict: "compliant", answered: 1, failed: 0 });
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+
+    await userEvent.click(screen.getByRole("button", { name: /certify compliant/i }));
+    await waitFor(() => expect(signOffAssessment).toHaveBeenCalledWith("A1", true, undefined));
+    expect(await screen.findByText(/assessment verdict/i)).toBeInTheDocument();
+  });
+
+  it("will not certify a checklist with nothing answered", async () => {
+    assessmentChecklist.mockResolvedValue(assessment({
+      decided: 0, passed: 0, failed: 0, rating: null, items: [checklist().items[0]],
+    }));
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    expect(screen.getByRole("button", { name: /certify compliant/i })).toBeDisabled();
+    expect(screen.getByText(/Answer at least one guideline/i)).toBeInTheDocument();
+  });
+
+  it("is a record, not a form, once signed off", async () => {
+    assessmentChecklist.mockResolvedValue(answered({
+      status: "signed_off", verdict: "compliant", signed_off_at: "2026-08-20T09:00:00Z",
+    }));
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    expect(screen.queryByRole("button", { name: /certify compliant/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/cannot be changed/i)).toBeInTheDocument();
+    const row = screen.getByText("UX4G-ABT-001").closest(".gx-check")!;
+    expect(within(row as HTMLElement).getByRole("button", { name: "Yes" })).toBeDisabled();
+  });
+});
+
+// ── moving between the picker and a review ─────────────────────────────────
+// /review and /review?assessment=… are the SAME route, so React keeps the page
+// mounted across them and a mount-only effect never runs again. Both links
+// changed the URL and nothing else: "Continue" left you sitting on the picker,
+// and "All manual reviews" left you sitting on the checklist.
+describe("navigating within the review screen", () => {
+  const IN_PROGRESS = {
+    id: "A1", subject: "ncsc.dop.gov.in", platform: "website", status: "in_progress",
+    answered: 1, verdict: null, created_at: "2026-08-20T09:00:00Z",
+  };
+  const payload = {
+    ...checklist(), assessment_id: "A1", subject: "ncsc.dop.gov.in",
+    platform: "website", status: "in_progress", verdict: null,
+  };
+
+  beforeEach(() => {
+    listAudits.mockResolvedValue([]);
+    listDomains.mockResolvedValue([{ id: "d1", url: "indiapost.gov.in" }]);
+    manualAssessments.mockResolvedValue([IN_PROGRESS]);
+    assessmentChecklist.mockResolvedValue(payload);
+  });
+
+  it("opens a checklist from Continue, with no reload", async () => {
+    window.history.pushState({}, "", "/review");
+    render(<Review />);
+    await userEvent.click(await screen.findByRole("link", { name: "Continue" }));
+
+    expect(await screen.findByText(/Define the organisation's purpose/)).toBeInTheDocument();
+    expect(screen.queryByText(/Assess without an audit/)).not.toBeInTheDocument();
+  });
+
+  it("returns to the picker from the back link, and refreshes what it lists", async () => {
+    window.history.pushState({}, "", "/review?assessment=A1");
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    manualAssessments.mockClear();
+
+    await userEvent.click(screen.getByRole("link", { name: /All manual reviews/ }));
+
+    expect(await screen.findByText(/Assess without an audit/)).toBeInTheDocument();
+    // the checklist must go with it — the two are gated separately, so a stale
+    // payload would render both at once
+    expect(screen.queryByText(/Define the organisation's purpose/)).not.toBeInTheDocument();
+    // an assessment signed off a moment ago belongs in the other list now
+    expect(manualAssessments).toHaveBeenCalled();
+  });
+
+  it("follows the browser's own back button", async () => {
+    window.history.pushState({}, "", "/review?assessment=A1");
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+
+    window.history.replaceState({}, "", "/review");     // as the browser leaves it
+    window.dispatchEvent(new PopStateEvent("popstate"));
+
+    expect(await screen.findByText(/Assess without an audit/)).toBeInTheDocument();
   });
 });

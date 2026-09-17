@@ -19,6 +19,7 @@ from ..schemas import AuditCreate, AuditAccepted, AuditStatus, BulkScanCreate
 from ..services import (queue, remediation, ml_priority, cache, settings_store,
                         llm_advisor, evidence_pack)
 from ..services import scoring
+from ..services import review as review_svc
 from ..services.scoring import CATEGORY_WEIGHTS
 
 router = APIRouter(prefix="/v1", tags=["audits"])
@@ -323,8 +324,8 @@ def review_audit(task_id: str, body: ReviewDecision,
 # the guideline library — everything automation cannot decide — and each
 # decision is stored, so the reasoning behind a legal verdict survives.
 
-REVIEWER_ROLES = ("assessor", "programme_admin", "super_admin")
-DECISIONS = ("pass", "fail", "not_applicable")
+REVIEWER_ROLES = review_svc.REVIEWER_ROLES
+DECISIONS = review_svc.DECISIONS
 
 
 class ReviewItemUpdate(BaseModel):
@@ -333,10 +334,7 @@ class ReviewItemUpdate(BaseModel):
 
 
 # Which normative document a guideline derives from. Matched against the cited
-# reference rather than `family`, because every reviewable row is a UX4G row —
-# what varies, and what a reviewer wants to filter by, is the standard behind it.
-STANDARDS = {"WCAG": "%WCAG%", "GIGW": "%GIGW%", "UX4G": "%UX4G%",
-             "BIS": "%IS 1%", "DPDP": "%DPDP%"}
+STANDARDS = review_svc.STANDARDS
 
 
 @router.get("/audits/{task_id}/review-checklist")
@@ -357,65 +355,9 @@ def review_checklist(task_id: str, enforcement: str | None = None,
     self-check does — otherwise picking a filter is guesswork.
     """
     audit = _owned_audit(db, task_id, user, require_completed=True)
-
-    # Platform scope, mirroring the UX4G self-check's Website/App switch: a
-    # reviewer auditing a website should not be asked about avatar menus or
-    # walkthrough screens. Defaults to website — this platform audits websites.
-    reviewable = models.Guideline.automation.in_(("manual", "assisted"))
-    if platform == "app":
-        reviewable = and_(reviewable, models.Guideline.applies_app.is_(True))
-    elif platform == "website":
-        reviewable = and_(reviewable, models.Guideline.applies_website.is_(True))
-    # any other value = no platform filter (the full corpus)
-    base = db.query(models.Guideline).filter(reviewable)
-
-    q = base
-    if enforcement:
-        q = q.filter(models.Guideline.enforcement_level == enforcement)
-    if category:
-        q = q.filter(models.Guideline.category == category)
-    if standard and standard in STANDARDS:
-        q = q.filter(models.Guideline.reference.ilike(STANDARDS[standard]))
-    guidelines = q.order_by(models.Guideline.category, models.Guideline.id).all()
-
-    decided = {r.guideline_id: r for r in db.query(models.ReviewItem)
-                                            .filter(models.ReviewItem.audit_id == audit.id)}
-    items = [{
-        "guideline_id": g.id, "category": g.category, "title": g.title,
-        "issue": g.issue, "advice": g.advice,
-        "good_example": g.good_example, "bad_example": g.bad_example,
-        "enforcement_level": g.enforcement_level, "severity": g.severity,
-        "automation": g.automation, "roles": g.roles, "reference": g.reference,
-        "decision": decided[g.id].decision if g.id in decided else None,
-        "note": decided[g.id].note if g.id in decided else None,
-    } for g in guidelines]
-
-    # Facet counts over everything reviewable, independent of the current filter.
-    cat_counts = dict(db.query(models.Guideline.category, func.count())
-                        .filter(reviewable).group_by(models.Guideline.category).all())
-    std_counts = {k: base.filter(models.Guideline.reference.ilike(v)).count()
-                  for k, v in STANDARDS.items()}
-    answered = sum(1 for i in items if i["decision"])
-    failed = sum(1 for i in items if i["decision"] == "fail")
-    passed = sum(1 for i in items if i["decision"] == "pass")
-
-    return {
-        "task_id": str(audit.id),
-        "categories": [{"name": c, "count": n} for c, n in sorted(cat_counts.items())],
-        "standards": [{"name": k, "count": n} for k, n in sorted(std_counts.items())
-                      if n],
-        "platform": platform,
-        "reviewable_total": base.count(),
-        "total": len(items),
-        "decided": answered,
-        "failed": failed,
-        "passed": passed,
-        # Compliance rating over what has actually been answered — pass rate
-        # excluding N/A, which is what the UX4G self-check reports. None until
-        # something is answered, rather than a misleading 0 or 100.
-        "rating": round(100 * passed / (passed + failed), 1) if (passed + failed) else None,
-        "items": items,
-    }
+    decided = db.query(models.ReviewItem).filter(models.ReviewItem.audit_id == audit.id)
+    return {"task_id": str(audit.id),
+            **review_svc.build(db, decided, platform, enforcement, category, standard)}
 
 
 @router.put("/audits/{task_id}/review-checklist/{guideline_id}")

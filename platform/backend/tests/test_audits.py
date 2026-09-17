@@ -657,3 +657,162 @@ def test_a_guideline_with_unknown_platform_is_never_hidden(client, ctx, verified
     for qs in ("", "?platform=app"):
         r = client.get(f"/v1/audits/{a.id}/review-checklist{qs}", headers=ctx["headers"])
         assert "UX4G-PLAT-UNSET" in {i["guideline_id"] for i in r.json()["items"]}
+
+
+# ── standalone manual assessments ───────────────────────────────────────────
+# A review used to require a completed audit, which requires a crawlable domain:
+# an org with three registered domains could review exactly the one it had
+# audited, and a mobile app had no route in at all.
+def test_manual_assessment_needs_no_audit(client, db, ctx, verified_domain):
+    r = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                    json={"domain_id": str(verified_domain.id)})
+    assert r.status_code == 201, r.text
+    aid = r.json()["id"]
+
+    # the same checklist an audit-backed review gets
+    c = client.get(f"/v1/manual-assessments/{aid}/checklist", headers=ctx["headers"])
+    assert c.status_code == 200
+    body = c.json()
+    assert body["total"] > 0 and body["decided"] == 0
+    assert body["rating"] is None      # nothing answered yet — not 0, not 100
+
+
+def test_manual_assessment_of_a_mobile_app_has_no_domain(client, ctx):
+    r = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                    json={"subject": "India Post Mobile", "platform": "app"})
+    assert r.status_code == 201
+    aid = r.json()["id"]
+    body = client.get(f"/v1/manual-assessments/{aid}/checklist",
+                      headers=ctx["headers"]).json()
+    # app-scoped: guidelines that only make sense on a website are not asked
+    assert body["platform"] == "app"
+    assert body["subject"] == "India Post Mobile"
+
+
+def test_answers_persist_and_drive_the_rating(client, ctx):
+    aid = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                      json={"subject": "testservice.gov.in", "platform": "website"}).json()["id"]
+    items = client.get(f"/v1/manual-assessments/{aid}/checklist",
+                       headers=ctx["headers"]).json()["items"]
+    a, b = items[0]["guideline_id"], items[1]["guideline_id"]
+
+    client.put(f"/v1/manual-assessments/{aid}/checklist/{a}", headers=ctx["headers"],
+               json={"decision": "pass"})
+    client.put(f"/v1/manual-assessments/{aid}/checklist/{b}", headers=ctx["headers"],
+               json={"decision": "fail", "note": "no visible focus ring"})
+
+    body = client.get(f"/v1/manual-assessments/{aid}/checklist", headers=ctx["headers"]).json()
+    assert body["decided"] == 2 and body["passed"] == 1 and body["failed"] == 1
+    assert body["rating"] == 50.0
+
+
+def test_cannot_certify_an_assessment_with_a_failure(client, ctx):
+    aid = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                      json={"subject": "testservice2.gov.in"}).json()["id"]
+    gid = client.get(f"/v1/manual-assessments/{aid}/checklist",
+                     headers=ctx["headers"]).json()["items"][0]["guideline_id"]
+    client.put(f"/v1/manual-assessments/{aid}/checklist/{gid}", headers=ctx["headers"],
+               json={"decision": "fail"})
+
+    bad = client.post(f"/v1/manual-assessments/{aid}/sign-off", headers=ctx["headers"],
+                      json={"compliant": True})
+    assert bad.status_code == 400 and "not met" in bad.text
+
+    ok = client.post(f"/v1/manual-assessments/{aid}/sign-off", headers=ctx["headers"],
+                     json={"compliant": False, "notes": "focus ring missing throughout"})
+    assert ok.status_code == 200 and ok.json()["verdict"] == "non_compliant"
+
+
+def test_an_empty_checklist_is_not_a_pass(client, ctx):
+    aid = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                      json={"subject": "untouched.gov.in"}).json()["id"]
+    r = client.post(f"/v1/manual-assessments/{aid}/sign-off", headers=ctx["headers"],
+                    json={"compliant": True})
+    assert r.status_code == 400, "signing off an unstarted review must not certify it"
+
+
+def test_assessing_a_site_that_is_not_registered(client, ctx):
+    """The point of the free-text route: an assessor is often asked about a site
+    their organisation has not registered — or cannot, because someone else
+    holds the claim."""
+    r = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                    json={"subject": "https://newportal.gov.in/home", "platform": "website"})
+    assert r.status_code == 201, r.text
+    assert r.json()["subject"] == "newportal.gov.in"      # normalised to the host
+
+
+def test_a_non_government_site_cannot_be_assessed(client, ctx):
+    """Same rule as the register: this platform is for .gov.in / .nic.in."""
+    r = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                    json={"subject": "example.com", "platform": "website"})
+    assert r.status_code == 400
+
+
+def test_starting_the_same_subject_twice_resumes_it(client, ctx):
+    """Every visit to the review screen is one click from starting an assessment,
+    so the list filled with duplicates of the same site and a reviewer could not
+    tell which one held their answers."""
+    first = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                        json={"subject": "resume.gov.in", "platform": "website"}).json()
+    again = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                        json={"subject": "resume.gov.in", "platform": "website"})
+    assert again.status_code == 201
+    assert again.json()["id"] == first["id"] and again.json()["resumed"] is True
+
+    # a different platform is a different subject, not the same one resumed
+    app = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                      json={"subject": "resume.gov.in", "platform": "app"}).json()
+    assert app["id"] != first["id"]
+
+
+def test_a_signed_off_assessment_cannot_be_signed_off_again(client, ctx):
+    """Recording a decision was already blocked; the verdict was not — so the
+    same assessment could be certified compliant and then flipped, indefinitely,
+    each flip overwriting the last."""
+    aid = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                      json={"subject": "closed.gov.in"}).json()["id"]
+    gid = client.get(f"/v1/manual-assessments/{aid}/checklist",
+                     headers=ctx["headers"]).json()["items"][0]["guideline_id"]
+    client.put(f"/v1/manual-assessments/{aid}/checklist/{gid}", headers=ctx["headers"],
+               json={"decision": "pass"})
+    assert client.post(f"/v1/manual-assessments/{aid}/sign-off", headers=ctx["headers"],
+                       json={"compliant": True}).status_code == 200
+
+    again = client.post(f"/v1/manual-assessments/{aid}/sign-off", headers=ctx["headers"],
+                        json={"compliant": False})
+    assert again.status_code == 409
+    body = client.get(f"/v1/manual-assessments/{aid}/checklist", headers=ctx["headers"]).json()
+    assert body["verdict"] == "compliant"          # the record stands
+
+
+def test_the_checklist_platform_cannot_be_overridden_by_the_caller(client, ctx):
+    """The review screen sent its own default ("website") on every request, so
+    an app assessment was answered against the website corpus — silently, and
+    including guidelines an app cannot have."""
+    aid = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                      json={"subject": "Sandes", "platform": "app"}).json()["id"]
+    body = client.get(f"/v1/manual-assessments/{aid}/checklist?platform=website",
+                      headers=ctx["headers"]).json()
+    assert body["platform"] == "app"
+
+
+def test_counts_span_the_whole_subject_not_the_filtered_page(client, ctx, db):
+    """Sign-off reads every decision, so the screen deriving its totals from the
+    visible page could show "0 not met" and offer certification while the API
+    refused it — the failure sat in a category the reviewer was not looking at."""
+    aid = client.post("/v1/manual-assessments", headers=ctx["headers"],
+                      json={"subject": "counts.gov.in"}).json()["id"]
+    items = client.get(f"/v1/manual-assessments/{aid}/checklist",
+                       headers=ctx["headers"]).json()["items"]
+    # a guideline from a category other than the one we will then filter to
+    first = items[0]
+    other = next(i for i in items if i["category"] != first["category"])
+    client.put(f"/v1/manual-assessments/{aid}/checklist/{other['guideline_id']}",
+               headers=ctx["headers"], json={"decision": "fail"})
+
+    body = client.get(f"/v1/manual-assessments/{aid}/checklist"
+                      f"?category={first['category']}", headers=ctx["headers"]).json()
+    assert body["failed"] == 1, "a failure outside the current filter still counts"
+    assert body["decided"] == 1
+    assert body["page_decided"] == 0        # ...and none of it is on this page
+    assert all(i["category"] == first["category"] for i in body["items"])

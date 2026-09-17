@@ -73,7 +73,14 @@ def test_otp_logged_in_production_with_allow_env(monkeypatch, capsys):
 def test_otp_request_reports_a_delivery_failure(client, monkeypatch):
     """202 used to mean "a code row exists", not "a mail went out". An instance
     with no working provider looked healthy from the client while delivering
-    nothing to anyone."""
+    nothing to anyone.
+
+    The env flag is cleared deliberately: it enables a pre-launch fallback that
+    logs the code instead of failing, and it is set in the dev container — so
+    without clearing it this test would measure the fallback and pass under a
+    name that claims otherwise.
+    """
+    monkeypatch.delenv("GOVUX_ALLOW_CONSOLE_OTP", raising=False)
     monkeypatch.setattr("app.services.email.send_otp", lambda *a, **k: False)
     r = client.post("/v1/auth/otp/request", json={"email": "n.officer@nic.in"})
     assert r.status_code == 502
@@ -87,6 +94,19 @@ def test_console_provider_on_a_production_instance_warns(monkeypatch, caplog):
     with caplog.at_level("WARNING", logger="govux.email"):
         assert email.send_otp("officer@nic.in", "246810") is True
     assert any("NOT emailed" in r.message for r in caplog.records), caplog.text
+
+
+def test_delivery_failure_falls_back_to_the_log_when_the_flag_is_set(client, monkeypatch, caplog):
+    """The pre-launch escape hatch: with GOVUX_ALLOW_CONSOLE_OTP set, a failed
+    send must not lock everyone out — the code goes to the server log instead.
+    Production does not set the flag (pinned by the compose test below), so
+    there the 502 above still stands."""
+    monkeypatch.setenv("GOVUX_ALLOW_CONSOLE_OTP", "true")
+    monkeypatch.setattr("app.services.email.send_otp", lambda *a, **k: False)
+    with caplog.at_level("WARNING", logger="govux.auth"):
+        r = client.post("/v1/auth/otp/request", json={"email": "n.officer@nic.in"})
+    assert r.status_code == 202
+    assert any("emergency-fallback" in rec.message for rec in caplog.records), caplog.text
 
 
 def test_prod_compose_does_not_set_the_console_otp_escape_hatch():

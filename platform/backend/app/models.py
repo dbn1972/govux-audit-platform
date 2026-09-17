@@ -205,16 +205,20 @@ class Guideline(Base):
 
 
 class ReviewItem(Base):
-    """An assessor's decision on one guideline for one audit.
+    """An assessor's decision on one guideline, for an audit OR a manual assessment.
 
     Previously the review screen's per-item answers lived only in React state and
     were dropped on navigation, so the evidence behind a legal verdict was never
     recorded — only the free-text note survived.
+
+    Exactly one of audit_id / assessment_id is set; the database enforces it
+    (chk_review_item_subject) rather than trusting every future caller.
     """
     __tablename__ = "review_items"
     id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
-    audit_id = Column(UUID(as_uuid=True), ForeignKey("audits.id", ondelete="CASCADE"),
-                      nullable=False)
+    audit_id = Column(UUID(as_uuid=True), ForeignKey("audits.id", ondelete="CASCADE"))
+    assessment_id = Column(UUID(as_uuid=True),
+                           ForeignKey("manual_assessments.id", ondelete="CASCADE"))
     guideline_id = Column(Text, ForeignKey("guidelines.id", ondelete="RESTRICT"),
                           nullable=False)
     decision = Column(Text, nullable=False)   # pass | fail | not_applicable
@@ -241,6 +245,29 @@ class Notification(Base):
     link = Column(Text)                      # in-app route this is about
     read_at = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class ManualAssessment(Base):
+    """A review with no engine run behind it.
+
+    Reviews used to hang off an audit, which needs a crawlable domain — so a
+    domain nobody had audited yet, one the crawler cannot reach, and every
+    mobile app were all unreviewable. This is the subject of such a review. It
+    yields a compliance verdict and a completion rating, never a GovUX score:
+    that stays deterministic and engine-derived.
+    """
+    __tablename__ = "manual_assessments"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    org_id = Column(UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    domain_id = Column(UUID(as_uuid=True), ForeignKey("domains.id", ondelete="SET NULL"))
+    subject = Column(Text, nullable=False)          # domain url, or an app's name
+    platform = Column(Text, nullable=False, default="website")   # website | app
+    status = Column(Text, nullable=False, default="in_progress")  # in_progress | signed_off
+    verdict = Column(Text)
+    notes = Column(Text)
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    signed_off_at = Column(DateTime(timezone=True))
 
 
 class Finding(Base):

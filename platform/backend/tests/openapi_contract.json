@@ -128,6 +128,14 @@
     "200",
     "422"
   ],
+  "GET /v1/manual-assessments": [
+    "200",
+    "422"
+  ],
+  "GET /v1/manual-assessments/{assessment_id}/checklist": [
+    "200",
+    "422"
+  ],
   "GET /v1/ministries": [
     "200",
     "422"
@@ -300,6 +308,14 @@
     "200",
     "422"
   ],
+  "POST /v1/manual-assessments": [
+    "201",
+    "422"
+  ],
+  "POST /v1/manual-assessments/{assessment_id}/sign-off": [
+    "200",
+    "422"
+  ],
   "POST /v1/notifications/read": [
     "200",
     "422"
@@ -329,6 +345,10 @@
     "422"
   ],
   "PUT /v1/audits/{task_id}/review-checklist/{guideline_id}": [
+    "200",
+    "422"
+  ],
+  "PUT /v1/manual-assessments/{assessment_id}/checklist/{guideline_id}": [
     "200",
     "422"
   ]

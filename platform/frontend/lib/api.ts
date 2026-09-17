@@ -182,6 +182,18 @@ export const api = {
   listAssessments: (kind?: string) => req(`/v1/assessments${kind ? `?kind=${kind}` : ""}`),
   createAssessment: (body: any) =>
     req("/v1/assessments", { method: "POST", body: JSON.stringify(body) }),
+  // standalone manual assessments — a review with no engine run behind it
+  manualAssessments: () => req("/v1/manual-assessments"),
+  createManualAssessment: (body: { domain_id?: string; subject?: string; platform: string }) =>
+    req("/v1/manual-assessments", { method: "POST", body: JSON.stringify(body) }),
+  assessmentChecklist: (id: string, q: Record<string, string> = {}) =>
+    req(`/v1/manual-assessments/${id}/checklist?` + new URLSearchParams(q).toString()),
+  setAssessmentItem: (id: string, guidelineId: string, decision: string, note?: string) =>
+    req(`/v1/manual-assessments/${id}/checklist/${guidelineId}`,
+        { method: "PUT", body: JSON.stringify({ decision, note }) }),
+  signOffAssessment: (id: string, compliant: boolean, notes?: string) =>
+    req(`/v1/manual-assessments/${id}/sign-off`,
+        { method: "POST", body: JSON.stringify({ compliant, notes }) }),
   notifications: () => req("/v1/notifications"),
   markNotificationsRead: (id?: string) =>
     req("/v1/notifications/read", { method: "POST", body: JSON.stringify(id ? { id } : {}) }),

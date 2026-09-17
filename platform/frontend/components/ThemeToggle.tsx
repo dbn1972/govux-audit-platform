@@ -20,12 +20,18 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
 
   useEffect(() => {
     const el = document.documentElement;
-    setTheme((el.getAttribute("data-bs-theme") as Theme) || "light");
+    // data-theme is the UX4G source of truth; fall back to data-bs-theme for
+    // the transition window in case only the legacy attribute is present.
+    setTheme((el.getAttribute("data-theme") as Theme)
+      || (el.getAttribute("data-bs-theme") as Theme) || "light");
     setReady(true);
   }, []);
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
+    // Write both: data-theme for UX4G, data-bs-theme for the shrinking
+    // Bootstrap/gx dark layer, kept in lockstep until the latter is retired.
+    document.documentElement.setAttribute("data-theme", next);
     document.documentElement.setAttribute("data-bs-theme", next);
     try { localStorage.setItem(THEME_KEY, next); } catch { /* private mode */ }
     setTheme(next);
