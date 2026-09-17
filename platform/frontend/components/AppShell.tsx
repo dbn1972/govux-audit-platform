@@ -8,6 +8,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import GovBanner from "@/components/GovBanner";
 import { useFocusTrap } from "@/components/useFocusTrap";
 import NotificationBell from "@/components/NotificationBell";
+import Icon from "@/components/Icon";
 
 type NavGroup = { group: string; steward?: boolean; items: NavItem[] };
 type NavItem = string[] & { studio?: boolean };
@@ -97,13 +98,13 @@ function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
             return (
               <Link key={href} href={href} onClick={onNavigate}
                 aria-current={active ? "page" : undefined} className="gx-nav-link">
-                <i className={`bi ${icon}`} aria-hidden="true" /> <span>{label}</span>
+                <Icon name={icon} size={16} /> <span>{label}</span>
               </Link>
             );
           })}
           {g.group === "Account" && (
             <button type="button" onClick={onSignOut} className="gx-nav-link">
-              <i className="bi bi-box-arrow-right" aria-hidden="true" /> <span>Sign out</span>
+              <Icon name="box-arrow-right" size={16} /> <span>Sign out</span>
             </button>
           )}
         </div>
@@ -114,16 +115,16 @@ function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
 
 function AccessDenied() {
   return (
-    <div className="container-fluid p-4">
-      <div className="gx-card mx-auto mt-5" style={{ maxWidth: 520 }}>
-        <div className="card-body text-center p-4">
-          <div className="gx-empty-icon mb-3"><i className="bi bi-shield-lock" aria-hidden="true" /></div>
+    <div className="container-fluid ux4g-p-m">
+      <div className="gx-card ux4g-mx-auto ux4g-mt-xl" style={{ maxWidth: 520 }}>
+        <div className="gx-card-body ux4g-text-center ux4g-p-m">
+          <div className="gx-empty-icon ux4g-mb-s"><Icon name="shield-lock" size={24} /></div>
           <h1 className="h4" style={{ color: "var(--ux-navy)" }}>This area is for MeitY/NIC stewards</h1>
-          <p className="text-secondary">
+          <p className="gx-muted">
             National oversight, rankings, monitoring and platform configuration are available to
             programme stewards only. Your account manages your own organisation’s domains and audits.
           </p>
-          <Link href="/dashboard" className="btn btn-primary">← Back to your workspace</Link>
+          <Link href="/dashboard" className="ux4g-btn ux4g-btn-primary ux4g-btn-md">← Back to your workspace</Link>
         </div>
       </div>
     </div>
@@ -139,16 +140,16 @@ function IdleWarning({ secondsLeft, onContinue, onSignOut }:
       style={{ position: "fixed", inset: 0, zIndex: 1080, background: "rgba(9,20,40,.45)",
         display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div ref={panel} className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
-        <div className="card-body p-4 text-center">
-          <div className="gx-empty-icon mb-3"><i className="bi bi-hourglass-split" aria-hidden="true" /></div>
+        <div className="gx-card-body ux4g-p-m ux4g-text-center">
+          <div className="gx-empty-icon ux4g-mb-s"><Icon name="hourglass-split" size={24} /></div>
           <h2 id="idle-warning-title" className="h5">Still there?</h2>
-          <p className="text-secondary mb-3">
+          <p className="gx-muted ux4g-mb-s">
             You've been inactive — for your security, you'll be signed out in{" "}
             <strong>{secondsLeft}s</strong> unless you continue.
           </p>
-          <div className="d-flex gap-2 justify-content-center">
-            <button type="button" className="btn btn-primary" onClick={onContinue}>Stay signed in</button>
-            <button type="button" className="btn btn-outline-secondary" onClick={onSignOut}>Sign out now</button>
+          <div className="ux4g-d-flex ux4g-gap-xs ux4g-jc-center">
+            <button type="button" className="ux4g-btn ux4g-btn-primary ux4g-btn-md" onClick={onContinue}>Stay signed in</button>
+            <button type="button" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md" onClick={onSignOut}>Sign out now</button>
           </div>
         </div>
       </div>
@@ -288,22 +289,22 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <div>
       <GovBanner />
 
-      <header className="gx-topbar d-flex align-items-center px-3 sticky-top" style={{ zIndex: 1040 }}>
+      <header className="gx-topbar ux4g-d-flex ux4g-ai-center ux4g-px-s ux4g-sticky-top" style={{ zIndex: 1040 }}>
         {/* hamburger — only on tablet/mobile (<lg) */}
         <button type="button" ref={triggerRef} onClick={() => setOpen(true)}
-          className="gx-icon-btn me-2 d-lg-none"
+          className="gx-icon-btn ux4g-mr-xs ux4g-lg-d-none"
           aria-label="Open navigation menu" aria-expanded={open} aria-controls="app-drawer">
-          <i className="bi bi-list" aria-hidden="true" />
+          <Icon name="list" size={18} />
         </button>
         <Link href="/dashboard" className="gx-brand">
           <BrandMark />
-          <span className="d-none d-sm-block">
+          <span className="ux4g-d-none ux4g-sm-d-block">
             <span className="gx-brand-name">GovUX</span>
             <span className="gx-brand-sub">Audit Platform</span>
           </span>
-          <span className="gx-brand-name d-sm-none">GovUX</span>
+          <span className="gx-brand-name ux4g-sm-d-none">GovUX</span>
         </Link>
-        <div className="ms-auto d-flex align-items-center gap-1">
+        <div className="ux4g-ml-auto ux4g-d-flex ux4g-ai-center ux4g-gap-2xs">
           <ThemeToggle />
           <NotificationBell />
           <div className="gx-menu-wrap">
@@ -318,19 +319,19 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     was a guess. Say who you are signed in as, then offer the two
                     things that follow from that. */}
                 <div className="gx-menu-head">
-                  <div className="fw-semibold text-truncate">{me?.display_name || me?.email || "Signed in"}</div>
-                  <div className="gx-muted text-truncate" style={{ fontSize: ".8125rem" }}>{me?.email}</div>
+                  <div className="ux4g-fw-semibold ux4g-line-clamp-1">{me?.display_name || me?.email || "Signed in"}</div>
+                  <div className="gx-muted ux4g-line-clamp-1" style={{ fontSize: ".8125rem" }}>{me?.email}</div>
                   <div className="gx-muted" style={{ fontSize: ".75rem" }}>
                     {(me?.role || "").replace(/_/g, " ")}{me?.org_name ? ` · ${me.org_name}` : ""}
                   </div>
                 </div>
                 <Link href="/settings" role="menuitem" className="gx-menu-item"
                   onClick={() => setMenuOpen(false)}>
-                  <i className="bi bi-gear" aria-hidden="true" />Team &amp; settings
+                  <Icon name="gear" size={16} />Team &amp; settings
                 </Link>
                 <button type="button" role="menuitem" className="gx-menu-item"
                   onClick={() => { setMenuOpen(false); setConfirmSignOut(true); }}>
-                  <i className="bi bi-box-arrow-right" aria-hidden="true" />Sign out
+                  <Icon name="box-arrow-right" size={16} />Sign out
                 </button>
               </div>
             )}
@@ -338,21 +339,21 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div className="d-flex">
+      <div className="ux4g-d-flex">
         {/* desktop rail — sticky, self-scrolling, hidden below lg */}
-        <aside className="gx-rail d-none d-lg-block flex-shrink-0"
+        <aside className="gx-rail ux4g-d-none ux4g-lg-d-block ux4g-flex-shrink-0"
           style={{ position: "sticky", top: 60, height: "calc(100vh - 60px)", overflowY: "auto" }}>
           {/* Which organisation am I acting for, and as what? Stewards and
               owners see very different screens under the same nav labels, and
               nothing on the page said which one you were. */}
           <div className="gx-context">
-            <div className="gx-label mb-1">Signed in as</div>
+            <div className="gx-label ux4g-mb-2xs">Signed in as</div>
             <div className="gx-context-org">{me?.org_name || me?.email || "—"}</div>
             <div className="gx-muted" style={{ fontSize: ".75rem" }}>
               {(me?.role || "").replace(/_/g, " ") || "\u00a0"}
             </div>
           </div>
-          <div className="px-2 pb-3">
+          <div className="ux4g-px-xs ux4g-pb-s">
             <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={() => setConfirmSignOut(true)} />
           </div>
           <div className="gx-rail-legal">
@@ -363,14 +364,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         {/* tabIndex -1 so the skip link can move focus here, not merely scroll */}
-        <main id="main" tabIndex={-1} className="flex-grow-1"
-          style={{ background: "var(--bs-body-bg)", minWidth: 0, outline: "none" }}>
+        <main id="main" tabIndex={-1} className="ux4g-flex-grow-1"
+          style={{ background: "var(--gx-surface-sunken)", minWidth: 0, outline: "none" }}>
           {denied ? <AccessDenied /> : children}
         </main>
       </div>
 
       {/* mobile / tablet drawer (<lg): backdrop + off-canvas panel, driven by React state */}
-      <div className="d-lg-none" aria-hidden={!open}>
+      <div className="ux4g-lg-d-none" aria-hidden={!open}>
         <div onClick={() => setOpen(false)}
           style={{
             position: "fixed", inset: 0, background: "rgba(9,20,40,.45)", zIndex: 1045,
@@ -385,16 +386,16 @@ export default function AppShell({ children }: { children: ReactNode }) {
             transition: "transform .28s cubic-bezier(.22,.61,.36,1)",
             overflowY: "auto", padding: "10px 8px",
           }}>
-          <div className="d-flex align-items-center justify-content-between px-2 pb-2 mb-1 border-bottom">
-            <span className="fw-bold d-flex align-items-center gap-2">
-              <span className="d-inline-flex align-items-center justify-content-center text-white fw-bold"
+          <div className="ux4g-d-flex ux4g-ai-center ux4g-jc-between ux4g-px-xs ux4g-pb-xs ux4g-mb-2xs ux4g-bb-1">
+            <span className="ux4g-fw-bold ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
+              <span className="ux4g-d-inline-flex ux4g-ai-center ux4g-jc-center ux4g-text-white ux4g-fw-bold"
                 style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#0a3d7a,#0d6efd)", fontSize: 13 }}>GX</span>
               GovUX
             </span>
             <button type="button" onClick={() => setOpen(false)}
-              className="btn btn-link text-secondary p-1 border-0" aria-label="Close navigation menu"
-              style={{ fontSize: 20, lineHeight: 1 }}>
-              <i className="bi bi-x-lg" />
+              className="ux4g-btn ux4g-btn-text-neutral ux4g-p-2xs" aria-label="Close navigation menu"
+              style={{ fontSize: 20, lineHeight: 1, border: 0 }}>
+              <Icon name="x-lg" size={20} />
             </button>
           </div>
           <NavList path={path} isSteward={isSteward} studioEnabled={studioEnabled} onSignOut={() => setConfirmSignOut(true)} onNavigate={() => setOpen(false)} />
@@ -406,16 +407,16 @@ export default function AppShell({ children }: { children: ReactNode }) {
           style={{ position: "fixed", inset: 0, zIndex: 1080, background: "rgba(9,20,40,.45)",
             display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div ref={signOutPanel} className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
-            <div className="gx-card-body text-center">
-              <div className="gx-empty-icon mb-3"><i className="bi bi-box-arrow-right" aria-hidden="true" /></div>
+            <div className="gx-card-body ux4g-text-center">
+              <div className="gx-empty-icon ux4g-mb-s"><Icon name="box-arrow-right" size={24} /></div>
               <h2 id="signout-title" className="h5">Sign out?</h2>
-              <p className="gx-muted mb-3">
+              <p className="gx-muted ux4g-mb-s">
                 You'll need a new one-time code by email to sign back in.
               </p>
-              <div className="d-flex gap-2 justify-content-center">
-                <button type="button" className="btn btn-outline-secondary"
+              <div className="ux4g-d-flex ux4g-gap-xs ux4g-jc-center">
+                <button type="button" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md"
                   onClick={() => setConfirmSignOut(false)}>Stay signed in</button>
-                <button type="button" className="btn btn-primary" onClick={signOut}>Sign out</button>
+                <button type="button" className="ux4g-btn ux4g-btn-primary ux4g-btn-md" onClick={signOut}>Sign out</button>
               </div>
             </div>
           </div>

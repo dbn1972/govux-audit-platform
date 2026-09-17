@@ -20,23 +20,23 @@ export default function States() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">States &amp; Union Territories</h1>
+            <h1 className="ux4g-mb-2xs">States &amp; Union Territories</h1>
             <div className="gx-muted">Average GovUX Score across state government websites, latest audit per domain.</div>
           </div>
         </div>
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="gx-card"><div className="gx-card-body">
-          {rows == null && <div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}
-          {rows?.length === 0 && !err && <div className="gx-muted text-center py-5">No state-tagged organisations audited yet.</div>}
+          {rows == null && <div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}
+          {rows?.length === 0 && !err && <div className="gx-muted ux4g-text-center ux4g-py-l">No state-tagged organisations audited yet.</div>}
           {rows && rows.length > 0 && (
             <>
-              <div className="row g-2">
+              <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs">
                 {rows.map((s) => (
-                  <div className="col-6 col-md-3 col-lg-2" key={s.code}>
+                  <div className="ux4g-cols-span-6 ux4g-md-cols-span-3 ux4g-lg-cols-span-2" key={s.code}>
                     {/* Was white text on the band colour — legible for A and E,
                         marginal for C. Band as a left rule on a normal surface
                         instead, so contrast does not depend on the score. */}
-                    <div className="gx-stat h-100" style={{ borderInlineStart: `3px solid ${col(s.avg_score)}` }}>
+                    <div className="gx-stat ux4g-h-100" style={{ borderInlineStart: `3px solid ${col(s.avg_score)}` }}>
                       <div className="gx-label">{s.code}</div>
                       <div className="gx-stat-value" style={{ color: col(s.avg_score) }}>{s.avg_score}</div>
                       <div className="gx-stat-note">{s.domains} domain{s.domains === 1 ? "" : "s"}</div>
@@ -44,7 +44,7 @@ export default function States() {
                   </div>
                 ))}
               </div>
-              <p className="gx-muted small mt-3 mb-0">
+              <p className="gx-muted small ux4g-mt-s ux4g-mb-none">
                 Each tile is one state or UT, coloured by the band its average GovUX score falls in.
               </p>
             </>

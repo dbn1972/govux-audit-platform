@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import BrandMark from "@/components/BrandMark";
+import Icon from "@/components/Icon";
 
 /** The one footer.
  *
@@ -33,7 +34,7 @@ export default function SiteFooter() {
           <BrandMark size={34} />
           <div>
             <div className="gx-brand-name">GovUX Audit</div>
-            <p className="gx-muted mb-2" style={{ fontSize: ".8125rem", maxWidth: "34ch" }}>
+            <p className="gx-muted ux4g-mb-xs" style={{ fontSize: ".8125rem", maxWidth: "34ch" }}>
               UX and compliance audits for <code>.gov.in</code> and <code>.nic.in</code> services,
               scored against GIGW 3.0, WCAG 2.2 AA and UX4G.
             </p>
@@ -59,9 +60,9 @@ export default function SiteFooter() {
                 <li key={href}>
                   <a href={href} target="_blank" rel="noopener noreferrer">
                     {label}
-                    <i className="bi bi-box-arrow-up-right ms-1" aria-hidden="true"
-                      style={{ fontSize: ".7em" }} />
-                    <span className="visually-hidden"> (opens in a new tab)</span>
+                    <Icon name="box-arrow-up-right" size={11}
+                      className="ux4g-ml-2xs" style={{ verticalAlign: "baseline" }} />
+                    <span className="ux4g-sr-only"> (opens in a new tab)</span>
                   </a>
                 </li>
               ))}

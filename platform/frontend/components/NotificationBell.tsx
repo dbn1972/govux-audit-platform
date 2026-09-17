@@ -3,11 +3,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { relative } from "@/lib/format";
+import Icon from "@/components/Icon";
 
+// Icon vocabulary keyed by notification kind (Icon accepts bare bi-* names).
 const ICON: Record<string, string> = {
-  audit_complete: "bi-clipboard-check",
-  regression: "bi-graph-down-arrow",
-  approval: "bi-inbox",
+  audit_complete: "clipboard-check",
+  regression: "graph-down-arrow",
+  approval: "inbox",
 };
 
 /** The bell, with something behind it.
@@ -45,28 +47,28 @@ export default function NotificationBell() {
 
   return (
     <div className="gx-menu-wrap">
-      <button type="button" className="gx-icon-btn position-relative"
+      <button type="button" className="gx-icon-btn ux4g-relative"
         onClick={() => { setOpen(o => !o); if (!open) load(); }}
         aria-haspopup="menu" aria-expanded={open}
         aria-label={unread ? `Notifications — ${unread} unread` : "Notifications"}>
-        <i className="bi bi-bell" aria-hidden="true" />
+        <Icon name="bell" size={17} />
         {unread > 0 && <span className="gx-badge-dot">{unread > 9 ? "9+" : unread}</span>}
       </button>
 
       {open && (
         <div className="gx-menu gx-menu-wide" role="menu">
-          <div className="gx-menu-head d-flex align-items-center">
-            <span className="fw-semibold">Notifications</span>
+          <div className="gx-menu-head ux4g-d-flex ux4g-ai-center">
+            <span className="ux4g-fw-semibold">Notifications</span>
             {unread > 0 && (
-              <button type="button" className="btn btn-link btn-sm ms-auto p-0"
+              <button type="button" className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm ux4g-ml-auto ux4g-p-none"
                 onClick={markAll}>Mark all read</button>
             )}
           </div>
 
-          {data == null && <div className="gx-muted text-center py-4">Loading…</div>}
+          {data == null && <div className="gx-muted ux4g-text-center ux4g-py-m">Loading…</div>}
 
           {data != null && items.length === 0 && (
-            <div className="gx-muted text-center py-4" style={{ paddingInline: "1rem" }}>
+            <div className="gx-muted ux4g-text-center ux4g-py-m" style={{ paddingInline: "1rem" }}>
               Nothing yet. Finished audits, score regressions and approval
               decisions appear here.
             </div>
@@ -76,11 +78,11 @@ export default function NotificationBell() {
             <Link key={n.id} href={n.link || "/dashboard"} role="menuitem"
               className={`gx-menu-item gx-notif ${n.read ? "" : "gx-notif-unread"}`}
               onClick={() => setOpen(false)}>
-              <i className={`bi ${ICON[n.kind] || "bi-dot"}`} aria-hidden="true" />
+              <Icon name={ICON[n.kind] || "dot"} size={16} />
               <span>
-                <span className="d-block fw-semibold">{n.title}</span>
-                {n.body && <span className="d-block gx-muted" style={{ fontSize: ".8125rem" }}>{n.body}</span>}
-                <span className="d-block gx-muted" style={{ fontSize: ".75rem" }}>{relative(n.created_at)}</span>
+                <span className="ux4g-d-block ux4g-fw-semibold">{n.title}</span>
+                {n.body && <span className="ux4g-d-block gx-muted" style={{ fontSize: ".8125rem" }}>{n.body}</span>}
+                <span className="ux4g-d-block gx-muted" style={{ fontSize: ".75rem" }}>{relative(n.created_at)}</span>
               </span>
             </Link>
           ))}

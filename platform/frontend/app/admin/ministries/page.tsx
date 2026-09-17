@@ -19,17 +19,17 @@ export default function Ministries() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Ministries &amp; departments</h1>
+            <h1 className="ux4g-mb-2xs">Ministries &amp; departments</h1>
             <div className="gx-muted">Quality grouped by organisation, latest audit per domain.</div>
           </div>
         </div>
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="gx-card"><div className="table-responsive">
           <table className="gx-table gx-responsive">
             <thead><tr><th>#</th><th>Ministry / Department</th><th>Domains</th><th>Avg score</th><th>Band</th></tr></thead>
             <tbody>
-              {rows == null && <tr><td colSpan={5} className="text-center py-4"><span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" /></td></tr>}
-              {rows?.length === 0 && !err && <tr><td colSpan={5} className="gx-muted text-center py-5">No audited organisations yet.</td></tr>}
+              {rows == null && <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m"><span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" /></td></tr>}
+              {rows?.length === 0 && !err && <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">No audited organisations yet.</td></tr>}
               {(rows || []).map((r, i) => (
                 <tr key={r.name}>
                   <td data-label="Rank" className="gx-num gx-muted">{i + 1}</td>
@@ -38,14 +38,14 @@ export default function Ministries() {
                   <td data-label="Avg score">
                     {/* the number with its bar: a table of bare averages makes a
                         reader compare digits instead of seeing the spread */}
-                    <div className="d-flex align-items-center gap-2" style={{ maxWidth: 160 }}>
-                      <span className="gx-num fw-bold">{r.avg_score}</span>
-                      <span className="gx-meter flex-grow-1">
+                    <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs" style={{ maxWidth: 160 }}>
+                      <span className="gx-num ux4g-fw-bold">{r.avg_score}</span>
+                      <span className="gx-meter ux4g-flex-grow-1">
                         <span style={{ width: `${r.avg_score}%`, background: bandStyle(r.band).color }} />
                       </span>
                     </div>
                   </td>
-                  <td data-label="Band"><span className="badge" style={bandStyle(r.band)}>{r.band}</span></td>
+                  <td data-label="Band"><span className="ux4g-badge-m" style={bandStyle(r.band)}>{r.band}</span></td>
                 </tr>
               ))}
             </tbody>

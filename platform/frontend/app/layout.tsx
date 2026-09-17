@@ -1,15 +1,23 @@
 import { Noto_Sans, Noto_Sans_Devanagari } from "next/font/google";
 // UX4G Design System, layered:
-//   1. ux4g-web-components — the official UX4G CSS bundle (utilities + components + tokens)
-//   2. bootstrap 5 — still present during migration; being replaced screen by screen
-//   3. ux4g-theme.css — maps the brand onto Bootstrap's variables (legacy layer, shrinking)
-//   4. design-system.css — the gx-* product layer, rebased onto UX4G tokens
-//   5. globals.css — a few app-specific helpers
-// Import order matters: UX4G first so its base can be overridden by the brand
-// layers, and design-system.css last among the token layers so the gx-* system wins.
+//   1. ux4g-web-components — the official UX4G CSS bundle (utilities + components +
+//      tokens). The primary system: every page's layout, spacing, buttons, cards,
+//      alerts, tabs and colour come from ux4g-* classes.
+//   2. bootstrap 5 — retained ONLY for the handful of components UX4G has no drop-in
+//      equivalent for and whose markup we did not restructure: native tables,
+//      form-check/switch, input-group, list-group, progress and the .spinner-border
+//      the e2e a11y suite waits on. Documented residual dependency, not a full stack.
+//   3. ux4g-theme.css — maps the GovUX brand onto Bootstrap's --bs-* variables so those
+//      residual Bootstrap components inherit the brand.
+//   4. design-system.css — the gx-* product layer (page/card/stat/table/pill/report/
+//      review primitives) + the UX4G primary-token rebase to the GovUX brand (Option A).
+//   5. globals.css — a few app-specific helpers.
+// Theme: the app writes BOTH data-theme (drives UX4G) and data-bs-theme (drives the
+// retained Bootstrap components + gx layer) in lockstep — see the pre-paint script below.
+// Import order matters: UX4G first so its base can be overridden by the brand layers,
+// and design-system.css last among the token layers so the gx-* system wins.
 import "ux4g-web-components/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import "./ux4g-theme.css";
 import "./design-system.css";
 import "./globals.css";

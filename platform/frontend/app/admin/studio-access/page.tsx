@@ -27,32 +27,32 @@ export default function StudioAccess() {
     <AppShell><div className="gx-page gx-stack">
       <div className="gx-page-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="mb-1">Studio access</h1>
+          <h1 className="ux4g-mb-2xs">Studio access</h1>
           <div className="gx-muted">
             Which organisations may use GovUX Studio, the AI prototype generator. Studio consumes
             paid model capacity, so access is granted per organisation rather than by default.
           </div>
         </div>
       </div>
-      {err && <div className="alert alert-warning" role="alert">{err}</div>}
+      {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
       <div className="gx-card"><div className="table-responsive">
         <table className="gx-table gx-responsive">
           <thead><tr><th>Organisation</th><th>Type</th><th>Runs</th><th>Studio access</th></tr></thead>
           <tbody>
-            {rows == null && <tr><td colSpan={4} className="text-center py-4"><span className="spinner-border spinner-border-sm text-primary" /></td></tr>}
-            {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted text-center py-5">No organisations.</td></tr>}
+            {rows == null && <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m"><span className="spinner-border spinner-border-sm text-primary" /></td></tr>}
+            {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">No organisations.</td></tr>}
             {(rows || []).map((o) => (
               <tr key={o.id}>
-                <td data-label="Organisation" className="fw-semibold">{o.name}</td>
+                <td data-label="Organisation" className="ux4g-fw-semibold">{o.name}</td>
                 <td data-label="Type"><span className="gx-chip">{o.org_type}</span></td>
                 <td data-label="Runs" className="gx-muted">{o.runs}</td>
                 <td data-label="Studio access">
-                  <div className="form-check form-switch mb-0">
+                  <div className="form-check form-switch ux4g-mb-none">
                     <input className="form-check-input" type="checkbox" role="switch"
                       checked={!!o.studio_enabled} disabled={busy === o.id}
                       onChange={(e) => toggle(o.id, e.target.checked)}
                       aria-label={`Studio access for ${o.name}`} />
-                    <span className="small ms-1">{o.studio_enabled ? "Approved" : "Not approved"}</span>
+                    <span className="small ux4g-ml-2xs">{o.studio_enabled ? "Approved" : "Not approved"}</span>
                   </div>
                 </td>
               </tr>

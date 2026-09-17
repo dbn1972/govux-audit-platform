@@ -25,8 +25,8 @@ export default function TermsAndConditions() {
   return (
     <PublicShell>
       <div className="gx-doc-head">
-        <h1 className="mb-2">Terms &amp; Conditions</h1>
-        <p className="gx-lead gx-prose mb-0">
+        <h1 className="ux4g-mb-xs">Terms &amp; Conditions</h1>
+        <p className="gx-lead gx-prose ux4g-mb-none">
           Welcome to Audit 360, an initiative by UX4G. By accessing or using the Audit 360 platform
           (“Platform”), you agree to comply with and be bound by these terms. Please read them
           carefully. If you do not agree to these terms, you must not use the Platform.

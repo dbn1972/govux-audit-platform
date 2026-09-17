@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 const STATES = ["queued", "crawling", "analyzing", "scoring", "completed"];
@@ -43,7 +44,7 @@ export default function Running({ params }: { params: { id: string } }) {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Auditing {status.domain || "…"}</h1>
+            <h1 className="ux4g-mb-2xs">Auditing {status.domain || "…"}</h1>
             <div className="gx-muted">
               This page updates itself while the engine works. You can close it — the audit
               keeps running, and the report will be waiting under Audit History.
@@ -58,7 +59,7 @@ export default function Running({ params }: { params: { id: string } }) {
             {STATES.map((st, i) => (
               <div key={st} className={`gx-stage ${i < idx ? "gx-stage-done" : i === idx ? "gx-stage-now" : ""}`}>
                 <span className="gx-stage-dot">
-                  {i < idx ? <i className="bi bi-check-lg" aria-hidden="true" /> : i + 1}
+                  {i < idx ? <Icon name="check-lg" size={16} /> : i + 1}
                 </span>
                 <div className="gx-stage-name">{st}</div>
               </div>
@@ -67,8 +68,8 @@ export default function Running({ params }: { params: { id: string } }) {
 
           {/* pages crawled: the only number that moves during the long middle */}
           {!done && status.pages_total > 0 && (
-            <div className="d-flex align-items-center gap-3 mt-4">
-              <span className="gx-meter flex-grow-1">
+            <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-s ux4g-mt-m">
+              <span className="gx-meter ux4g-flex-grow-1">
                 <span style={{ width: `${Math.round((status.pages_done / status.pages_total) * 100)}%`,
                                background: "var(--gx-action)" }} />
               </span>
@@ -78,49 +79,49 @@ export default function Running({ params }: { params: { id: string } }) {
             </div>
           )}
 
-          <div className="gx-muted small mt-3">
+          <div className="gx-muted small ux4g-mt-s">
             Task <code>{params.id}</code>
           </div>
         </div></div>
 
         {done ? (
-          <div className="alert alert-success d-flex justify-content-between align-items-center">
-            <span><i className="bi bi-check-circle-fill me-1" aria-hidden="true" />Completed — GovUX Score <b>{status.overall_score}</b> · Band {status.band}
-              {status.guardrail_active && <span className="badge text-bg-warning ms-2">guard-rail active</span>}</span>
-            <Link href={`/audits/${params.id}/report`} className="btn btn-primary btn-sm">View report →</Link>
+          <div className="ux4g-alert ux4g-alert-success ux4g-d-flex ux4g-jc-between ux4g-ai-center">
+            <span><Icon name="check-circle-fill" size={16} className="ux4g-mr-2xs" />Completed — GovUX Score <b>{status.overall_score}</b> · Band {status.band}
+              {status.guardrail_active && <span className="ux4g-badge-m text-bg-warning ux4g-ml-xs">guard-rail active</span>}</span>
+            <Link href={`/audits/${params.id}/report`} className="ux4g-btn ux4g-btn-primary ux4g-btn-sm">View report →</Link>
           </div>
         ) : status.status === "failed" ? (
-          <div className="alert alert-danger">
+          <div className="ux4g-alert ux4g-alert-error">
             <b>This audit failed.</b>
-            <div className="small mt-1">
+            <div className="small ux4g-mt-2xs">
               It will be retried automatically a few times. If it keeps failing, the site is
               usually blocking automated tools or timing out — try a smaller page count, or
               check that the audit network can reach it.
             </div>
-            <Link href="/audits/new" className="btn btn-outline-secondary btn-sm mt-2">Start another audit</Link>
+            <Link href="/audits/new" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm ux4g-mt-xs">Start another audit</Link>
           </div>
         ) : status.status === "insufficient_evidence" ? (
-          <div className="alert alert-warning">
+          <div className="ux4g-alert ux4g-alert-warning">
             <b>We couldn’t capture this site, so no score was issued.</b>
-            <div className="small mt-1">
+            <div className="small ux4g-mt-2xs">
               The home page was unreachable from the audit network — usually a timeout, a WAF, or a
               geo-block on non-Indian traffic. A score is deliberately withheld rather than guessed from
               incomplete evidence. Confirm the site is reachable (and allowlists our audit IPs), then run it again.
             </div>
-            <Link href="/audits/new" className="btn btn-outline-secondary btn-sm mt-2">Try another audit →</Link>
+            <Link href="/audits/new" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm ux4g-mt-xs">Try another audit →</Link>
           </div>
         ) : status.status === "cancelled" ? (
-          <div className="alert alert-secondary">
+          <div className="ux4g-alert ux4g-alert-info">
             <b>Audit cancelled.</b>
-            <div className="small mt-1">This audit was cancelled before completion. No score was issued.</div>
-            <Link href="/audits/new" className="btn btn-outline-secondary btn-sm mt-2">Start a new audit →</Link>
+            <div className="small ux4g-mt-2xs">This audit was cancelled before completion. No score was issued.</div>
+            <Link href="/audits/new" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm ux4g-mt-xs">Start a new audit →</Link>
           </div>
         ) : (
           <div className="gx-card"><div className="gx-card-body">
-            <div className="d-flex align-items-center gap-2">
+            <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
               <div className="spinner-border spinner-border-sm text-primary" role="status" />
               <span>Running the engine — Playwright · Lighthouse · axe-core · GIGW rules · responsiveness matrix…</span>
-              <button type="button" className="btn btn-sm btn-outline-danger ms-auto"
+              <button type="button" className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm ux4g-ml-auto"
                 onClick={cancelAudit} disabled={cancelling}>
                 {cancelling ? "Cancelling…" : "Cancel audit"}
               </button>

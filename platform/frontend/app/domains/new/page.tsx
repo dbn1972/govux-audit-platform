@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 const GOV = /(\.gov\.in|\.nic\.in)$/i;
@@ -60,7 +61,7 @@ export default function RegisterDomain() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">{resumeId ? "Verify a domain" : "Register & verify a domain"}</h1>
+            <h1 className="ux4g-mb-2xs">{resumeId ? "Verify a domain" : "Register & verify a domain"}</h1>
             <div className="gx-muted">Only <b>.gov.in</b> and <b>.nic.in</b> domains can be audited.</div>
           </div>
         </div>
@@ -75,7 +76,7 @@ export default function RegisterDomain() {
                 className={`gx-stage ${step > (n as number) ? "gx-stage-done"
                   : step === n ? "gx-stage-now" : ""}`}>
                 <span className="gx-stage-dot">
-                  {step > (n as number) ? <i className="bi bi-check-lg" aria-hidden="true" /> : n}
+                  {step > (n as number) ? <Icon name="check-lg" size={16} /> : n}
                 </span>
                 <div className="gx-stage-name" style={{ textTransform: "none" }}>{label}</div>
               </div>
@@ -88,35 +89,35 @@ export default function RegisterDomain() {
             <label className="form-label" htmlFor="domain-url">Website domain</label>
             <div className="input-group">
               <span className="input-group-text">https://</span>
-              <input id="domain-url" className="form-control" placeholder="tracking.indiapost.nic.in"
+              <input id="domain-url" className="ux4g-input" placeholder="tracking.indiapost.nic.in"
                 value={url} onChange={e => setUrl(e.target.value)} />
             </div>
             {err && (
-              <div className="small mt-2" style={{ color: "var(--gx-band-E)" }} role="alert">
-                <i className="bi bi-exclamation-circle me-1" aria-hidden="true" />{err}
+              <div className="small ux4g-mt-xs" style={{ color: "var(--gx-band-E)" }} role="alert">
+                <Icon name="exclamation-circle" size={16} className="ux4g-mr-2xs" />{err}
               </div>
             )}
-            <button className="btn btn-primary mt-3" onClick={register} disabled={busy}>
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-mt-s" onClick={register} disabled={busy}>
               {busy ? "Registering…" : "Register domain"}</button>
           </div></div>
         ) : (
           <div className="gx-card"><div className="gx-card-body">
-            <span className="badge text-bg-warning-subtle mb-2">Not yet verified</span>
-            {url && <div className="fw-semibold mb-2">{url}</div>}
+            <span className="ux4g-badge-m text-bg-warning-subtle ux4g-mb-xs">Not yet verified</span>
+            {url && <div className="ux4g-fw-semibold ux4g-mb-xs">{url}</div>}
 
             {/* Both proofs demonstrate the same thing — control of the domain —
                 so the choice is purely about which one you can actually complete.
                 Plenty of government teams run the web server but not the DNS
                 zone (often held centrally by NIC), and the API has supported the
                 metafile route all along; only the UI hard-coded dns_txt. */}
-            <fieldset className="mb-3">
-              <legend className="form-label fw-semibold fs-6">How do you want to prove ownership?</legend>
+            <fieldset className="ux4g-mb-s">
+              <legend className="form-label ux4g-fw-semibold fs-6">How do you want to prove ownership?</legend>
               <div className="form-check">
                 <input className="form-check-input" type="radio" name="verify-method" id="m-dns"
                   checked={method === "dns_txt"} onChange={() => setMethod("dns_txt")} />
                 <label className="form-check-label" htmlFor="m-dns">
                   <b>DNS TXT record</b>
-                  <span className="d-block gx-muted small">
+                  <span className="ux4g-d-block gx-muted small">
                     Best if you manage the domain&apos;s DNS zone.
                   </span>
                 </label>
@@ -126,7 +127,7 @@ export default function RegisterDomain() {
                   checked={method === "file_upload"} onChange={() => setMethod("file_upload")} />
                 <label className="form-check-label" htmlFor="m-file">
                   <b>File on your website</b>
-                  <span className="d-block gx-muted small">
+                  <span className="ux4g-d-block gx-muted small">
                     Best if DNS is managed elsewhere but you can publish a file.
                   </span>
                 </label>
@@ -135,9 +136,9 @@ export default function RegisterDomain() {
 
             {method === "dns_txt" ? (
               <>
-                <p className="small mb-2">Add this TXT record to your domain&apos;s DNS, then verify:</p>
-                <pre className="bg-dark text-light p-3 rounded small"><code>{reg?.verify_token}</code></pre>
-                <div className="alert alert-light border small">
+                <p className="small ux4g-mb-xs">Add this TXT record to your domain&apos;s DNS, then verify:</p>
+                <pre className="bg-dark text-light ux4g-p-s ux4g-radius-m small"><code>{reg?.verify_token}</code></pre>
+                <div className="alert alert-light ux4g-b-1 small">
                   ⏱ DNS changes can take up to 30 minutes; we re-check automatically.
                   You can leave this page — the record is kept, and “Verify” on your
                   domains list brings you straight back here.
@@ -145,15 +146,15 @@ export default function RegisterDomain() {
               </>
             ) : (
               <>
-                <p className="small mb-2">
+                <p className="small ux4g-mb-xs">
                   Publish a file at this address containing exactly the text below, then verify:
                 </p>
-                <pre className="bg-dark text-light p-3 rounded small"><code>
+                <pre className="bg-dark text-light ux4g-p-s ux4g-radius-m small"><code>
                   https://{url || "your-domain.gov.in"}/.well-known/govux-verify.txt
                 </code></pre>
-                <p className="small mb-2">File contents:</p>
-                <pre className="bg-dark text-light p-3 rounded small"><code>{reg?.verify_token}</code></pre>
-                <div className="alert alert-light border small">
+                <p className="small ux4g-mb-xs">File contents:</p>
+                <pre className="bg-dark text-light ux4g-p-s ux4g-radius-m small"><code>{reg?.verify_token}</code></pre>
+                <div className="alert alert-light ux4g-b-1 small">
                   The file must be served over HTTPS and reachable without sign-in.
                   You can leave this page — “Verify” on your domains list brings you
                   straight back here.
@@ -161,8 +162,8 @@ export default function RegisterDomain() {
               </>
             )}
 
-            {err && <div className="text-danger small mb-2">✗ {err}</div>}
-            <button className="btn btn-primary" onClick={verify} disabled={busy}>
+            {err && <div className="ux4g-text-error small ux4g-mb-xs">✗ {err}</div>}
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" onClick={verify} disabled={busy}>
               {busy ? "Checking…" : "Verify now"}</button>
           </div></div>
         )}

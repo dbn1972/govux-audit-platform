@@ -1,4 +1,5 @@
 import PublicShell from "@/components/PublicShell";
+import Icon from "@/components/Icon";
 
 export const metadata = {
   title: "About Audit 360 — GovUX Audit Platform",
@@ -11,7 +12,7 @@ export default function AboutUs() {
   return (
     <PublicShell>
       <div className="gx-prose">
-        <h1 className="mb-2">About Audit 360</h1>
+        <h1 className="ux4g-mb-xs">About Audit 360</h1>
         <p className="gx-lead">
           A comprehensive UX audit tool for evaluating and improving the user experience of a website.
         </p>
@@ -26,12 +27,12 @@ export default function AboutUs() {
           performance monitoring of the same.
         </p>
         <div className="gx-callout">
-          <i className="bi bi-info-circle" aria-hidden="true" />
+          <Icon name="info-circle" size={20} />
           <div>
             <b>Note:</b> This tool is currently best suited for conducting UX audits of key pages such
             as the Homepage, About Us, Contact Us, and Sign Up sections of a website. Additionally, you
             may include up to three more links from the same website for analysis.
-            <p className="mb-0 mt-2">
+            <p className="ux4g-mb-none ux4g-mt-xs">
               The UX4G team is actively working to enhance the tool’s capabilities to support full
               sitemap coverage, ensuring a more comprehensive and automated UX audit experience. We are
               committed to delivering the best possible experience.
@@ -79,7 +80,7 @@ export default function AboutUs() {
           ["bi-check2-square", "UX4G compliance matrix", "A compliance check against UX4G standards across 99+ UX/UI parameters, with a score and recommendations."],
         ].map(([icon, title, body]) => (
           <div className="gx-feature-card" key={title}>
-            <div className="gx-feature-icon"><i className={`bi ${icon}`} aria-hidden="true" /></div>
+            <div className="gx-feature-icon"><Icon name={icon} size={24} /></div>
             <h3>{title}</h3>
             <p>{body}</p>
           </div>
@@ -101,19 +102,24 @@ export default function AboutUs() {
         </p>
       </div>
 
-      <div className="gx-cta mt-5">
+      <div className="gx-cta ux4g-mt-l">
         <div>
-          <h2 className="h4 mb-1">Scan a site now</h2>
-          <p className="mb-0" style={{ opacity: .85, maxWidth: "56ch" }}>
+          <h2 className="h4 ux4g-mb-2xs">Scan a site now</h2>
+          <p className="ux4g-mb-none" style={{ opacity: .85, maxWidth: "56ch" }}>
             One public page, no sign-in, a score and a PDF in seconds. Sign in with a government email
             to audit up to ten pages and track scores over time.
           </p>
         </div>
-        <div className="d-flex gap-2 flex-wrap">
-          <a href="/" className="btn btn-light fw-semibold" style={{ color: "var(--gx-navy-800)" }}>
+        {/* Light-on-dark CTA buttons: UX4G ships no light button variant, so
+            these keep the ux4g-btn shape/size and carry their colours inline
+            against the gx-cta gradient (documented custom, per contract Rule 7). */}
+        <div className="ux4g-d-flex ux4g-gap-xs ux4g-flex-wrap">
+          <a href="/" className="ux4g-btn ux4g-btn-md ux4g-fw-semibold"
+            style={{ background: "#fff", color: "var(--gx-navy-800)", border: "1px solid #fff" }}>
             Free scan
           </a>
-          <a href="/login" className="btn btn-outline-light fw-semibold">Sign in</a>
+          <a href="/login" className="ux4g-btn ux4g-btn-md ux4g-fw-semibold"
+            style={{ background: "transparent", color: "#fff", border: "1px solid rgba(255,255,255,.7)" }}>Sign in</a>
         </div>
       </div>
     </PublicShell>

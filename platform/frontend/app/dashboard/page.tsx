@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { BAND_COLOR as bandColor, bandFor } from "@/lib/score";
 import { relative } from "@/lib/format";
@@ -37,23 +38,23 @@ export default function Dashboard() {
 
       <div className="gx-page-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="mb-1">Your workspace</h1>
+          <h1 className="ux4g-mb-2xs">Your workspace</h1>
           <div className="gx-muted">
             {domains == null ? "Loading your estate…"
               : `${me?.org_name ? me.org_name + " · " : ""}${list.length} registered domain${list.length === 1 ? "" : "s"}`}
           </div>
         </div>
         <div className="gx-actions">
-          <Link href="/domains/new" className="btn btn-outline-secondary">
-            <i className="bi bi-plus-lg me-1" aria-hidden="true" />Add domain
+          <Link href="/domains/new" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md">
+            <Icon name="plus-lg" size={16} className="ux4g-mr-2xs" />Add domain
           </Link>
-          <Link href="/audits/new" className="btn btn-primary">
-            <i className="bi bi-play-fill me-1" aria-hidden="true" />New audit
+          <Link href="/audits/new" className="ux4g-btn ux4g-btn-primary ux4g-btn-md">
+            <Icon name="play-fill" size={16} className="ux4g-mr-2xs" />New audit
           </Link>
         </div>
       </div>
 
-      {err && <div className="alert alert-warning" role="alert">{err}</div>}
+      {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
       {/* Four figures, and the fourth is the one that matters: an estate with
           three verified domains and no score is not a healthy estate, which the
@@ -93,9 +94,9 @@ export default function Dashboard() {
       {nothingAudited && (
         <div className="gx-card">
           <div className="gx-empty">
-            <div className="gx-empty-icon"><i className="bi bi-clipboard-check" aria-hidden="true" /></div>
-            <h2 className="mt-3 mb-1">Nothing audited yet</h2>
-            <p className="gx-muted mb-0" style={{ maxWidth: 560, marginInline: "auto" }}>
+            <div className="gx-empty-icon"><Icon name="clipboard-check" size={24} /></div>
+            <h2 className="ux4g-mt-s ux4g-mb-2xs">Nothing audited yet</h2>
+            <p className="gx-muted ux4g-mb-none" style={{ maxWidth: 560, marginInline: "auto" }}>
               Your domains are verified and ready. An audit crawls the site, runs the
               accessibility, GIGW, UX4G and performance checks, and returns a 0–100
               GovUX score with the evidence behind it.
@@ -103,22 +104,22 @@ export default function Dashboard() {
             <div className="gx-steps">
               <div className="gx-step">
                 <span className="gx-step-n">1</span>
-                <div className="fw-semibold mt-2">Pick a domain</div>
+                <div className="ux4g-fw-semibold ux4g-mt-xs">Pick a domain</div>
                 <div className="gx-muted small">Choose which service to inspect and how deep to crawl.</div>
               </div>
               <div className="gx-step">
                 <span className="gx-step-n">2</span>
-                <div className="fw-semibold mt-2">We run the checks</div>
+                <div className="ux4g-fw-semibold ux4g-mt-xs">We run the checks</div>
                 <div className="gx-muted small">Automated rules run first; anything requiring judgement is flagged for review.</div>
               </div>
               <div className="gx-step">
                 <span className="gx-step-n">3</span>
-                <div className="fw-semibold mt-2">Fix what matters first</div>
+                <div className="ux4g-fw-semibold ux4g-mt-xs">Fix what matters first</div>
                 <div className="gx-muted small">Findings arrive ranked by impact, with the guideline each one cites.</div>
               </div>
             </div>
-            <Link href="/audits/new" className="btn btn-primary mt-4">
-              <i className="bi bi-play-fill me-1" aria-hidden="true" />Run your first audit
+            <Link href="/audits/new" className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-mt-m">
+              <Icon name="play-fill" size={16} className="ux4g-mr-2xs" />Run your first audit
             </Link>
           </div>
         </div>
@@ -128,7 +129,7 @@ export default function Dashboard() {
         <div className="gx-card-head">
           <h2>My domains</h2>
           <div className="gx-actions">
-            <Link href="/domains" className="btn btn-sm btn-outline-secondary">Manage domains</Link>
+            <Link href="/domains" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm">Manage domains</Link>
           </div>
         </div>
         <div className="table-responsive">
@@ -136,17 +137,17 @@ export default function Dashboard() {
             <thead>
               <tr>
                 <th>Domain</th><th>Status</th><th>Latest score</th>
-                <th>Last audited</th><th><span className="visually-hidden">Actions</span></th>
+                <th>Last audited</th><th><span className="ux4g-sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody>
               {domains == null && (
-                <tr><td colSpan={5} className="text-center py-4">
+                <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m">
                   <span className="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true" />Loading…
                 </td></tr>
               )}
               {domains?.length === 0 && !err && (
-                <tr><td colSpan={5} className="text-center py-4">
+                <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m">
                   <span className="gx-muted">No domains yet. </span>
                   <Link href="/domains/new">Register your first domain →</Link>
                 </td></tr>
@@ -155,7 +156,7 @@ export default function Dashboard() {
                 <tr key={d.id}>
                   <td data-label="Domain">
                     <div className="gx-cell-primary">{d.url}</div>
-                    {d.category && <span className="gx-chip mt-1">{d.category}</span>}
+                    {d.category && <span className="gx-chip ux4g-mt-2xs">{d.category}</span>}
                   </td>
                   <td data-label="Status">
                     <span className={`gx-pill ${d.verify_status === "verified" ? "gx-pill-ok" : "gx-pill-wait"}`}>
@@ -164,11 +165,11 @@ export default function Dashboard() {
                   </td>
                   <td data-label="Latest score">
                     {d.latest_score != null ? (
-                      <div className="d-flex align-items-center gap-2" style={{ maxWidth: 180 }}>
-                        <span className="gx-num fw-bold" style={{ color: bandColor[d.latest_band || ""] }}>
+                      <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs" style={{ maxWidth: 180 }}>
+                        <span className="gx-num ux4g-fw-bold" style={{ color: bandColor[d.latest_band || ""] }}>
                           {d.latest_score}
                         </span>
-                        <span className="gx-meter flex-grow-1">
+                        <span className="gx-meter ux4g-flex-grow-1">
                           <span style={{ width: `${d.latest_score}%`,
                                          background: bandColor[d.latest_band || ""] || "var(--gx-ink-400)" }} />
                         </span>
@@ -176,10 +177,10 @@ export default function Dashboard() {
                     ) : <span className="gx-muted">Not audited</span>}
                   </td>
                   <td data-label="Last audited" className="gx-muted">{relative(d.last_audited_at)}</td>
-                  <td data-label="" className="text-end">
+                  <td data-label="" className="ux4g-text-end">
                     {d.verify_status === "verified"
-                      ? <Link href={`/audits/new?domain=${d.id}`} className="btn btn-sm btn-outline-primary">Run audit</Link>
-                      : <Link href="/domains/new" className="btn btn-sm btn-outline-secondary">Verify</Link>}
+                      ? <Link href={`/audits/new?domain=${d.id}`} className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm">Run audit</Link>
+                      : <Link href="/domains/new" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm">Verify</Link>}
                   </td>
                 </tr>
               ))}

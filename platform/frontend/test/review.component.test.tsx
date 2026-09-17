@@ -130,7 +130,7 @@ describe("Guided manual review", () => {
     render(<Review />);
     expect(await screen.findByText("digilocker.gov.in")).toBeInTheDocument();
     // the verdict badge specifically (the phrase also appears in the intro copy)
-    expect(screen.getByText("partially compliant", { selector: "span.badge" })).toBeInTheDocument();
+    expect(screen.getByText("partially compliant", { selector: "span.ux4g-badge-m" })).toBeInTheDocument();
     expect(auditStatus).toHaveBeenCalledWith("T1");
   });
 
@@ -171,7 +171,7 @@ describe("Guided manual review", () => {
     await screen.findByText(/Search returns relevant results/);
     const row = screen.getByText("UX4G-SEA-001").closest(".gx-check")!;
     // an already-failed item comes back selected, not blank
-    expect(within(row as HTMLElement).getByRole("button", { name: "No" })).toHaveClass("btn-primary");
+    expect(within(row as HTMLElement).getByRole("button", { name: "No" })).toHaveClass("ux4g-btn-primary");
     expect(screen.getByText(/top hit unrelated/)).toBeInTheDocument();
   });
 

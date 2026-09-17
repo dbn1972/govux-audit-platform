@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { BAND_COLOR } from "@/lib/score";
 
@@ -87,7 +88,7 @@ export default function Organisations() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Organisations</h1>
+            <h1 className="ux4g-mb-2xs">Organisations</h1>
             <div className="gx-muted">
               Every ministry, department, state body and PSU on the platform, with how much each is
               actually using it. Organisations otherwise only appear as a side effect — auto-named
@@ -95,38 +96,38 @@ export default function Organisations() {
             </div>
           </div>
           <div className="gx-actions">
-            <button className="btn btn-primary" aria-expanded={showNew}
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" aria-expanded={showNew}
               onClick={() => { setShowNew((v) => !v); setEditing(null); }}>
-              <i className="bi bi-plus-lg me-1" aria-hidden="true" />New organisation
+              <Icon name="plus-lg" size={16} className="ux4g-mr-2xs" />New organisation
             </button>
           </div>
         </div>
 
         {showNew && (
           <div className="gx-card"><div className="gx-card-body">
-            <h2 className="h6 mb-3">New organisation</h2>
-            <form className="row g-2 align-items-end" onSubmit={create}>
-              <div className="col-md-5">
+            <h2 className="h6 ux4g-mb-s">New organisation</h2>
+            <form className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs ux4g-ai-end" onSubmit={create}>
+              <div className="ux4g-cols-span-12 ux4g-md-cols-span-5">
                 <label className="form-label" htmlFor="new-name">Name</label>
-                <input id="new-name" required className="form-control"
+                <input id="new-name" required className="ux4g-input ux4g-w-100"
                   placeholder="Ministry of Rural Development"
                   value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </div>
-              <div className="col-md-3">
+              <div className="ux4g-cols-span-12 ux4g-md-cols-span-3">
                 <label className="form-label" htmlFor="new-type">Type</label>
-                <select id="new-type" className="form-select" value={form.org_type}
+                <select id="new-type" className="ux4g-form-select" value={form.org_type}
                   onChange={(e) => setForm({ ...form, org_type: e.target.value })}>
                   {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
-              <div className="col-md-2">
+              <div className="ux4g-cols-span-12 ux4g-md-cols-span-2">
                 <label className="form-label" htmlFor="new-state">State / UT</label>
-                <input id="new-state" className="form-control" placeholder="KA"
+                <input id="new-state" className="ux4g-input ux4g-w-100" placeholder="KA"
                   maxLength={8} value={form.state_code}
                   onChange={(e) => setForm({ ...form, state_code: e.target.value.toUpperCase() })} />
               </div>
-              <div className="col-md-2">
-                <button className="btn btn-primary btn-sm w-100" disabled={busy}>
+              <div className="ux4g-cols-span-12 ux4g-md-cols-span-2">
+                <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm ux4g-w-100" disabled={busy}>
                   {busy ? "Creating…" : "Create"}</button>
               </div>
             </form>
@@ -134,55 +135,55 @@ export default function Organisations() {
         )}
 
         {editing && (
-          <div className="gx-card mb-3" style={{ borderColor: "var(--gx-action)" }}><div className="gx-card-body">
+          <div className="gx-card ux4g-mb-s" style={{ borderColor: "var(--gx-action)" }}><div className="gx-card-body">
             <h2 className="h6">Edit organisation</h2>
-            <form className="row g-2 align-items-end" onSubmit={saveEdit}>
-              <div className="col-md-5">
+            <form className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs ux4g-ai-end" onSubmit={saveEdit}>
+              <div className="ux4g-cols-span-12 ux4g-md-cols-span-5">
                 <label className="form-label" htmlFor="ed-name">Name</label>
-                <input id="ed-name" required className="form-control"
+                <input id="ed-name" required className="ux4g-input ux4g-w-100"
                   value={editing.name}
                   onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
               </div>
-              <div className="col-md-3">
+              <div className="ux4g-cols-span-12 ux4g-md-cols-span-3">
                 <label className="form-label" htmlFor="ed-type">Type</label>
-                <select id="ed-type" className="form-select" value={editing.org_type}
+                <select id="ed-type" className="ux4g-form-select" value={editing.org_type}
                   onChange={(e) => setEditing({ ...editing, org_type: e.target.value })}>
                   {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
-              <div className="col-md-2">
+              <div className="ux4g-cols-span-12 ux4g-md-cols-span-2">
                 <label className="form-label" htmlFor="ed-state">State / UT</label>
-                <input id="ed-state" className="form-control" maxLength={8}
+                <input id="ed-state" className="ux4g-input ux4g-w-100" maxLength={8}
                   value={editing.state_code || ""}
                   onChange={(e) => setEditing({ ...editing, state_code: e.target.value.toUpperCase() })} />
               </div>
-              <div className="col-md-2 d-flex gap-1">
-                <button className="btn btn-primary btn-sm flex-grow-1" disabled={busy}>
+              <div className="ux4g-cols-span-12 ux4g-md-cols-span-2 ux4g-d-flex ux4g-gap-2xs">
+                <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm ux4g-flex-grow-1" disabled={busy}>
                   {busy ? "Saving…" : "Save"}</button>
-                <button type="button" className="btn btn-outline-secondary btn-sm"
+                <button type="button" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm"
                   onClick={() => setEditing(null)}>Cancel</button>
               </div>
             </form>
           </div></div>
         )}
 
-        <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
-          <input className="form-control" style={{ maxWidth: 280 }}
+        <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center ux4g-mb-s">
+          <input className="ux4g-input ux4g-w-100" style={{ maxWidth: 280 }}
             placeholder="Search by name…" value={q} aria-label="Search organisations by name"
             onChange={(e) => setQ(e.target.value)} />
-          <select className="form-select" style={{ maxWidth: 180 }}
+          <select className="ux4g-form-select" style={{ maxWidth: 180 }}
             value={orgType} aria-label="Filter by organisation type"
             onChange={(e) => { setOrgType(e.target.value); setOffset(0); }}>
             <option value="">All types</option>
             {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
-          <span className="gx-muted small ms-auto">
+          <span className="gx-muted small ux4g-ml-auto">
             {rows == null ? "Loading…" : total === 0 ? "No matches" : `${from}–${to} of ${total.toLocaleString()}`}
           </span>
         </div>
 
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
-        {msg && <div className="alert alert-success py-2" role="status">{msg}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
+        {msg && <div className="ux4g-alert ux4g-alert-success ux4g-py-xs" role="status">{msg}</div>}
 
         <div className="gx-card">
           <div className="table-responsive"><table className="gx-table gx-responsive">
@@ -195,21 +196,21 @@ export default function Organisations() {
             </thead>
             <tbody>
               {rows == null && (
-                <tr><td colSpan={10} className="text-center py-4">
+                <tr><td colSpan={10} className="ux4g-text-center ux4g-py-m">
                   <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading…
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={10} className="gx-muted text-center py-5">
+                <tr><td colSpan={10} className="gx-muted ux4g-text-center ux4g-py-l">
                   No organisations match this search.
                 </td></tr>
               )}
               {(rows || []).map((o) => (
                 <tr key={o.id}>
                   <td data-label="Organisation" className="gx-cell-primary">{o.name}</td>
-                  <td data-label="Type"><span className="badge text-bg-light">{o.org_type}</span></td>
+                  <td data-label="Type"><span className="ux4g-badge-m text-bg-light">{o.org_type}</span></td>
                   <td data-label="State / UT" className="small">{o.state_code || <span className="gx-muted">—</span>}</td>
-                  <td data-label="Domains" className="fw-bold gx-num">{o.domain_count}</td>
+                  <td data-label="Domains" className="ux4g-fw-bold gx-num">{o.domain_count}</td>
                   <td data-label="Users" className="gx-num">{o.user_count}</td>
                   <td data-label="Audits" className="small">
                     {o.audit_count
@@ -221,10 +222,10 @@ export default function Organisations() {
                     : <span className="gx-muted">—</span>}</td>
                   <td data-label="Last audit" className="small gx-muted">{fmt(o.last_audited_at)}</td>
                   <td data-label="Studio">{o.studio_enabled
-                    ? <span className="badge text-bg-success-subtle text-success">Enabled</span>
+                    ? <span className="ux4g-badge-m text-bg-success-subtle text-success">Enabled</span>
                     : <span className="gx-muted small">—</span>}</td>
-                  <td data-label="" className="text-end">
-                    <button className="btn btn-sm btn-link"
+                  <td data-label="" className="ux4g-text-end">
+                    <button className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm"
                       onClick={() => { setEditing(o); setShowNew(false); }}>Edit</button>
                   </td>
                 </tr>
@@ -233,12 +234,12 @@ export default function Organisations() {
           </table></div>
 
           {total > PAGE && (
-            <div className="card-footer bg-white d-flex align-items-center gap-2">
-              <button className="btn btn-sm btn-outline-secondary" disabled={offset === 0}
+            <div className="card-footer bg-white ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
+              <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" disabled={offset === 0}
                 onClick={() => setOffset((o) => Math.max(0, o - PAGE))}>← Previous</button>
-              <button className="btn btn-sm btn-outline-secondary" disabled={to >= total}
+              <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" disabled={to >= total}
                 onClick={() => setOffset((o) => o + PAGE)}>Next →</button>
-              <span className="gx-muted small ms-auto">Page {Math.floor(offset / PAGE) + 1} of {Math.ceil(total / PAGE)}</span>
+              <span className="gx-muted small ux4g-ml-auto">Page {Math.floor(offset / PAGE) + 1} of {Math.ceil(total / PAGE)}</span>
             </div>
           )}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 const SAMPLE = `url,organisation,org_type,state_code,category
@@ -45,7 +46,7 @@ export default function Registry() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">National register import</h1>
+            <h1 className="ux4g-mb-2xs">National register import</h1>
             <div className="gx-muted">Bulk-load the .gov.in / .nic.in estate so the National Dashboard, League Table and the
           ministry / state roll-ups report against a real denominator. Imported domains are
           recorded as <b>known</b>, not verified — DNS-TXT verification remains the only way an
@@ -53,21 +54,21 @@ export default function Registry() {
           </div>
         </div>
 
-        <div className="gx-card mb-3">
+        <div className="gx-card ux4g-mb-s">
           <div className="gx-card-head">
             <h2>CSV extract</h2>
-            <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+            <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
               Preview, then import — nothing is written until you do
             </span>
           </div>
           <div className="gx-card-body">
-            <div className="d-flex flex-wrap gap-2 align-items-center mb-2">
-              <input type="file" accept=".csv,text/csv" className="form-control"
+            <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center ux4g-mb-xs">
+              <input type="file" accept=".csv,text/csv" className="ux4g-input ux4g-w-100"
                 style={{ maxWidth: 320 }} aria-label="Choose a CSV file" onChange={onFile} />
-              <button className="btn btn-sm btn-outline-secondary"
+              <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm"
                 onClick={() => { setCsv(SAMPLE); setRes(null); }}>Use sample</button>
             </div>
-            <textarea className="form-control font-monospace" rows={10} spellCheck={false}
+            <textarea className="ux4g-input ux4g-w-100 font-monospace" rows={10} spellCheck={false}
               aria-label="Registry CSV contents"
               placeholder={SAMPLE}
               value={csv} onChange={(e) => { setCsv(e.target.value); setRes(null); }} />
@@ -77,22 +78,22 @@ export default function Registry() {
               <code>state_code</code>, <code>category</code>. Up to 5,000 rows per import.
             </div>
           </div>
-          <div className="gx-card-body d-flex gap-2 align-items-center flex-wrap"
+          <div className="gx-card-body ux4g-d-flex ux4g-gap-xs ux4g-ai-center ux4g-flex-wrap"
             style={{ borderTop: "1px solid var(--gx-border)", background: "var(--gx-surface-muted)" }}>
-            <button className="btn btn-outline-primary" disabled={!csv.trim() || busy}
+            <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!csv.trim() || busy}
               onClick={() => run(true)}>{busy ? "Checking…" : "Preview"}</button>
-            <button className="btn btn-primary" disabled={!previewed || busy}
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" disabled={!previewed || busy}
               onClick={() => run(false)}>Import for real</button>
             {!previewed && (
               <span className="gx-muted small">
-                <i className="bi bi-info-circle me-1" aria-hidden="true" />
+                <Icon name="info-circle" size={16} className="ux4g-mr-2xs" />
                 Preview first — the import is checked against the register before anything is written.
               </span>
             )}
           </div>
         </div>
 
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
         {res && (
           <div className="gx-card">
@@ -100,7 +101,7 @@ export default function Registry() {
               {res.dry_run ? "Preview — nothing has been saved" : "Import complete"}
             </div>
             <div className="gx-card-body">
-              <div className="gx-stats mb-4">
+              <div className="gx-stats ux4g-mb-m">
                 {[["Rows read", res.total_rows, undefined, "in the file"],
                   [res.dry_run ? "Would import" : "Imported", res.imported,
                    "var(--gx-band-A)", res.dry_run ? "new to the register" : "added to the register"],
@@ -123,7 +124,7 @@ export default function Registry() {
                   {/* an import creates organisations as a side effect; naming
                       them is how a steward catches "Dept of Posts" arriving
                       alongside the "Department of Posts" that already exists */}
-                  <h3 className="h6 mb-1">
+                  <h3 className="h6 ux4g-mb-2xs">
                     Organisations this import creates ({res.new_organisations.length})
                   </h3>
                   <p className="small">

@@ -13,9 +13,9 @@ export default function Standards() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">
+            <h1 className="ux4g-mb-2xs">
               Standards &amp; rules engine
-              <span className="badge text-bg-primary-subtle ms-2" style={{ verticalAlign: "middle" }}>v3.2</span>
+              <span className="ux4g-badge-m text-bg-primary-subtle ux4g-ml-xs" style={{ verticalAlign: "middle" }}>v3.2</span>
             </h1>
             <div className="gx-muted">
               The weights and rule sets every score is produced from. Versioned and change-logged,
@@ -23,29 +23,29 @@ export default function Standards() {
             </div>
           </div>
           <div className="gx-actions">
-            <button className="btn btn-primary">Publish new version</button>
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md">Publish new version</button>
           </div>
         </div>
-        <div className="row g-3">
-          <div className="col-lg-7"><div className="gx-card">
+        <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-7"><div className="gx-card">
             <div className="gx-card-head">
               <h2>Category weights</h2>
-              <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>must total 100%</span>
+              <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>must total 100%</span>
             </div>
             <div className="gx-card-body">
               {WEIGHTS.map(([name, wt]) => (
-                <div className="d-flex align-items-center gap-3 my-2" key={name as string}>
+                <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-s ux4g-my-xs" key={name as string}>
                   <div style={{ width: 220, fontSize: 13 }}>{name}</div>
-                  <div className="score-bar flex-grow-1"><i style={{ width: `${(wt as number) * 4}%`, background: "#0d6efd" }} /></div>
+                  <div className="score-bar ux4g-flex-grow-1"><i style={{ width: `${(wt as number) * 4}%`, background: "#0d6efd" }} /></div>
                   <b style={{ width: 40, textAlign: "right", color: "var(--gx-navy-800)" }}>{wt}%</b>
                 </div>
               ))}
-              <div className="alert alert-light border small mt-2 mb-0">
+              <div className="alert alert-light ux4g-b-1 small ux4g-mt-xs ux4g-mb-none">
                 ℹ Weight changes apply only to <b>future</b> audits and create a new engine version. Past scores stay tied to their version.
               </div>
             </div>
           </div></div>
-          <div className="col-lg-5"><div className="gx-card">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-5"><div className="gx-card">
             <div className="gx-card-head">Guard-rail rules</div>
             <div className="gx-card-body">
               {[["Critical accessibility failure caps at Band C", true],
@@ -56,7 +56,7 @@ export default function Standards() {
                   <label className="form-check-label small">{label}</label>
                 </div>
               ))}
-              <div className="alert alert-warning small mt-3 mb-0">🔐 Only Programme-Admins can publish; changes require a second approver.</div>
+              <div className="ux4g-alert ux4g-alert-warning small ux4g-mt-s ux4g-mb-none">🔐 Only Programme-Admins can publish; changes require a second approver.</div>
             </div>
           </div></div>
         </div>

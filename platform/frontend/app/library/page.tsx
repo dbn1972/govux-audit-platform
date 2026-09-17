@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 // No demo fallback: this page used to seed itself with four hardcoded
@@ -40,66 +41,66 @@ export default function Library() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Guideline library</h1>
+            <h1 className="ux4g-mb-2xs">Guideline library</h1>
             <div className="gx-muted">Every check explained in plain language with a good example.</div>
           </div>
         </div>
-        <div className="gx-card"><div className="gx-card-body d-flex gap-3 flex-wrap align-items-center">
-          <div className="d-flex gap-2 flex-wrap">
+        <div className="gx-card"><div className="gx-card-body ux4g-d-flex ux4g-gap-s ux4g-flex-wrap ux4g-ai-center">
+          <div className="ux4g-d-flex ux4g-gap-xs ux4g-flex-wrap">
             {["", "WCAG", "GIGW", "UX4G", "CWV"].map(f => (
               <button key={f} onClick={() => setFam(f)} aria-pressed={fam === f}
-                className={`btn btn-sm ${fam === f ? "btn-primary" : "btn-outline-secondary"}`}>{f || "All"}</button>
+                className={`ux4g-btn ux4g-btn-sm ${fam === f ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`}>{f || "All"}</button>
             ))}
           </div>
-          <div className="flex-grow-1" style={{ minWidth: 220, maxWidth: 420 }}>
-            <label htmlFor="lib-search" className="visually-hidden">Search guidelines</label>
+          <div className="ux4g-flex-grow-1" style={{ minWidth: 220, maxWidth: 420 }}>
+            <label htmlFor="lib-search" className="ux4g-sr-only">Search guidelines</label>
             <div className="input-group">
-              <span className="input-group-text"><i className="bi bi-search" aria-hidden="true" /></span>
-              <input id="lib-search" className="form-control" value={q} type="search"
+              <span className="input-group-text"><Icon name="search" size={16} /></span>
+              <input id="lib-search" className="ux4g-input ux4g-w-100" value={q} type="search"
                 placeholder="Search by id, title or wording…"
                 onChange={(e) => setQ(e.target.value)} />
             </div>
           </div>
           {/* A library is unusable without knowing its size: 470 entries behind
               five chips looked identical to 40. */}
-          <div className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }} aria-live="polite">
+          <div className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }} aria-live="polite">
             {rows == null ? "Loading…"
               : needle || fam
                 ? `${matches.length} of ${all.length} guideline${all.length === 1 ? "" : "s"}`
                 : `${all.length} guideline${all.length === 1 ? "" : "s"}`}
           </div>
         </div></div>
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         {rows == null && !err && (
-          <div className="text-center py-5">
+          <div className="ux4g-text-center ux4g-py-l">
             <span className="spinner-border text-primary" role="status" aria-label="Loading the library" />
           </div>
         )}
         {rows != null && matches.length === 0 && !err && (
           <div className="gx-card"><div className="gx-empty">
-            <div className="gx-empty-icon"><i className="bi bi-search" aria-hidden="true" /></div>
-            <h2 className="mt-3 mb-1">Nothing matches “{q || fam}”</h2>
-            <p className="gx-muted mb-3">
+            <div className="gx-empty-icon"><Icon name="search" size={24} /></div>
+            <h2 className="ux4g-mt-s ux4g-mb-2xs">Nothing matches “{q || fam}”</h2>
+            <p className="gx-muted ux4g-mb-s">
               {needle && all.length
                 ? "No guideline in this family mentions that. Try a rule id like WCAG-1.4.3, or clear the family filter."
                 : "No guidelines in this family yet."}
             </p>
-            <button className="btn btn-outline-secondary" onClick={() => { setQ(""); setFam(""); }}>
+            <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md" onClick={() => { setQ(""); setFam(""); }}>
               Clear filters
             </button>
           </div></div>
         )}
 
-        <div className="row g-3">
+        <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           {shown.map(g => (
-            <div className="col-md-6" key={g.id}><div className="gx-card h-100"><div className="gx-card-body">
-              <div className="d-flex gap-2 mb-1"><span className="badge text-bg-primary-subtle">{g.id}</span>
-                <span className="badge text-bg-light">{g.family}</span></div>
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6" key={g.id}><div className="gx-card ux4g-h-100"><div className="gx-card-body">
+              <div className="ux4g-d-flex ux4g-gap-xs ux4g-mb-2xs"><span className="ux4g-badge-m text-bg-primary-subtle">{g.id}</span>
+                <span className="ux4g-badge-m text-bg-light">{g.family}</span></div>
               <h2 className="h6">{g.title}</h2>
-              <p className="gx-muted small mb-2">{g.plain_language}</p>
+              <p className="gx-muted small ux4g-mb-xs">{g.plain_language}</p>
               {g.good_example && (
-                <div className="alert alert-success py-2 small mb-0">
-                  <i className="bi bi-check2 me-1" aria-hidden="true" />{g.good_example}
+                <div className="ux4g-alert ux4g-alert-success ux4g-py-xs small ux4g-mb-none">
+                  <Icon name="check2" size={16} className="ux4g-mr-2xs" />{g.good_example}
                 </div>
               )}
             </div></div></div>
@@ -107,10 +108,10 @@ export default function Library() {
         </div>
 
         {matches.length > shown.length && (
-          <div className="text-center">
-            <button className="btn btn-outline-secondary" onClick={() => setLimit((n) => n + PAGE)}>
+          <div className="ux4g-text-center">
+            <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md" onClick={() => setLimit((n) => n + PAGE)}>
               Show {Math.min(PAGE, matches.length - shown.length)} more
-              <span className="gx-muted ms-2">({shown.length} of {matches.length})</span>
+              <span className="gx-muted ux4g-ml-xs">({shown.length} of {matches.length})</span>
             </button>
           </div>
         )}

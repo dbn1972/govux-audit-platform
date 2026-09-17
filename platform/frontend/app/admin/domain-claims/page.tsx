@@ -46,7 +46,7 @@ export default function DomainClaims() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Domain claims</h1>
+            <h1 className="ux4g-mb-2xs">Domain claims</h1>
             <div className="gx-muted">Registering a domain is a <b>claim</b>, not ownership — several organisations may claim
           the same host and each must prove control by DNS or file. Whoever proves it first wins
           and the rest are superseded automatically. This screen is for the cases proof can&apos;t
@@ -55,7 +55,7 @@ export default function DomainClaims() {
           </div>
         </div>
 
-        <div className="d-flex flex-wrap gap-3 align-items-center mb-3">
+        <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-s ux4g-ai-center ux4g-mb-s">
           <div className="form-check">
             <input className="form-check-input" type="checkbox" id="contested"
               checked={contestedOnly} onChange={(e) => setContestedOnly(e.target.checked)} />
@@ -63,15 +63,15 @@ export default function DomainClaims() {
               Contested only (more than one organisation claiming)
             </label>
           </div>
-          <span className="gx-muted small ms-auto">
+          <span className="gx-muted small ux4g-ml-auto">
             {rows == null ? "Loading…"
               : `${rows.length} unverified host${rows.length === 1 ? "" : "s"}`
                 + (contestedCount ? ` · ${contestedCount} contested` : "")}
           </span>
         </div>
 
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
-        {msg && <div className="alert alert-success py-2" role="status">{msg}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
+        {msg && <div className="ux4g-alert ux4g-alert-success ux4g-py-xs" role="status">{msg}</div>}
 
         <div className="gx-card">
           <div className="table-responsive"><table className="gx-table">
@@ -80,12 +80,12 @@ export default function DomainClaims() {
             </thead>
             <tbody>
               {rows == null && (
-                <tr><td colSpan={5} className="text-center py-4">
+                <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m">
                   <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading…
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={5} className="gx-muted text-center py-5">
+                <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">
                   No unverified claims — every registered domain has proven ownership.
                 </td></tr>
               )}
@@ -93,23 +93,23 @@ export default function DomainClaims() {
                 r.claims.map((c, i) => (
                   <tr key={c.id}>
                     {/* only label the host once per group, so a contested host reads as one thing */}
-                    <td className="fw-semibold">
+                    <td className="ux4g-fw-semibold">
                       {i === 0 ? r.url : ""}
                       {i === 0 && r.contested &&
-                        <span className="badge text-bg-warning-subtle ms-2">
+                        <span className="ux4g-badge-m text-bg-warning-subtle ux4g-ml-xs">
                           contested · {r.claims.length}
                         </span>}
                     </td>
                     <td className="small">{c.org_name}</td>
                     <td>
-                      <span className={`badge ${c.verify_status === "superseded"
+                      <span className={`ux4g-badge-m ${c.verify_status === "superseded"
                         ? "text-bg-secondary-subtle" : "text-bg-warning-subtle"}`}>
                         {c.verify_status}
                       </span>
                     </td>
                     <td className="small gx-muted">{fmt(c.created_at)}</td>
-                    <td className="text-end">
-                      <button className="btn btn-sm btn-outline-danger"
+                    <td className="ux4g-text-end">
+                      <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm"
                         disabled={busyId === c.id}
                         onClick={() => release(c, r.url)}>
                         {busyId === c.id ? "Releasing…" : "Release"}</button>
@@ -120,7 +120,7 @@ export default function DomainClaims() {
           </table></div>
         </div>
 
-        <p className="gx-muted small mt-2">
+        <p className="gx-muted small ux4g-mt-xs">
           A verified domain never appears here: ownership that has been proven isn&apos;t a
           steward&apos;s to revoke, and removing it would orphan its audit history.
         </p>

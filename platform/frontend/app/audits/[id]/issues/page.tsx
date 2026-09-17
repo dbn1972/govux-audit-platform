@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 const SEV = { critical: "text-bg-danger", high: "text-bg-warning", medium: "text-bg-warning-subtle", low: "text-bg-light" } as const;
@@ -37,7 +38,7 @@ export default function Issues({ params }: { params: { id: string } }) {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Prioritised issues</h1>
+            <h1 className="ux4g-mb-2xs">Prioritised issues</h1>
             <div className="gx-muted">
               {findings.length} finding{findings.length === 1 ? "" : "s"} from the audit engine,
               ranked by severity. Fix the critical ones first — those are what hold the band down.
@@ -45,32 +46,32 @@ export default function Issues({ params }: { params: { id: string } }) {
           </div>
         </div>
         <AuditNav id={params.id} />
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
-        <div className="mb-3 d-flex gap-2 flex-wrap align-items-center">
+        <div className="ux4g-mb-s ux4g-d-flex ux4g-gap-xs ux4g-flex-wrap ux4g-ai-center">
           {["all", "critical", "high", "medium", "low"].map(s => (
             <button key={s} onClick={() => setFilter(s)} aria-pressed={filter === s}
-              className={`btn btn-sm ${filter === s ? "btn-primary" : "btn-outline-secondary"}`}>
+              className={`ux4g-btn ux4g-btn-sm ${filter === s ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`}>
               {s === "all" ? `All ${findings.length}` : `${s} ${count(s)}`}
             </button>
           ))}
           {aiState !== "done" && (
-            <button className="btn btn-sm btn-outline-primary ms-auto" onClick={explainWithAI}
+            <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm ux4g-ml-auto" onClick={explainWithAI}
               disabled={aiState === "loading" || !findings.length}>
               {aiState === "loading" ? "Thinking…"
-                : <><i className="bi bi-stars me-1" aria-hidden="true" />Explain how to fix (AI)</>}
+                : <><Icon name="stars" size={16} className="ux4g-mr-2xs" />Explain how to fix (AI)</>}
             </button>
           )}
         </div>
         {aiState === "unavailable" && (
-          <div className="alert alert-info py-2 small">
+          <div className="ux4g-alert ux4g-alert-info ux4g-py-xs small">
             Advisory AI is off. A steward can enable it in <b>Configuration → Advisory AI</b>. The
             deterministic fix guidance below still applies.
           </div>
         )}
         {aiState === "done" && (
-          <div className="alert alert-secondary py-2 small">
-            <i className="bi bi-stars me-1" aria-hidden="true" />AI guidance is <b>advisory</b> — plain-language help for the top issues. It never affects the score or verdict.
+          <div className="ux4g-alert ux4g-alert-info ux4g-py-xs small">
+            <Icon name="stars" size={16} className="ux4g-mr-2xs" />AI guidance is <b>advisory</b> — plain-language help for the top issues. It never affects the score or verdict.
           </div>
         )}
 
@@ -83,24 +84,24 @@ export default function Issues({ params }: { params: { id: string } }) {
                   <td data-label="Issue">
                     <div className="gx-cell-primary">{f.title || f.guideline}</div>
                     {f.remediation && (
-                      <div className="gx-muted small mt-1">
-                        <i className="bi bi-arrow-return-right me-1" aria-hidden="true" />{f.remediation}
+                      <div className="gx-muted small ux4g-mt-2xs">
+                        <Icon name="arrow-return-right" size={16} className="ux4g-mr-2xs" />{f.remediation}
                       </div>
                     )}
                     {ai[f.id] && (
-                      <div className="small mt-1 p-2 rounded" style={{ background: "var(--bs-tertiary-bg, #f6f8fa)", whiteSpace: "pre-line" }}>
-                        <span className="badge text-bg-primary-subtle me-1">
-                          <i className="bi bi-stars me-1" aria-hidden="true" />AI advisory</span>{ai[f.id]}
+                      <div className="small ux4g-mt-2xs ux4g-p-xs ux4g-radius-m" style={{ background: "var(--bs-tertiary-bg, #f6f8fa)", whiteSpace: "pre-line" }}>
+                        <span className="ux4g-badge-m text-bg-primary-subtle ux4g-mr-2xs">
+                          <Icon name="stars" size={16} className="ux4g-mr-2xs" />AI advisory</span>{ai[f.id]}
                       </div>
                     )}
                   </td>
-                  <td data-label="Category"><span className="badge text-bg-primary-subtle">{f.category}</span></td>
+                  <td data-label="Category"><span className="ux4g-badge-m text-bg-primary-subtle">{f.category}</span></td>
                   <td data-label="Guideline"><code className="small">{f.guideline}</code></td>
-                  <td data-label="Severity"><span className={`badge ${SEV[f.severity as keyof typeof SEV] || "text-bg-light"}`}>{f.severity}</span></td>
+                  <td data-label="Severity"><span className={`ux4g-badge-m ${SEV[f.severity as keyof typeof SEV] || "text-bg-light"}`}>{f.severity}</span></td>
                 </tr>
               ))}
               {!shown.length && (
-                <tr><td colSpan={4} className="text-center gx-muted py-4">
+                <tr><td colSpan={4} className="ux4g-text-center gx-muted ux4g-py-m">
                   {findings.length ? "No issues at this severity — try another filter."
                                    : "No issues found in this audit."}
                 </td></tr>

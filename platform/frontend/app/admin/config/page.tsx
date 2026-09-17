@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { BAND_COLOR } from "@/lib/score";
 
@@ -58,20 +59,20 @@ export default function ConfigAdmin() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Platform configuration</h1>
+            <h1 className="ux4g-mb-2xs">Platform configuration</h1>
             <div className="gx-muted">
               Email delivery, CAPTCHA, rate limits and scan quotas. Changes take effect immediately
               without a redeploy, and secrets are write-only — saved but never shown again.
             </div>
           </div>
           <div className="gx-actions">
-            <button className="btn btn-primary" disabled={!dirty} onClick={save}>
-              <i className="bi bi-check2 me-1" aria-hidden="true" />Save changes
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" disabled={!dirty} onClick={save}>
+              <Icon name="check2" size={16} className="ux4g-mr-2xs" />Save changes
             </button>
           </div>
         </div>
-        {err && <div className="alert alert-warning py-2">{err}</div>}
-        {msg && <div className="alert alert-success py-2">{msg}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs">{err}</div>}
+        {msg && <div className="ux4g-alert ux4g-alert-success ux4g-py-xs">{msg}</div>}
 
         {/* Live scalability health — cache / queue / DB, from /v1/admin/config/metrics-summary */}
         {health && (() => {
@@ -87,21 +88,21 @@ export default function ConfigAdmin() {
             ["DB pool in use", `${p.checked_out ?? "—"} / ${p.size ?? "—"}`, (p.checked_out ?? 0) >= (p.size ?? 999)],
           ];
           return (
-            <div className="gx-card mb-3">
-              <div className="gx-card-head d-flex align-items-center">
-                <i className="bi bi-activity me-2" />Live health
-                <span className="badge bg-success-subtle text-success-emphasis ms-2">auto · 5s</span>
-                <span className="ms-auto gx-muted" style={{ fontSize: 11 }}>
+            <div className="gx-card ux4g-mb-s">
+              <div className="gx-card-head ux4g-d-flex ux4g-ai-center">
+                <Icon name="activity" size={16} className="ux4g-mr-xs" />Live health
+                <span className="ux4g-badge-m bg-success-subtle text-success-emphasis ux4g-ml-xs">auto · 5s</span>
+                <span className="ux4g-ml-auto gx-muted" style={{ fontSize: 11 }}>
                   Prometheus: <code>GET /metrics</code>
                 </span>
               </div>
               <div className="gx-card-body">
-                <div className="row g-2">
+                <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs">
                   {tiles.map(([label, val, warn]) => (
-                    <div className="col-6 col-md-3" key={label}>
-                      <div className="border rounded p-2 h-100">
+                    <div className="ux4g-cols-span-6 ux4g-md-cols-span-3" key={label}>
+                      <div className="ux4g-b-1 ux4g-radius-m ux4g-p-xs ux4g-h-100">
                         <div className="gx-muted" style={{ fontSize: 11 }}>{label}</div>
-                        <div className="fw-bold" style={{ fontSize: 18, color: warn ? BAND_COLOR.E : "var(--ux-navy)" }}>
+                        <div className="ux4g-fw-bold" style={{ fontSize: 18, color: warn ? BAND_COLOR.E : "var(--ux-navy)" }}>
                           {val ?? "—"}
                         </div>
                       </div>
@@ -114,23 +115,23 @@ export default function ConfigAdmin() {
         })()}
 
         {cats.map(cat => (
-          <div className="gx-card mb-3" key={cat.name}>
+          <div className="gx-card ux4g-mb-s" key={cat.name}>
             <div className="gx-card-head">{cat.name}</div>
             <div className="gx-card-body">
               {cat.settings.map((s: any) => {
                 const val = s.key in edits ? edits[s.key] : s.value;
                 return (
-                  <div className="row align-items-center mb-2" key={s.key}>
+                  <div className="ux4g-grid ux4g-grid-cols-12 ux4g-ai-center ux4g-mb-xs" key={s.key}>
                     {/* htmlFor/id: the label sat next to these controls without
                         being attached to any of them, so every one of them —
                         switch, secret, select and text alike — reached a screen
                         reader as an unnamed control. */}
-                    <label className="col-sm-6 col-form-label" htmlFor={`cfg-${s.key}`}>
+                    <label className="ux4g-cols-span-12 ux4g-sm-cols-span-6 col-form-label" htmlFor={`cfg-${s.key}`}>
                       {s.label}
-                      {s.is_override && <span className="badge bg-info-subtle text-info-emphasis ms-2">overridden</span>}
+                      {s.is_override && <span className="ux4g-badge-m bg-info-subtle text-info-emphasis ux4g-ml-xs">overridden</span>}
                       <div className="gx-muted" style={{ fontSize: 11 }}><code>{s.key}</code></div>
                     </label>
-                    <div className="col-sm-6">
+                    <div className="ux4g-cols-span-12 ux4g-sm-cols-span-6">
                       {s.type === "bool" ? (
                         <div className="form-check form-switch">
                           <input className="form-check-input" type="checkbox" id={`cfg-${s.key}`}
@@ -138,16 +139,16 @@ export default function ConfigAdmin() {
                             onChange={e => change(s.key, e.target.checked)} />
                         </div>
                       ) : s.secret ? (
-                        <input className="form-control" type="password" id={`cfg-${s.key}`}
+                        <input className="ux4g-input ux4g-w-100" type="password" id={`cfg-${s.key}`}
                           placeholder="•••••• (leave blank to keep)"
                           onChange={e => change(s.key, e.target.value)} />
                       ) : OPTIONS[s.key] ? (
-                        <select className="form-select" id={`cfg-${s.key}`} value={val ?? ""}
+                        <select className="ux4g-form-select" id={`cfg-${s.key}`} value={val ?? ""}
                           onChange={e => change(s.key, e.target.value)}>
                           {OPTIONS[s.key].map(o => <option key={o} value={o}>{o}</option>)}
                         </select>
                       ) : (
-                        <input className="form-control" id={`cfg-${s.key}`}
+                        <input className="ux4g-input ux4g-w-100" id={`cfg-${s.key}`}
                           type={s.type === "int" ? "number" : "text"}
                           value={val ?? ""} onChange={e => change(s.key, e.target.value)} />
                       )}
@@ -156,16 +157,16 @@ export default function ConfigAdmin() {
                 );
               })}
               {cat.name.startsWith("Email") && (
-                <div className="border-top pt-3 mt-2">
+                <div className="ux4g-bt-1 ux4g-pt-s ux4g-mt-xs">
                   <label className="form-label small gx-muted">Send a test email (uses the saved provider)</label>
                   <div className="input-group" style={{ maxWidth: 460 }}>
-                    <input className="form-control" type="email" placeholder="you@nic.in"
+                    <input className="ux4g-input ux4g-w-100" type="email" placeholder="you@nic.in"
                       value={testTo} onChange={e => setTestTo(e.target.value)} />
-                    <button className="btn btn-outline-primary" disabled={!testTo} onClick={sendTest}>
-                      <i className="bi bi-send me-1" />Send test
+                    <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!testTo} onClick={sendTest}>
+                      <Icon name="send" size={16} className="ux4g-mr-2xs" />Send test
                     </button>
                   </div>
-                  {testMsg && <div className="small mt-2">{testMsg}</div>}
+                  {testMsg && <div className="small ux4g-mt-xs">{testMsg}</div>}
                 </div>
               )}
             </div>

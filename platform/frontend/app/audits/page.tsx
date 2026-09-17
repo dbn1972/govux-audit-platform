@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { absoluteTime } from "@/lib/format";
 
@@ -63,30 +64,30 @@ export default function Audits() {
 
   return (
     <AppShell><div className="gx-page">
-      <div className="d-flex align-items-end flex-wrap gap-2 mb-3">
+      <div className="ux4g-d-flex ux4g-ai-end ux4g-flex-wrap ux4g-gap-xs ux4g-mb-s">
         <div>
-          <h1 className="mb-1">Audit history</h1>
+          <h1 className="ux4g-mb-2xs">Audit history</h1>
           <div className="gx-muted">
             {rows == null ? "Loading…" : `${filtered.length} of ${rows.length} audit${rows.length === 1 ? "" : "s"} across ${isSuperAdmin ? "all organisations" : "your organisation"}`}
           </div>
         </div>
-        <Link href="/audits/new" className="btn btn-primary ms-auto"><i className="bi bi-play-fill me-1" aria-hidden="true" />New audit</Link>
+        <Link href="/audits/new" className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-ml-auto"><Icon name="play-fill" size={16} className="ux4g-mr-2xs" />New audit</Link>
       </div>
 
-      {err && <div className="alert alert-warning" role="alert">{err}</div>}
+      {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
       {rows != null && rows.length > 0 && (
-        <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
-          <div className="btn-group btn-group-sm flex-wrap" role="group" aria-label="Filter by status">
+        <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center ux4g-mb-s">
+          <div className="ux4g-d-inline-flex ux4g-gap-2xs ux4g-flex-wrap" role="group" aria-label="Filter by status">
             {FILTERS.map(([k, label]) => (
               <button key={k || "active"} type="button"
                 onClick={() => { setFilter(k); setLimit(PAGE); }}
-                className={`btn ${filter === k ? "btn-primary" : "btn-outline-secondary"}`}>
+                className={`ux4g-btn ux4g-btn-sm ${filter === k ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`}>
                 {label}{counts[k] ? ` ${counts[k]}` : ""}
               </button>
             ))}
           </div>
-          <input className="form-control ms-auto" style={{ maxWidth: 240 }}
+          <input className="ux4g-input ux4g-w-100 ux4g-ml-auto" style={{ maxWidth: 240 }}
             placeholder="Filter by domain…" value={q}
             onChange={(e) => { setQ(e.target.value); setLimit(PAGE); }} aria-label="Filter by domain" />
         </div>
@@ -100,43 +101,43 @@ export default function Audits() {
             </thead>
             <tbody>
               {rows == null && (
-                <tr><td colSpan={6} className="text-center py-4">
+                <tr><td colSpan={6} className="ux4g-text-center ux4g-py-m">
                   <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading…
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={6} className="gx-muted text-center py-5">
+                <tr><td colSpan={6} className="gx-muted ux4g-text-center ux4g-py-l">
                   No audits yet. <Link href="/audits/new">Run your first audit →</Link>
                 </td></tr>
               )}
               {rows != null && rows.length > 0 && filtered.length === 0 && (
-                <tr><td colSpan={6} className="gx-muted text-center py-5">No audits match this filter.</td></tr>
+                <tr><td colSpan={6} className="gx-muted ux4g-text-center ux4g-py-l">No audits match this filter.</td></tr>
               )}
               {shown.map((a) => {
                 const [cls, label] = statusBadge(a.status);
                 const done = a.status === "completed";
                 return (
                   <tr key={a.task_id}>
-                    <td data-label="Domain" className="fw-semibold">{a.domain}</td>
+                    <td data-label="Domain" className="ux4g-fw-semibold">{a.domain}</td>
                     {/* was toLocaleString(): "18/08/2026, 09:27:34" — seconds
                         nobody needs, in a day/month order that flips by locale */}
                     <td data-label="Date" className="gx-muted small">{absoluteTime(a.date)}</td>
-                    <td data-label="Status"><span className={`badge ${cls}`}>{label}</span></td>
+                    <td data-label="Status"><span className={`ux4g-badge-m ${cls}`}>{label}</span></td>
                     <td data-label="Score">
                       {done && a.score != null
-                        ? <><b>{a.score}</b>{a.band && <span className="badge ms-1" style={bandStyle(a.band)}>Band {a.band}</span>}</>
+                        ? <><b>{a.score}</b>{a.band && <span className="ux4g-badge-m ux4g-ml-2xs" style={bandStyle(a.band)}>Band {a.band}</span>}</>
                         : <span className="gx-muted">—</span>}
                     </td>
                     <td data-label="Compliance" className="gx-muted small">{a.compliance_status ? a.compliance_status.replace(/_/g, " ") : "—"}</td>
                     <td data-label="">
                       {done
                         ? <>
-                            <Link href={`/audits/${a.task_id}/report`} className="btn btn-sm btn-link">View report →</Link>
+                            <Link href={`/audits/${a.task_id}/report`} className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm">View report →</Link>
                             {/* the compare screen had no entry point at all — it was
                                 reachable only by typing the URL */}
-                            <Link href={`/audits/${a.task_id}/compare`} className="btn btn-sm btn-link gx-muted">Compare</Link>
+                            <Link href={`/audits/${a.task_id}/compare`} className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm gx-muted">Compare</Link>
                           </>
-                        : <Link href={`/audits/${a.task_id}`} className="btn btn-sm btn-link">View status →</Link>}
+                        : <Link href={`/audits/${a.task_id}`} className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm">View status →</Link>}
                     </td>
                   </tr>
                 );
@@ -145,8 +146,8 @@ export default function Audits() {
           </table>
         </div>
         {filtered.length > limit && (
-          <div className="card-footer bg-white text-center">
-            <button className="btn btn-outline-secondary btn-sm" onClick={() => setLimit((n) => n + PAGE)}>
+          <div className="card-footer bg-white ux4g-text-center">
+            <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" onClick={() => setLimit((n) => n + PAGE)}>
               Show more ({filtered.length - limit} more)
             </button>
           </div>

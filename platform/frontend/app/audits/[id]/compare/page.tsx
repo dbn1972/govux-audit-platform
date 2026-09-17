@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 type Issue = { guideline_id: string; title: string | null };
@@ -39,7 +40,7 @@ export default function Compare({ params }: { params: { id: string } }) {
     <AppShell><div className="gx-page gx-stack">
       <div className="gx-page-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="mb-1">Compare &amp; page coverage</h1>
+          <h1 className="ux4g-mb-2xs">Compare &amp; page coverage</h1>
           <div className="gx-muted">
             What changed between two dated snapshots, and which pages the crawl actually reached.
           </div>
@@ -50,11 +51,11 @@ export default function Compare({ params }: { params: { id: string } }) {
     </div></AppShell>
   );
 
-  if (err) return wrap(<div className="alert alert-warning" role="alert">{err}</div>);
-  if (!data) return wrap(<div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
+  if (err) return wrap(<div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>);
+  if (!data) return wrap(<div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
   if (!data.has_baseline) {
-    return wrap(<div className="alert alert-info" role="status">
-      <i className="bi bi-info-circle me-1" />{data.message || "No earlier completed audit for this domain yet."}
+    return wrap(<div className="ux4g-alert ux4g-alert-info" role="status">
+      <Icon name="info-circle" size={16} className="ux4g-mr-2xs" />{data.message || "No earlier completed audit for this domain yet."}
     </div>);
   }
 
@@ -94,36 +95,36 @@ export default function Compare({ params }: { params: { id: string } }) {
       </div>
 
       {(newIssues.length > 0 || resolvedIssues.length > 0) && (
-        <div className="row g-3 mb-3">
+        <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-mb-s">
           {newIssues.length > 0 && (
-            <div className="col-md-6"><div className="gx-card h-100">
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6"><div className="gx-card ux4g-h-100">
               <div className="gx-card-head">
                 <h2 style={{ color: "var(--gx-band-E)" }}>
-                  <i className="bi bi-plus-circle me-1" aria-hidden="true" />New issues
+                  <Icon name="plus-circle" size={20} className="ux4g-mr-2xs" />New issues
                 </h2>
-                <span className="gx-muted ms-auto gx-num">{newIssues.length}</span>
+                <span className="gx-muted ux4g-ml-auto gx-num">{newIssues.length}</span>
               </div>
               <ul className="list-group list-group-flush">
                 {newIssues.map(i => (
                   <li key={i.guideline_id} className="list-group-item small">
-                    <span className="gx-chip me-2">{i.guideline_id}</span>{i.title || "—"}
+                    <span className="gx-chip ux4g-mr-xs">{i.guideline_id}</span>{i.title || "—"}
                   </li>
                 ))}
               </ul>
             </div></div>
           )}
           {resolvedIssues.length > 0 && (
-            <div className="col-md-6"><div className="gx-card h-100">
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6"><div className="gx-card ux4g-h-100">
               <div className="gx-card-head">
                 <h2 style={{ color: "var(--gx-band-A)" }}>
-                  <i className="bi bi-check-circle me-1" aria-hidden="true" />Resolved
+                  <Icon name="check-circle" size={20} className="ux4g-mr-2xs" />Resolved
                 </h2>
-                <span className="gx-muted ms-auto gx-num">{resolvedIssues.length}</span>
+                <span className="gx-muted ux4g-ml-auto gx-num">{resolvedIssues.length}</span>
               </div>
               <ul className="list-group list-group-flush">
                 {resolvedIssues.map(i => (
                   <li key={i.guideline_id} className="list-group-item small">
-                    <span className="gx-chip me-2">{i.guideline_id}</span>{i.title || "—"}
+                    <span className="gx-chip ux4g-mr-xs">{i.guideline_id}</span>{i.title || "—"}
                   </li>
                 ))}
               </ul>
@@ -135,7 +136,7 @@ export default function Compare({ params }: { params: { id: string } }) {
       <div className="gx-card">
         <div className="gx-card-head">
           <h2>Page-wise coverage</h2>
-          <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+          <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
             A page missing from the newer run keeps its earlier score, marked not recrawled
           </span>
         </div>
@@ -143,22 +144,21 @@ export default function Compare({ params }: { params: { id: string } }) {
           <thead><tr><th>Page</th><th>Status</th><th>Score</th><th>Change</th></tr></thead>
           <tbody>
             {pages.length === 0 && (
-              <tr><td colSpan={4} className="gx-muted text-center py-5">No page-level data captured for either run.</td></tr>
+              <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">No page-level data captured for either run.</td></tr>
             )}
             {pages.map(p => (
               <tr key={p.url}>
                 <td data-label="Page" className="gx-cell-primary">
-                  {p.url}{p.new_page && <span className="badge text-bg-info-subtle ms-2">new</span>}
+                  {p.url}{p.new_page && <span className="ux4g-badge-m text-bg-info-subtle ux4g-ml-xs">new</span>}
                 </td>
                 <td data-label="Status"><span className="gx-chip">{statusLabel(p.status)}</span></td>
-                <td data-label="Score" className="fw-bold gx-num">{p.score ?? "—"}</td>
-                <td data-label="Change" className="gx-num fw-semibold"
+                <td data-label="Score" className="ux4g-fw-bold gx-num">{p.score ?? "—"}</td>
+                <td data-label="Change" className="gx-num ux4g-fw-semibold"
                   style={{ color: p.delta == null ? "var(--gx-text-muted)"
                     : p.delta > 0 ? "var(--gx-band-A)" : p.delta < 0 ? "var(--gx-band-E)" : "var(--gx-text-muted)" }}>
                   {p.delta == null ? "—" : (
                     <>
-                      <i className={`bi ${p.delta > 0 ? "bi-arrow-up" : p.delta < 0 ? "bi-arrow-down" : "bi-dash"} me-1`}
-                        aria-hidden="true" />
+                      <Icon name={p.delta > 0 ? "arrow-up" : p.delta < 0 ? "arrow-down" : "dash"} size={16} className="ux4g-mr-2xs" />
                       {Math.abs(p.delta).toFixed(0)}
                     </>
                   )}

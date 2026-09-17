@@ -17,7 +17,7 @@ export default function SiteHeader() {
   const onSignIn = usePathname() === "/login";
   return (
     <header className="gx-siteheader">
-      <div className="container d-flex align-items-center justify-content-between gap-3 py-2">
+      <div className="container ux4g-d-flex ux4g-ai-center ux4g-jc-between ux4g-gap-s ux4g-py-xs">
         <Link href="/" className="gx-brand">
           <BrandMark size={40} />
           <span>
@@ -25,13 +25,13 @@ export default function SiteHeader() {
             <span className="gx-brand-sub">UX4G · GIGW 3.0 · WCAG 2.2 AA</span>
           </span>
         </Link>
-        <nav className="d-flex align-items-center gap-3" aria-label="Site">
-          <Link href="/#checks" className="d-none d-md-inline gx-siteheader-link">What we check</Link>
-          <Link href="/#how" className="d-none d-md-inline gx-siteheader-link">How it works</Link>
-          <Link href="/about-us" className="d-none d-lg-inline gx-siteheader-link">About</Link>
+        <nav className="ux4g-d-flex ux4g-ai-center ux4g-gap-s" aria-label="Site">
+          <Link href="/#checks" className="ux4g-d-none ux4g-md-d-inline gx-siteheader-link">What we check</Link>
+          <Link href="/#how" className="ux4g-d-none ux4g-md-d-inline gx-siteheader-link">How it works</Link>
+          <Link href="/about-us" className="ux4g-d-none ux4g-lg-d-inline gx-siteheader-link">About</Link>
           <ThemeToggle />
           {!onSignIn && (
-            <Link href="/login" className="btn btn-outline-primary btn-sm">Sign in</Link>
+            <Link href="/login" className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm">Sign in</Link>
           )}
         </nav>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
@@ -86,7 +87,7 @@ export default function Studio() {
     <AppShell><div className="gx-page">
       <div className="gx-page-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="mb-1">Design Studio</h1>
+          <h1 className="ux4g-mb-2xs">Design Studio</h1>
           <div className="gx-muted">
             Describe your service and Studio generates UX4G-conformant, accessible, cross-linked
             pages, refining them until they pass the audit. AI generates; the deterministic engine
@@ -94,29 +95,29 @@ export default function Studio() {
           </div>
         </div>
       </div>
-      {err && <div className="alert alert-warning" role="alert">{err}</div>}
+      {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
-      <div className="row g-3">
-        <div className="col-lg-3">
-          <div className="gx-card mb-3"><div className="gx-card-body">
+      <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
+        <div className="ux4g-cols-span-12 ux4g-lg-cols-span-3">
+          <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
             <label className="form-label" htmlFor="s-dept">Organisation</label>
-            <input id="s-dept" className="form-control mb-2" value={department} onChange={e => setDepartment(e.target.value)} placeholder="Department of Posts" />
+            <input id="s-dept" className="ux4g-input ux4g-w-100 ux4g-mb-xs" value={department} onChange={e => setDepartment(e.target.value)} placeholder="Department of Posts" />
             <label className="form-label" htmlFor="s-purpose">Purpose</label>
-            <textarea id="s-purpose" className="form-control mb-2" rows={2} value={purpose} onChange={e => setPurpose(e.target.value)} placeholder="Citizen services portal" />
+            <textarea id="s-purpose" className="ux4g-input ux4g-w-100 ux4g-mb-xs" rows={2} value={purpose} onChange={e => setPurpose(e.target.value)} placeholder="Citizen services portal" />
             <label className="form-label" htmlFor="s-pages">Pages (comma-separated)</label>
-            <input id="s-pages" className="form-control mb-2" value={pagesText} onChange={e => setPagesText(e.target.value)} />
-            <div className="row g-2">
-              <div className="col-6"><label className="form-label" htmlFor="s-lang">Language</label>
-                <input id="s-lang" className="form-control" value={language} onChange={e => setLanguage(e.target.value)} /></div>
-              <div className="col-6"><label className="form-label" htmlFor="s-mode">Theme</label>
-                <select id="s-mode" className="form-select" value={mode} onChange={e => setMode(e.target.value)}>
+            <input id="s-pages" className="ux4g-input ux4g-w-100 ux4g-mb-xs" value={pagesText} onChange={e => setPagesText(e.target.value)} />
+            <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs">
+              <div className="ux4g-cols-span-6"><label className="form-label" htmlFor="s-lang">Language</label>
+                <input id="s-lang" className="ux4g-input ux4g-w-100" value={language} onChange={e => setLanguage(e.target.value)} /></div>
+              <div className="ux4g-cols-span-6"><label className="form-label" htmlFor="s-mode">Theme</label>
+                <select id="s-mode" className="ux4g-form-select" value={mode} onChange={e => setMode(e.target.value)}>
                   <option value="light">Light</option><option value="dark">Dark</option></select></div>
             </div>
-            <label className="form-label fw-semibold small mt-2" htmlFor="s-accent">Accent</label>
-            <select id="s-accent" className="form-select form-select-sm mb-3" value={accent} onChange={e => setAccent(e.target.value)}>
+            <label className="form-label ux4g-fw-semibold small ux4g-mt-xs" htmlFor="s-accent">Accent</label>
+            <select id="s-accent" className="ux4g-form-select form-select-sm ux4g-mb-s" value={accent} onChange={e => setAccent(e.target.value)}>
               {ACCENTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
-            <button className="btn btn-primary w-100" onClick={submit} disabled={busy}>
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100" onClick={submit} disabled={busy}>
               {busy ? "Generating & refining…" : "✨ Generate pages"}</button>
           </div></div>
 
@@ -124,8 +125,8 @@ export default function Studio() {
             <div className="gx-card"><div className="gx-card-head">Your prototypes</div>
               <div className="list-group list-group-flush">
                 {history.slice(0, 10).map(h => (
-                  <button key={h.id} className="list-group-item list-group-item-action small text-start" onClick={() => openRun(h.id)}>
-                    <div className="fw-semibold text-truncate">{h.department || "Untitled"}</div>
+                  <button key={h.id} className="list-group-item list-group-item-action small ux4g-text-start" onClick={() => openRun(h.id)}>
+                    <div className="ux4g-fw-semibold ux4g-line-clamp-1">{h.department || "Untitled"}</div>
                     <span className="gx-muted">{h.status === "scored" ? `${h.score} · Band ${h.band}` : h.status} · {h.pages} pages</span>
                   </button>
                 ))}
@@ -133,62 +134,62 @@ export default function Studio() {
           )}
         </div>
 
-        <div className="col-lg-9">
+        <div className="ux4g-cols-span-12 ux4g-lg-cols-span-9">
           {run == null && (
-            <div className="gx-card h-100"><div className="gx-card-body d-flex align-items-center justify-content-center gx-muted" style={{ minHeight: 400 }}>
+            <div className="gx-card ux4g-h-100"><div className="gx-card-body ux4g-d-flex ux4g-ai-center ux4g-jc-center gx-muted" style={{ minHeight: 400 }}>
               {busy ? <span><span className="spinner-border spinner-border-sm me-2" />Generating and auditing…</span> : "Your generated screens will appear here — like a design board."}
             </div></div>
           )}
-          {run?.status === "failed" && <div className="alert alert-danger">Generation failed: {run.error}</div>}
+          {run?.status === "failed" && <div className="ux4g-alert ux4g-alert-error">Generation failed: {run.error}</div>}
           {run?.status === "generating" && (
             <div className="gx-card"><div className="gx-card-body gx-empty gx-muted">
-              <span className="spinner-border text-primary mb-2" /><div>Generating and refining toward the audit target…</div></div></div>
+              <span className="spinner-border text-primary ux4g-mb-xs" /><div>Generating and refining toward the audit target…</div></div></div>
           )}
 
           {run?.status === "scored" && (<>
-            <div className="gx-card mb-3"><div className="gx-card-body d-flex align-items-center flex-wrap gap-2">
+            <div className="gx-card ux4g-mb-s"><div className="gx-card-body ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
               <div><span className="score-value" style={{ fontSize: 28 }}>{run.score}</span>
-                <span className="badge ms-1" style={bandStyle(run.band)}>Band {run.band}</span></div>
+                <span className="ux4g-badge-m ux4g-ml-2xs" style={bandStyle(run.band)}>Band {run.band}</span></div>
               {/* a static analysis of generated markup, not an audit of a live
                   site — saying which is the difference between a claim and a hint */}
               <span className="gx-muted small">
                 Static score of the generated markup · {run.iterations} refinement{run.iterations === 1 ? "" : "s"}
                 {run.billing?.cost_inr != null && <> · ₹{run.billing.cost_inr}</>}
               </span>
-              <div className="ms-auto d-flex gap-2">
-                <button className="btn btn-outline-secondary btn-sm" onClick={download}><i className="bi bi-download me-1" aria-hidden="true" />Download .zip</button>
-                <button className={`btn btn-sm ${run.published ? "btn-success" : "btn-primary"}`} onClick={togglePublish}>
+              <div className="ux4g-ml-auto ux4g-d-flex ux4g-gap-xs">
+                <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" onClick={download}><Icon name="download" size={16} className="ux4g-mr-2xs" />Download .zip</button>
+                <button className={`ux4g-btn ux4g-btn-sm ${run.published ? "ux4g-btn-outline-neutral" : "ux4g-btn-primary"}`} onClick={togglePublish}>
                   {run.published
-                    ? <><i className="bi bi-check2 me-1" aria-hidden="true" />Published — Unpublish</>
-                    : <><i className="bi bi-globe2 me-1" aria-hidden="true" />Publish public demo</>}</button>
+                    ? <><Icon name="check2" size={16} className="ux4g-mr-2xs" />Published — Unpublish</>
+                    : <><Icon name="globe2" size={16} className="ux4g-mr-2xs" />Publish public demo</>}</button>
               </div>
             </div></div>
 
             {run.published && publicUrl && (
-              <div className="alert alert-success d-flex flex-wrap align-items-center gap-2">
+              <div className="ux4g-alert ux4g-alert-success ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-xs">
                 <span className="small">Public demo: <a href={publicUrl} target="_blank" rel="noopener">{publicUrl}</a></span>
-                <div className="ms-auto d-flex gap-2">
-                  <a className="btn btn-sm btn-outline-success" href={share.whatsapp} target="_blank" rel="noopener">WhatsApp</a>
-                  <a className="btn btn-sm btn-outline-primary" href={share.facebook} target="_blank" rel="noopener">Facebook</a>
-                  <a className="btn btn-sm btn-outline-secondary" href={share.email}>Email</a>
-                  <button className="btn btn-sm btn-outline-secondary" onClick={() => { navigator.clipboard?.writeText(publicUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>
+                <div className="ux4g-ml-auto ux4g-d-flex ux4g-gap-xs">
+                  <a className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-neutral" href={share.whatsapp} target="_blank" rel="noopener">WhatsApp</a>
+                  <a className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-primary" href={share.facebook} target="_blank" rel="noopener">Facebook</a>
+                  <a className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-neutral" href={share.email}>Email</a>
+                  <button className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-neutral" onClick={() => { navigator.clipboard?.writeText(publicUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>
                     {copied ? "Copied!" : "Copy link"}</button>
                 </div>
               </div>
             )}
 
             {/* Figma-style board of screens */}
-            <div className="gx-card mb-3"><div className="gx-card-body">
-              <div className="d-flex align-items-center mb-2"><span className="fw-semibold">Screens ({run.files?.length})</span></div>
-              <div className="d-flex flex-wrap gap-3">
+            <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
+              <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold">Screens ({run.files?.length})</span></div>
+              <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-s">
                 {(run.files || []).map((f: string) => (
-                  <div key={f} role="button" onClick={() => setZoom(f)} className="border rounded overflow-hidden"
+                  <div key={f} role="button" onClick={() => setZoom(f)} className="ux4g-b-1 ux4g-radius-m ux4g-o-hidden"
                     style={{ width: 220, boxShadow: zoom === f ? "0 0 0 2px var(--gx-action)" : undefined }}>
                     <div style={{ height: 150, overflow: "hidden", background: "#fff", pointerEvents: "none" }}>
                       <iframe title={f} srcDoc={htmls[f] || ""} sandbox="allow-same-origin"
                         style={{ width: 1180, height: 800, border: 0, transform: "scale(.186)", transformOrigin: "top left" }} />
                     </div>
-                    <div className="small text-truncate px-2 py-1 border-top">{f}</div>
+                    <div className="small ux4g-line-clamp-1 ux4g-px-xs ux4g-py-2xs ux4g-bt-1">{f}</div>
                   </div>
                 ))}
               </div>
@@ -197,22 +198,22 @@ export default function Studio() {
             {/* Expanded preview of the selected screen */}
             {zoom && (
               <div className="gx-card"><div className="gx-card-body">
-                <div className="d-flex align-items-center mb-2"><span className="fw-semibold small">{zoom}</span>
-                  <span className="ms-auto btn-group btn-group-sm">
-                    {DEVICES.map(([l, w]) => <button key={l} className={`btn ${device === w ? "btn-secondary" : "btn-outline-secondary"}`} onClick={() => setDevice(w)}>{l}</button>)}
+                <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold small">{zoom}</span>
+                  <span className="ux4g-ml-auto ux4g-d-inline-flex ux4g-gap-2xs">
+                    {DEVICES.map(([l, w]) => <button key={l} className={`ux4g-btn ux4g-btn-sm ${device === w ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setDevice(w)}>{l}</button>)}
                   </span></div>
                 {/* the surround is chrome and follows the theme; the two #fff
                     below are the PAGE the prototype renders on — a generated
                     government page is white in both themes, and tinting it
                     would misrepresent what was built */}
-                <div className="border rounded d-flex justify-content-center"
+                <div className="ux4g-b-1 ux4g-radius-m ux4g-d-flex ux4g-jc-center"
                   style={{ background: "var(--gx-surface-sunken)", overflow: "auto" }}>
                   <iframe title="preview" srcDoc={htmls[zoom] || ""} sandbox="allow-same-origin" style={{ width: device, height: 640, border: 0, background: "#fff" }} />
                 </div>
               </div></div>
             )}
-            <div className="gx-callout mt-3">
-              <i className="bi bi-exclamation-triangle" aria-hidden="true" />
+            <div className="gx-callout ux4g-mt-s">
+              <Icon name="exclamation-triangle" size={20} />
               <div>
                 <b>An AI-generated draft, not a finished service.</b> It needs human review before
                 anyone uses it, and the score above is static analysis of the markup — a real browser

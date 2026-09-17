@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
 import SiteFooter from "@/components/SiteFooter";
 import GovBanner from "@/components/GovBanner";
+import Icon from "@/components/Icon";
 const DEVICES: [string, number][] = [["Mobile", 375], ["Tablet", 768], ["Desktop", 1180]];
 
 export default function Showcase({ params }: { params: { slug: string } }) {
@@ -28,32 +29,32 @@ export default function Showcase({ params }: { params: { slug: string } }) {
   return (
     <div style={{ minHeight: "100vh", background: "var(--gx-surface-sunken)" }}>
       <GovBanner />
-      <header className="bg-white border-bottom">
-        <div className="container py-2 d-flex align-items-center flex-wrap gap-2">
+      <header className="bg-white ux4g-bb-1">
+        <div className="container ux4g-py-xs ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
           <span className="gx-brand-name">GovUX Studio</span>
           <span className="gx-muted small">· public demo · AI-generated draft</span>
-          {meta && <span className="badge ms-2" style={bandStyle(meta.band)}>GovUX {meta.score} · Band {meta.band}</span>}
-          <div className="ms-auto d-flex gap-2">
-            <a className="btn btn-sm btn-outline-success" target="_blank" rel="noopener" href={`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`}>WhatsApp</a>
-            <a className="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}>Facebook</a>
-            <a className="btn btn-sm btn-outline-secondary" href={`mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(text + "\n\n" + url)}`}>Email</a>
-            <button className="btn btn-sm btn-outline-secondary" onClick={() => { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>{copied ? "Copied!" : "Copy link"}</button>
+          {meta && <span className="gx-pill ux4g-ml-xs" style={bandStyle(meta.band)}>GovUX {meta.score} · Band {meta.band}</span>}
+          <div className="ux4g-ml-auto ux4g-d-flex ux4g-gap-xs">
+            <a className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" target="_blank" rel="noopener" href={`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`}>WhatsApp</a>
+            <a className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm" target="_blank" rel="noopener" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}>Facebook</a>
+            <a className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" href={`mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(text + "\n\n" + url)}`}>Email</a>
+            <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" onClick={() => { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>{copied ? "Copied!" : "Copy link"}</button>
           </div>
         </div>
       </header>
 
       <div className="container gx-section" style={{ paddingBlock: "2rem" }}>
-        {err && <div className="alert alert-warning">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning">{err}</div>}
         {meta && (<>
           <div className="gx-page-head" style={{ marginBottom: "1rem" }}>
             <div>
-              <h1 className="mb-1">{meta.title}</h1>
+              <h1 className="ux4g-mb-2xs">{meta.title}</h1>
               <div className="gx-muted">{meta.purpose}</div>
             </div>
           </div>
 
-          <div className="gx-callout mb-4">
-            <i className="bi bi-info-circle" aria-hidden="true" />
+          <div className="gx-callout ux4g-mb-m">
+            <Icon name="info-circle" size={20} />
             <div>
               <b>An AI-generated prototype, not a government service.</b> Built with GovUX Studio on
               the UX4G Design System to demonstrate a design direction. Nothing here is official, and
@@ -61,26 +62,26 @@ export default function Showcase({ params }: { params: { slug: string } }) {
             </div>
           </div>
 
-          <div className="d-flex flex-wrap gap-3 mb-3">
+          <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-s ux4g-mb-s">
             {(meta.files || []).map((f: string) => (
-              <div key={f} role="button" onClick={() => setActive(f)} className="border rounded overflow-hidden bg-white"
+              <div key={f} role="button" onClick={() => setActive(f)} className="ux4g-b-1 ux4g-radius-m ux4g-o-hidden bg-white"
                 style={{ width: 220, boxShadow: active === f ? "0 0 0 2px var(--gx-action)" : undefined }}>
                 <div style={{ height: 150, overflow: "hidden", pointerEvents: "none" }}>
                   <iframe title={f} src={src(f)} sandbox="allow-same-origin"
                     style={{ width: 1180, height: 800, border: 0, transform: "scale(.186)", transformOrigin: "top left" }} />
                 </div>
-                <div className="small text-truncate px-2 py-1 border-top">{f}</div>
+                <div className="small ux4g-line-clamp-1 ux4g-px-xs ux4g-py-2xs ux4g-bt-1">{f}</div>
               </div>
             ))}
           </div>
 
           {active && (
             <div className="gx-card"><div className="gx-card-body">
-              <div className="d-flex align-items-center mb-2"><span className="fw-semibold small">{active}</span>
-                <span className="ms-auto btn-group btn-group-sm">
-                  {DEVICES.map(([l, w]) => <button key={l} className={`btn ${device === w ? "btn-secondary" : "btn-outline-secondary"}`} onClick={() => setDevice(w)}>{l}</button>)}
+              <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold small">{active}</span>
+                <span className="ux4g-ml-auto ux4g-d-inline-flex ux4g-gap-2xs">
+                  {DEVICES.map(([l, w]) => <button key={l} className={`ux4g-btn ux4g-btn-sm ${device === w ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setDevice(w)}>{l}</button>)}
                 </span></div>
-              <div className="border rounded d-flex justify-content-center" style={{ background: "#f6f8fa", overflow: "auto" }}>
+              <div className="ux4g-b-1 ux4g-radius-m ux4g-d-flex ux4g-jc-center" style={{ background: "#f6f8fa", overflow: "auto" }}>
                 <iframe title="preview" src={src(active)} sandbox="allow-same-origin" style={{ width: device, height: 680, border: 0, background: "#fff" }} />
               </div>
             </div></div>

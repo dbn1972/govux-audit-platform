@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { relative } from "@/lib/format";
 
@@ -30,12 +31,12 @@ export default function Discovery() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Estate auto-discovery</h1>
+            <h1 className="ux4g-mb-2xs">Estate auto-discovery</h1>
             <div className="gx-muted">Find government sites nobody registered — paste a sitemap, robots.txt or page source and
           we extract every <code>.gov.in</code> / <code>.nic.in</code> host.</div>
           </div>
         </div>
-        {err && <div className="alert alert-warning py-2">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs">{err}</div>}
 
         <div className="gx-card">
           <div className="gx-card-head"><h2>Scan a source</h2></div>
@@ -43,18 +44,18 @@ export default function Discovery() {
             {/* labelled properly: these two inputs had no `for`, so a screen
                 reader announced an unnamed text box and an unnamed textarea */}
             <label className="form-label" htmlFor="disc-seed">Source URL (for the record)</label>
-            <input id="disc-seed" className="form-control mb-3" value={seed}
+            <input id="disc-seed" className="ux4g-input ux4g-w-100 ux4g-mb-s" value={seed}
               onChange={e => setSeed(e.target.value)} placeholder="https://example.gov.in/sitemap.xml" />
             <label className="form-label" htmlFor="disc-body">Fetched content</label>
-            <textarea id="disc-body" className="form-control font-monospace" rows={5} value={body}
+            <textarea id="disc-body" className="ux4g-input ux4g-w-100 font-monospace" rows={5} value={body}
               onChange={e => setBody(e.target.value)}
               placeholder="Sitemap: https://example.gov.in/sitemap.xml" />
-            <div className="form-text mb-3">Sitemap XML, robots.txt or page source — anything containing links.</div>
-            <button className="btn btn-primary" onClick={scan} disabled={!body.trim()}>
-              <i className="bi bi-search me-1" aria-hidden="true" />Scan for gov domains
+            <div className="form-text ux4g-mb-s">Sitemap XML, robots.txt or page source — anything containing links.</div>
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" onClick={scan} disabled={!body.trim()}>
+              <Icon name="search" size={16} className="ux4g-mr-2xs" />Scan for gov domains
             </button>
             {result && (
-              <div className="alert alert-info mt-3 mb-0 py-2 small" role="status">
+              <div className="ux4g-alert ux4g-alert-info ux4g-mt-s ux4g-mb-none ux4g-py-xs small" role="status">
                 Found {result.total_found} host{result.total_found === 1 ? "" : "s"},
                 {" "}{result.new} new. New hosts appear below and can be imported into the register.
               </div>
@@ -78,7 +79,7 @@ export default function Discovery() {
               </tr>
             ))}
             {!rows.length && (
-              <tr><td colSpan={4} className="gx-muted text-center py-5">
+              <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">
                 Nothing discovered yet. Paste a sitemap or robots.txt above to find
                 hosts nobody has registered.
               </td></tr>

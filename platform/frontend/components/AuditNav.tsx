@@ -32,14 +32,18 @@ export default function AuditNav({ id }: { id: string }) {
   const path = usePathname();
   return (
     <nav aria-label="Audit views">
-      <ul className="nav nav-tabs mb-3 flex-nowrap overflow-auto">
+      {/* UX4G underline tab strip, but routing-driven: each item is a Next
+          <Link>, and the active item is the one whose route matches — not a
+          JS-toggled panel. Keeps the `active` class UX4G styles against, and
+          preserves aria-current for assistive tech. */}
+      <ul className="ux4g-tab ux4g-tab-underline ux4g-tab-md ux4g-tab-list ux4g-mb-s ux4g-flex-nowrap ux4g-o-x-auto">
         {TABS.map(([label, template]) => {
           const href = template.replace("[id]", id);
           const active = path === href;
           return (
-            <li className="nav-item" key={template}>
+            <li key={template} style={{ listStyle: "none" }}>
               <Link href={href}
-                className={`nav-link text-nowrap${active ? " active" : ""}`}
+                className={`ux4g-tab-item ux4g-text-nowrap${active ? " active" : ""}`}
                 aria-current={active ? "page" : undefined}>{label}</Link>
             </li>
           );

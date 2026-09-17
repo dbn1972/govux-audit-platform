@@ -33,15 +33,15 @@ export default function GovBanner() {
           is the first thing rendered — a skip link that is not first is not a
           skip link. */}
       <a href="#main" className="gx-skip">Skip to main content</a>
-      <div className="container d-flex align-items-center justify-content-between gap-3">
-        <span className="d-flex align-items-center gap-2">
+      <div className="container ux4g-d-flex ux4g-ai-center ux4g-jc-between ux4g-gap-s">
+        <span className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
           <b>Government of India</b>
-          <span className="d-none d-sm-inline gx-govbar-dept">
+          <span className="ux4g-d-none ux4g-sm-d-inline gx-govbar-dept">
             Ministry of Electronics &amp; Information Technology
           </span>
         </span>
 
-        <span className="d-flex align-items-center gap-3">
+        <span className="ux4g-d-flex ux4g-ai-center ux4g-gap-s">
           {/* smallest to largest, left to right — the old order ran A+ A A−,
               which reads backwards against every other size control */}
           <span className="gx-textsize" role="group" aria-label="Text size">
@@ -52,10 +52,10 @@ export default function GovBanner() {
             <button type="button" onClick={() => apply(scale + STEP)}
               disabled={scale >= MAX} aria-label="Increase text size">A+</button>
           </span>
-          <span className="visually-hidden" role="status">Text size {scale} per cent</span>
+          <span className="ux4g-sr-only" role="status">Text size {scale} per cent</span>
           {/* Plain text, not a menu: there is one language today, and a chevron
               promising a switcher that does not exist is worse than none. */}
-          <span className="d-none d-sm-inline gx-govbar-dept">English</span>
+          <span className="ux4g-d-none ux4g-sm-d-inline gx-govbar-dept">English</span>
         </span>
       </div>
     </div>

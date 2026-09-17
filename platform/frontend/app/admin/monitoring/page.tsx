@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { relative, absoluteTime } from "@/lib/format";
 
@@ -32,42 +33,42 @@ export default function Monitoring() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Continuous monitoring</h1>
+            <h1 className="ux4g-mb-2xs">Continuous monitoring</h1>
             <div className="gx-muted">Schedule recurring audits so the estate is watched continuously — the GSA model —
           rather than only on request.</div>
           </div>
         </div>
-        {err && <div className="alert alert-warning py-2">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs">{err}</div>}
 
         <div className="gx-card">
           <div className="gx-card-head"><h2>Add a monitor</h2></div>
           <div className="gx-card-body">
-          <div className="row g-3 align-items-end">
-            <div className="col-md-6">
+          <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-ai-end">
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6">
               <label className="form-label" htmlFor="monitor-domain">Domain</label>
-              <select id="monitor-domain" className="form-select" value={domainId}
+              <select id="monitor-domain" className="ux4g-form-select" value={domainId}
                 onChange={e => setDomainId(e.target.value)}>
                 <option value="">Select a verified domain…</option>
                 {domains.map(d => <option key={d.id} value={d.id}>{d.url}</option>)}
               </select>
             </div>
-            <div className="col-md-3">
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-3">
               <label className="form-label" htmlFor="monitor-cadence">Cadence</label>
-              <select id="monitor-cadence" className="form-select" value={cadence}
+              <select id="monitor-cadence" className="ux4g-form-select" value={cadence}
                 onChange={e => setCadence(e.target.value)}>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
               </select>
             </div>
-            <div className="col-md-3">
-              <button className="btn btn-primary w-100" disabled={!domainId} onClick={add}>
-                <i className="bi bi-plus-circle me-1" aria-hidden="true" />Add monitor
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-3">
+              <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100" disabled={!domainId} onClick={add}>
+                <Icon name="plus-circle" size={16} className="ux4g-mr-2xs" />Add monitor
               </button>
             </div>
           </div>
           {/* the thing a scheduler screen must answer before anything else */}
-          <p className="gx-muted mb-0 mt-3" style={{ fontSize: ".8125rem" }}>
+          <p className="gx-muted ux4g-mb-none ux4g-mt-s" style={{ fontSize: ".8125rem" }}>
             Monitored audits run in the background at the chosen cadence and notify the
             organisation's admins when a score regresses by 5 points or more.
           </p>
@@ -76,7 +77,7 @@ export default function Monitoring() {
 
         <div className="gx-card"><div className="table-responsive"><table className="gx-table gx-responsive">
           <thead><tr><th>Domain</th><th>Cadence</th><th>Next run</th><th>Last run</th>
-            <th><span className="visually-hidden">Actions</span></th></tr></thead>
+            <th><span className="ux4g-sr-only">Actions</span></th></tr></thead>
           <tbody>
             {rows.map(s => (
               <tr key={s.id}>
@@ -87,12 +88,12 @@ export default function Monitoring() {
                 {/* icon-only control needs an accessible name — WCAG 4.1.2, the
                     same "buttons must have discernible text" rule this platform
                     reports on other people's sites */}
-                <td data-label=""><button className="btn btn-sm btn-outline-danger" onClick={() => remove(s.id)}
+                <td data-label=""><button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm" onClick={() => remove(s.id)}
                   aria-label={`Stop monitoring ${s.domain || "this domain"}`}>
-                  <i className="bi bi-trash" aria-hidden="true" /></button></td>
+                  <Icon name="trash" size={16} /></button></td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={5} className="gx-muted text-center py-5">No monitors yet.</td></tr>}
+            {!rows.length && <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">No monitors yet.</td></tr>}
           </tbody>
         </table></div></div>
       </div>

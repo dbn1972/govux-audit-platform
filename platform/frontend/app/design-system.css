@@ -916,3 +916,33 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 .gx-review-pager { display:flex; align-items:center; gap:var(--gx-space-3);
                    padding:var(--gx-space-4) var(--gx-space-5);
                    border-top:1px solid var(--gx-border); }
+
+/* ============================================================================
+   UX4G grid — mobile stacking fix.
+
+   The migration maps Bootstrap `row`/`col-md-6` onto `ux4g-grid
+   ux4g-grid-cols-12` + `ux4g-cols-span-12 ux4g-md-cols-span-6`. UX4G's
+   responsive spans are min-width (they only apply from md=768px up), so below
+   768px every child is `cols-span-12`. On a 12-track `repeat(12,1fr)` grid a
+   span-12 child also spans the 11 internal column gaps — with the larger gap
+   tokens (gap-m = 36px) that is 11×36 ≈ 400px of gap alone, which overflows a
+   phone and forced the tracks to 0. Bootstrap columns simply stack full-width
+   on mobile; reproduce that by collapsing the 12-col grid to one column below
+   the md breakpoint. Fixes every migrated row at once (23 grids, 17 files)
+   without per-call-site edits, and is inert at >=768px where the spans apply.
+   ------------------------------------------------------------------------ */
+@media (max-width: 767.98px) {
+  /* Collapse the 12-track grid to one column… */
+  .ux4g-grid.ux4g-grid-cols-12 { grid-template-columns: 1fr !important; }
+  /* …AND stop the mobile-default `cols-span-12` children from spanning the
+     (now single) track's phantom siblings + gaps. Resetting grid-column to the
+     full line range makes each child occupy exactly one full-width row, which
+     is the Bootstrap mobile-stacking behaviour these rows were written for.
+     This is the rule that actually fixes the overflow — the child span, not the
+     parent template, was carrying the 11×gap width. */
+  .ux4g-grid.ux4g-grid-cols-12 > [class*="ux4g-cols-span-"],
+  .ux4g-grid.ux4g-grid-cols-12 > [class*="cols-span-"] { grid-column: 1 / -1 !important; }
+}
+/* Let grid children shrink below their content's intrinsic width so a long
+   token or wide table inside a column never pushes the track past the viewport. */
+.ux4g-grid > * { min-width: 0; }

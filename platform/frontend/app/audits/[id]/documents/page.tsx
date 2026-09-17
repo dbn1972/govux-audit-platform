@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 // Document (PDF/Office) accessibility results (gap G3).
@@ -26,7 +27,7 @@ export default function Documents({ params }: { params: { id: string } }) {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Document accessibility</h1>
+            <h1 className="ux4g-mb-2xs">Document accessibility</h1>
             <div className="gx-muted">
               Government runs on PDFs. Each linked document is checked for a tagged structure, a
               title and a declared language — the PDF/UA basics a screen reader depends on.
@@ -34,11 +35,11 @@ export default function Documents({ params }: { params: { id: string } }) {
           </div>
         </div>
         <AuditNav id={params.id} />
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="gx-card">
           <div className="gx-card-head">
             <h2>Linked documents</h2>
-            <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+            <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
               {docs.length} document{docs.length === 1 ? "" : "s"} · tagged structure, title and
               language are the three PDF/UA basics
             </span>
@@ -52,21 +53,21 @@ export default function Documents({ params }: { params: { id: string } }) {
             <tbody>
               {docs.map((d, i) => (
                 <tr key={i}>
-                  <td data-label="Document" className="text-truncate gx-cell-primary" style={{ maxWidth: 320 }}>
+                  <td data-label="Document" className="ux4g-line-clamp-1 gx-cell-primary" style={{ maxWidth: 320 }}>
                     <a href={d.url} target="_blank" rel="noopener noreferrer">{d.url}
-                      <i className="bi bi-box-arrow-up-right ms-1" aria-hidden="true" style={{ fontSize: ".7em" }} />
-                      <span className="visually-hidden"> (opens in a new tab)</span>
+                      <Icon name="box-arrow-up-right" size={12} className="ux4g-ml-2xs" />
+                      <span className="ux4g-sr-only"> (opens in a new tab)</span>
                     </a></td>
                   <td data-label="Type"><span className="gx-chip">{d.type}</span></td>
                   <td data-label="Pages" className="gx-num">{d.pages ?? "—"}</td>
                   <td data-label="Tagged">{yn(d.tagged)}</td>
                   <td data-label="Title">{yn(d.has_title)}</td>
                   <td data-label="Language">{yn(d.has_lang)}</td>
-                  <td data-label="Score" className="fw-semibold gx-num">{d.score ?? "—"}</td>
+                  <td data-label="Score" className="ux4g-fw-semibold gx-num">{d.score ?? "—"}</td>
                   <td data-label="Issues" className="gx-num">{d.issues}</td>
                 </tr>
               ))}
-              {!docs.length && <tr><td colSpan={8} className="gx-muted text-center py-5">
+              {!docs.length && <tr><td colSpan={8} className="gx-muted ux4g-text-center ux4g-py-l">
                 No documents were discovered in this audit.</td></tr>}
             </tbody>
           </table>

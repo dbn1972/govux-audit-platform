@@ -1,21 +1,22 @@
 "use client";
 // Segment error boundary — recovers gracefully instead of blanking the app.
 import { useEffect } from "react";
+import Icon from "@/components/Icon";
 
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
   useEffect(() => { console.error(error); }, [error]);
   return (
-    <div className="container py-5" role="alert">
-      <div className="gx-card mx-auto" style={{ maxWidth: 560 }}>
-        <div className="card-body text-center p-4">
-          <i className="bi bi-exclamation-triangle text-warning" style={{ fontSize: 34 }} />
-          <h1 className="h4 mt-2 mb-1">Something went wrong</h1>
+    <div className="container ux4g-py-l" role="alert">
+      <div className="gx-card ux4g-mx-auto" style={{ maxWidth: 560 }}>
+        <div className="gx-card-body ux4g-text-center ux4g-p-m">
+          <Icon name="exclamation-triangle" size={34} className="ux4g-text-warning" />
+          <h1 className="h4 ux4g-mt-xs ux4g-mb-2xs">Something went wrong</h1>
           <p className="gx-muted">
             We hit an unexpected error loading this page. Your data is safe — please try again.
           </p>
-          <div className="d-flex gap-2 justify-content-center mt-3">
-            <button className="btn btn-primary" onClick={() => reset()}>Try again</button>
-            <a className="btn btn-outline-secondary" href="/dashboard">Go to dashboard</a>
+          <div className="ux4g-d-flex ux4g-gap-xs ux4g-jc-center ux4g-mt-s">
+            <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" onClick={() => reset()}>Try again</button>
+            <a className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md" href="/dashboard">Go to dashboard</a>
           </div>
         </div>
       </div>

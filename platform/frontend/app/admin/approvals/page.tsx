@@ -39,7 +39,7 @@ export default function Approvals() {
     <AppShell><div className="gx-page gx-stack">
       <div className="gx-page-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="mb-1">Larger-crawl approvals</h1>
+          <h1 className="ux4g-mb-2xs">Larger-crawl approvals</h1>
           <div className="gx-muted">
             Domain owners may audit up to the free page limit; deeper crawls need a steward’s approval.
           </div>
@@ -56,7 +56,7 @@ export default function Approvals() {
           </div>
         )}
       </div>
-      {err && <div className="alert alert-warning" role="alert">{err}</div>}
+      {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
       <div className="gx-card">
         <div className="table-responsive">
@@ -66,26 +66,26 @@ export default function Approvals() {
             </thead>
             <tbody>
               {rows == null && (
-                <tr><td colSpan={6} className="text-center py-4">
+                <tr><td colSpan={6} className="ux4g-text-center ux4g-py-m">
                   <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading…
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
-                <tr><td colSpan={6} className="gx-muted text-center py-5">No crawl requests yet.</td></tr>
+                <tr><td colSpan={6} className="gx-muted ux4g-text-center ux4g-py-l">No crawl requests yet.</td></tr>
               )}
               {(rows || []).map((r) => (
                 <tr key={r.id}>
                   <td data-label="Requested by" className="small">{r.user_email || "—"}</td>
-                  <td data-label="Domain" className="fw-semibold">{r.domain_url || "—"}</td>
+                  <td data-label="Domain" className="ux4g-fw-semibold">{r.domain_url || "—"}</td>
                   <td data-label="Pages"><b>{r.requested_pages}</b></td>
                   <td data-label="Reason" className="gx-muted small">{r.reason || "—"}</td>
-                  <td data-label="Status"><span className={`badge ${statusBadge[r.status] || "text-bg-light"}`}>{r.status}</span></td>
+                  <td data-label="Status"><span className={`ux4g-badge-m ${statusBadge[r.status] || "text-bg-light"}`}>{r.status}</span></td>
                   <td data-label="">
                     {r.status === "pending" ? (
-                      <div className="d-flex gap-1 justify-content-end">
-                        <button className="btn btn-sm btn-outline-success" disabled={busy === r.id}
+                      <div className="ux4g-d-flex ux4g-gap-2xs ux4g-jc-end">
+                        <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm" disabled={busy === r.id}
                           onClick={() => decide(r.id, "approved")}>Approve</button>
-                        <button className="btn btn-sm btn-outline-danger" disabled={busy === r.id}
+                        <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm" disabled={busy === r.id}
                           onClick={() => decide(r.id, "rejected")}>Reject</button>
                       </div>
                     ) : <span className="gx-muted small">decided</span>}

@@ -10,13 +10,13 @@ type Browser = {
   overflow: boolean | null; broken_images: number | null;
 };
 
-const ok = <span className="badge bg-success-subtle text-success-emphasis">Pass</span>;
-const bad = <span className="badge bg-danger-subtle text-danger-emphasis">Fail</span>;
-const warn = <span className="badge bg-warning-subtle text-warning-emphasis">Minor</span>;
+const ok = <span className="ux4g-badge-m bg-success-subtle text-success-emphasis">Pass</span>;
+const bad = <span className="ux4g-badge-m bg-danger-subtle text-danger-emphasis">Fail</span>;
+const warn = <span className="ux4g-badge-m bg-warning-subtle text-warning-emphasis">Minor</span>;
 const yesno = (loaded: boolean | null) => loaded === false ? bad : loaded ? ok : warn;
 const count = (n: number | null, unit: string) =>
-  !n ? <span className="text-success">0</span>
-     : <span className="text-danger fw-semibold">{n} {unit}{n === 1 ? "" : "s"}</span>;
+  !n ? <span className="ux4g-text-success">0</span>
+     : <span className="ux4g-text-error ux4g-fw-semibold">{n} {unit}{n === 1 ? "" : "s"}</span>;
 
 export default function Compatibility({ params }: { params: { id: string } }) {
   const [browsers, setBrowsers] = useState<Browser[] | null>(null);
@@ -29,26 +29,26 @@ export default function Compatibility({ params }: { params: { id: string } }) {
   const wrap = (b: React.ReactNode) => <AppShell><div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Responsiveness &amp; compatibility</h1>
+            <h1 className="ux4g-mb-2xs">Responsiveness &amp; compatibility</h1>
             <div className="gx-muted">Each site is rendered in three real browser engines — Chromium, Firefox and WebKit (Safari/iOS).</div>
           </div>
         </div>
     <AuditNav id={params.id} />{b}</div></AppShell>;
 
-  if (err) return wrap(<div className="alert alert-warning" role="alert">{err}</div>);
-  if (!browsers) return wrap(<div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
-  if (browsers.length === 0) return wrap(<div className="gx-muted text-center py-5">No cross-browser results captured for this audit.</div>);
+  if (err) return wrap(<div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>);
+  if (!browsers) return wrap(<div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
+  if (browsers.length === 0) return wrap(<div className="gx-muted ux4g-text-center ux4g-py-l">No cross-browser results captured for this audit.</div>);
 
   return wrap(
     <div className="gx-card">
       <div className="gx-card-head">Cross-browser matrix</div>
-      <div className="table-responsive"><table className="gx-table text-center">
+      <div className="table-responsive"><table className="gx-table ux4g-text-center">
         <thead><tr>
-          <th className="text-start">Engine</th><th>Loads</th><th>Horizontal overflow</th>
+          <th className="ux4g-text-start">Engine</th><th>Loads</th><th>Horizontal overflow</th>
           <th>Broken images</th><th>JS errors</th></tr></thead>
         <tbody>{browsers.map(b => (
           <tr key={b.engine}>
-            <td className="text-start fw-semibold">{b.engine}</td>
+            <td className="ux4g-text-start ux4g-fw-semibold">{b.engine}</td>
             <td>{yesno(b.loaded)}</td>
             <td>{b.overflow ? bad : ok}</td>
             <td>{count(b.broken_images, "image")}</td>

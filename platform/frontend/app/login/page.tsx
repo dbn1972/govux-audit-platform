@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import GovBanner from "@/components/GovBanner";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import Icon from "@/components/Icon";
 import { api, setToken } from "@/lib/api";
 
 // Mirrors backend security.is_gov_email: bare @gov.in/@nic.in as well as any subdomain.
@@ -60,46 +61,46 @@ export default function Login() {
 
       <main id="main" tabIndex={-1} style={{ outline: "none", flex: 1 }}>
         <div className="container" style={{ maxWidth: 440 }}>
-          <div className="text-center mt-5 mb-4">
-            <h1 className="mb-1">Sign in to GovUX Audit</h1>
-            <p className="gx-muted mb-0" style={{ fontSize: ".9375rem" }}>
+          <div className="ux4g-text-center ux4g-mt-xl ux4g-mb-m">
+            <h1 className="ux4g-mb-2xs">Sign in to GovUX Audit</h1>
+            <p className="gx-muted ux4g-mb-none" style={{ fontSize: ".9375rem" }}>
               For officers of <code>.gov.in</code> and <code>.nic.in</code> departments
             </p>
           </div>
       <div className="gx-card">
         <div className="gx-card-body">
-          <h2 className="h5 mb-1">Sign in</h2>
+          <h2 className="h5 ux4g-mb-2xs">Sign in</h2>
           {step === 1 ? (
             <>
-              <p className="gx-muted small mb-3">
+              <p className="gx-muted small ux4g-mb-s">
                 Enter your official government email. We&apos;ll send a one-time password.
               </p>
               <label htmlFor="login-email" className="form-label">Government email</label>
-              <input id="login-email" type="email" autoComplete="email" className="form-control" value={email}
+              <input id="login-email" type="email" autoComplete="email" className="ux4g-input ux4g-w-100" value={email}
                 onChange={e => setEmail(e.target.value)} placeholder="name.dept@nic.in" />
               <div className="form-text">Only <b>.gov.in</b> / <b>.nic.in</b> are accepted.</div>
-              {err && <div className="text-danger small mt-1" role="alert">✗ {err}</div>}
-              <button className="btn btn-primary w-100 mt-3" onClick={sendOtp} disabled={busy}>
+              {err && <div className="ux4g-text-error small ux4g-mt-2xs" role="alert">✗ {err}</div>}
+              <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100 ux4g-mt-s" onClick={sendOtp} disabled={busy}>
                 {busy ? "Sending…" : "Send OTP"}</button>
             </>
           ) : (
             <>
-              <p className="gx-muted small mb-3">
+              <p className="gx-muted small ux4g-mb-s">
                 Enter the 6-digit OTP sent to <b>{email}</b>.
               </p>
               <label htmlFor="login-otp" className="form-label">One-time password</label>
-              <input id="login-otp" className="form-control text-center" inputMode="numeric" maxLength={6}
+              <input id="login-otp" className="ux4g-input ux4g-w-100 ux4g-text-center" inputMode="numeric" maxLength={6}
                 autoComplete="one-time-code" aria-label="6-digit one-time password"
                 value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
                 placeholder="••••••" style={{ letterSpacing: 8, fontSize: 20 }} />
-              {err && <div className="text-danger small mt-1" role="alert">✗ {err}</div>}
-              <div className="alert alert-success py-2 mt-3 small mb-0">
-                <i className="bi bi-shield-check me-1" />
+              {err && <div className="ux4g-text-error small ux4g-mt-2xs" role="alert">✗ {err}</div>}
+              <div className="ux4g-alert ux4g-alert-success ux4g-py-xs ux4g-mt-s small ux4g-mb-none">
+                <Icon name="shield-check" size={15} className="ux4g-mr-2xs" />
                 On verify we bind this session to this device. A stolen cookie won&apos;t work elsewhere.
               </div>
-              <button className="btn btn-primary w-100 mt-3" onClick={verify} disabled={busy || code.length < 6}>
+              <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100 ux4g-mt-s" onClick={verify} disabled={busy || code.length < 6}>
                 {busy ? "Verifying…" : "Verify & sign in"}</button>
-              <button className="btn btn-link w-100 mt-2" onClick={() => setStep(1)}>← Change email</button>
+              <button className="ux4g-btn ux4g-btn-text-primary ux4g-btn-md ux4g-w-100 ux4g-mt-xs" onClick={() => setStep(1)}>← Change email</button>
             </>
           )}
         </div>

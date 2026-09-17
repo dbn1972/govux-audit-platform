@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 import { BAND_COLOR as bandBg, bandStyle } from "@/lib/score";
@@ -22,8 +23,8 @@ export default function National() {
     api.national().then(setD).catch((e) => setErr(e?.message || "Could not load national data."));
   }, []);
 
-  if (err) return <AppShell><div className="gx-page"><div className="alert alert-warning" role="alert">{err}</div></div></AppShell>;
-  if (!d) return <AppShell><div className="gx-page text-center"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div></AppShell>;
+  if (err) return <AppShell><div className="gx-page"><div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div></div></AppShell>;
+  if (!d) return <AppShell><div className="gx-page ux4g-text-center"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div></AppShell>;
 
   const dist = d.band_distribution || {};
   const scored = BANDS.reduce((t, b) => t + Number(dist[b] || 0), 0);
@@ -33,14 +34,14 @@ export default function National() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">National digital-service quality</h1>
+            <h1 className="ux4g-mb-2xs">National digital-service quality</h1>
             <div className="gx-muted">Live across all audited .gov.in / .nic.in domains</div>
           </div>
           <div className="gx-actions">
-            <Link href="/admin/bulk-scan" className="btn btn-outline-secondary">
-              <i className="bi bi-collection me-1" aria-hidden="true" />Bulk scan
+            <Link href="/admin/bulk-scan" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md">
+              <Icon name="collection" size={16} className="ux4g-mr-2xs" />Bulk scan
             </Link>
-            <button type="button" className="btn btn-primary" disabled={exporting}
+            <button type="button" className="ux4g-btn ux4g-btn-primary ux4g-btn-md" disabled={exporting}
               onClick={async () => {
                 setExporting(true);
                 try {
@@ -56,16 +57,16 @@ export default function National() {
               }}>
               {exporting
                 ? <><span className="spinner-border spinner-border-sm me-2" role="status" />Preparing…</>
-                : <><i className="bi bi-download me-1" aria-hidden="true" />Export brief</>}
+                : <><Icon name="download" size={16} className="ux4g-mr-2xs" />Export brief</>}
             </button>
           </div>
         </div>
 
         {exportErr && (
-          <div className="alert alert-warning d-flex align-items-center gap-2" role="alert">
-            <i className="bi bi-exclamation-triangle" aria-hidden="true" />
+          <div className="ux4g-alert ux4g-alert-warning ux4g-d-flex ux4g-ai-center ux4g-gap-xs" role="alert">
+            <Icon name="exclamation-triangle" size={16} />
             <span>{exportErr}</span>
-            <button type="button" className="btn-close ms-auto" aria-label="Dismiss"
+            <button type="button" className="btn-close ux4g-ml-auto" aria-label="Dismiss"
               onClick={() => setExportErr("")} />
           </div>
         )}
@@ -83,12 +84,12 @@ export default function National() {
           ))}
         </div>
 
-        <div className="row g-3">
-          <div className="col-lg-7">
-            <div className="gx-card h-100">
+        <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-7">
+            <div className="gx-card ux4g-h-100">
               <div className="gx-card-head">
                 <h2>Score distribution</h2>
-                <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+                <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                   {scored} scored domain{scored === 1 ? "" : "s"}
                 </span>
               </div>
@@ -99,7 +100,7 @@ export default function National() {
                   all rather than one with four gaps in it. */}
               <div className="gx-card-body">
                 {scored === 0 ? (
-                  <p className="gx-muted mb-0">
+                  <p className="gx-muted ux4g-mb-none">
                     No scored audits yet. The distribution appears here as domains are audited.
                   </p>
                 ) : BANDS.map((b) => {
@@ -123,26 +124,26 @@ export default function National() {
             </div>
           </div>
 
-          <div className="col-lg-5">
-            <div className="gx-card h-100">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-5">
+            <div className="gx-card ux4g-h-100">
               <div className="gx-card-head">
                 <h2>Top performers</h2>
-                <Link href="/admin/league" className="ms-auto" style={{ fontSize: ".8125rem" }}>Full league table</Link>
+                <Link href="/admin/league" className="ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Full league table</Link>
               </div>
               <div className="table-responsive">
                 <table className="gx-table gx-responsive">
                   <thead><tr><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
                   <tbody>
                     {(d.league || []).length === 0 && (
-                      <tr><td colSpan={3} className="gx-muted text-center py-5">No scored audits yet.</td></tr>
+                      <tr><td colSpan={3} className="gx-muted ux4g-text-center ux4g-py-l">No scored audits yet.</td></tr>
                     )}
                     {(d.league || []).map((r: any) => (
                       <tr key={r.url}>
                         <td data-label="Domain" className="gx-cell-primary">{r.url}</td>
-                        <td data-label="Score" className="gx-num fw-bold">{r.score ?? "—"}</td>
+                        <td data-label="Score" className="gx-num ux4g-fw-bold">{r.score ?? "—"}</td>
                         <td data-label="Band">
                           {r.band
-                            ? <span className="badge" style={bandStyle(r.band)}>{r.band}</span>
+                            ? <span className="ux4g-badge-m" style={bandStyle(r.band)}>{r.band}</span>
                             : <span className="gx-muted">—</span>}
                         </td>
                       </tr>

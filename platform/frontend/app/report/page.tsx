@@ -1,5 +1,6 @@
 "use client";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { BAND_COLOR, barColor } from "@/lib/score";
 
 // The illustrative twin of /audits/[id]/report — same components, same order,
@@ -25,20 +26,20 @@ export default function SampleReport() {
   // rendered bare, leaving a signed-in reader on a screen with no way back.
   return (
     <AppShell><div className="gx-page gx-stack">
-      <div className="alert alert-info d-flex align-items-center gap-2" role="note">
-        <i className="bi bi-info-circle" aria-hidden="true" />
+      <div className="ux4g-alert ux4g-alert-info ux4g-d-flex ux4g-ai-center ux4g-gap-xs" role="note">
+        <Icon name="info-circle" size={16} />
         <span><b>Sample report.</b> An illustrative example of what a GovUX report looks like — not a
           real audit. Run one from <a href="/audits/new">New Audit</a> to see your own results.</span>
       </div>
 
       <div className="gx-page-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="mb-1">example.gov.in</h1>
+          <h1 className="ux4g-mb-2xs">example.gov.in</h1>
           <div className="gx-muted">Illustrative data · Engine v3.2 · GIGW 3.0 · WCAG 2.2 AA · UX4G · CWV</div>
         </div>
         <div className="gx-actions">
-          <a href="/audits/new" className="btn btn-primary">
-            <i className="bi bi-play-fill me-1" aria-hidden="true" />Run a real audit
+          <a href="/audits/new" className="ux4g-btn ux4g-btn-primary ux4g-btn-md">
+            <Icon name="play-fill" size={16} className="ux4g-mr-2xs" />Run a real audit
           </a>
         </div>
       </div>
@@ -49,9 +50,9 @@ export default function SampleReport() {
             <div>
               <div className="gx-label">GovUX score</div>
               <div className="gx-score-figure" style={{ color: BAND_COLOR.C }}>63.9</div>
-              <div className="fw-semibold" style={{ color: BAND_COLOR.C }}>Band C</div>
+              <div className="ux4g-fw-semibold" style={{ color: BAND_COLOR.C }}>Band C</div>
             </div>
-            <div className="flex-grow-1" style={{ minWidth: 240 }}>
+            <div className="ux4g-flex-grow-1" style={{ minWidth: 240 }}>
               <div className="gx-scale" aria-hidden="true">
                 {BANDS.map((b) => (
                   <span key={b} className="gx-scale-step"
@@ -61,14 +62,14 @@ export default function SampleReport() {
               <div className="gx-scale-labels" aria-hidden="true">
                 {BANDS.map((b) => <span key={b}>{b}</span>)}
               </div>
-              <p className="gx-muted mt-3 mb-0" style={{ fontSize: ".875rem" }}>
+              <p className="gx-muted ux4g-mt-s ux4g-mb-none" style={{ fontSize: ".875rem" }}>
                 Weighted across 8 categories from 10 audited pages. Most of the gap is
                 in <b>Accessibility</b> — 9.2 of the 36.1 points lost.
               </p>
             </div>
           </div>
-          <div className="gx-callout mt-4">
-            <i className="bi bi-shield-fill-exclamation" aria-hidden="true" />
+          <div className="gx-callout ux4g-mt-m">
+            <Icon name="shield-fill-exclamation" size={20} />
             <div>
               <b>Guard-rail active — band capped at C.</b> A critical accessibility or trust failure
               holds the band down regardless of the weighted score, and lifts as soon as it is fixed.
@@ -78,10 +79,10 @@ export default function SampleReport() {
 
         <div className="gx-card"><div className="gx-card-body">
           <div className="gx-label">Legal compliance verdict</div>
-          <div className="h4 mt-2 mb-1" style={{ color: "var(--gx-navy-800)" }}>partially compliant</div>
+          <div className="h4 ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--gx-navy-800)" }}>partially compliant</div>
           <div className="gx-muted" style={{ fontSize: ".875rem" }}>Evidence: automated only</div>
-          <hr className="my-3" />
-          <p className="gx-muted mb-0" style={{ fontSize: ".8125rem" }}>
+          <hr className="ux4g-my-s" />
+          <p className="gx-muted ux4g-mb-none" style={{ fontSize: ".8125rem" }}>
             A separate judgement from the score. Automated evidence alone can never carry a site past
             a <b>partial</b> verdict — full conformance needs an assessor to certify the checks a
             machine cannot make.
@@ -103,7 +104,7 @@ export default function SampleReport() {
       <div className="gx-card">
         <div className="gx-card-head">
           <h2>Where the points went</h2>
-          <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>Ordered by points lost</span>
+          <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Ordered by points lost</span>
         </div>
         <div>
           {cats.map((c) => (

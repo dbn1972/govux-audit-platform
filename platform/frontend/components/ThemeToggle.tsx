@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Icon from "@/components/Icon";
 
 export const THEME_KEY = "govux-theme";
 type Theme = "light" | "dark";
@@ -43,7 +44,7 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
     <button type="button" onClick={toggle} className={`gx-icon-btn ${className}`}
       aria-label={ready ? `Switch to ${theme === "dark" ? "light" : "dark"} theme` : "Switch theme"}
       title={ready ? `Switch to ${theme === "dark" ? "light" : "dark"} theme` : undefined}>
-      <i className={`bi ${theme === "dark" ? "bi-sun" : "bi-moon-stars"}`} aria-hidden="true" />
+      <Icon name={theme === "dark" ? "sun" : "moon-stars"} size={17} />
     </button>
   );
 }

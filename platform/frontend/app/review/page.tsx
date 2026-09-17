@@ -1,5 +1,6 @@
 "use client";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
@@ -227,7 +228,7 @@ export default function Review() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Guided manual review</h1>
+            <h1 className="ux4g-mb-2xs">Guided manual review</h1>
             <div className="gx-muted">Expert review against the GIGW&nbsp;3.0 / UX4G guideline set — the items
           automation cannot judge. Sign off a completed audit, or assess a website or mobile app
           by hand with no crawl behind it. A full <b>compliant</b> verdict requires this
@@ -244,7 +245,7 @@ export default function Review() {
           <div className="gx-card">
             <div className="gx-card-head">
               <h2>Assess without an audit</h2>
-              <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+              <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                 No crawl needed
               </span>
             </div>
@@ -255,10 +256,10 @@ export default function Review() {
                 which only the engine can produce from evidence it gathered itself.
               </p>
 
-              <div className="row g-3">
-                <div className="col-lg-6">
+              <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
+                <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6">
                   <label className="form-label" htmlFor="assess-domain">Website</label>
-                  <select id="assess-domain" className="form-select mb-3" defaultValue=""
+                  <select id="assess-domain" className="ux4g-form-select ux4g-mb-s" defaultValue=""
                     onChange={(e) => e.target.value &&
                       startAssessment({ domain_id: e.target.value, platform: "website" })}
                     disabled={starting || !domains.length}>
@@ -276,11 +277,11 @@ export default function Review() {
                   <label className="form-label" htmlFor="assess-url">
                     …or any <code>.gov.in</code> / <code>.nic.in</code> address
                   </label>
-                  <div className="d-flex gap-2">
-                    <input id="assess-url" className="form-control" value={siteUrl}
+                  <div className="ux4g-d-flex ux4g-gap-xs">
+                    <input id="assess-url" className="ux4g-input ux4g-w-100" value={siteUrl}
                       placeholder="e.g. cept.gov.in"
                       onChange={(e) => setSiteUrl(e.target.value)} />
-                    <button className="btn btn-outline-primary" disabled={!siteUrl.trim() || starting}
+                    <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!siteUrl.trim() || starting}
                       onClick={() => startAssessment({ subject: siteUrl.trim(), platform: "website" })}>
                       Start website
                     </button>
@@ -290,13 +291,13 @@ export default function Review() {
                   </div>
                 </div>
 
-                <div className="col-lg-6">
+                <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6">
                   <label className="form-label" htmlFor="assess-app">Mobile app</label>
-                  <div className="d-flex gap-2">
-                    <input id="assess-app" className="form-control" value={appName}
+                  <div className="ux4g-d-flex ux4g-gap-xs">
+                    <input id="assess-app" className="ux4g-input ux4g-w-100" value={appName}
                       placeholder="e.g. India Post Mobile"
                       onChange={(e) => setAppName(e.target.value)} />
-                    <button className="btn btn-outline-primary" disabled={!appName.trim() || starting}
+                    <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!appName.trim() || starting}
                       onClick={() => startAssessment({ subject: appName.trim(), platform: "app" })}>
                       Start app
                     </button>
@@ -316,12 +317,12 @@ export default function Review() {
                 if (!rows.length) return null;
                 return (
                   <div key={heading as string}>
-                    <h3 className="h6 mt-4 mb-2">{heading as string}</h3>
+                    <h3 className="h6 ux4g-mt-m ux4g-mb-xs">{heading as string}</h3>
                     <ul className="list-group">
                       {rows.map((a: any) => (
-                        <li key={a.id} className="list-group-item d-flex flex-wrap align-items-center gap-3">
+                        <li key={a.id} className="list-group-item ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
                           <div>
-                            <div className="fw-semibold">{a.subject}</div>
+                            <div className="ux4g-fw-semibold">{a.subject}</div>
                             <div className="gx-muted small">
                               {a.platform === "app" ? "Mobile app" : "Website"} · {a.answered} answered
                               {a.created_at && <> · started {relative(a.created_at)}</>}
@@ -330,7 +331,7 @@ export default function Review() {
                           </div>
                           <Link href={`/review?assessment=${a.id}`}
                                 onClick={() => openAssessment(a.id)}
-                                className="btn btn-sm btn-outline-primary ms-auto">
+                                className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm ux4g-ml-auto">
                             {done ? "View" : "Continue"}
                           </Link>
                         </li>
@@ -344,18 +345,18 @@ export default function Review() {
 
           <div className="gx-card">
             <div className="gx-card-body">
-              <h2 className="h6 mb-1">Certify a completed audit</h2>
+              <h2 className="h6 ux4g-mb-2xs">Certify a completed audit</h2>
               <p className="gx-muted small">
                 Only completed audits can be certified. Every report also carries a
                 <b> “Certify (expert review)”</b> action that opens it here directly.
               </p>
               {choices === null && (
                 <div className="spinner-border spinner-border-sm gx-muted" role="status">
-                  <span className="visually-hidden">Loading audits…</span>
+                  <span className="ux4g-sr-only">Loading audits…</span>
                 </div>
               )}
               {choices?.length === 0 && (
-                <div className="alert alert-info mb-0" role="alert">
+                <div className="ux4g-alert ux4g-alert-info ux4g-mb-none" role="alert">
                   No completed audits yet — run one from{" "}
                   <Link href="/audits/new">New Audit</Link> first.
                 </div>
@@ -364,9 +365,9 @@ export default function Review() {
                 <ul className="list-group">
                   {choices.map((c: any) => (
                     <li key={c.task_id}
-                        className="list-group-item d-flex flex-wrap align-items-center gap-3">
+                        className="list-group-item ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
                       <div>
-                        <div className="fw-semibold">{c.domain}</div>
+                        <div className="ux4g-fw-semibold">{c.domain}</div>
                         <div className="gx-muted small">
                           {absolute(c.date)}
                           {c.score != null && <> · score {Math.round(c.score)}</>}
@@ -375,7 +376,7 @@ export default function Review() {
                       </div>
                       <Link href={`/review?audit=${c.task_id}`}
                             onClick={() => openAudit(c.task_id)}
-                            className="btn btn-sm btn-primary ms-auto">
+                            className="ux4g-btn ux4g-btn-primary ux4g-btn-sm ux4g-ml-auto">
                         Review
                       </Link>
                     </li>
@@ -392,13 +393,13 @@ export default function Review() {
             the page never named. */}
         {reviewing && (
           <div className="gx-card">
-            <div className="gx-card-body d-flex flex-wrap align-items-center gap-3">
+            <div className="gx-card-body ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
               <div>
                 <div className="gx-label">
                   {taskId ? "Certifying audit of"
                     : data?.platform === "app" ? "Assessing mobile app" : "Assessing website"}
                 </div>
-                <div className="fw-semibold" style={{ fontSize: "1.0625rem" }}>
+                <div className="ux4g-fw-semibold" style={{ fontSize: "1.0625rem" }}>
                   {taskId ? (audit?.domain || "…") : (data?.subject || "…")}
                 </div>
                 <div className="gx-muted small">
@@ -409,25 +410,25 @@ export default function Review() {
               </div>
               {/* right-aligned only while it sits beside the subject; once it
                   wraps under it on a phone, right-aligned reads as a mistake */}
-              <div className="ms-auto text-start text-md-end">
+              <div className="ux4g-ml-auto ux4g-text-start text-md-end">
                 {taskId && audit && (
                   <>
                     <div className="gx-muted small">Current legal verdict</div>
-                    <span className={`badge ${VERDICT_STYLE[audit.compliance_status] || "text-bg-secondary"}`}>
+                    <span className={`ux4g-badge-m ${VERDICT_STYLE[audit.compliance_status] || "text-bg-secondary"}`}>
                       {(audit.compliance_status || "—").replace(/_/g, " ")}
                     </span>
-                    <span className="gx-muted small ms-2">({audit.confidence || "automated_only"})</span>
+                    <span className="gx-muted small ux4g-ml-xs">({audit.confidence || "automated_only"})</span>
                   </>
                 )}
                 {assessmentId && data && (
                   <>
                     <div className="gx-muted small">Status</div>
-                    <span className={`badge ${locked
+                    <span className={`ux4g-badge-m ${locked
                       ? VERDICT_STYLE[data.verdict] || "text-bg-secondary" : "text-bg-secondary"}`}>
                       {locked ? (data.verdict || "signed off").replace(/_/g, " ") : "in progress"}
                     </span>
                     {locked && data.signed_off_at && (
-                      <div className="gx-muted small mt-1">{absolute(data.signed_off_at)}</div>
+                      <div className="gx-muted small ux4g-mt-2xs">{absolute(data.signed_off_at)}</div>
                     )}
                   </>
                 )}
@@ -442,16 +443,16 @@ export default function Review() {
         )}
 
         {reviewing && (
-          <div className="gx-card mb-3">
-            <div className="card-body d-flex flex-wrap gap-3 align-items-end">
+          <div className="gx-card ux4g-mb-s">
+            <div className="gx-card-body ux4g-d-flex ux4g-flex-wrap ux4g-gap-s ux4g-ai-end">
               {/* An assessment's platform is fixed when it is started — it is
                   what the subject IS — so it is stated in the header above
                   rather than offered as a control that would silently change
                   which corpus the answers already recorded belong to. */}
               {taskId && (
               <div>
-                <span className="form-label small fw-semibold mb-1 d-block">Platform</span>
-                <div className="btn-group btn-group-sm" role="group" aria-label="Platform being reviewed">
+                <span className="form-label small ux4g-fw-semibold ux4g-mb-2xs ux4g-d-block">Platform</span>
+                <div className="ux4g-d-inline-flex ux4g-gap-2xs" role="group" aria-label="Platform being reviewed">
                   {/* "Mobile app", not "App": the UX4G self-check's own Mobile
                       toggle means anything that renders on a phone, responsive
                       web included. This one means a native app, so the label
@@ -459,7 +460,7 @@ export default function Review() {
                   {[["website", "Website"], ["app", "Mobile app"]].map(([v, label]) => (
                     <button key={v} type="button" onClick={() => setPlatform(v)}
                       aria-pressed={platform === v}
-                      className={`btn ${platform === v ? "btn-primary" : "btn-outline-secondary"}`}>
+                      className={`ux4g-btn ux4g-btn-sm ${platform === v ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`}>
                       {label}
                     </button>
                   ))}
@@ -467,16 +468,16 @@ export default function Review() {
               </div>
               )}
               <div>
-                <label htmlFor="rev-tier" className="form-label small fw-semibold mb-1">Enforcement tier</label>
-                <select id="rev-tier" className="form-select" style={{ minWidth: 170 }}
+                <label htmlFor="rev-tier" className="form-label small ux4g-fw-semibold ux4g-mb-2xs">Enforcement tier</label>
+                <select id="rev-tier" className="ux4g-form-select" style={{ minWidth: 170 }}
                   value={tier} onChange={e => setTier(e.target.value)}>
                   {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
                   <option value="">All tiers</option>
                 </select>
               </div>
               <div>
-                <label htmlFor="rev-std" className="form-label small fw-semibold mb-1">Compliance</label>
-                <select id="rev-std" className="form-select" style={{ minWidth: 215 }}
+                <label htmlFor="rev-std" className="form-label small ux4g-fw-semibold ux4g-mb-2xs">Compliance</label>
+                <select id="rev-std" className="ux4g-form-select" style={{ minWidth: 215 }}
                   value={standard} onChange={e => setStandard(e.target.value)}>
                   <option value="">All compliances ({data?.reviewable_total ?? "—"})</option>
                   {(data?.standards || []).map((s: any) =>
@@ -484,8 +485,8 @@ export default function Review() {
                 </select>
               </div>
               <div>
-                <label htmlFor="rev-cat" className="form-label small fw-semibold mb-1">Category</label>
-                <select id="rev-cat" className="form-select" style={{ minWidth: 260 }}
+                <label htmlFor="rev-cat" className="form-label small ux4g-fw-semibold ux4g-mb-2xs">Category</label>
+                <select id="rev-cat" className="ux4g-form-select" style={{ minWidth: 260 }}
                   value={category} onChange={e => setCategory(e.target.value)}>
                   <option value="">All categories</option>
                   {/* counts up front, as the UX4G self-check does — otherwise
@@ -505,11 +506,11 @@ export default function Review() {
           <div className="gx-review-progress">
             <div style={{ minWidth: 180 }}>
               <div className="gx-label">Progress</div>
-              <div className="fw-semibold gx-num">
+              <div className="ux4g-fw-semibold gx-num">
                 {data.decided} of {data.reviewable_total ?? data.total} answered
               </div>
             </div>
-            <div className="flex-grow-1" style={{ minWidth: 160 }}>
+            <div className="ux4g-flex-grow-1" style={{ minWidth: 160 }}>
               <div className="progress" style={{ height: 8 }}
                 role="progressbar" aria-label="Review progress"
                 aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
@@ -517,18 +518,18 @@ export default function Review() {
               </div>
             </div>
             {data.failed > 0 && (
-              <div className="text-end">
+              <div className="ux4g-text-end">
                 <div className="gx-label">Not met</div>
-                <div className="fw-bold gx-num" style={{ color: "var(--gx-band-E)" }}>{data.failed}</div>
+                <div className="ux4g-fw-bold gx-num" style={{ color: "var(--gx-band-E)" }}>{data.failed}</div>
               </div>
             )}
             {/* Pass rate over ANSWERED items only, N/A excluded. A compliance
                 rating, NOT the GovUX score — that stays engine-derived. */}
             {data.rating != null && (
-              <div className="text-end">
+              <div className="ux4g-text-end">
                 <div className="gx-label">Compliance rating</div>
-                <div className="fw-bold gx-num">{data.rating}%
-                  <span className="gx-muted fw-normal" style={{ fontSize: ".8125rem" }}>
+                <div className="ux4g-fw-bold gx-num">{data.rating}%
+                  <span className="gx-muted ux4g-fw-regular" style={{ fontSize: ".8125rem" }}>
                     {" "}({data.passed} met of {data.passed + data.failed})
                   </span>
                 </div>
@@ -537,9 +538,9 @@ export default function Review() {
           </div>
         )}
 
-        {err && <div className="alert alert-warning py-2" role="alert">✗ {err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs" role="alert">✗ {err}</div>}
         {loading && !data && (
-          <div className="gx-muted small py-3">
+          <div className="gx-muted small ux4g-py-s">
             <span className="spinner-border spinner-border-sm me-2" role="status" />Loading…
           </div>
         )}
@@ -569,7 +570,7 @@ export default function Review() {
                     className={`gx-catrail-item ${done ? "gx-catrail-done" : ""}`}>
                     <span>{c.name}</span>
                     <span className="gx-catrail-count">
-                      {done ? <i className="bi bi-check-lg" aria-hidden="true" /> : `${c.answered}/${c.count}`}
+                      {done ? <Icon name="check-lg" size={16} /> : `${c.answered}/${c.count}`}
                     </span>
                   </button>
                 );
@@ -579,7 +580,7 @@ export default function Review() {
           <div className="gx-card">
             <div className="gx-card-head">
               <h2>{category || "All categories"}</h2>
-              <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+              <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                 {data.page_decided ?? 0} of {data.items.length} answered here
               </span>
             </div>
@@ -587,7 +588,7 @@ export default function Review() {
               const whole = (data.categories || []).find((c: any) => c.name === category)?.count;
               if (!category || !whole || whole <= data.items.length) return null;
               return (
-                <div className="gx-muted small px-4 pb-2" style={{ marginTop: "-.25rem" }}>
+                <div className="gx-muted small ux4g-px-m ux4g-pb-xs" style={{ marginTop: "-.25rem" }}>
                   Showing the {tier ? `${tier.toLowerCase()} ` : ""}items in this category —
                   {" "}{data.items.length} of {whole}. The rail counts the whole category;
                   choose <b>All tiers</b> to see the rest.
@@ -596,7 +597,7 @@ export default function Review() {
             })()}
             <div>
               {data.items.length === 0 && (
-                <div className="gx-muted text-center py-5">
+                <div className="gx-muted ux4g-text-center ux4g-py-l">
                   No guidelines match this filter. Widen the tier or category to see more.
                 </div>
               )}
@@ -614,34 +615,34 @@ export default function Review() {
                       <span className="gx-chip">{it.category}</span>
                       {it.severity && <span className="gx-chip">{it.severity}</span>}
                       {it.automation === "assisted" && (
-                        <span className="badge text-bg-info-subtle"
+                        <span className="ux4g-badge-m text-bg-info-subtle"
                           title="Machine gathers evidence, a human decides">assisted</span>
                       )}
                     </div>
-                    {it.issue && <div className="gx-muted small mt-2">{it.issue}</div>}
+                    {it.issue && <div className="gx-muted small ux4g-mt-xs">{it.issue}</div>}
                     {it.advice && (
-                      <details className="small mt-2">
+                      <details className="small ux4g-mt-xs">
                         <summary style={{ cursor: "pointer", color: "var(--bs-link-color)" }}>
                           How to meet it
                         </summary>
-                        <div className="mt-2">{it.advice}</div>
-                        {it.good_example && <div className="mt-1"><b>Pass:</b> {it.good_example}</div>}
-                        {it.bad_example && <div className="mt-1"><b>Fail:</b> {it.bad_example}</div>}
-                        {it.reference && <div className="gx-muted mt-1">{it.reference}</div>}
+                        <div className="ux4g-mt-xs">{it.advice}</div>
+                        {it.good_example && <div className="ux4g-mt-2xs"><b>Pass:</b> {it.good_example}</div>}
+                        {it.bad_example && <div className="ux4g-mt-2xs"><b>Fail:</b> {it.bad_example}</div>}
+                        {it.reference && <div className="gx-muted ux4g-mt-2xs">{it.reference}</div>}
                       </details>
                     )}
-                    {it.note && <div className="gx-muted small mt-2"><i>Note:</i> {it.note}</div>}
+                    {it.note && <div className="gx-muted small ux4g-mt-xs"><i>Note:</i> {it.note}</div>}
                   </div>
 
                   <div className="gx-check-actions">
-                    <div className="btn-group btn-group-sm" role="group"
+                    <div className="ux4g-d-inline-flex ux4g-gap-2xs" role="group"
                       aria-label={`Does the site meet ${it.guideline_id}?`}>
                       {DECISIONS.map(o => (
                         <button key={o.value} type="button"
                           disabled={savingId === it.guideline_id || locked}
                           onClick={() => decide(it.guideline_id, o.value)}
                           aria-pressed={it.decision === o.value}
-                          className={`btn ${it.decision === o.value ? "btn-primary" : "btn-outline-secondary"}`}>
+                          className={`ux4g-btn ux4g-btn-sm ${it.decision === o.value ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`}>
                           {o.label}
                         </button>
                       ))}
@@ -663,14 +664,14 @@ export default function Review() {
                   const next = i >= 0 && i < names.length - 1 ? names[i + 1] : null;
                   return (
                     <>
-                      <button className="btn btn-outline-secondary btn-sm" disabled={!prev}
+                      <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" disabled={!prev}
                         onClick={() => { setCategory(prev!); window.scrollTo({ top: 0 }); }}>
                         ← {prev || "Previous"}
                       </button>
-                      <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+                      <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                         Category {i + 1} of {names.length}
                       </span>
-                      <button className="btn btn-primary btn-sm" disabled={!next}
+                      <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm" disabled={!next}
                         onClick={() => { setCategory(next!); window.scrollTo({ top: 0 }); }}>
                         {next || "Last category"} →
                       </button>
@@ -682,31 +683,31 @@ export default function Review() {
 
             <div className="gx-card-body" style={{ borderTop: "1px solid var(--gx-border)",
                                                     background: "var(--gx-surface-muted)" }}>
-              <h2 className="h6 mb-3">Sign off</h2>
+              <h2 className="h6 ux4g-mb-s">Sign off</h2>
               {locked && !result ? (
-                <div className="alert alert-secondary mb-0" role="status">
+                <div className="ux4g-alert ux4g-alert-info ux4g-mb-none" role="status">
                   <b>Signed off {data.signed_off_at ? absolute(data.signed_off_at) : ""} —{" "}
                   {(data.verdict || "").replace(/_/g, " ") || "no verdict"}.</b>
-                  <div className="small mt-1">
+                  <div className="small ux4g-mt-2xs">
                     {data.decided} of {data.reviewable_total ?? data.total} answered,
                     {" "}{data.failed} not met.
                     {" "}This record cannot be changed. Start a new assessment from{" "}
                     <Link href="/review" onClick={showPicker}>All manual reviews</Link>
                     {" "}to reassess this subject.
                   </div>
-                  {data.notes && <div className="small mt-2"><i>Assessor notes:</i> {data.notes}</div>}
+                  {data.notes && <div className="small ux4g-mt-xs"><i>Assessor notes:</i> {data.notes}</div>}
                 </div>
               ) : (
               <>
               <label htmlFor="review-notes" className="form-label">
-                Assessor notes <span className="gx-muted fw-normal">(optional)</span>
+                Assessor notes <span className="gx-muted ux4g-fw-regular">(optional)</span>
               </label>
-              <textarea id="review-notes" className="form-control mb-3" rows={2}
+              <textarea id="review-notes" className="ux4g-input ux4g-w-100 ux4g-mb-s" rows={2}
                 value={notes} onChange={e => setNotes(e.target.value)}
                 placeholder="e.g. keyboard trap on the payment step; alt text accurate on all banners." />
               {result ? (
-                <div className="alert alert-success py-2 mb-0" role="status">
-                  <i className="bi bi-patch-check me-1" />
+                <div className="ux4g-alert ux4g-alert-success ux4g-py-xs ux4g-mb-none" role="status">
+                  <Icon name="patch-check" size={16} className="ux4g-mr-2xs" />
                   Sign-off recorded. {taskId ? "New legal verdict" : "Assessment verdict"}:{" "}
                   <b>{result.status.replace(/_/g, " ")}</b> — {result.reason}
                 </div>
@@ -716,8 +717,8 @@ export default function Review() {
                       invisible to keyboard and touch, which is most of the
                       people this platform exists for */}
                   {anyFail && (
-                    <div className="gx-callout mb-3">
-                      <i className="bi bi-exclamation-triangle" aria-hidden="true" />
+                    <div className="gx-callout ux4g-mb-s">
+                      <Icon name="exclamation-triangle" size={16} />
                       <div>
                         <b>{data.failed} item{data.failed === 1 ? "" : "s"} answered “No”.</b> A site
                         cannot be certified compliant while a guideline is unmet — fix them and
@@ -728,27 +729,27 @@ export default function Review() {
                   {/* Nothing answered is not a pass — the API refuses it, and
                       saying so here beats a 400 after the click. */}
                   {assessmentId && data.decided === 0 && (
-                    <div className="gx-callout mb-3">
-                      <i className="bi bi-info-circle" aria-hidden="true" />
+                    <div className="gx-callout ux4g-mb-s">
+                      <Icon name="info-circle" size={16} />
                       <div>Answer at least one guideline before signing off.</div>
                     </div>
                   )}
-                  <div className="d-flex flex-wrap gap-2 align-items-center">
+                  <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center">
                     {/* These were gated on `!taskId`, so on an assessment both
                         were permanently disabled: the whole route dead-ended
                         one click from the end. */}
-                    <button className="btn btn-success"
+                    <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md"
                       disabled={!reviewing || busy || anyFail
                                 || (!!assessmentId && data.decided === 0)}
                       onClick={() => signOff(true)}>
-                      <i className="bi bi-patch-check me-1" aria-hidden="true" />
+                      <Icon name="patch-check" size={16} className="ux4g-mr-2xs" />
                       {busy ? "Recording…" : "Certify compliant"}
                     </button>
-                    <button className="btn btn-outline-danger" disabled={!reviewing || busy}
+                    <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-md" disabled={!reviewing || busy}
                       onClick={() => signOff(false)}>
                       Reject — needs work
                     </button>
-                    <span className="gx-muted small ms-1">
+                    <span className="gx-muted small ux4g-ml-2xs">
                       Either decision is recorded against your account in the audit log.
                     </span>
                   </div>

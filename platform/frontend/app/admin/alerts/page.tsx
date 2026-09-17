@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
 type Alert = { severity: "critical" | "high" | "medium"; title: string; detail: string };
@@ -26,14 +27,14 @@ export default function Alerts() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Exception alerts</h1>
+            <h1 className="ux4g-mb-2xs">Exception alerts</h1>
             <div className="gx-muted">Where quality is at risk — so the programme office can intervene early.</div>
           </div>
         </div>
 
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         {!err && !data && (
-          <div className="text-center py-4"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>
+          <div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>
         )}
 
         {data && (
@@ -57,23 +58,23 @@ export default function Alerts() {
             <div className="gx-card">
               <div className="gx-card-head">
                 <h2>Exceptions</h2>
-                <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>
+                <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                   {data.alerts.length} open
                 </span>
               </div>
               <div className="list-group list-group-flush">
               {data.alerts.length === 0 && (
                 <div className="gx-empty">
-                  <div className="gx-empty-icon"><i className="bi bi-check2-circle" aria-hidden="true" /></div>
-                  <h3 className="h6 mt-3 mb-1">Nothing to act on</h3>
-                  <p className="gx-muted mb-0">The estate is clean against these four checks.</p>
+                  <div className="gx-empty-icon"><Icon name="check2-circle" size={24} /></div>
+                  <h3 className="h6 ux4g-mt-s ux4g-mb-2xs">Nothing to act on</h3>
+                  <p className="gx-muted ux4g-mb-none">The estate is clean against these four checks.</p>
                 </div>
               )}
               {data.alerts.map((a, i) => (
-                <div className="list-group-item d-flex gap-3 align-items-start" key={i}>
-                  <span className="rounded-circle mt-1" style={{ width: 10, height: 10, background: dot[a.severity], flex: "none" }} />
-                  <div className="flex-grow-1"><b>{a.title}</b><div className="gx-muted small">{a.detail}</div></div>
-                  <span className="badge" style={{ background: `color-mix(in srgb, ${dot[a.severity]} 14%, transparent)`,
+                <div className="list-group-item ux4g-d-flex ux4g-gap-s ux4g-ai-start" key={i}>
+                  <span className="ux4g-radius-full ux4g-mt-2xs" style={{ width: 10, height: 10, background: dot[a.severity], flex: "none" }} />
+                  <div className="ux4g-flex-grow-1"><b>{a.title}</b><div className="gx-muted small">{a.detail}</div></div>
+                  <span className="ux4g-badge-m" style={{ background: `color-mix(in srgb, ${dot[a.severity]} 14%, transparent)`,
                                                    color: dot[a.severity] }}>{a.severity}</span>
                 </div>
               ))}

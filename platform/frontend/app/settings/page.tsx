@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 import { api, setToken } from "@/lib/api";
 import { relative, absolute } from "@/lib/format";
 
@@ -181,29 +182,29 @@ export default function Settings() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">Team &amp; settings</h1>
+            <h1 className="ux4g-mb-2xs">Team &amp; settings</h1>
             <div className="gx-muted">
               Your organisation, who can act on its behalf, the devices holding a session, and what
               the platform emails you about.
             </div>
           </div>
         </div>
-        {err && <div className="alert alert-warning" role="alert">{err}</div>}
+        {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
         {/* Grouped rather than a flat grid: who we are, who can act for us,
             then how the account is secured and what it tells us about. */}
         <h2 className="gx-section-label">Organisation &amp; people</h2>
-        <div className="row g-3 mb-3">
-          <div className="col-lg-6"><div className="gx-card h-100"><div className="gx-card-body">
-            <h3 className="h6 mb-3">Organisation</h3>
-            <div className="mb-2">
+        <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-mb-s">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="gx-card ux4g-h-100"><div className="gx-card-body">
+            <h3 className="h6 ux4g-mb-s">Organisation</h3>
+            <div className="ux4g-mb-xs">
               <label className="form-label" htmlFor="org-name">Name</label>
-              <input id="org-name" className="form-control" value={orgName}
+              <input id="org-name" className="ux4g-input ux4g-w-100" value={orgName}
                 onChange={(e) => setOrgName(e.target.value)} disabled={!canEditOrg} />
             </div>
-            <div className="mb-2">
+            <div className="ux4g-mb-xs">
               <label className="form-label" htmlFor="org-state">State / UT</label>
-              <select id="org-state" className="form-select" value={orgState}
+              <select id="org-state" className="ux4g-form-select" value={orgState}
                 onChange={(e) => setOrgState(e.target.value)} disabled={!canEditOrg}>
                 <option value="">— Not set —</option>
                 {STATES.map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
@@ -211,27 +212,27 @@ export default function Settings() {
               <div className="form-text">Feeds the national States &amp; UTs roll-up.</div>
             </div>
             {canEditOrg ? (
-              <button className="btn btn-primary btn-sm" onClick={saveOrg} disabled={orgBusy}>
+              <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm" onClick={saveOrg} disabled={orgBusy}>
                 {orgBusy ? "Saving…" : "Save"}</button>
             ) : (
               <div className="gx-muted small">Only an owner or admin can edit organisation settings.</div>
             )}
-            {orgMsg && <div className="small mt-2 gx-muted">{orgMsg}</div>}
+            {orgMsg && <div className="small ux4g-mt-xs gx-muted">{orgMsg}</div>}
           </div></div></div>
 
-          <div className="col-lg-6"><div className="gx-card h-100">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="gx-card ux4g-h-100">
             <div className="gx-card-head">Team members</div>
-            {teamErr && <div className="alert alert-warning m-2 mb-0 py-1 small" role="alert">{teamErr}</div>}
-            <div className="table-responsive"><table className="table table-sm align-middle mb-0">
+            {teamErr && <div className="ux4g-alert ux4g-alert-warning ux4g-m-xs ux4g-mb-none ux4g-py-2xs small" role="alert">{teamErr}</div>}
+            <div className="table-responsive"><table className="table table-sm align-middle ux4g-mb-none">
               <thead><tr><th>Member</th><th>Role</th><th></th></tr></thead>
               <tbody>
                 {team == null && (
-                  <tr><td colSpan={3} className="text-center py-3">
+                  <tr><td colSpan={3} className="ux4g-text-center ux4g-py-s">
                     <span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" />
                   </td></tr>
                 )}
                 {team?.length === 0 && !teamErr && (
-                  <tr><td colSpan={3} className="gx-muted text-center py-5">No team members found.</td></tr>
+                  <tr><td colSpan={3} className="gx-muted ux4g-text-center ux4g-py-l">No team members found.</td></tr>
                 )}
                 {(team || []).map((m) => {
                   const stewardOnly = m.role === "programme_admin" || m.role === "super_admin";
@@ -239,10 +240,10 @@ export default function Settings() {
                   return (
                     <tr key={m.id}>
                       <td className="small">{m.display_name || m.email}
-                        {m.is_you && <span className="badge text-bg-secondary-subtle ms-1">you</span>}</td>
+                        {m.is_you && <span className="ux4g-badge-m text-bg-secondary-subtle ux4g-ml-2xs">you</span>}</td>
                       <td>
                         {editable ? (
-                          <select className="form-select" value={m.role}
+                          <select className="ux4g-form-select" value={m.role}
                             /* Names the person, not just "Role": in a table of
                                these a screen reader otherwise announces a column
                                of identical unlabelled dropdowns. */
@@ -253,7 +254,7 @@ export default function Settings() {
                                        || r === m.role).map((r) => <option key={r} value={r}>{r}</option>)}
                           </select>
                         ) : (
-                          <span className="badge text-bg-light">{m.role}</span>
+                          <span className="ux4g-badge-m text-bg-light">{m.role}</span>
                         )}
                       </td>
                       <td>{teamBusyId === m.id && <span className="spinner-border spinner-border-sm gx-muted" role="status" aria-label="Saving" />}</td>
@@ -272,8 +273,8 @@ export default function Settings() {
           </div></div>
         </div>
 
-        <div className="row g-3 mb-3">
-          <div className="col-lg-12"><div className="gx-card">
+        <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-mb-s">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-12"><div className="gx-card">
             <div className="gx-card-head">Invite a colleague</div>
             <div className="gx-card-body">
               <p className="gx-muted small">
@@ -282,29 +283,29 @@ export default function Settings() {
                 be invited.
               </p>
               {canManageTeam ? (
-                <form className="d-flex flex-wrap gap-2 align-items-start" onSubmit={sendInvite}>
-                  <input type="email" required className="form-control"
+                <form className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-start" onSubmit={sendInvite}>
+                  <input type="email" required className="ux4g-input ux4g-w-100"
                     style={{ maxWidth: 300 }} placeholder="colleague@ministry.gov.in"
                     aria-label="Colleague's government email address"
                     value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
-                  <select className="form-select" style={{ maxWidth: 180 }}
+                  <select className="ux4g-form-select" style={{ maxWidth: 180 }}
                     aria-label="Role to invite them as"
                     value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
                     {ROLES.filter((r) => canGrantSteward
                       || !(r === "programme_admin" || r === "super_admin"))
                       .map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
-                  <button className="btn btn-primary btn-sm" disabled={inviteBusy}>
+                  <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm" disabled={inviteBusy}>
                     {inviteBusy ? "Sending…" : "Send invitation"}</button>
                 </form>
               ) : (
                 <div className="gx-muted small">Only an owner or admin can invite colleagues.</div>
               )}
-              {inviteMsg && <div className="small mt-2 gx-muted">{inviteMsg}</div>}
+              {inviteMsg && <div className="small ux4g-mt-xs gx-muted">{inviteMsg}</div>}
             </div>
 
             {invites != null && invites.length > 0 && (
-              <div className="table-responsive"><table className="table table-sm align-middle mb-0">
+              <div className="table-responsive"><table className="table table-sm align-middle ux4g-mb-none">
                 <thead>
                   <tr><th>Pending invitation</th><th>Role</th><th>Expires</th><th></th></tr>
                 </thead>
@@ -312,15 +313,15 @@ export default function Settings() {
                   {invites.map((i) => (
                     <tr key={i.id}>
                       <td className="small">{i.email}</td>
-                      <td><span className="badge text-bg-light">{i.role}</span></td>
+                      <td><span className="ux4g-badge-m text-bg-light">{i.role}</span></td>
                       <td className="small">
                         {i.expired
-                          ? <span className="text-danger">Expired</span>
+                          ? <span className="ux4g-text-error">Expired</span>
                           : absolute(i.expires_at)}
                       </td>
-                      <td className="text-end">
+                      <td className="ux4g-text-end">
                         {canManageTeam && (
-                          <button className="btn btn-sm btn-outline-danger"
+                          <button className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-danger"
                             onClick={() => revokeInvite(i.id, i.email)}>Revoke</button>
                         )}
                       </td>
@@ -333,12 +334,12 @@ export default function Settings() {
         </div>
 
         <h2 className="gx-section-label">Security &amp; preferences</h2>
-        <div className="row g-3">
-          <div className="col-lg-8">
+        <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8">
             <div className="gx-card">
-              <div className="gx-card-head d-flex align-items-center">
-                <span className="fw-semibold">Trusted devices &amp; active sessions</span>
-                <button className="btn btn-sm btn-outline-secondary ms-auto" onClick={revokeOthers}
+              <div className="gx-card-head ux4g-d-flex ux4g-ai-center">
+                <span className="ux4g-fw-semibold">Trusted devices &amp; active sessions</span>
+                <button className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-neutral ux4g-ml-auto" onClick={revokeOthers}
                   disabled={busy || !(devices || []).some((d) => !d.current)}>
                   {busy ? "Signing out…" : "Sign out all others"}</button>
               </div>
@@ -346,12 +347,12 @@ export default function Settings() {
                 <thead><tr><th>Device</th><th>Location</th><th>Last active</th><th></th></tr></thead>
                 <tbody>
                   {devices == null && (
-                    <tr><td colSpan={4} className="text-center py-4">
+                    <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m">
                       <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading your sessions…
                     </td></tr>
                   )}
                   {devices?.length === 0 && !err && (
-                    <tr><td colSpan={4} className="gx-muted text-center py-5">No active sessions found.</td></tr>
+                    <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">No active sessions found.</td></tr>
                   )}
                   {(devices || []).map(d => (
                     <tr key={d.id}>
@@ -359,8 +360,8 @@ export default function Settings() {
                       <td>{d.last_location || "—"}</td>
                       <td className="small">{d.current ? "Now" : relative(d.last_active_at, "—")}</td>
                       <td>{d.current
-                        ? <span className="badge text-bg-success-subtle text-success">This device</span>
-                        : <button className="btn btn-sm btn-link text-danger" onClick={() => revoke(d.id)}>Revoke</button>}</td>
+                        ? <span className="ux4g-badge-m text-bg-success-subtle ux4g-text-success">This device</span>
+                        : <button className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm ux4g-text-error" onClick={() => revoke(d.id)}>Revoke</button>}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -371,9 +372,9 @@ export default function Settings() {
               </div>
             </div>
           </div>
-          <div className="col-lg-4">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4">
             <div className="gx-card"><div className="gx-card-body">
-              <h3 className="h6 mb-3">Notifications</h3>
+              <h3 className="h6 ux4g-mb-s">Notifications</h3>
               {["Audit completed", "New critical issue", "Score regression"].map(n => (
                 <div className="form-check form-switch" key={n}>
                   <input className="form-check-input" type="checkbox" id={`notif-${n}`}
@@ -381,20 +382,20 @@ export default function Settings() {
                   <label className="form-check-label" htmlFor={`notif-${n}`}>{n}</label>
                 </div>
               ))}
-              <p className="gx-muted small mb-0 mt-2">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
+              <p className="gx-muted small ux4g-mb-none ux4g-mt-xs">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
             </div></div>
 
-            <div className="gx-card mt-3"><div className="gx-card-body">
-              <h3 className="h6 mb-3">Data &amp; privacy <span className="badge text-bg-primary-subtle ms-1">DPDP</span></h3>
+            <div className="gx-card ux4g-mt-s"><div className="gx-card-body">
+              <h3 className="h6 ux4g-mb-s">Data &amp; privacy <span className="ux4g-badge-m text-bg-primary-subtle ux4g-ml-2xs">DPDP</span></h3>
               <p className="gx-muted small">Under the Digital Personal Data Protection Act, you can access
                 and erase the personal data we hold about you.</p>
-              <div className="d-flex flex-column gap-2">
-                <button className="btn btn-outline-secondary btn-sm" onClick={downloadData} disabled={dpdpBusy}>
-                  <i className="bi bi-download me-1" />Download my data (JSON)</button>
-                <button className="btn btn-outline-danger btn-sm" onClick={eraseAccount} disabled={dpdpBusy}>
-                  <i className="bi bi-trash me-1" />Delete my account &amp; data</button>
+              <div className="ux4g-d-flex ux4g-flex-column ux4g-gap-xs">
+                <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" onClick={downloadData} disabled={dpdpBusy}>
+                  <Icon name="download" size={16} className="ux4g-mr-2xs" />Download my data (JSON)</button>
+                <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm" onClick={eraseAccount} disabled={dpdpBusy}>
+                  <Icon name="trash" size={16} className="ux4g-mr-2xs" />Delete my account &amp; data</button>
               </div>
-              {dpdpMsg && <div className="small mt-2 gx-muted">{dpdpMsg}</div>}
+              {dpdpMsg && <div className="small ux4g-mt-xs gx-muted">{dpdpMsg}</div>}
             </div></div>
           </div>
         </div>

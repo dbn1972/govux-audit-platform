@@ -22,8 +22,8 @@ export default function PrivacyPolicy() {
   return (
     <PublicShell>
       <div className="gx-doc-head">
-        <h1 className="mb-2">Privacy Policy</h1>
-        <p className="gx-lead gx-prose mb-0">
+        <h1 className="ux4g-mb-xs">Privacy Policy</h1>
+        <p className="gx-lead gx-prose ux4g-mb-none">
           At Audit 360, an initiative by UX4G, we are committed to safeguarding your privacy. This
           policy explains how we collect, use, and protect your information when you use the Audit 360
           platform (“Platform”). By accessing or using the Platform, you agree to the practices

@@ -12,8 +12,8 @@ export default function Contact() {
   return (
     <PublicShell>
       <div className="gx-doc-head">
-        <h1 className="mb-2">Contact</h1>
-        <p className="gx-lead gx-prose mb-0">
+        <h1 className="ux4g-mb-xs">Contact</h1>
+        <p className="gx-lead gx-prose ux4g-mb-none">
           Questions about Audit 360, a score you think is wrong, or a site that will not scan —
           the UX4G team reads everything sent to the support address.
         </p>
@@ -21,13 +21,13 @@ export default function Contact() {
 
       <div className="gx-doc">
         <div className="gx-prose">
-          <div className="gx-card mb-4">
+          <div className="gx-card ux4g-mb-m">
             <div className="gx-card-body">
               <div className="gx-label">Support</div>
-              <p className="h5 mt-2 mb-1">
+              <p className="h5 ux4g-mt-xs ux4g-mb-2xs">
                 <a href="mailto:support.ux4g@digitalindia.gov.in">support.ux4g@digitalindia.gov.in</a>
               </p>
-              <p className="gx-muted mb-0" style={{ fontSize: ".875rem" }}>
+              <p className="gx-muted ux4g-mb-none" style={{ fontSize: ".875rem" }}>
                 UX4G · National e-Governance Division, Ministry of Electronics &amp; Information
                 Technology, Government of India
               </p>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
+import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { BAND_COLOR, barColor } from "@/lib/score";
 
@@ -31,8 +32,8 @@ export default function Report({ params }: { params: { id: string } }) {
   const [err, setErr] = useState("");
   useEffect(() => { api.auditReport(params.id).then(setR).catch(e => setErr(e.message)); }, [params.id]);
 
-  if (err) return <AppShell><div className="gx-page"><div className="alert alert-warning">Report not ready: {err}</div></div></AppShell>;
-  if (!r) return <AppShell><div className="gx-page"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading report…</span></div></div></AppShell>;
+  if (err) return <AppShell><div className="gx-page"><div className="ux4g-alert ux4g-alert-warning">Report not ready: {err}</div></div></AppShell>;
+  if (!r) return <AppShell><div className="gx-page"><div className="spinner-border text-primary" role="status"><span className="ux4g-sr-only">Loading report…</span></div></div></AppShell>;
 
   const sev = (s: string) => r.findings.filter((f: any) => f.severity === s).length;
 
@@ -53,13 +54,13 @@ export default function Report({ params }: { params: { id: string } }) {
 
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <h1 className="mb-1">{r.domain || "Audit report"}</h1>
+            <h1 className="ux4g-mb-2xs">{r.domain || "Audit report"}</h1>
             <div className="gx-muted">
               Audit report{r.date ? ` · ${fmtDate(r.date)}` : ""}{r.engine_version ? ` · Engine ${r.engine_version}` : ""}
             </div>
           </div>
           <div className="gx-actions">
-            <button type="button" className="btn btn-outline-secondary"
+            <button type="button" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md"
               onClick={async () => {
                 const blob = await api.evidencePack(params.id);
                 const a = document.createElement("a");
@@ -68,11 +69,11 @@ export default function Report({ params }: { params: { id: string } }) {
                 a.click();
                 URL.revokeObjectURL(a.href);
               }}>
-              <i className="bi bi-file-earmark-zip me-1" aria-hidden="true" />Evidence pack
+              <Icon name="file-earmark-zip" size={16} className="ux4g-mr-2xs" />Evidence pack
             </button>
-            <Link href={`/review?audit=${params.id}`} className="btn btn-outline-secondary">Certify</Link>
-            <Link href={`/audits/${params.id}/issues`} className="btn btn-primary">
-              See prioritised issues<i className="bi bi-arrow-right ms-1" aria-hidden="true" />
+            <Link href={`/review?audit=${params.id}`} className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md">Certify</Link>
+            <Link href={`/audits/${params.id}/issues`} className="ux4g-btn ux4g-btn-primary ux4g-btn-md">
+              See prioritised issues<Icon name="arrow-right" size={16} className="ux4g-ml-2xs" />
             </Link>
           </div>
         </div>
@@ -83,11 +84,11 @@ export default function Report({ params }: { params: { id: string } }) {
 
         {r.integrity?.flagged && (
           <div className="gx-callout gx-callout-danger" role="alert">
-            <i className="bi bi-exclamation-octagon" aria-hidden="true" />
+            <Icon name="exclamation-octagon" size={20} />
             <div>
               <b>Integrity check — possible gaming detected.</b> The compliance verdict is capped pending
               human review. The GovUX score itself is unchanged.
-              <ul className="mb-0 mt-1 small">
+              <ul className="ux4g-mb-none ux4g-mt-2xs small">
                 {r.integrity.techniques.map((t: any) => <li key={t.key}>{t.label}</li>)}
                 {r.integrity.jump && <li>Score rose {r.integrity.jump.from} → {r.integrity.jump.to} with no matching change.</li>}
               </ul>
@@ -97,7 +98,7 @@ export default function Report({ params }: { params: { id: string } }) {
 
         {(r.findings || []).some((f: any) => String(f.guideline || "").startsWith("Integrity")) && (
           <div className="gx-callout" role="alert">
-            <i className="bi bi-shield-exclamation" aria-hidden="true" />
+            <Icon name="shield-exclamation" size={20} />
             <div>
               <b>Integrity flag — possible “accessibility theater”.</b> An accessibility overlay widget
               and/or mandatory elements hidden from users were detected. These can inflate an automated
@@ -115,9 +116,9 @@ export default function Report({ params }: { params: { id: string } }) {
                 <div>
                   <div className="gx-label">GovUX score</div>
                   <div className="gx-score-figure" style={{ color: BAND_COLOR[r.band] }}>{r.overall_score}</div>
-                  <div className="fw-semibold" style={{ color: BAND_COLOR[r.band] }}>Band {r.band}</div>
+                  <div className="ux4g-fw-semibold" style={{ color: BAND_COLOR[r.band] }}>Band {r.band}</div>
                 </div>
-                <div className="flex-grow-1" style={{ minWidth: 240 }}>
+                <div className="ux4g-flex-grow-1" style={{ minWidth: 240 }}>
                   {/* the ladder the letter sits on */}
                   <div className="gx-scale" aria-hidden="true">
                     {BANDS.map((b) => (
@@ -128,7 +129,7 @@ export default function Report({ params }: { params: { id: string } }) {
                   <div className="gx-scale-labels" aria-hidden="true">
                     {BANDS.map((b) => <span key={b}>{b}</span>)}
                   </div>
-                  <p className="gx-muted mt-3 mb-0" style={{ fontSize: ".875rem" }}>
+                  <p className="gx-muted ux4g-mt-s ux4g-mb-none" style={{ fontSize: ".875rem" }}>
                     Weighted across {cats.length} categories
                     {r.pages_total ? ` from ${r.pages_total} audited page${r.pages_total === 1 ? "" : "s"}` : ""}.
                     {worst && <> Most of the gap is in <b>{worst.label}</b> — {worst.lost.toFixed(1)} of
@@ -138,8 +139,8 @@ export default function Report({ params }: { params: { id: string } }) {
               </div>
 
               {r.guardrail_active && (
-                <div className="gx-callout mt-4">
-                  <i className="bi bi-shield-fill-exclamation" aria-hidden="true" />
+                <div className="gx-callout ux4g-mt-m">
+                  <Icon name="shield-fill-exclamation" size={20} />
                   <div>
                     <b>Guard-rail active — band capped at C.</b> A critical accessibility or trust failure
                     holds the band down regardless of the weighted score, and lifts as soon as it is fixed.
@@ -152,19 +153,19 @@ export default function Report({ params }: { params: { id: string } }) {
           <div className="gx-card">
             <div className="gx-card-body">
               <div className="gx-label">Legal compliance verdict</div>
-              <div className="h4 mt-2 mb-1" style={{ color: "var(--gx-navy-800)" }}>
+              <div className="h4 ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--gx-navy-800)" }}>
                 {String(r.compliance?.status || "not assessed").replace(/_/g, " ")}
               </div>
               <div className="gx-muted" style={{ fontSize: ".875rem" }}>
                 Evidence: {r.compliance?.method === "automated" ? "automated only" : r.compliance?.method || "—"}
               </div>
-              <hr className="my-3" />
-              <p className="gx-muted mb-3" style={{ fontSize: ".8125rem" }}>
+              <hr className="ux4g-my-s" />
+              <p className="gx-muted ux4g-mb-s" style={{ fontSize: ".8125rem" }}>
                 This is a separate judgement from the score above. Automated evidence alone can never
                 carry a site past a <b>partial</b> verdict — full conformance needs an assessor to
                 certify the checks a machine cannot make.
               </p>
-              <Link href={`/review?audit=${params.id}`} className="btn btn-outline-primary btn-sm w-100">
+              <Link href={`/review?audit=${params.id}`} className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm ux4g-w-100">
                 Certify with expert review
               </Link>
             </div>
@@ -187,7 +188,7 @@ export default function Report({ params }: { params: { id: string } }) {
         <div className="gx-card">
           <div className="gx-card-head">
             <h2>Where the points went</h2>
-            <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>Ordered by points lost</span>
+            <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Ordered by points lost</span>
           </div>
           <div>
             {cats.map((c: any) => (
@@ -210,7 +211,7 @@ export default function Report({ params }: { params: { id: string } }) {
           <div className="gx-card">
             <div className="gx-card-head">
               <h2>Core Web Vitals</h2>
-              <span className="gx-muted ms-auto" style={{ fontSize: ".8125rem" }}>Lab measurement</span>
+              <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Lab measurement</span>
             </div>
             <div className="gx-card-body">
               <div className="gx-stats">
