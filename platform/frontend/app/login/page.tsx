@@ -60,7 +60,7 @@ export default function Login() {
       <SiteHeader />
 
       <main id="main" tabIndex={-1} style={{ outline: "none", flex: 1 }}>
-        <div className="container" style={{ maxWidth: 440 }}>
+        <div className="ux4g-container" style={{ maxWidth: 440 }}>
           <div className="ux4g-text-center ux4g-mt-xl ux4g-mb-m">
             <h1 className="ux4g-mb-2xs">Sign in to GovUX Audit</h1>
             <p className="gx-muted ux4g-mb-none" style={{ fontSize: ".9375rem" }}>
@@ -69,10 +69,10 @@ export default function Login() {
           </div>
       <div className="gx-card">
         <div className="gx-card-body">
-          <h2 className="h5 ux4g-mb-2xs">Sign in</h2>
+          <h2 className="ux4g-heading-2xs-strong ux4g-mb-2xs">Sign in</h2>
           {step === 1 ? (
             <>
-              <p className="gx-muted small ux4g-mb-s">
+              <p className="gx-muted ux4g-fs-14 ux4g-mb-s">
                 Enter your official government email. We&apos;ll send a one-time password.
               </p>
               <div className="ux4g-input-container ux4g-input-md ux4g-input-default">
@@ -83,13 +83,13 @@ export default function Login() {
                 </div>
               </div>
               <div className="ux4g-input-helper"><span className="ux4g-input-helper-text">Only <b>.gov.in</b> / <b>.nic.in</b> are accepted.</span></div>
-              {err && <div className="ux4g-text-error small ux4g-mt-2xs" role="alert">✗ {err}</div>}
+              {err && <div className="ux4g-text-error ux4g-fs-14 ux4g-mt-2xs" role="alert">✗ {err}</div>}
               <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100 ux4g-mt-s" onClick={sendOtp} disabled={busy}>
                 {busy ? "Sending…" : "Send OTP"}</button>
             </>
           ) : (
             <>
-              <p className="gx-muted small ux4g-mb-s">
+              <p className="gx-muted ux4g-fs-14 ux4g-mb-s">
                 Enter the 6-digit OTP sent to <b>{email}</b>.
               </p>
               <div className="ux4g-input-container ux4g-input-md ux4g-input-default">
@@ -101,8 +101,8 @@ export default function Login() {
                     placeholder="••••••" style={{ letterSpacing: 8, fontSize: 20 }} />
                 </div>
               </div>
-              {err && <div className="ux4g-text-error small ux4g-mt-2xs" role="alert">✗ {err}</div>}
-              <div className="ux4g-alert ux4g-alert-success ux4g-py-xs ux4g-mt-s small ux4g-mb-none">
+              {err && <div className="ux4g-text-error ux4g-fs-14 ux4g-mt-2xs" role="alert">✗ {err}</div>}
+              <div className="ux4g-alert ux4g-alert-success ux4g-py-xs ux4g-mt-s ux4g-fs-14 ux4g-mb-none">
                 <Icon name="shield-check" size={15} className="ux4g-mr-2xs" />
                 On verify we bind this session to this device. A stolen cookie won&apos;t work elsewhere.
               </div>

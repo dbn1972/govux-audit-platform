@@ -99,10 +99,10 @@ export default function Library() {
             <div className="ux4g-cols-span-12 ux4g-md-cols-span-6" key={g.id}><div className="gx-card ux4g-h-100"><div className="gx-card-body">
               <div className="ux4g-d-flex ux4g-gap-xs ux4g-mb-2xs"><span className="ux4g-tag-tonal-neutral ux4g-tag-s">{g.id}</span>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s">{g.family}</span></div>
-              <h2 className="h6">{g.title}</h2>
-              <p className="gx-muted small ux4g-mb-xs">{g.plain_language}</p>
+              <h2 className="ux4g-heading-2xs-strong">{g.title}</h2>
+              <p className="gx-muted ux4g-fs-14 ux4g-mb-xs">{g.plain_language}</p>
               {g.good_example && (
-                <div className="ux4g-alert ux4g-alert-success ux4g-py-xs small ux4g-mb-none">
+                <div className="ux4g-alert ux4g-alert-success ux4g-py-xs ux4g-fs-14 ux4g-mb-none">
                   <Icon name="check2" size={16} className="ux4g-mr-2xs" />{g.good_example}
                 </div>
               )}

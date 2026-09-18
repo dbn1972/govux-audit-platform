@@ -106,7 +106,7 @@ export default function Organisations() {
 
         {showNew && (
           <div className="gx-card"><div className="gx-card-body">
-            <h2 className="h6 ux4g-mb-s">New organisation</h2>
+            <h2 className="ux4g-heading-2xs-strong ux4g-mb-s">New organisation</h2>
             <form className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs ux4g-ai-end" onSubmit={create}>
               <div className="ux4g-cols-span-12 ux4g-md-cols-span-5">
                 <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
@@ -145,7 +145,7 @@ export default function Organisations() {
 
         {editing && (
           <div className="gx-card ux4g-mb-s" style={{ borderColor: "var(--gx-action)" }}><div className="gx-card-body">
-            <h2 className="h6">Edit organisation</h2>
+            <h2 className="ux4g-heading-2xs-strong">Edit organisation</h2>
             <form className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs ux4g-ai-end" onSubmit={saveEdit}>
               <div className="ux4g-cols-span-12 ux4g-md-cols-span-5">
                 <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
@@ -198,7 +198,7 @@ export default function Organisations() {
             <option value="">All types</option>
             {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
-          <span className="gx-muted small ux4g-ml-auto">
+          <span className="gx-muted ux4g-fs-14 ux4g-ml-auto">
             {rows == null ? "Loading…" : total === 0 ? "No matches" : `${from}–${to} of ${total.toLocaleString()}`}
           </span>
         </div>
@@ -230,10 +230,10 @@ export default function Organisations() {
                 <tr key={o.id}>
                   <td data-label="Organisation" className="gx-cell-primary">{o.name}</td>
                   <td data-label="Type"><span className="ux4g-tag-tonal-neutral ux4g-tag-s">{o.org_type}</span></td>
-                  <td data-label="State / UT" className="small">{o.state_code || <span className="gx-muted">—</span>}</td>
+                  <td data-label="State / UT" className="ux4g-fs-14">{o.state_code || <span className="gx-muted">—</span>}</td>
                   <td data-label="Domains" className="ux4g-fw-bold gx-num">{o.domain_count}</td>
                   <td data-label="Users" className="gx-num">{o.user_count}</td>
-                  <td data-label="Audits" className="small">
+                  <td data-label="Audits" className="ux4g-fs-14">
                     {o.audit_count
                       ? <>{o.audit_count}<span className="gx-muted"> · {o.audited_domains} domain{o.audited_domains === 1 ? "" : "s"}</span></>
                       : <span className="gx-muted">none</span>}
@@ -241,10 +241,10 @@ export default function Organisations() {
                   <td data-label="Avg score" className="gx-num">{o.avg_score != null
                     ? <b style={{ color: bandColor(o.avg_score) }}>{o.avg_score}</b>
                     : <span className="gx-muted">—</span>}</td>
-                  <td data-label="Last audit" className="small gx-muted">{fmt(o.last_audited_at)}</td>
+                  <td data-label="Last audit" className="ux4g-fs-14 gx-muted">{fmt(o.last_audited_at)}</td>
                   <td data-label="Studio">{o.studio_enabled
                     ? <span className="ux4g-tag-tonal-success ux4g-tag-s">Enabled</span>
-                    : <span className="gx-muted small">—</span>}</td>
+                    : <span className="gx-muted ux4g-fs-14">—</span>}</td>
                   <td data-label="" className="ux4g-text-end">
                     <button className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm"
                       onClick={() => { setEditing(o); setShowNew(false); }}>Edit</button>
@@ -260,7 +260,7 @@ export default function Organisations() {
                 onClick={() => setOffset((o) => Math.max(0, o - PAGE))}>← Previous</button>
               <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" disabled={to >= total}
                 onClick={() => setOffset((o) => o + PAGE)}>Next →</button>
-              <span className="gx-muted small ux4g-ml-auto">Page {Math.floor(offset / PAGE) + 1} of {Math.ceil(total / PAGE)}</span>
+              <span className="gx-muted ux4g-fs-14 ux4g-ml-auto">Page {Math.floor(offset / PAGE) + 1} of {Math.ceil(total / PAGE)}</span>
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@
 ## Stack (and why)
 | Layer | Tech | Note |
 |-------|------|------|
-| Frontend + BFF | Next.js 14 (App Router, TS) on Bootstrap 5 = UX4G Design System | UX4G tokens in `frontend/app/ux4g-theme.css` |
+| Frontend + BFF | Next.js 14 (App Router, TS) on the UX4G Design System (`ux4g-web-components`) | Bootstrap fully removed; `gx-*` product layer in `frontend/app/design-system.css` |
 | Core API | FastAPI (Python 3.12) | same runtime as scoring/ML — keeps the reproducible score with its models |
 | Queue | Redis Streams (consumer groups) | polyglot: Node + Python workers. NOT Celery |
 | Audit engine | Node: Playwright + Lighthouse + axe-core; Python: GIGW rules, scoring | deterministic, no AI in the score path |
@@ -32,7 +32,7 @@ platform/
     tests/                      # pytest (221 tests across 36 files, 80% gate in pytest.ini)
     migrations/                 # Alembic (0001 loads schema.sql; 0002 gap-closure)
   frontend/app/                 # 36 routes (App Router); owner + /admin/* steward
-    components/AppShell.tsx  lib/api.ts  lib/score.ts  app/ux4g-theme.css
+    components/AppShell.tsx  lib/api.ts  lib/score.ts  app/design-system.css
   scripts/verify_screens.py
   docker-compose.yml            # db, redis, api(:8000), worker, scheduler, web(:3000)
 ```
@@ -70,8 +70,12 @@ most-specific User-agent group wins, longest-match with Allow winning ties. Unit
 ## Conventions
 - Python: FastAPI + SQLAlchemy 2.0; Pydantic v2 schemas in `schemas.py` drive OpenAPI. Add a router in
   `routers/`, include it in `main.py`. Use `Depends(current_user)` / `require_role(...)`.
-- Frontend: client pages use `AppShell`; data via `lib/api.ts` (silent refresh). Bootstrap/UX4G classes
-  (`btn btn-primary`, `card`, `table`, `badge`, `bi-*`), deep-blue headings via `var(--ux-navy)`.
+- Frontend: client pages use `AppShell`; data via `lib/api.ts` (silent refresh). UX4G classes directly
+  (`ux4g-btn ux4g-btn-primary`, `ux4g-table`, `ux4g-alert`, `ux4g-tag-tonal-*`), icons via
+  `components/Icon.tsx`, deep-blue headings via `var(--gx-navy-800)`. Bespoke primitives only where
+  UX4G has no component, prefixed `gx-` and built from tokens — never a colour literal.
+  UX4G's `ux4g-heading-*`/`ux4g-body-*`/`ux4g-label-*` are matched by `[class^=]`, so they must lead
+  the class attribute; `ux4g-fs-*` is matched by `[class*=]` and works in any position.
 - Every new screen passes `scripts/verify_screens.py`, which checks structure AND that the
   route is linked from somewhere — an unreachable page fails the build, so a new screen must
   appear in the `AppShell` nav or be linked from another page.

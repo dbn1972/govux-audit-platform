@@ -104,7 +104,7 @@ export default function AboutUs() {
 
       <div className="gx-cta ux4g-mt-l">
         <div>
-          <h2 className="h4 ux4g-mb-2xs">Scan a site now</h2>
+          <h2 className="ux4g-heading-xs-strong ux4g-mb-2xs">Scan a site now</h2>
           <p className="ux4g-mb-none" style={{ opacity: .85, maxWidth: "56ch" }}>
             One public page, no sign-in, a score and a PDF in seconds. Sign in with a government email
             to audit up to ten pages and track scores over time.

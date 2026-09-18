@@ -78,10 +78,18 @@ async function openSignedIn(path: string) {
 
   // A dead session silently bounces to /login, where axe finds nothing wrong
   // and the test "passes" having audited the wrong page. The avatar carries the
-  // signed-in user's address in its title, which proves it at any viewport
-  // width (the sidebar nav is hidden below lg).
+  // signed-in user's address in its accessible name, which proves it at any
+  // viewport width (the sidebar nav is hidden below lg).
+  //
+  // This matched a `title` attribute until the UX4G migration gave the avatar a
+  // proper `aria-label` instead — the right call (a title is not reliably
+  // announced), but it silently broke every test in this file, and the file
+  // only runs nightly. Match the accessible name, which is what the assertion
+  // was really about.
   await expect(page).not.toHaveURL(/\/login/);
-  await expect(page.locator(`[title="${EMAIL}"]`)).toBeVisible();
+  await expect(page.getByRole("button", {
+    name: new RegExp(`Account menu.*${EMAIL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`),
+  })).toBeVisible();
 
   // Wait for the data, or axe audits a page of spinners and finds nothing.
   // Asserting the placeholder is *absent* is not enough on its own — it is also

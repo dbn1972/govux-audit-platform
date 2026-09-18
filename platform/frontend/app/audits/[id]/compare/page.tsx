@@ -68,7 +68,7 @@ export default function Compare({ params }: { params: { id: string } }) {
 
   return wrap(
     <>
-      <p className="gx-muted small">
+      <p className="gx-muted ux4g-fs-14">
         Comparing <b>{fmt(data.from_audit!.date)}</b> ({data.from_audit!.score ?? "—"}) against{" "}
         <b>{fmt(data.to_audit!.date)}</b> ({data.to_audit!.score ?? "—"}) — this audit&rsquo;s most recent prior run.
       </p>
@@ -108,7 +108,7 @@ export default function Compare({ params }: { params: { id: string } }) {
               <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                 {newIssues.map(i => (
                   <li key={i.guideline_id} className="ux4g-list-item">
-                    <div className="ux4g-list-item-row small">
+                    <div className="ux4g-list-item-row ux4g-fs-14">
                     <span className="gx-chip ux4g-mr-xs">{i.guideline_id}</span>{i.title || "—"}
                     </div>
                   </li>
@@ -127,7 +127,7 @@ export default function Compare({ params }: { params: { id: string } }) {
               <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                 {resolvedIssues.map(i => (
                   <li key={i.guideline_id} className="ux4g-list-item">
-                    <div className="ux4g-list-item-row small">
+                    <div className="ux4g-list-item-row ux4g-fs-14">
                     <span className="gx-chip ux4g-mr-xs">{i.guideline_id}</span>{i.title || "—"}
                     </div>
                   </li>

@@ -13,7 +13,7 @@ import { BAND_COLOR as bandCol } from "@/lib/score";
 // UX4G-aligned public landing page for the FREE single-URL audit (no sign-in).
 // This is the page the "UX4G Audit" link on ux4g.gov.in points to.
 
-const NAVY = "var(--ux-navy)";
+const NAVY = "var(--gx-navy-800)";
 
 const CHECKS = [
   ["bi-universal-access-circle", "Accessibility — WCAG 2.2 AA", "Colour contrast, labels, alt text, keyboard and screen-reader support (axe-core)."],
@@ -103,10 +103,10 @@ export default function ScanLanding() {
       {/* Hero + scanner */}
       <main id="main" tabIndex={-1} style={{ outline: "none" }}>
       <section id="scanner" className="gx-hero">
-        <div className="container gx-section">
+        <div className="ux4g-container gx-section">
           <div className="ux4g-text-center ux4g-mx-auto" style={{ maxWidth: 820 }}>
             <div>
-              <span className="ux4g-badge-m ux4g-radius-full ux4g-px-s ux4g-py-xs ux4g-mb-s" style={{ background: "var(--gx-brand-tint)", color: NAVY }}>
+              <span className="ux4g-tag-tonal-primary ux4g-tag-s ux4g-radius-full ux4g-mx-auto ux4g-mb-s" style={{ background: "var(--gx-brand-tint)", color: NAVY }}>
                 Free · No sign-up · For .gov.in / .nic.in websites
               </span>
               <h1 className="gx-hero-title ux4g-mb-s">Free UX4G Website Audit</h1>
@@ -136,10 +136,10 @@ export default function ScanLanding() {
                       <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs ux4g-mb-xs">
                         <Icon name="shield-check" size={16} className="ux4g-text-warning" />
                         <span className="ux4g-fw-semibold">Quick check</span>
-                        <span className="gx-muted small">(you’ve used your free scans)</span>
+                        <span className="gx-muted ux4g-fs-14">(you’ve used your free scans)</span>
                       </div>
                       <div className="ux4g-input-container ux4g-input-md ux4g-input-default">
-                        <label className="ux4g-label-m-default small ux4g-mb-2xs">{captcha.question}</label>
+                        <label className="ux4g-label-m-default ux4g-fs-14 ux4g-mb-2xs">{captcha.question}</label>
                         <div className="ux4g-input">
                           <input className="ux4g-input-input" inputMode="numeric" value={captchaAns}
                             onChange={e => setCaptchaAns(e.target.value)} placeholder="Your answer"
@@ -168,7 +168,7 @@ export default function ScanLanding() {
                             ? (state.queue_position > 0 ? `In queue — ${state.queue_position} scan${state.queue_position === 1 ? "" : "s"} ahead of you` : "You’re next in the queue…")
                             : "Scanning the page…"}
                         </div>
-                        <div className="gx-muted small">Chromium · Firefox · Safari · Lighthouse · axe-core</div>
+                        <div className="gx-muted ux4g-fs-14">Chromium · Firefox · Safari · Lighthouse · axe-core</div>
                       </div>
                     )}
                     {state.status === "failed" && (
@@ -195,7 +195,7 @@ export default function ScanLanding() {
                         </div>
                         <div className="ux4g-flex-grow-1">
                           <div className="ux4g-fw-semibold" style={{ color: NAVY }}>{state.url}</div>
-                          <div className="gx-muted small ux4g-mb-xs">
+                          <div className="gx-muted ux4g-fs-14 ux4g-mb-xs">
                             Scanned {state.url_scan_count} time{state.url_scan_count === 1 ? "" : "s"} on
                             GovUX · free single-page scan.
                           </div>
@@ -214,7 +214,7 @@ export default function ScanLanding() {
       </section>
 
       {/* What we check */}
-      <section id="checks" className="container gx-section">
+      <section id="checks" className="ux4g-container gx-section">
         <div className="gx-section-head">
           <h2>What every scan checks</h2>
           <p>A single deterministic engine — no black box in the score.</p>
@@ -227,8 +227,8 @@ export default function ScanLanding() {
                   <div className="gx-feature-icon ux4g-mb-s">
                     <Icon name={icon} size={24} />
                   </div>
-                  <h3 className="h6 ux4g-fw-bold" style={{ color: NAVY }}>{title}</h3>
-                  <p className="gx-muted small ux4g-mb-none">{desc}</p>
+                  <h3 className="ux4g-heading-2xs-strong ux4g-fw-bold" style={{ color: NAVY }}>{title}</h3>
+                  <p className="gx-muted ux4g-fs-14 ux4g-mb-none">{desc}</p>
                 </div>
               </div>
             </div>
@@ -238,7 +238,7 @@ export default function ScanLanding() {
 
       {/* How it works */}
       <section id="how" className="gx-section-tint">
-        <div className="container gx-section">
+        <div className="ux4g-container gx-section">
           <div className="gx-section-head"><h2>How it works</h2></div>
           <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-m ux4g-text-center">
             {[["1", "Paste a URL", "Any public .gov.in / .nic.in landing page — no sign-in needed."],
@@ -246,8 +246,8 @@ export default function ScanLanding() {
               ["3", "Get your score + PDF", "A 0–100 GovUX Score, an A–E band, and a downloadable report."]].map(([n, t, d]) => (
               <div className="ux4g-cols-span-12 ux4g-md-cols-span-4" key={n}>
                 <div className="gx-step-badge ux4g-mb-s">{n}</div>
-                <h3 className="h6 ux4g-fw-bold" style={{ color: NAVY }} dangerouslySetInnerHTML={{ __html: t }} />
-                <p className="gx-muted small" dangerouslySetInnerHTML={{ __html: d }} />
+                <h3 className="ux4g-heading-2xs-strong ux4g-fw-bold" style={{ color: NAVY }} dangerouslySetInnerHTML={{ __html: t }} />
+                <p className="gx-muted ux4g-fs-14" dangerouslySetInnerHTML={{ __html: d }} />
               </div>
             ))}
           </div>
@@ -255,10 +255,10 @@ export default function ScanLanding() {
       </section>
 
       {/* CTA for registered deep audits */}
-      <section className="container gx-section">
+      <section className="ux4g-container gx-section">
         <div className="gx-cta ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-jc-between ux4g-gap-s">
             <div>
-              <h2 className="h4 ux4g-mb-2xs">Need a deeper audit?</h2>
+              <h2 className="ux4g-heading-xs-strong ux4g-mb-2xs">Need a deeper audit?</h2>
               <p className="ux4g-mb-none" style={{ opacity: .85, maxWidth: "60ch" }}>Sign in with your government email to scan up to 10 pages, save reports,
                 track scores over time, and request larger crawls.</p>
             </div>

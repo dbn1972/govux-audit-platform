@@ -119,7 +119,7 @@ export default function NewAudit() {
                   </div>
                   <div className="ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
                     <span className="ux4g-tag-tonal-neutral ux4g-tag-s">Covers up to {freePages} pages · free</span>
-                    <span className="gx-muted small">Unlimited audits on your verified domains.</span>
+                    <span className="gx-muted ux4g-fs-14">Unlimited audits on your verified domains.</span>
                     <button type="button" className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm ux4g-ml-auto ux4g-p-none"
                       onClick={() => { setShowReq((v) => !v); setReqMsg(""); }} disabled={!domainId}>
                       {showReq ? "Cancel" : "Need a deeper crawl? Request approval →"}
@@ -153,16 +153,16 @@ export default function NewAudit() {
                             {reqBusy ? "Sending…" : "Submit request"}</button>
                         </div>
                       </div>
-                      <div className="gx-muted small ux4g-mt-xs">A programme steward reviews and approves larger crawls.</div>
+                      <div className="gx-muted ux4g-fs-14 ux4g-mt-xs">A programme steward reviews and approves larger crawls.</div>
                     </div>
                   )}
-                  {reqMsg && <div className="small ux4g-mt-xs">{reqMsg}</div>}
+                  {reqMsg && <div className="ux4g-fs-14 ux4g-mt-xs">{reqMsg}</div>}
                 </div>
               )}
             </div></div>
             <div className="gx-card"><div className="gx-card-body">
-              <h2 className="h6">Standards &amp; categories</h2>
-              <p className="gx-muted small">All eight scoring categories are always evaluated — the weights are fixed by the GovUX methodology.</p>
+              <h2 className="ux4g-heading-2xs-strong">Standards &amp; categories</h2>
+              <p className="gx-muted ux4g-fs-14">All eight scoring categories are always evaluated — the weights are fixed by the GovUX methodology.</p>
               {CATS.map(([name, wt]) => (
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs ux4g-b-1 ux4g-radius-m ux4g-p-xs ux4g-mb-xs" key={name}>
                   <Icon name="check-circle-fill" size={16} className="ux4g-text-success" />
@@ -174,12 +174,12 @@ export default function NewAudit() {
           </div>
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4">
             <div className="gx-card"><div className="gx-card-body">
-              <h2 className="h6">Compatibility matrix</h2>
-              <div className="ux4g-mb-xs"><div className="gx-muted small">Browser engines</div>
+              <h2 className="ux4g-heading-2xs-strong">Compatibility matrix</h2>
+              <div className="ux4g-mb-xs"><div className="gx-muted ux4g-fs-14">Browser engines</div>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">Chromium</span>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">Firefox</span>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s">WebKit</span></div>
-              <div className="ux4g-mb-s"><div className="gx-muted small">Device sizes</div>
+              <div className="ux4g-mb-s"><div className="gx-muted ux4g-fs-14">Device sizes</div>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">360</span>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">414</span>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">768</span>

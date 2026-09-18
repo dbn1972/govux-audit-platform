@@ -30,9 +30,9 @@ export default function Showcase({ params }: { params: { slug: string } }) {
     <div style={{ minHeight: "100vh", background: "var(--gx-surface-sunken)" }}>
       <GovBanner />
       <header className="ux4g-bg-neutral-elevated ux4g-bb-1">
-        <div className="container ux4g-py-xs ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
+        <div className="ux4g-container ux4g-py-xs ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
           <span className="gx-brand-name">GovUX Studio</span>
-          <span className="gx-muted small">· public demo · AI-generated draft</span>
+          <span className="gx-muted ux4g-fs-14">· public demo · AI-generated draft</span>
           {meta && <span className="gx-pill ux4g-ml-xs" style={bandStyle(meta.band)}>GovUX {meta.score} · Band {meta.band}</span>}
           <div className="ux4g-ml-auto ux4g-d-flex ux4g-gap-xs">
             <a className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" target="_blank" rel="noopener" href={`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`}>WhatsApp</a>
@@ -43,7 +43,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
         </div>
       </header>
 
-      <div className="container gx-section" style={{ paddingBlock: "2rem" }}>
+      <div className="ux4g-container gx-section" style={{ paddingBlock: "2rem" }}>
         {err && <div className="ux4g-alert ux4g-alert-warning">{err}</div>}
         {meta && (<>
           <div className="gx-page-head" style={{ marginBottom: "1rem" }}>
@@ -70,14 +70,14 @@ export default function Showcase({ params }: { params: { slug: string } }) {
                   <iframe title={f} src={src(f)} sandbox="allow-same-origin"
                     style={{ width: 1180, height: 800, border: 0, transform: "scale(.186)", transformOrigin: "top left" }} />
                 </div>
-                <div className="small ux4g-line-clamp-1 ux4g-px-xs ux4g-py-2xs ux4g-bt-1">{f}</div>
+                <div className="ux4g-fs-14 ux4g-line-clamp-1 ux4g-px-xs ux4g-py-2xs ux4g-bt-1">{f}</div>
               </div>
             ))}
           </div>
 
           {active && (
             <div className="gx-card"><div className="gx-card-body">
-              <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold small">{active}</span>
+              <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold ux4g-fs-14">{active}</span>
                 <span className="ux4g-ml-auto ux4g-d-inline-flex ux4g-gap-2xs">
                   {DEVICES.map(([l, w]) => <button key={l} className={`ux4g-btn ux4g-btn-sm ${device === w ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setDevice(w)}>{l}</button>)}
                 </span></div>

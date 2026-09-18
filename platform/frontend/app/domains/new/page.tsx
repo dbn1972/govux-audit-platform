@@ -127,7 +127,7 @@ export default function RegisterDomain() {
                 <div className="ux4g-radio-control"><span className="ux4g-radiomark"></span></div>
                 <div className="ux4g-radio-content">
                   <b>DNS TXT record</b>
-                  <span className="ux4g-d-block gx-muted small">
+                  <span className="ux4g-d-block gx-muted ux4g-fs-14">
                     Best if you manage the domain&apos;s DNS zone.
                   </span>
                 </div>
@@ -138,7 +138,7 @@ export default function RegisterDomain() {
                 <div className="ux4g-radio-control"><span className="ux4g-radiomark"></span></div>
                 <div className="ux4g-radio-content">
                   <b>File on your website</b>
-                  <span className="ux4g-d-block gx-muted small">
+                  <span className="ux4g-d-block gx-muted ux4g-fs-14">
                     Best if DNS is managed elsewhere but you can publish a file.
                   </span>
                 </div>
@@ -147,9 +147,9 @@ export default function RegisterDomain() {
 
             {method === "dns_txt" ? (
               <>
-                <p className="small ux4g-mb-xs">Add this TXT record to your domain&apos;s DNS, then verify:</p>
-                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m small"><code>{reg?.verify_token}</code></pre>
-                <div className="ux4g-alert ux4g-alert-info small">
+                <p className="ux4g-fs-14 ux4g-mb-xs">Add this TXT record to your domain&apos;s DNS, then verify:</p>
+                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m ux4g-fs-14"><code>{reg?.verify_token}</code></pre>
+                <div className="ux4g-alert ux4g-alert-info ux4g-fs-14">
                   ⏱ DNS changes can take up to 30 minutes; we re-check automatically.
                   You can leave this page — the record is kept, and “Verify” on your
                   domains list brings you straight back here.
@@ -157,15 +157,15 @@ export default function RegisterDomain() {
               </>
             ) : (
               <>
-                <p className="small ux4g-mb-xs">
+                <p className="ux4g-fs-14 ux4g-mb-xs">
                   Publish a file at this address containing exactly the text below, then verify:
                 </p>
-                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m small"><code>
+                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m ux4g-fs-14"><code>
                   https://{url || "your-domain.gov.in"}/.well-known/govux-verify.txt
                 </code></pre>
-                <p className="small ux4g-mb-xs">File contents:</p>
-                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m small"><code>{reg?.verify_token}</code></pre>
-                <div className="ux4g-alert ux4g-alert-info small">
+                <p className="ux4g-fs-14 ux4g-mb-xs">File contents:</p>
+                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m ux4g-fs-14"><code>{reg?.verify_token}</code></pre>
+                <div className="ux4g-alert ux4g-alert-info ux4g-fs-14">
                   The file must be served over HTTPS and reachable without sign-in.
                   You can leave this page — “Verify” on your domains list brings you
                   straight back here.
@@ -173,7 +173,7 @@ export default function RegisterDomain() {
               </>
             )}
 
-            {err && <div className="ux4g-text-error small ux4g-mb-xs">✗ {err}</div>}
+            {err && <div className="ux4g-text-error ux4g-fs-14 ux4g-mb-xs">✗ {err}</div>}
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" onClick={verify} disabled={busy}>
               {busy ? "Checking…" : "Verify now"}</button>
           </div></div>

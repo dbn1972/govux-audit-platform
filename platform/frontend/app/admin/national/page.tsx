@@ -67,8 +67,8 @@ export default function National() {
           <div className="ux4g-alert ux4g-alert-warning ux4g-d-flex ux4g-ai-center ux4g-gap-xs" role="alert">
             <Icon name="exclamation-triangle" size={16} />
             <span>{exportErr}</span>
-            <button type="button" className="btn-close ux4g-ml-auto" aria-label="Dismiss"
-              onClick={() => setExportErr("")} />
+            <button type="button" className="ux4g-alert-close ux4g-ml-auto" aria-label="Dismiss"
+              onClick={() => setExportErr("")}><Icon name="x-lg" size={16} /></button>
           </div>
         )}
 
@@ -144,7 +144,7 @@ export default function National() {
                         <td data-label="Score" className="gx-num ux4g-fw-bold">{r.score ?? "—"}</td>
                         <td data-label="Band">
                           {r.band
-                            ? <span className="ux4g-badge-m" style={bandStyle(r.band)}>{r.band}</span>
+                            ? <span className="ux4g-tag-tonal-neutral ux4g-tag-s" style={bandStyle(r.band)}>{r.band}</span>
                             : <span className="gx-muted">—</span>}
                         </td>
                       </tr>

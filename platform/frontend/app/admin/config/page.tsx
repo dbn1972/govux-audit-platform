@@ -102,7 +102,7 @@ export default function ConfigAdmin() {
                     <div className="ux4g-cols-span-6 ux4g-md-cols-span-3" key={label}>
                       <div className="ux4g-b-1 ux4g-radius-m ux4g-p-xs ux4g-h-100">
                         <div className="gx-muted" style={{ fontSize: 11 }}>{label}</div>
-                        <div className="ux4g-fw-bold" style={{ fontSize: 18, color: warn ? BAND_COLOR.E : "var(--ux-navy)" }}>
+                        <div className="ux4g-fw-bold" style={{ fontSize: 18, color: warn ? BAND_COLOR.E : "var(--gx-navy-800)" }}>
                           {val ?? "—"}
                         </div>
                       </div>
@@ -179,7 +179,7 @@ export default function ConfigAdmin() {
                       <Icon name="send" size={16} className="ux4g-mr-2xs" />Send test
                     </button>
                   </div>
-                  {testMsg && <div className="small ux4g-mt-xs">{testMsg}</div>}
+                  {testMsg && <div className="ux4g-fs-14 ux4g-mt-xs">{testMsg}</div>}
                 </div>
               )}
             </div>

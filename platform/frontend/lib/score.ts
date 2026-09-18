@@ -27,9 +27,11 @@ export const BAND_HEX: Record<"light" | "dark", Record<string, string>> = {
   dark:  { A: "#5dc98a", B: "#54c9bd", C: "#e39a5c", D: "#ef8b63", E: "#f08a90" },
 };
 
-/** The surface each theme's badges are actually read against. */
+/** The surface each theme's badges are actually read against: --gx-surface-sunken
+ *  on light (the page ground a badge can sit directly on, and the darkest of the
+ *  light surfaces, so the stricter of the two to test), --gx-surface on dark. */
 export const BAND_SURFACE: Record<"light" | "dark", string> = {
-  light: "#f8f9fa", dark: "#111a2b",
+  light: "#f4f7fa", dark: "#111a2b",
 };
 
 // The 12%-ish ground each band badge paints under its own colour. Was written

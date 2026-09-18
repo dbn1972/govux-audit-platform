@@ -90,7 +90,8 @@ Built into the images from the pinned manifests below — listed for audit/SBOM.
 |---|---|---|
 | next | 14.2.3 | React app-router UI |
 | react / react-dom | 18.3.1 | UI runtime |
-| bootstrap / bootstrap-icons | 5.3.3 / 1.11.3 | UX4G-aligned styling |
+| ux4g-web-components | 2.1.0 | UX4G Design System — the only CSS framework |
+| lucide-react | 1.47.0 | Icon set behind `components/Icon.tsx` |
 | typescript, vitest, @testing-library/*, @playwright/test | (dev) | build, unit + E2E tests |
 
 ---

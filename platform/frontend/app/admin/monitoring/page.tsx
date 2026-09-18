@@ -83,8 +83,8 @@ export default function Monitoring() {
               <tr key={s.id}>
                 <td data-label="Domain" className="gx-cell-primary">{s.domain}</td>
                 <td data-label="Cadence"><span className="gx-chip">{s.cadence}</span></td>
-                <td data-label="Next run" className="small">{absoluteTime(s.next_run_at)}</td>
-                <td data-label="Last run" className="small gx-muted">{relative(s.last_run_at, "Never")}</td>
+                <td data-label="Next run" className="ux4g-fs-14">{absoluteTime(s.next_run_at)}</td>
+                <td data-label="Last run" className="ux4g-fs-14 gx-muted">{relative(s.last_run_at, "Never")}</td>
                 {/* icon-only control needs an accessible name — WCAG 4.1.2, the
                     same "buttons must have discernible text" rule this platform
                     reports on other people's sites */}

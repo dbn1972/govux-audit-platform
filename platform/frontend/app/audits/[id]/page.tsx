@@ -80,7 +80,7 @@ export default function Running({ params }: { params: { id: string } }) {
             </div>
           )}
 
-          <div className="gx-muted small ux4g-mt-s">
+          <div className="gx-muted ux4g-fs-14 ux4g-mt-s">
             Task <code>{params.id}</code>
           </div>
         </div></div>
@@ -94,7 +94,7 @@ export default function Running({ params }: { params: { id: string } }) {
         ) : status.status === "failed" ? (
           <div className="ux4g-alert ux4g-alert-error">
             <b>This audit failed.</b>
-            <div className="small ux4g-mt-2xs">
+            <div className="ux4g-fs-14 ux4g-mt-2xs">
               It will be retried automatically a few times. If it keeps failing, the site is
               usually blocking automated tools or timing out — try a smaller page count, or
               check that the audit network can reach it.
@@ -104,7 +104,7 @@ export default function Running({ params }: { params: { id: string } }) {
         ) : status.status === "insufficient_evidence" ? (
           <div className="ux4g-alert ux4g-alert-warning">
             <b>We couldn’t capture this site, so no score was issued.</b>
-            <div className="small ux4g-mt-2xs">
+            <div className="ux4g-fs-14 ux4g-mt-2xs">
               The home page was unreachable from the audit network — usually a timeout, a WAF, or a
               geo-block on non-Indian traffic. A score is deliberately withheld rather than guessed from
               incomplete evidence. Confirm the site is reachable (and allowlists our audit IPs), then run it again.
@@ -114,7 +114,7 @@ export default function Running({ params }: { params: { id: string } }) {
         ) : status.status === "cancelled" ? (
           <div className="ux4g-alert ux4g-alert-info">
             <b>Audit cancelled.</b>
-            <div className="small ux4g-mt-2xs">This audit was cancelled before completion. No score was issued.</div>
+            <div className="ux4g-fs-14 ux4g-mt-2xs">This audit was cancelled before completion. No score was issued.</div>
             <Link href="/audits/new" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm ux4g-mt-xs">Start a new audit →</Link>
           </div>
         ) : (

@@ -106,17 +106,17 @@ export default function Dashboard() {
               <div className="gx-step">
                 <span className="gx-step-n">1</span>
                 <div className="ux4g-fw-semibold ux4g-mt-xs">Pick a domain</div>
-                <div className="gx-muted small">Choose which service to inspect and how deep to crawl.</div>
+                <div className="gx-muted ux4g-fs-14">Choose which service to inspect and how deep to crawl.</div>
               </div>
               <div className="gx-step">
                 <span className="gx-step-n">2</span>
                 <div className="ux4g-fw-semibold ux4g-mt-xs">We run the checks</div>
-                <div className="gx-muted small">Automated rules run first; anything requiring judgement is flagged for review.</div>
+                <div className="gx-muted ux4g-fs-14">Automated rules run first; anything requiring judgement is flagged for review.</div>
               </div>
               <div className="gx-step">
                 <span className="gx-step-n">3</span>
                 <div className="ux4g-fw-semibold ux4g-mt-xs">Fix what matters first</div>
-                <div className="gx-muted small">Findings arrive ranked by impact, with the guideline each one cites.</div>
+                <div className="gx-muted ux4g-fs-14">Findings arrive ranked by impact, with the guideline each one cites.</div>
               </div>
             </div>
             <Link href="/audits/new" className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-mt-m">

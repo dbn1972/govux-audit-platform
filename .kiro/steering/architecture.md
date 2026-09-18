@@ -5,7 +5,7 @@
 | Layer | Technology | Version | Rationale |
 |-------|-----------|---------|-----------|
 | Frontend + BFF | Next.js App Router (TypeScript) | 14.2.3 | Server components, route-level layout, Node BFF |
-| Design system | Bootstrap 5 + UX4G tokens | 5.3.3 | UX4G is built on Bootstrap 5; remap CSS variables |
+| Design system | UX4G Design System (`ux4g-web-components`) | 2.1.0 | Used directly — Bootstrap removed; `gx-*` layer only for primitives UX4G lacks |
 | Core API | FastAPI (Python 3.12) | 0.111.0 | Scoring/ML/NLP is Python; keeps reproducible score co-located |
 | ORM | SQLAlchemy 2.0 | 2.0.30 | Must preserve PG-native ENUM/JSONB/INET types |
 | Validation | Pydantic v2 + pydantic-settings | 2.7.0 / 2.2.1 | Drives the OpenAPI contract |

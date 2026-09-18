@@ -74,7 +74,7 @@ export default function Registry() {
             </div>
             <div className="ux4g-textarea-container ux4g-textarea-md ux4g-w-100">
               <div className="ux4g-textarea">
-                <textarea className="ux4g-textarea-input font-monospace" rows={10} spellCheck={false}
+                <textarea className="ux4g-textarea-input gx-mono" rows={10} spellCheck={false}
                   aria-label="Registry CSV contents"
                   placeholder={SAMPLE}
                   value={csv} onChange={(e) => { setCsv(e.target.value); setRes(null); }} />
@@ -95,7 +95,7 @@ export default function Registry() {
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" disabled={!previewed || busy}
               onClick={() => run(false)}>Import for real</button>
             {!previewed && (
-              <span className="gx-muted small">
+              <span className="gx-muted ux4g-fs-14">
                 <Icon name="info-circle" size={16} className="ux4g-mr-2xs" />
                 Preview first — the import is checked against the register before anything is written.
               </span>
@@ -134,10 +134,10 @@ export default function Registry() {
                   {/* an import creates organisations as a side effect; naming
                       them is how a steward catches "Dept of Posts" arriving
                       alongside the "Department of Posts" that already exists */}
-                  <h3 className="h6 ux4g-mb-2xs">
+                  <h3 className="ux4g-heading-2xs-strong ux4g-mb-2xs">
                     Organisations this import creates ({res.new_organisations.length})
                   </h3>
-                  <p className="small">
+                  <p className="ux4g-fs-14">
                     {res.new_organisations.slice(0, 40).join(" · ")}
                     {res.new_organisations.length > 40 && ` … and ${res.new_organisations.length - 40} more`}
                   </p>
@@ -151,10 +151,10 @@ export default function Registry() {
                     <tbody>
                       {res.errors.map((e, i) => (
                         <tr key={i}>
-                          <td data-label="Row" className="small gx-num">{e.row}</td>
-                          <td data-label="Value" className="small" style={{ fontFamily: "var(--ux4g-font-family-mono, ui-monospace, monospace)" }}>
+                          <td data-label="Row" className="ux4g-fs-14 gx-num">{e.row}</td>
+                          <td data-label="Value" className="ux4g-fs-14" style={{ fontFamily: "var(--ux4g-font-family-mono, ui-monospace, monospace)" }}>
                             {e.url || <span className="gx-muted">—</span>}</td>
-                          <td data-label="Problem" className="small" style={{ color: "var(--gx-band-E)" }}>
+                          <td data-label="Problem" className="ux4g-fs-14" style={{ color: "var(--gx-band-E)" }}>
                             {e.error}</td>
                         </tr>
                       ))}

@@ -118,7 +118,7 @@ govux-audit-platform/
       models/                   # trained .joblib artefacts (anomaly, priority)
       pytest.ini requirements.txt Dockerfile
     frontend/                   # Next.js 14 App Router
-      app/ components/AppShell.tsx lib/api.ts lib/score.ts app/ux4g-theme.css
+      app/ components/AppShell.tsx lib/api.ts lib/score.ts app/design-system.css
       e2e/ test/ package.json
     deploy/                     # helm/ terraform/ ansible/ AIRGAP.md
     ops/prometheus-alerts.yml
@@ -676,7 +676,7 @@ still surfacing the evidence in the compliance view.
 | Layer | Technology | Version | Why this, and what was rejected |
 |---|---|---|---|
 | Frontend + BFF | Next.js App Router (TypeScript) | 14.2.3 | App Router for server components and route-level layout; provides the Node BFF so no separate gateway is needed. React 18.3.1. |
-| Design system | Bootstrap 5 + UX4G tokens | 5.3.3 | **UX4G Design System is built on Bootstrap 5.** Using Bootstrap classes directly and re-mapping its CSS variables to UX4G tokens gives visual compliance without a bespoke component library. `bootstrap-icons` 1.11.3. |
+| Design system | UX4G Design System — `ux4g-web-components` | 2.1.0 (CDN UX4G 3.2.0) | **Used directly.** UX4G now publishes its own CSS bundle — 53 components, 36 utility modules, `--ux4g-*` tokens, `data-theme` dark mode. Bootstrap was the earlier route (UX4G 2.0 *was* a Bootstrap theme) and has been removed entirely. Icons: `lucide-react` 1.47.0 behind `components/Icon.tsx`. |
 | Core API | FastAPI (Python 3.12) | 0.111.0 | **Chosen over Fastify.** The differentiating logic — deterministic scoring, ML, Indic NLP — is Python. Putting the API in the same runtime keeps the reproducible score co-located with its models. Next.js already covers the Node BFF need. |
 | ORM | SQLAlchemy 2.0 | 2.0.30 | 2.0 style; must preserve PG-native `ENUM`/`JSONB`/`INET` types to stay in sync with `schema.sql`. |
 | Validation | Pydantic v2 + pydantic-settings | 2.7.0 / 2.2.1 | `schemas.py` drives the OpenAPI contract, which is itself contract-tested. |
@@ -1355,7 +1355,7 @@ would bounce citizens to a sign-in page they have no account for.
 
 ### 22.7 The responsive shell
 
-One `AppShell`, two presentations, switching at Bootstrap's `lg` breakpoint:
+One `AppShell`, two presentations, switching at UX4G's `lg` breakpoint:
 
 - **≥ lg:** a 236px sticky left rail (`position: sticky; top: 60px; height: calc(100vh - 60px)`,
   self-scrolling), hamburger hidden.
@@ -1369,16 +1369,38 @@ own menu traps keyboard users is not a product anyone should ship.
 
 ### 22.8 Design system
 
-UX4G Design System 3.0 is built on **Bootstrap 5**, so the frontend uses Bootstrap component
-classes directly (`container`, `row`/`col`, `card`, `btn btn-primary`, `form-control`,
-`table table-hover`, `badge`, `alert`, `bi-*` icons) and re-maps Bootstrap's CSS variables to
-UX4G tokens in `app/ux4g-theme.css`: `--bs-primary`, `--bs-body-color`, `--bs-border-radius`,
-`--bs-font-sans-serif`, deep-blue headings via `--ux-navy` (#0a3d7a), the tricolour strip, and
-score-band utilities.
+UX4G ships its own CSS bundle (`ux4g-web-components`), so the frontend uses **UX4G classes
+directly** — `ux4g-btn ux4g-btn-primary`, `ux4g-table`, `ux4g-alert`, `ux4g-input`,
+`ux4g-tag-tonal-*`, `ux4g-container`, `ux4g-grid` / `ux4g-cols-span-*`, `ux4g-heading-*`, and the
+`ux4g-p*`/`ux4g-m*` spacing scale. Icons come from `lucide-react` behind `components/Icon.tsx`,
+which maps the project's icon vocabulary (the historical `bi-*` names, still carried as data in the
+nav and notification models) onto lucide components.
 
-Load order in `app/layout.tsx` is significant: `bootstrap.min.css` → `ux4g-theme.css` (overrides)
-→ `globals.css`. Font via `next/font` (Inter); production should swap to the exact UX4G font and
-add **Noto Sans** for Indic scripts.
+Earlier versions of this platform rode UX4G 2.0, which *was* a Bootstrap 5 theme: the frontend used
+Bootstrap classes and re-mapped `--bs-*` variables in an `app/ux4g-theme.css` layer. That is gone.
+There is no Bootstrap dependency, no theme-remapping file and no `--bs-*` variable in the source.
+
+Two layers remain, and the load order in `app/layout.tsx` is significant:
+
+1. `ux4g-web-components/styles.css` — the reset, the `--ux4g-*` tokens, the components and the
+   utilities. It must come first; everything after is expressed in its tokens.
+2. `app/design-system.css` — the **`gx-*` product layer**, and *only* the primitives UX4G has no
+   component for: the score meter, the verdict and severity blocks, the guided-review workflow, the
+   nav rail, the stat tiles and the landing page. Authored on UX4G semantic tokens, so a dark theme
+   is a second `:root` block rather than a rewrite.
+3. `app/globals.css` — the page ground and the responsive-table reflow.
+
+Two mechanics worth knowing before writing markup:
+
+- `ux4g-heading-*`, `ux4g-body-*` and `ux4g-label-*` are applied through `[class^=ux4g-…]`
+  selectors, so they only take effect when they are **first** in the class attribute.
+  `ux4g-fs-*` uses `[class*=…]` with `!important` and works in any position.
+- Bespoke rules take a `gx-` prefix and are built from tokens, never colour literals — a literal
+  cannot follow the theme, which is how band C ended up at 2.3:1 on a dark surface.
+
+Fonts are **Noto Sans** + **Noto Sans Devanagari**, self-hosted by `next/font` at build time. Both
+load together rather than the Indic face being swapped in later: a face swapped in at that point
+changes every line length and column width on 62 screens.
 
 ### 22.9 Shared modules
 
@@ -1465,7 +1487,7 @@ definition of done is unmet — later phases assume the invariants hold.
 
 ### Phase 0 — Skeleton and contracts
 Create `platform/` with `backend/` (FastAPI + `requirements.txt` + Dockerfile with Node, Python
-3.12 and all three Playwright browsers), `frontend/` (Next.js 14 + TS + Bootstrap 5), `db/`, and
+3.12 and all three Playwright browsers), `frontend/` (Next.js 14 + TS + `ux4g-web-components`), `db/`, and
 `docker-compose.yml` with the six services. Write `CLAUDE.md` with the five invariants **first** —
 they constrain everything after.
 **Done when:** `docker compose up --build` starts all six; `/healthz` returns ok.
@@ -1522,7 +1544,7 @@ discovery, CI gate, webhook.
 
 ### Phase 8 — Frontend
 `AppShell` (nav + sign-out + idle timeout), `lib/api.ts` (in-memory token, silent refresh),
-`lib/score.ts`, `ux4g-theme.css`, then the 36 routes. Officer flow first, `/admin/*` second.
+`lib/score.ts`, `design-system.css`, then the 36 routes. Officer flow first, `/admin/*` second.
 **Done when:** `python3 scripts/verify_screens.py` passes; every route is reachable from nav;
 Playwright + axe e2e is green.
 
@@ -1837,7 +1859,7 @@ and `docs/SBOM.md`.
 - **Playwright** — Apache-2.0, Microsoft. Note the **browser binaries** ship under their own
   licences (Chromium BSD-style, Firefox MPL-2.0, WebKit LGPL/BSD) and are redistributed inside the
   Docker image, which matters for the air-gap bundle.
-- **Bootstrap / bootstrap-icons** — MIT.
+- **ux4g-web-components** — MIT, NeGD/MeitY. **lucide-react** — ISC.
 - **PostgreSQL** — PostgreSQL Licence; **pgvector** — PostgreSQL Licence.
 - **Redis 7** — check the licence for the exact image tag; Redis relicensed to RSALv2/SSPLv1 from
   7.4. For a government deployment redistributing the stack, pin a tag whose licence you have
@@ -1874,7 +1896,7 @@ settled.
 | 9 | Redis Streams | Celery | Needs polyglot producers/consumers (Python + Node), consumer groups, pending-entry lists and explicit ack for reclaim/DLQ. Celery's Python-centric, opaque-broker model fits none of that. |
 | 10 | Node engine invoked as a **subprocess** | A long-lived Node service | Per-run isolation and a hard timeout for a component driving three real browsers. A leak or hang dies with the process. |
 | 11 | axe-core + Lighthouse rather than bespoke checks | Reimplementing WCAG/CWV rules | These are the reference implementations. Reimplementing forfeits exactly the third-party credibility the platform needs. |
-| 12 | Bootstrap 5 classes + CSS-variable remapping | A bespoke UX4G component library | UX4G 3.0 *is* built on Bootstrap 5. Remapping tokens gives visual compliance without maintaining a component library. |
+| 12 | `ux4g-web-components` used directly | Bootstrap 5 + CSS-variable remapping (the original choice); a bespoke component library | UX4G 2.0 was a Bootstrap theme, so remapping `--bs-*` was the cheapest route to visual compliance. UX4G 3.x publishes its own bundle, which made the shim pure overhead — a second vocabulary to keep in sync, and a silent way for a class to style nothing once Bootstrap was dropped. Using UX4G directly means compliance tracks upstream releases instead of our translation of them. |
 | 13 | Passwordless OTP | Passwords, or SSO now | No password database to breach, and gov-email possession is itself the domain-eligibility proof. Parichay SSO is a future path — see §33 for the dead button. |
 | 14 | `.gov.in`/`.nic.in` enforced in **both** app and DB | App-layer check only | The DB `CHECK` is the backstop for the code path that forgets — and one will. |
 | 15 | G9/G11/G13 closed as a **manual-assurance ledger** | Claiming automated coverage, or leaving them open | A crawler cannot do VAPT, native-app a11y or lived-experience panels. Recording externally performed assurance is honest and still surfaces the evidence. |
@@ -1994,7 +2016,7 @@ exist — hunting for a usable login among the fixtures was wasting time every s
 |---|---|
 | **GIGW 3.0** | Guidelines for Indian Government Websites, version 3.0 — the NIC/MeitY standard for government web presence. |
 | **WCAG 2.2 AA** | Web Content Accessibility Guidelines 2.2, Level AA — the statutory accessibility bar used for the compliance verdict. |
-| **UX4G** | "UX for Government", the Government of India design system (v3.0), built on Bootstrap 5. Published by NeGD. |
+| **UX4G** | "UX for Government", the Government of India design system, published by NeGD. v2.0 was a Bootstrap 5 theme; v3.x ships its own CSS bundle as `ux4g-web-components` on npm, which is what this platform uses. |
 | **CWV** | Core Web Vitals — LCP (Largest Contentful Paint), INP (Interaction to Next Paint), CLS (Cumulative Layout Shift). |
 | **CrUX** | Chrome User Experience Report — Google's real-user (field) performance dataset, as opposed to Lighthouse's lab measurements. |
 | **MeitY** | Ministry of Electronics and Information Technology. |

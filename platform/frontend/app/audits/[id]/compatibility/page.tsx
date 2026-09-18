@@ -11,9 +11,9 @@ type Browser = {
   overflow: boolean | null; broken_images: number | null;
 };
 
-const ok = <span className="ux4g-badge-m bg-success-subtle text-success-emphasis">Pass</span>;
-const bad = <span className="ux4g-badge-m bg-danger-subtle text-danger-emphasis">Fail</span>;
-const warn = <span className="ux4g-badge-m bg-warning-subtle text-warning-emphasis">Minor</span>;
+const ok = <span className="ux4g-tag-tonal-success ux4g-tag-s">Pass</span>;
+const bad = <span className="ux4g-tag-tonal-error ux4g-tag-s">Fail</span>;
+const warn = <span className="ux4g-tag-tonal-warning ux4g-tag-s">Minor</span>;
 const yesno = (loaded: boolean | null) => loaded === false ? bad : loaded ? ok : warn;
 const count = (n: number | null, unit: string) =>
   !n ? <span className="ux4g-text-success">0</span>
@@ -57,7 +57,7 @@ export default function Compatibility({ params }: { params: { id: string } }) {
           </tr>
         ))}</tbody>
       </table></div>
-      <div className="ux4g-card-footer small gx-muted">
+      <div className="ux4g-card-footer ux4g-fs-14 gx-muted">
         Divergence between engines (a page that loads in Chromium but not WebKit, or overflows only on one) is what surfaces here.
       </div>
     </div>

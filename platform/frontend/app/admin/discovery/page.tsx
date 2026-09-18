@@ -53,7 +53,7 @@ export default function Discovery() {
             <div className="ux4g-textarea-container ux4g-textarea-md ux4g-w-100 ux4g-mb-s">
               <label className="ux4g-label-m-default" htmlFor="disc-body">Fetched content</label>
               <div className="ux4g-textarea">
-                <textarea id="disc-body" className="ux4g-textarea-input font-monospace" rows={5} value={body}
+                <textarea id="disc-body" className="ux4g-textarea-input gx-mono" rows={5} value={body}
                   onChange={e => setBody(e.target.value)}
                   placeholder="Sitemap: https://example.gov.in/sitemap.xml" />
               </div>
@@ -65,7 +65,7 @@ export default function Discovery() {
               <Icon name="search" size={16} className="ux4g-mr-2xs" />Scan for gov domains
             </button>
             {result && (
-              <div className="ux4g-alert ux4g-alert-info ux4g-mt-s ux4g-mb-none ux4g-py-xs small" role="status">
+              <div className="ux4g-alert ux4g-alert-info ux4g-mt-s ux4g-mb-none ux4g-py-xs ux4g-fs-14" role="status">
                 Found {result.total_found} host{result.total_found === 1 ? "" : "s"},
                 {" "}{result.new} new. New hosts appear below and can be imported into the register.
               </div>
@@ -85,7 +85,7 @@ export default function Discovery() {
                     ? <span className="gx-pill gx-pill-ok">imported</span>
                     : <span className="gx-pill gx-pill-off">not imported</span>}
                 </td>
-                <td data-label="When" className="small gx-muted">{relative(d.discovered_at)}</td>
+                <td data-label="When" className="ux4g-fs-14 gx-muted">{relative(d.discovered_at)}</td>
               </tr>
             ))}
             {!rows.length && (

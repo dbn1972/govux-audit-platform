@@ -45,7 +45,7 @@ export default function States() {
                   </div>
                 ))}
               </div>
-              <p className="gx-muted small ux4g-mt-s ux4g-mb-none">
+              <p className="gx-muted ux4g-fs-14 ux4g-mt-s ux4g-mb-none">
                 Each tile is one state or UT, coloured by the band its average GovUX score falls in.
               </p>
             </>

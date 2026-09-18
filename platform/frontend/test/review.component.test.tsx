@@ -78,18 +78,34 @@ const checklist = (over: any = {}) => ({
   ...over,
 });
 
+// File-level reset + benign defaults for EVERY api mock. mockReset() leaves a
+// bare vi.fn() that returns undefined, and the picker effect does
+// `api.listDomains().then(...)` / `api.manualAssessments().then(...)` directly —
+// so any test that reaches the picker without a stubbed promise crashes on
+// `.then` of undefined. Each describe below only ever *narrows* these; nothing
+// relies on a sibling block having run first to arm a mock. (This file used to
+// pass only because tests ran in source order — under a shuffled run the
+// "assessing without an audit" block ran before the block that armed these.)
+beforeEach(() => {
+  [auditStatus, reviewAudit, reviewChecklist, setReviewItem, listAudits,
+   listDomains, manualAssessments, createManualAssessment, assessmentChecklist,
+   setAssessmentItem, signOffAssessment]
+    .forEach(m => m.mockReset());
+  auditStatus.mockResolvedValue(AUDIT);
+  reviewChecklist.mockResolvedValue(checklist());
+  setReviewItem.mockResolvedValue({ ok: true });
+  reviewAudit.mockResolvedValue({ compliance: { status: "compliant", reason: "" } });
+  listAudits.mockResolvedValue([]);
+  listDomains.mockResolvedValue([]);
+  manualAssessments.mockResolvedValue([]);
+  createManualAssessment.mockResolvedValue({ id: "A1" });
+  assessmentChecklist.mockResolvedValue(checklist());
+  setAssessmentItem.mockResolvedValue({ ok: true });
+  signOffAssessment.mockResolvedValue({ verdict: "compliant", answered: 1, failed: 0 });
+});
+
 describe("Guided manual review", () => {
   beforeEach(() => {
-    [auditStatus, reviewAudit, reviewChecklist, setReviewItem, listAudits,
-     listDomains, manualAssessments, createManualAssessment, assessmentChecklist,
-     setAssessmentItem, signOffAssessment]
-      .forEach(m => m.mockReset());
-    auditStatus.mockResolvedValue(AUDIT);
-    reviewChecklist.mockResolvedValue(checklist());
-    setReviewItem.mockResolvedValue({ ok: true });
-    listAudits.mockResolvedValue([]);
-    listDomains.mockResolvedValue([]);
-    manualAssessments.mockResolvedValue([]);
     window.history.pushState({}, "", "/review?audit=T1");
   });
 

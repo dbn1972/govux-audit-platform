@@ -1,16 +1,16 @@
 /* ============================================================================
-   GovUX design layer — semantic tokens + the primitives the product actually
-   uses (page, card, stat, table, pill, meter, brand).
+   GovUX product layer — the primitives UX4G has no component for.
 
-   Sits ON TOP of ux4g-theme.css: that file maps UX4G onto Bootstrap's own
-   variables, this one adds the vocabulary Bootstrap has no opinion about —
-   a neutral ramp, a type scale, spacing rhythm, elevation. Bootstrap's tokens
-   are then pointed AT these, so stock components inherit the system instead of
-   being overridden one at a time.
+   Loads after ux4g-web-components/styles.css, which supplies the reset, the
+   design tokens and every component and utility the product uses. This file
+   adds only what the design system has no opinion about: the score meter, the
+   verdict and severity blocks, the guided-review workflow, the nav rail, the
+   stat tiles and the landing page.
 
-   Every colour is declared as a token here and used nowhere else as a literal,
-   so a dark theme is a second :root block rather than a rewrite. No toggle
-   ships yet — see [data-theme="dark"] at the foot for the seam.
+   Bootstrap is gone — no bootstrap.css, no ux4g-theme.css, no --bs-* variables.
+   Everything below is built on UX4G semantic tokens (--ux4g-*) or on the gx-*
+   tokens declared here, so both themes come from one source and a dark theme is
+   a second :root block rather than a rewrite.
    ========================================================================== */
 
 /* Theme: stock UX4G default (primary #4A2BC2). No brand token override — per the
@@ -18,42 +18,6 @@
    block. The gx-* product tokens below remain for the bespoke primitives UX4G has
    no component for (score meter, verdict/severity blocks, review workflow). */
 
-/* ============================================================================
-   Bootstrap-variable compatibility shim.
-
-   The gx-* product primitives (pill, check, stage, alert accents) were authored
-   against Bootstrap's subtle/emphasis colour pairs. Bootstrap and the old
-   ux4g-theme.css are now removed, so those --bs-* variables no longer exist.
-   Rather than rewrite ~67 scattered references, define exactly the 18 --bs-*
-   vars the gx layer consumes as aliases of UX4G semantic tokens. UX4G tokens are
-   theme-aware (they flip under [data-theme="dark"]), so these inherit dark mode
-   automatically — no separate dark block needed for them. This is the single
-   documented custom shim (skill Rule 5) that lets the bespoke gx-* layer run on
-   pure UX4G tokens with zero Bootstrap.
-   ========================================================================== */
-:root {
-  --bs-body-bg: var(--ux4g-bg-neutral);
-  --bs-border-color: var(--ux4g-border-color-neutral-subtle);
-  --bs-tertiary-bg: var(--ux4g-bg-neutral-soft);
-  --bs-primary: var(--ux4g-bg-primary-strong);
-  --bs-danger: var(--ux4g-text-status-error);
-  --bs-link-color: var(--ux4g-text-brand-primary-default);
-
-  --bs-primary-bg-subtle: var(--ux4g-bg-primary-subtle);
-  --bs-primary-text-emphasis: var(--ux4g-text-brand-primary-default);
-  --bs-success-bg-subtle: var(--ux4g-bg-success-subtle);
-  --bs-success-text-emphasis: var(--ux4g-text-status-success);
-  --bs-danger-bg-subtle: var(--ux4g-bg-error-subtle);
-  --bs-danger-text-emphasis: var(--ux4g-text-status-error);
-  --bs-danger-border-subtle: var(--ux4g-border-color-error-default);
-  --bs-warning-bg-subtle: var(--ux4g-bg-warning-subtle);
-  --bs-warning-text-emphasis: var(--ux4g-text-status-warning);
-  --bs-warning-border-subtle: var(--ux4g-border-color-warning-default);
-  --bs-info-bg-subtle: var(--ux4g-bg-info-subtle);
-  --bs-info-text-emphasis: var(--ux4g-text-status-info);
-  --bs-secondary-bg-subtle: var(--ux4g-bg-neutral-subtle);
-  --bs-secondary-text-emphasis: var(--ux4g-text-neutral-secondary);
-}
 
 :root {
   /* -- neutral ramp: cool, so it sits under the navy without going muddy ---- */
@@ -107,13 +71,6 @@
   --gx-band-A-tint:#1169321f; --gx-band-B-tint:#0c655e1f; --gx-band-C-tint:#9a45081f;
   --gx-band-D-tint:#a6370a1f; --gx-band-E-tint:#b91c1c1f; --gx-band-none-tint:#5c636a1f;
 
-  /* -- point Bootstrap at the system so stock components inherit ----------- */
-  --bs-body-bg:var(--gx-surface-sunken);
-  --bs-body-color:var(--gx-text);
-  --bs-border-color:var(--gx-border);
-  --bs-emphasis-color:var(--gx-ink-900);
-  --bs-body-font-size:.9375rem;      /* 15px — 16 is loose for dense tables */
-  --bs-body-line-height:1.55;
 }
 
 /* ---------------------------------------------------------------------------
@@ -122,16 +79,12 @@
    ------------------------------------------------------------------------ */
 body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 
-/* Element AND Bootstrap's size classes: 33 screens were written as
-   `<h1 className="h3">`, which would otherwise opt every page title out of the
-   scale and back into Bootstrap's defaults. */
-h1,.gx-h1,.h1 { font-size:1.5rem;   line-height:1.25; font-weight:700; letter-spacing:-.015em; }
-h2,.gx-h2,.h2 { font-size:1.1875rem;line-height:1.3;  font-weight:650; letter-spacing:-.01em; }
-h3,.gx-h3,.h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
-.h4 { font-size:1.0625rem; font-weight:650; }
-.h5,.h6 { font-size:.9375rem; font-weight:650; letter-spacing:0; }
-/* a page title written as `<h1 class="h3">` is still the page title */
-main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
+/* Bare heading elements. A heading that needs a size other than its level's
+   uses UX4G's own scale (ux4g-heading-*), which must lead the class attribute:
+   the design system applies it through a [class^=ux4g-heading-] selector. */
+h1,.gx-h1 { font-size:1.5rem;   line-height:1.25; font-weight:700; letter-spacing:-.015em; }
+h2,.gx-h2 { font-size:1.1875rem;line-height:1.3;  font-weight:650; letter-spacing:-.01em; }
+h3,.gx-h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
 .gx-display { font-size:2rem; line-height:1.1; font-weight:700; letter-spacing:-.025em;
               color:var(--gx-navy-800); font-variant-numeric:tabular-nums slashed-zero; }
 
@@ -141,6 +94,70 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
 
 .gx-num { font-variant-numeric:tabular-nums slashed-zero; font-feature-settings:"tnum" 1; }
 .gx-muted { color:var(--gx-text-muted); }
+
+/* ---------------------------------------------------------------------------
+   Links.
+
+   Bootstrap used to colour every bare `<a>`; UX4G ships no `.ux4g-link` class
+   and no rule for the element, so when Bootstrap came out the 35 anchors that
+   carry no colour class fell back to the user agent's #0000EE — 1.3:1 on the
+   dark surface, and an off-brand blue on the light one. An accessibility
+   platform with an invisible link is the whole joke, so this is fixed once at
+   the element rather than at 35 call sites.
+
+   The underline is not decoration: WCAG 1.4.1 says a link inside a block of
+   text may not be distinguished by colour alone, and axe's link-in-text-block
+   rule fails the guideline library on exactly that. Bootstrap underlined links
+   by default and its components opted out; UX4G's components and the gx-*
+   anchor shapes below (nav link, menu item, card, tile, crumb, footer) all set
+   text-decoration:none already, so the same arrangement works here.
+
+   :where() keeps the specificity at zero: every button-shaped anchor
+   (.ux4g-btn), nav link and inline style still wins without !important.
+   --gx-action is redeclared under [data-theme="dark"], so both themes follow.
+   Focus rings come from the :focus-visible rule above.
+   ------------------------------------------------------------------------ */
+:where(a) { color:var(--gx-action); text-decoration:underline; text-underline-offset:.15em; }
+:where(a):hover { color:var(--gx-action-strong); }
+/* :visited must not be allowed to drop a link to the UA purple, which is
+   2.0:1 on the dark ground and reads as disabled text. */
+:where(a):visited { color:var(--gx-action); }
+
+/* ---------------------------------------------------------------------------
+   Alerts — contrast repair for an upstream defect.
+
+   ux4g-web-components 2.1.0 pairs each alert's `-soft` background with the
+   matching `-default` text colour, and none of the four pairs clears WCAG 2.2
+   AA (4.5:1 for 14px regular text). Measured in the browser, on the shipped
+   bundle:
+
+       variant    light   dark
+       success     3.97   2.08
+       error       4.02   2.05
+       warning     1.98   2.28
+       info        1.90   2.76
+
+   Light warning and info are effectively illegible, and the dark theme flips
+   the background without flipping the text, so all four fail there. The app
+   renders `ux4g-alert` on 60 call sites, several of them carrying the
+   compliance verdict — a platform that fails other departments for contrast
+   cannot ship an unreadable alert of its own.
+
+   Only `--ux4g-alert-text` is overridden; UX4G keeps ownership of the
+   background, the spacing and the shape, so this stays a narrow patch. Remove
+   it when upstream fixes the token pairs — the ratios above are the check.
+   ------------------------------------------------------------------------ */
+.ux4g-alert-success { --ux4g-alert-text:#116932; }  /* 5.98:1 on --ux4g-bg-success-soft */
+.ux4g-alert-error   { --ux4g-alert-text:#b91c1c; }  /* 5.70:1 on --ux4g-bg-error-soft   */
+.ux4g-alert-warning { --ux4g-alert-text:#9a4508; }  /* 5.40:1 on --ux4g-bg-warning-soft */
+.ux4g-alert-info    { --ux4g-alert-text:#0c655e; }  /* 5.95:1 on --ux4g-bg-info-soft    */
+
+/* Dark grounds are dark enough for the body text colour to carry every variant
+   (4.66:1 on warning, the tightest, up to 8.04:1 on success). */
+[data-theme="dark"] .ux4g-alert-success,
+[data-theme="dark"] .ux4g-alert-error,
+[data-theme="dark"] .ux4g-alert-warning,
+[data-theme="dark"] .ux4g-alert-info { --ux4g-alert-text:var(--gx-text); }
 
 /* ---------------------------------------------------------------------------
    Page frame
@@ -207,10 +224,10 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
            font-size:.75rem; font-weight:600; line-height:1.4; white-space:nowrap; }
 .gx-pill::before { content:""; width:.375rem; height:.375rem; border-radius:50%;
                    background:currentColor; flex:none; }
-.gx-pill-ok    { background:var(--bs-success-bg-subtle); color:var(--bs-success-text-emphasis); }
-.gx-pill-wait  { background:var(--bs-warning-bg-subtle); color:var(--bs-warning-text-emphasis); }
+.gx-pill-ok    { background:var(--ux4g-bg-success-subtle); color:var(--ux4g-text-status-success); }
+.gx-pill-wait  { background:var(--ux4g-bg-warning-subtle); color:var(--ux4g-text-status-warning); }
 .gx-pill-off   { background:var(--gx-ink-100);           color:var(--gx-ink-600); }
-.gx-pill-bad   { background:var(--bs-danger-bg-subtle);  color:var(--bs-danger-text-emphasis); }
+.gx-pill-bad   { background:var(--ux4g-bg-error-subtle);  color:var(--ux4g-text-status-error); }
 
 /* chip — a quiet metadata tag, no status meaning */
 .gx-chip { display:inline-block; padding:.125rem .4375rem; border-radius:var(--gx-r-sm);
@@ -255,7 +272,7 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
 .gx-nav-link i { font-size:1rem; color:var(--gx-ink-400); flex:none; }
 .gx-nav-link:hover { background:var(--gx-ink-50); color:var(--gx-navy-800); }
 .gx-nav-link:hover i { color:var(--gx-navy-600); }
-.gx-nav-link[aria-current="page"] { background:var(--bs-primary-bg-subtle);
+.gx-nav-link[aria-current="page"] { background:var(--ux4g-bg-primary-subtle);
                                     color:var(--gx-navy-800); font-weight:650; }
 .gx-nav-link[aria-current="page"] i { color:var(--gx-navy-800); }
 .gx-nav-link[aria-current="page"]::before { content:""; position:absolute; inset-inline-start:0;
@@ -288,7 +305,7 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
    ------------------------------------------------------------------------ */
 .gx-empty { text-align:center; padding:var(--gx-space-6) var(--gx-space-5); }
 .gx-empty-icon { width:52px; height:52px; border-radius:var(--gx-r-md); margin-inline:auto;
-                 background:var(--bs-primary-bg-subtle); color:var(--gx-navy-800);
+                 background:var(--ux4g-bg-primary-subtle); color:var(--gx-navy-800);
                  display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
 .gx-steps { display:grid; gap:var(--gx-space-3); text-align:start;
             grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
@@ -337,27 +354,7 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
 
   --gx-brand-tint:#16294a; --gx-brand-wash:#0e1a2e;
 
-  /* Bootstrap's own tokens follow, including the subtle pairs the pills and
-     badges are built from — those are light-theme values by default and would
-     otherwise paint pale grounds under pale text. */
-  --bs-body-bg:var(--gx-surface-sunken);
-  --bs-body-color:var(--gx-text);
-  --bs-border-color:var(--gx-border);
-  --bs-emphasis-color:var(--gx-ink-900);
-  --bs-link-color:#7fb0ee; --bs-link-hover-color:#a8caf5;
-  --bs-secondary-color:var(--gx-text-muted); --bs-tertiary-color:var(--gx-text-muted);
-  --bs-primary-bg-subtle:#16294a; --bs-primary-text-emphasis:#9cc4f7;
-  --bs-success-bg-subtle:#0f2a1c; --bs-success-text-emphasis:#7fd6a1;
-  --bs-warning-bg-subtle:#332409; --bs-warning-text-emphasis:#f2c46b;
-  --bs-danger-bg-subtle:#3a1418;  --bs-danger-text-emphasis:#f09aa3;
-  --bs-info-bg-subtle:#0e2a33;    --bs-info-text-emphasis:#7fd0e6;
-  --bs-secondary-bg-subtle:#1e2a40; --bs-secondary-text-emphasis:#b8c2d0;
 }
-
-/* The AA-safe overrides in globals.css pin muted text to a light-theme grey;
-   under dark that value is 2.4:1. Follow the token instead. */
-[data-theme="dark"] .text-secondary,
-[data-theme="dark"] .text-muted { color:var(--gx-text-muted) !important; }
 
 /* Band colours are tuned for white grounds and go muddy on a dark one; these
    are the same hues lifted until they clear 4.5:1 against --gx-surface. */
@@ -391,75 +388,25 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
   .gx-table tbody td,.gx-table thead th { padding-inline:var(--gx-space-4); }
 }
 
-/* ============================================================================
-   Legacy mapping — the 37 screens written before this system exists all use
-   plain Bootstrap markup (.card.shadow-sm, .table, .card-header, .form-control).
-   Rather than rewrite every one, point those classes at the tokens: the whole
-   product moves onto the system at once, and per-screen work becomes structural
-   (hierarchy, empty states, grouping) rather than cosmetic.
-   ========================================================================== */
 
-/* Cards. `shadow-sm` is applied nearly everywhere, which flattens the meaning
-   out of elevation — override it to the system's single resting shadow. */
-.card { border-color:var(--gx-border); border-radius:var(--gx-r-md);
-        box-shadow:var(--gx-shadow-1) !important; }
-.card-header { background:var(--gx-surface) !important; border-bottom-color:var(--gx-border);
-               padding:var(--gx-space-4) var(--gx-space-5);
-               font-weight:650; color:var(--gx-navy-800); }
-.card-body { padding:var(--gx-space-5); }
-.card-footer { background:var(--gx-surface-muted); border-top-color:var(--gx-border); }
 
-/* Tables. Same quiet head and roomy rows as .gx-table, applied to the stock
-   class so untouched screens read alike. */
-.table > :not(caption) > * > * { padding:.875rem var(--gx-space-5);
-                                 border-bottom-color:var(--gx-border); }
-.table > thead th, .table-light > th, .table thead.table-light th {
-  background:var(--gx-surface-muted) !important; color:var(--gx-text-muted) !important;
-  font-size:.6875rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
-  white-space:nowrap; border-bottom-color:var(--gx-border); }
-.table-hover > tbody > tr:hover > * { background:var(--gx-ink-50); --bs-table-accent-bg:transparent; }
-.table td, .table th { vertical-align:middle; }
+/* UX4G's container is width:100% by design; the product frame caps it so the
+   signed-in and signed-out sides measure the same. Screens use .gx-page. */
+main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
+                                                  margin-inline:auto; }
 
-/* Numbers in tables line up: a column of scores that jitters as digits change
-   is the fastest way to make data look untrustworthy. */
-.table td:has(b), .table td .gx-num, .fs-3, .fs-4, .display-6 {
-  font-variant-numeric:tabular-nums slashed-zero; }
+/* The score bar predates the meter; keep one implementation. Prefixed, because
+   an unprefixed .score-bar is exactly the kind of name that collides. */
+.gx-score-bar { height:6px; border-radius:var(--gx-r-pill); background:var(--gx-ink-100);
+                overflow:hidden; }
+.gx-score-bar > i { display:block; height:100%; border-radius:inherit; }
+.gx-score-value { font-size:2.5rem; font-weight:700; letter-spacing:-.025em;
+                  color:var(--gx-navy-800); font-variant-numeric:tabular-nums slashed-zero; }
 
-/* Controls */
-.btn { font-weight:600; border-radius:var(--gx-r-sm); padding-inline:1rem; }
-.btn-sm { border-radius:var(--gx-r-sm); }
-.form-control, .form-select { border-color:var(--gx-border-strong); border-radius:var(--gx-r-sm);
-                              padding:.5rem .75rem; }
-.form-control:focus, .form-select:focus { border-color:var(--gx-action);
-  box-shadow:0 0 0 .2rem rgba(13,110,253,.15); }
-.form-label { font-weight:600; font-size:.875rem; color:var(--gx-ink-700); margin-bottom:.375rem; }
-.form-text { color:var(--gx-text-muted); }
-.input-group-text { background:var(--gx-surface-muted); border-color:var(--gx-border-strong); }
-
-/* Badges: pill-shaped and calmer, matching .gx-pill so the two never disagree */
-.badge { font-weight:600; border-radius:var(--gx-r-pill); padding:.3125rem .5625rem; }
-
-/* Alerts: a left rule instead of a full tinted box, which shouts less on a page
-   that may carry several at once */
-.alert { border-radius:var(--gx-r-md); border-width:0 0 0 3px; }
-
-/* Nav tabs used by the report and audit views */
-.nav-tabs { border-bottom-color:var(--gx-border); gap:.25rem; }
-.nav-tabs .nav-link { border:0; border-bottom:2px solid transparent; border-radius:0;
-                      color:var(--gx-text-muted); font-weight:600; padding:.5rem .875rem; }
-.nav-tabs .nav-link:hover { color:var(--gx-navy-800); border-bottom-color:var(--gx-border-strong); }
-.nav-tabs .nav-link.active { color:var(--gx-navy-800); background:transparent;
-                             border-bottom-color:var(--gx-navy-800); }
-
-/* Bootstrap containers that remain (the public landing page uses .container)
-   keep the page frame's max width, so the signed-in and signed-out sides of the
-   product measure the same. Screens now use .gx-page directly. */
-main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inline:auto; }
-
-/* The score bar predates the meter; keep one implementation. */
-.score-bar { height:6px; border-radius:var(--gx-r-pill); background:var(--gx-ink-100); }
-.score-value { font-size:2.5rem; font-weight:700; letter-spacing:-.025em;
-               color:var(--gx-navy-800); font-variant-numeric:tabular-nums slashed-zero; }
+/* Monospace. UX4G ships no mono utility, and the DNS TXT record and the code
+   hints on the remediation list are the kind of string a reader copies by
+   character — a proportional face makes l/1 and O/0 a guess. */
+.gx-mono { font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace; }
 
 /* ============================================================================
    Audit report
@@ -517,10 +464,10 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 /* A callout that carries a consequence — guard-rail, integrity flag. Heavier
    than an alert because these change what the report is allowed to claim. */
 .gx-callout { display:flex; gap:var(--gx-space-3); padding:var(--gx-space-4) var(--gx-space-5);
-              border-radius:var(--gx-r-md); border:1px solid var(--bs-warning-border-subtle);
-              background:var(--bs-warning-bg-subtle); color:var(--bs-warning-text-emphasis); }
-.gx-callout-danger { border-color:var(--bs-danger-border-subtle);
-                     background:var(--bs-danger-bg-subtle); color:var(--bs-danger-text-emphasis); }
+              border-radius:var(--gx-r-md); border:1px solid var(--ux4g-border-color-warning-default);
+              background:var(--ux4g-bg-warning-subtle); color:var(--ux4g-text-status-warning); }
+.gx-callout-danger { border-color:var(--ux4g-border-color-error-default);
+                     background:var(--ux4g-bg-error-subtle); color:var(--ux4g-text-status-error); }
 .gx-callout i { font-size:1.125rem; flex:none; }
 
 /* Definition row for report metadata: label above value, several across. */
@@ -583,7 +530,8 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 /* A select inside a table keeps its value readable: squeezed to a narrow
    column it truncates the chosen option, which is the one thing it exists to
    show ("contributo⌄"). The table scrolls in its wrapper instead. */
-.table select.form-select, .gx-table select.form-select { min-width:9.5rem; }
+.ux4g-table select.ux4g-form-select,
+.gx-table select.ux4g-form-select { min-width:9.5rem; }
 
 /* ---------------------------------------------------------------------------
    Menus — account menu and the notification panel
@@ -605,56 +553,16 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 
 /* unread count on the bell */
 .gx-badge-dot { position:absolute; top:2px; inset-inline-end:2px; min-width:16px; height:16px;
-                padding:0 4px; border-radius:var(--gx-r-pill); background:var(--bs-danger);
+                padding:0 4px; border-radius:var(--gx-r-pill); background:var(--ux4g-text-status-error);
                 color:#fff; font-size:.625rem; font-weight:700; line-height:16px;
                 text-align:center; }
 
 /* an unread row is marked, not merely bolder — weight alone is invisible to a
    reader who never saw the read version to compare against */
-.gx-notif-unread { background:var(--bs-primary-bg-subtle); }
-.gx-notif-unread:hover { background:var(--bs-primary-bg-subtle); }
+.gx-notif-unread { background:var(--ux4g-bg-primary-subtle); }
+.gx-notif-unread:hover { background:var(--ux4g-bg-primary-subtle); }
 
-/* Outline buttons pin their colours as literals (Bootstrap compiles them, and
-   ux4g-theme.css darkens them for AA on white). Those same values are 2.6:1 on
-   a dark surface — the filter chips on the library read as disabled. Lift them
-   to the dark palette; hover still fills, so white-on-fill only improves. */
-[data-theme="dark"] .btn-outline-secondary {
-  --bs-btn-color:#b8c2d0; --bs-btn-border-color:#4a5567;
-  --bs-btn-hover-bg:#4a5567; --bs-btn-hover-border-color:#4a5567; --bs-btn-hover-color:#fff;
-  --bs-btn-active-bg:#4a5567; --bs-btn-active-border-color:#4a5567;
-  --bs-btn-disabled-color:#6b7889; --bs-btn-disabled-border-color:#33425e;
-}
-[data-theme="dark"] .btn-outline-primary {
-  --bs-btn-color:#7fb0ee; --bs-btn-border-color:#3d6ea8;
-  --bs-btn-hover-bg:#3d6ea8; --bs-btn-hover-border-color:#3d6ea8; --bs-btn-hover-color:#fff;
-  --bs-btn-active-bg:#3d6ea8; --bs-btn-active-border-color:#3d6ea8;
-}
-[data-theme="dark"] .btn-outline-success {
-  --bs-btn-color:#7fd6a1; --bs-btn-border-color:#2f6b4a;
-  --bs-btn-hover-bg:#2f6b4a; --bs-btn-hover-border-color:#2f6b4a; --bs-btn-hover-color:#fff;
-}
-[data-theme="dark"] .btn-outline-danger {
-  --bs-btn-color:#f09aa3; --bs-btn-border-color:#7d3038;
-  --bs-btn-hover-bg:#7d3038; --bs-btn-hover-border-color:#7d3038; --bs-btn-hover-color:#fff;
-}
-/* .btn-light on the dark landing CTA would be a white slab; keep it readable */
-[data-theme="dark"] .badge.text-bg-light { background:var(--gx-ink-100) !important;
-                                              color:var(--gx-ink-800) !important; }
 
-/* Hard-coded light grounds. 29 call sites reach for .bg-white / .bg-light to
-   mean "a surface" — under dark those paint a white slab with dark text, which
-   is how the settings footnote ended up as a torn strip of daylight. Point them
-   at the surface tokens instead of hunting them down one by one. */
-[data-theme="dark"] .bg-white { background-color:var(--gx-surface) !important; }
-[data-theme="dark"] .bg-light { background-color:var(--gx-surface-muted) !important;
-                                   color:var(--gx-text); }
-[data-theme="dark"] .table-light,
-[data-theme="dark"] .table-light > th { background-color:var(--gx-surface-muted) !important; }
-[data-theme="dark"] .alert-light { background-color:var(--gx-surface-muted);
-                                      border-color:var(--gx-border); color:var(--gx-text); }
-[data-theme="dark"] .btn-light { --bs-btn-bg:var(--gx-ink-100); --bs-btn-color:var(--gx-ink-900);
-                                    --bs-btn-border-color:var(--gx-ink-200);
-                                    --bs-btn-hover-bg:var(--gx-ink-200); --bs-btn-hover-color:var(--gx-ink-950); }
 
 /* ---------------------------------------------------------------------------
    Progress stepper — the audit pipeline while it runs.
@@ -673,7 +581,7 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 .gx-stage-done .gx-stage-dot { background:var(--gx-band-A); border-color:var(--gx-band-A); color:#fff; }
 .gx-stage-done::before { background:var(--gx-band-A); }
 .gx-stage-now .gx-stage-dot { border-color:var(--gx-action); color:var(--gx-action);
-                              box-shadow:0 0 0 4px var(--bs-primary-bg-subtle); }
+                              box-shadow:0 0 0 4px var(--ux4g-bg-primary-subtle); }
 .gx-stage-now .gx-stage-name { color:var(--gx-navy-800); font-weight:650; }
 
 /* ---------------------------------------------------------------------------
@@ -690,8 +598,8 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 
 /* answered state: a rule and a wash, so "what is left" is visible while
    scrolling rather than something you read button by button */
-.gx-check-pass { border-inline-start-color:var(--gx-band-A); background:var(--bs-success-bg-subtle); }
-.gx-check-fail { border-inline-start-color:var(--gx-band-E); background:var(--bs-danger-bg-subtle); }
+.gx-check-pass { border-inline-start-color:var(--gx-band-A); background:var(--ux4g-bg-success-subtle); }
+.gx-check-fail { border-inline-start-color:var(--gx-band-E); background:var(--ux4g-bg-error-subtle); }
 .gx-check-na   { border-inline-start-color:var(--gx-ink-300); background:var(--gx-surface-muted); }
 
 .gx-check-actions { display:flex; flex-direction:column; align-items:flex-end; gap:.375rem;
@@ -699,7 +607,7 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 @media (max-width:767.98px) {
   .gx-check { grid-template-columns:1fr; }
   .gx-check-actions { align-items:stretch; min-width:0; }
-  .gx-check-actions .btn-group { width:100%; }
+  .gx-check-actions [role="group"] { width:100%; }
 }
 
 /* running totals, pinned under the filters where they stay in view */
@@ -709,22 +617,7 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
                       background:var(--gx-surface); border:1px solid var(--gx-border);
                       border-radius:var(--gx-r-md); box-shadow:var(--gx-shadow-1); }
 
-/* Inline code. --bs-code-color is #b02a6a, chosen to clear AA on white; on the
-   dark surface it is 3.2:1, and it is what the guideline ids on the issues
-   table are set in. Form controls, progress tracks and list rows are the other
-   Bootstrap components that carry a light ground of their own. */
-[data-theme="dark"] { --bs-code-color:#f2a3c4; }
-[data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
-  background-color:var(--gx-surface-muted); border-color:var(--gx-border-strong);
-  color:var(--gx-text);
-}
-[data-theme="dark"] .form-control::placeholder { color:var(--gx-ink-400); }
-[data-theme="dark"] .input-group-text { background-color:var(--gx-surface-muted);
-                                           border-color:var(--gx-border-strong);
-                                           color:var(--gx-text-muted); }
-[data-theme="dark"] .progress { background-color:var(--gx-ink-100); }
-[data-theme="dark"] .list-group-item { background-color:transparent;
-                                          border-color:var(--gx-border); color:var(--gx-text); }
+
 
 /* ---------------------------------------------------------------------------
    Tables flush against a card's corners.
@@ -738,25 +631,25 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
    Round the corner cells themselves instead. Separate borders are required for
    a cell's radius to be honoured — the collapsed model discards it.
    ------------------------------------------------------------------------ */
-.gx-card > .table-responsive:first-child > table,
+.gx-card > .ux4g-table-responsive:first-child > table,
 .gx-card > table:first-child { border-collapse:separate; border-spacing:0; }
 
-.gx-card > .table-responsive:first-child thead tr:first-child th:first-child,
+.gx-card > .ux4g-table-responsive:first-child thead tr:first-child th:first-child,
 .gx-card > table:first-child thead tr:first-child th:first-child {
   border-start-start-radius:var(--gx-r-md);
 }
-.gx-card > .table-responsive:first-child thead tr:first-child th:last-child,
+.gx-card > .ux4g-table-responsive:first-child thead tr:first-child th:last-child,
 .gx-card > table:first-child thead tr:first-child th:last-child {
   border-start-end-radius:var(--gx-r-md);
 }
 
 /* and the foot of the card: a hovered last row would otherwise square the
    bottom corners the same way */
-.gx-card > .table-responsive:last-child tbody tr:last-child td:first-child,
+.gx-card > .ux4g-table-responsive:last-child tbody tr:last-child td:first-child,
 .gx-card > table:last-child tbody tr:last-child td:first-child {
   border-end-start-radius:var(--gx-r-md);
 }
-.gx-card > .table-responsive:last-child tbody tr:last-child td:last-child,
+.gx-card > .ux4g-table-responsive:last-child tbody tr:last-child td:last-child,
 .gx-card > table:last-child tbody tr:last-child td:last-child {
   border-end-end-radius:var(--gx-r-md);
 }
@@ -913,7 +806,7 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
                    border-radius:var(--gx-r-sm); text-align:start;
                    font-size:.8125rem; color:var(--gx-ink-700); line-height:1.35; }
 .gx-catrail-item:hover { background:var(--gx-ink-50); }
-.gx-catrail-item[aria-current="true"] { background:var(--bs-primary-bg-subtle);
+.gx-catrail-item[aria-current="true"] { background:var(--ux4g-bg-primary-subtle);
                                         color:var(--gx-navy-800); font-weight:650; }
 .gx-catrail-count { margin-inline-start:auto; font-size:.6875rem; font-variant-numeric:tabular-nums;
                     color:var(--gx-text-muted); white-space:nowrap; }
@@ -954,3 +847,10 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
 /* Let grid children shrink below their content's intrinsic width so a long
    token or wide table inside a column never pushes the track past the viewport. */
 .ux4g-grid > * { min-width: 0; }
+
+/* The same fix for flex rows. A flex child defaults to min-width:auto, so it
+   refuses to shrink below its content — the hero's scan field held its
+   placeholder width and pushed the Scan button 7px past a 375px viewport. An
+   element explicitly told to grow should also be allowed to shrink, which is
+   the whole contract of a flexible row; without this the row can only overflow. */
+.ux4g-flex-grow-1 { min-width: 0; }

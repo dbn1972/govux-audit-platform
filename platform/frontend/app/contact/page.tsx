@@ -24,7 +24,7 @@ export default function Contact() {
           <div className="gx-card ux4g-mb-m">
             <div className="gx-card-body">
               <div className="gx-label">Support</div>
-              <p className="h5 ux4g-mt-xs ux4g-mb-2xs">
+              <p className="ux4g-heading-2xs-strong ux4g-mt-xs ux4g-mb-2xs">
                 <a href="mailto:support.ux4g@digitalindia.gov.in">support.ux4g@digitalindia.gov.in</a>
               </p>
               <p className="gx-muted ux4g-mb-none" style={{ fontSize: ".875rem" }}>

@@ -1,13 +1,13 @@
 import { Noto_Sans, Noto_Sans_Devanagari } from "next/font/google";
-// UX4G Design System, two layers only (Bootstrap fully removed):
+// UX4G Design System, three layers, in this order (Bootstrap fully removed):
 //   1. ux4g-web-components — the official UX4G CSS bundle (utilities + components +
 //      tokens + stock default theme). The system: layout, spacing, buttons, cards,
 //      alerts, tabs, tables, forms, inputs, tags, spinners, colour — all ux4g-*.
 //   2. design-system.css — the bespoke gx-* product primitives UX4G has no component
 //      for (score meter, verdict/severity blocks, review workflow, nav rail, stat
-//      tiles), authored on UX4G semantic tokens. Includes a small documented --bs-*
-//      compatibility shim (18 vars → UX4G tokens) so those primitives need no Bootstrap.
-//   3. globals.css — a few app-specific helpers.
+//      tiles), authored entirely on UX4G semantic tokens and the gx-* tokens it
+//      declares. No Bootstrap variables, classes or stylesheet remain.
+//   3. globals.css — the page ground and the responsive-table reflow.
 // Theme: single data-theme attribute (UX4G's switch). Default theme, no brand override.
 // Import order: UX4G first (establishes reset + tokens), then the gx layer, then globals.
 import "ux4g-web-components/styles.css";

@@ -65,7 +65,7 @@ export default function DomainClaims() {
               <span className="ux4g-checkbox-label">Contested only (more than one organisation claiming)</span>
             </div></div>
           </label>
-          <span className="gx-muted small ux4g-ml-auto">
+          <span className="gx-muted ux4g-fs-14 ux4g-ml-auto">
             {rows == null ? "Loading…"
               : `${rows.length} unverified host${rows.length === 1 ? "" : "s"}`
                 + (contestedCount ? ` · ${contestedCount} contested` : "")}
@@ -102,14 +102,14 @@ export default function DomainClaims() {
                           contested · {r.claims.length}
                         </span>}
                     </td>
-                    <td className="small">{c.org_name}</td>
+                    <td className="ux4g-fs-14">{c.org_name}</td>
                     <td>
                       <span className={c.verify_status === "superseded"
                         ? "ux4g-tag-tonal-neutral ux4g-tag-s" : "ux4g-tag-tonal-warning ux4g-tag-s"}>
                         {c.verify_status}
                       </span>
                     </td>
-                    <td className="small gx-muted">{fmt(c.created_at)}</td>
+                    <td className="ux4g-fs-14 gx-muted">{fmt(c.created_at)}</td>
                     <td className="ux4g-text-end">
                       <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm"
                         disabled={busyId === c.id}
@@ -122,7 +122,7 @@ export default function DomainClaims() {
           </table></div>
         </div>
 
-        <p className="gx-muted small ux4g-mt-xs">
+        <p className="gx-muted ux4g-fs-14 ux4g-mt-xs">
           A verified domain never appears here: ownership that has been proven isn&apos;t a
           steward&apos;s to revoke, and removing it would orphan its audit history.
         </p>

@@ -26,7 +26,8 @@
 ### Frontend (`platform/frontend/`)
 - `app/` — Next.js App Router pages (36 routes)
 - `app/layout.tsx` — root layout with CSS load order
-- `app/ux4g-theme.css` — UX4G token overrides for Bootstrap
+- `app/design-system.css` — the `gx-*` product layer (primitives UX4G has no component for)
+- `app/globals.css` — page ground + responsive-table reflow
 - `components/AppShell.tsx` — nav, idle timeout, role gating (THE IA source)
 - `lib/api.ts` — sole HTTP client for authenticated pages
 - `lib/score.ts` — band/color/formatting helpers

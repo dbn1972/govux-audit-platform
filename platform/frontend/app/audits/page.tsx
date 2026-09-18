@@ -122,14 +122,14 @@ export default function Audits() {
                     <td data-label="Domain" className="ux4g-fw-semibold">{a.domain}</td>
                     {/* was toLocaleString(): "18/08/2026, 09:27:34" — seconds
                         nobody needs, in a day/month order that flips by locale */}
-                    <td data-label="Date" className="gx-muted small">{absoluteTime(a.date)}</td>
+                    <td data-label="Date" className="gx-muted ux4g-fs-14">{absoluteTime(a.date)}</td>
                     <td data-label="Status"><span className={cls}>{label}</span></td>
                     <td data-label="Score">
                       {done && a.score != null
-                        ? <><b>{a.score}</b>{a.band && <span className="ux4g-badge-m ux4g-ml-2xs" style={bandStyle(a.band)}>Band {a.band}</span>}</>
+                        ? <><b>{a.score}</b>{a.band && <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-2xs" style={bandStyle(a.band)}>Band {a.band}</span>}</>
                         : <span className="gx-muted">—</span>}
                     </td>
-                    <td data-label="Compliance" className="gx-muted small">{a.compliance_status ? a.compliance_status.replace(/_/g, " ") : "—"}</td>
+                    <td data-label="Compliance" className="gx-muted ux4g-fs-14">{a.compliance_status ? a.compliance_status.replace(/_/g, " ") : "—"}</td>
                     <td data-label="">
                       {done
                         ? <>

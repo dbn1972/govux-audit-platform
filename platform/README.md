@@ -35,15 +35,39 @@ docker compose up --build
 
 ## UX4G design system
 
-The frontend inherits the **UX4G Design System 2.0**, which is built on **Bootstrap 5**:
+The frontend runs on the **UX4G Design System** directly. Bootstrap is fully
+removed — no `bootstrap`/`bootstrap-icons` dependency, no `ux4g-theme.css`
+remapping layer, no `--bs-*` variables anywhere in the source.
 
-- `bootstrap` + `bootstrap-icons` are npm dependencies (`package.json`).
-- `app/layout.tsx` imports `bootstrap.min.css`, then `ux4g-theme.css` (overrides), then `globals.css`.
-- `app/ux4g-theme.css` maps Bootstrap's CSS variables (`--bs-primary`, `--bs-body-color`, `--bs-border-radius`, `--bs-font-sans-serif`, …) to UX4G tokens (primary `#0d6efd`, secondary `#6c757d`, deep-blue headings `#0a3d7a`, tricolour strip, score-band utilities).
-- Pages use **official Bootstrap/UX4G component classes** (`container`, `row`/`col`, `card`, `btn btn-primary`, `form-control`, `table table-hover`, `badge`, `alert`, `bi-*` icons) — see `login`, `dashboard`, `report`.
-- Font is wired via `next/font` (Inter). For production, swap to the exact UX4G font and add **Noto Sans** for Indic scripts.
+- `ux4g-web-components` (npm) is the only CSS framework dependency. It ships the
+  reset, the `--ux4g-*` design tokens, 53 components and the utility classes.
+- `app/layout.tsx` imports, in this order: `ux4g-web-components/styles.css` →
+  `app/design-system.css` → `app/globals.css`. UX4G must come first: it
+  establishes the reset and the tokens everything else is expressed in.
+- Pages use **UX4G classes directly** — `ux4g-btn ux4g-btn-primary`,
+  `ux4g-table`, `ux4g-alert`, `ux4g-input`, `ux4g-tag-tonal-*`, `ux4g-container`,
+  `ux4g-grid` / `ux4g-cols-span-*`, `ux4g-heading-*`, and the `ux4g-p*`/`ux4g-m*`
+  spacing scale. See `login`, `dashboard`, `report`.
+- `app/design-system.css` is the **gx-\* product layer**: only the primitives UX4G
+  has no component for — the score meter, the verdict and severity blocks, the
+  guided-review workflow, the nav rail, the stat tiles and the landing page. It is
+  authored on UX4G semantic tokens, so both themes come from one source.
+- Icons come from `lucide-react` behind `components/Icon.tsx`, which maps the
+  project's icon vocabulary (the historical `bi-*` names, still used as data in
+  the nav and notification models) onto lucide components.
+- Theming is UX4G's own `data-theme` attribute, applied before first paint by an
+  inline script in `layout.tsx` so a dark-mode reader never sees a white flash.
+- Fonts are **Noto Sans** + **Noto Sans Devanagari**, self-hosted by `next/font`
+  at build time — no request leaves the origin, and the Indic face is loaded now
+  rather than swapped in later (a face swap changes every line length).
 
-To go fully native, also install UX4G's published component package (if using their Figma-linked kit) and replace bespoke widgets with UX4G components.
+### Two rules that bite
+
+1. `ux4g-heading-*`, `ux4g-body-*` and `ux4g-label-*` are applied through
+   `[class^=ux4g-…]` selectors, so they only take effect when they are **first**
+   in the class attribute. `ux4g-fs-*` uses `[class*=…]` and works anywhere.
+2. Anything genuinely bespoke goes in the `gx-*` layer with a `gx-` prefix and is
+   built from tokens — never a colour literal, or it cannot follow the theme.
 
 ## Layout
 
@@ -66,7 +90,8 @@ platform/
   frontend/
     app/login report dashboard   # representative pages (WebCrypto device key on login)
     lib/api.ts             # API client w/ silent token refresh
-    app/globals.css        # design tokens (subset of prototype/app.css)
+    app/design-system.css  # the gx-* product layer, on UX4G tokens
+    app/globals.css        # page ground + responsive-table reflow
 ```
 
 ## Key API endpoints

@@ -197,7 +197,7 @@ export default function Settings() {
         <h2 className="gx-section-label">Organisation &amp; people</h2>
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-mb-s">
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="gx-card ux4g-h-100"><div className="gx-card-body">
-            <h3 className="h6 ux4g-mb-s">Organisation</h3>
+            <h3 className="ux4g-heading-2xs-strong ux4g-mb-s">Organisation</h3>
             <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-mb-xs">
               <label className="ux4g-label-m-default" htmlFor="org-name">Name</label>
               <div className={`ux4g-input${!canEditOrg ? " ux4g-input-is-disabled" : ""}`}>
@@ -218,14 +218,14 @@ export default function Settings() {
               <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm" onClick={saveOrg} disabled={orgBusy}>
                 {orgBusy ? "Saving…" : "Save"}</button>
             ) : (
-              <div className="gx-muted small">Only an owner or admin can edit organisation settings.</div>
+              <div className="gx-muted ux4g-fs-14">Only an owner or admin can edit organisation settings.</div>
             )}
-            {orgMsg && <div className="small ux4g-mt-xs gx-muted">{orgMsg}</div>}
+            {orgMsg && <div className="ux4g-fs-14 ux4g-mt-xs gx-muted">{orgMsg}</div>}
           </div></div></div>
 
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="gx-card ux4g-h-100">
             <div className="gx-card-head">Team members</div>
-            {teamErr && <div className="ux4g-alert ux4g-alert-warning ux4g-m-xs ux4g-mb-none ux4g-py-2xs small" role="alert">{teamErr}</div>}
+            {teamErr && <div className="ux4g-alert ux4g-alert-warning ux4g-m-xs ux4g-mb-none ux4g-py-2xs ux4g-fs-14" role="alert">{teamErr}</div>}
             <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-s ux4g-mb-none">
               <thead><tr><th>Member</th><th>Role</th><th></th></tr></thead>
               <tbody>
@@ -242,7 +242,7 @@ export default function Settings() {
                   const editable = canManageTeam && !m.is_you && (canGrantSteward || !stewardOnly);
                   return (
                     <tr key={m.id}>
-                      <td className="small">{m.display_name || m.email}
+                      <td className="ux4g-fs-14">{m.display_name || m.email}
                         {m.is_you && <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-2xs">you</span>}</td>
                       <td>
                         {editable ? (
@@ -266,7 +266,7 @@ export default function Settings() {
                 })}
               </tbody>
             </table></div>
-            <div className="ux4g-card-footer small gx-muted">
+            <div className="ux4g-card-footer ux4g-fs-14 gx-muted">
               {canGrantSteward
                 ? "As a super_admin you can grant any role, including programme_admin/super_admin."
                 : canManageTeam
@@ -280,7 +280,7 @@ export default function Settings() {
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-12"><div className="gx-card">
             <div className="gx-card-head">Invite a colleague</div>
             <div className="gx-card-body">
-              <p className="gx-muted small">
+              <p className="gx-muted ux4g-fs-14">
                 Invited colleagues join <b>this</b> organisation when they first sign in, so you
                 share the same domains, audits and reports. Only .gov.in / .nic.in addresses can
                 be invited.
@@ -306,9 +306,9 @@ export default function Settings() {
                     {inviteBusy ? "Sending…" : "Send invitation"}</button>
                 </form>
               ) : (
-                <div className="gx-muted small">Only an owner or admin can invite colleagues.</div>
+                <div className="gx-muted ux4g-fs-14">Only an owner or admin can invite colleagues.</div>
               )}
-              {inviteMsg && <div className="small ux4g-mt-xs gx-muted">{inviteMsg}</div>}
+              {inviteMsg && <div className="ux4g-fs-14 ux4g-mt-xs gx-muted">{inviteMsg}</div>}
             </div>
 
             {invites != null && invites.length > 0 && (
@@ -319,9 +319,9 @@ export default function Settings() {
                 <tbody>
                   {invites.map((i) => (
                     <tr key={i.id}>
-                      <td className="small">{i.email}</td>
+                      <td className="ux4g-fs-14">{i.email}</td>
                       <td><span className="ux4g-tag-tonal-neutral ux4g-tag-s">{i.role}</span></td>
-                      <td className="small">
+                      <td className="ux4g-fs-14">
                         {i.expired
                           ? <span className="ux4g-text-error">Expired</span>
                           : absolute(i.expires_at)}
@@ -363,9 +363,9 @@ export default function Settings() {
                   )}
                   {(devices || []).map(d => (
                     <tr key={d.id}>
-                      <td><b>{d.label || "Device"}</b><div className="gx-muted small">Device key bound</div></td>
+                      <td><b>{d.label || "Device"}</b><div className="gx-muted ux4g-fs-14">Device key bound</div></td>
                       <td>{d.last_location || "—"}</td>
-                      <td className="small">{d.current ? "Now" : relative(d.last_active_at, "—")}</td>
+                      <td className="ux4g-fs-14">{d.current ? "Now" : relative(d.last_active_at, "—")}</td>
                       <td>{d.current
                         ? <span className="ux4g-tag-tonal-success ux4g-tag-s">This device</span>
                         : <button className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm ux4g-text-error" onClick={() => revoke(d.id)}>Revoke</button>}</td>
@@ -373,7 +373,7 @@ export default function Settings() {
                   ))}
                 </tbody>
               </table></div>
-              <div className="ux4g-card-footer small gx-muted">
+              <div className="ux4g-card-footer ux4g-fs-14 gx-muted">
                 🛡️ Sessions are device-bound: a short-lived access token + a rotating, device-keyed refresh token keep you
                 signed in on trusted devices (Gmail-style). Sensitive actions still require a fresh OTP.
               </div>
@@ -381,7 +381,7 @@ export default function Settings() {
           </div>
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4">
             <div className="gx-card"><div className="gx-card-body">
-              <h3 className="h6 ux4g-mb-s">Notifications</h3>
+              <h3 className="ux4g-heading-2xs-strong ux4g-mb-s">Notifications</h3>
               {["Audit completed", "New critical issue", "Score regression"].map(n => (
                 <label className="ux4g-switch ux4g-switch-md" key={n}>
                   <input className="ux4g-switch-input" type="checkbox" id={`notif-${n}`}
@@ -390,12 +390,12 @@ export default function Settings() {
                   <div className="ux4g-switch-content"><span className="ux4g-switch-label">{n}</span></div>
                 </label>
               ))}
-              <p className="gx-muted small ux4g-mb-none ux4g-mt-xs">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
+              <p className="gx-muted ux4g-fs-14 ux4g-mb-none ux4g-mt-xs">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
             </div></div>
 
             <div className="gx-card ux4g-mt-s"><div className="gx-card-body">
-              <h3 className="h6 ux4g-mb-s">Data &amp; privacy <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-2xs">DPDP</span></h3>
-              <p className="gx-muted small">Under the Digital Personal Data Protection Act, you can access
+              <h3 className="ux4g-heading-2xs-strong ux4g-mb-s">Data &amp; privacy <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-2xs">DPDP</span></h3>
+              <p className="gx-muted ux4g-fs-14">Under the Digital Personal Data Protection Act, you can access
                 and erase the personal data we hold about you.</p>
               <div className="ux4g-d-flex ux4g-flex-column ux4g-gap-xs">
                 <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" onClick={downloadData} disabled={dpdpBusy}>
@@ -403,7 +403,7 @@ export default function Settings() {
                 <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm" onClick={eraseAccount} disabled={dpdpBusy}>
                   <Icon name="trash" size={16} className="ux4g-mr-2xs" />Delete my account &amp; data</button>
               </div>
-              {dpdpMsg && <div className="small ux4g-mt-xs gx-muted">{dpdpMsg}</div>}
+              {dpdpMsg && <div className="ux4g-fs-14 ux4g-mt-xs gx-muted">{dpdpMsg}</div>}
             </div></div>
           </div>
         </div>

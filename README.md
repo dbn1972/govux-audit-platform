@@ -113,7 +113,7 @@ Runs Gunicorn (multi-worker) + `next start`, a **split & AOF-persisted** Redis (
 
 **Backend:** FastAPI · SQLAlchemy 2.0 · Pydantic v2 · PostgreSQL (pgvector) · Redis Streams · MinIO/S3 · Alembic
 **Engine:** Node · Playwright (Chromium/Firefox/WebKit) · Lighthouse · axe-core
-**Frontend:** Next.js 14 (App Router) · Bootstrap 5 / UX4G Design System · TypeScript
+**Frontend:** Next.js 14 (App Router) · UX4G Design System (`ux4g-web-components`) · lucide-react · TypeScript
 **Advisory ML:** scikit-learn (IsolationForest) · XGBoost · Pillow/NumPy (CV) — *out of the score path*
 
 ## Project status

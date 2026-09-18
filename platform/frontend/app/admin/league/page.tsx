@@ -70,7 +70,7 @@ export default function League() {
 
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4">
             <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
-              <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><h2 className="h6 ux4g-mb-none">Publishing</h2>
+              <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><h2 className="ux4g-heading-2xs-strong ux4g-mb-none">Publishing</h2>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-auto">Governance-gated</span></div>
               <div className="ux4g-d-inline-flex ux4g-gap-2xs ux4g-w-100 ux4g-mb-xs">
                 <button className={`ux4g-btn ux4g-btn-sm ${pub === "internal" ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setPub("internal")}>
@@ -78,13 +78,13 @@ export default function League() {
                 <button className={`ux4g-btn ux4g-btn-sm ${pub === "public" ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setPub("public")}>
                   <Icon name="globe2" size={16} className="ux4g-mr-2xs" />Public (opt-in)</button>
               </div>
-              <p className="gx-muted small ux4g-mb-none">
+              <p className="gx-muted ux4g-fs-14 ux4g-mb-none">
                 Rankings default to the internal steward view. Public publication is a MeitY policy decision — GSA/EU precedent.
               </p>
             </div></div>
             <div className="gx-card" style={{ background: "var(--gx-surface-muted)" }}><div className="gx-card-body">
-              <h2 className="h6">Anti-gaming safeguards</h2>
-              <ul className="small gx-muted ux4g-mb-none ux4g-ps-s">
+              <h2 className="ux4g-heading-2xs-strong">Anti-gaming safeguards</h2>
+              <ul className="ux4g-fs-14 gx-muted ux4g-mb-none ux4g-ps-s">
                 <li>Guard-rails cap the band on critical failures</li>
                 <li>Versioned, reproducible scores</li>
                 <li>Periodic expert &ldquo;audit of the auditor&rdquo;</li>

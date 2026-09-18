@@ -318,14 +318,14 @@ export default function Review() {
                 if (!rows.length) return null;
                 return (
                   <div key={heading as string}>
-                    <h3 className="h6 ux4g-mt-m ux4g-mb-xs">{heading as string}</h3>
+                    <h3 className="ux4g-heading-2xs-strong ux4g-mt-m ux4g-mb-xs">{heading as string}</h3>
                     <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                       {rows.map((a: any) => (
                         <li key={a.id} className="ux4g-list-item">
                           <div className="ux4g-list-item-row ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
                           <div>
                             <div className="ux4g-fw-semibold">{a.subject}</div>
-                            <div className="gx-muted small">
+                            <div className="gx-muted ux4g-fs-14">
                               {a.platform === "app" ? "Mobile app" : "Website"} · {a.answered} answered
                               {a.created_at && <> · started {relative(a.created_at)}</>}
                               {done && a.verdict && <> · <b>{a.verdict.replace(/_/g, " ")}</b></>}
@@ -348,8 +348,8 @@ export default function Review() {
 
           <div className="gx-card">
             <div className="gx-card-body">
-              <h2 className="h6 ux4g-mb-2xs">Certify a completed audit</h2>
-              <p className="gx-muted small">
+              <h2 className="ux4g-heading-2xs-strong ux4g-mb-2xs">Certify a completed audit</h2>
+              <p className="gx-muted ux4g-fs-14">
                 Only completed audits can be certified. Every report also carries a
                 <b> “Certify (expert review)”</b> action that opens it here directly.
               </p>
@@ -369,7 +369,7 @@ export default function Review() {
                       <div className="ux4g-list-item-row ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
                       <div>
                         <div className="ux4g-fw-semibold">{c.domain}</div>
-                        <div className="gx-muted small">
+                        <div className="gx-muted ux4g-fs-14">
                           {absolute(c.date)}
                           {c.score != null && <> · score {Math.round(c.score)}</>}
                           {c.compliance_status && <> · {c.compliance_status.replace(/_/g, " ")}</>}
@@ -404,7 +404,7 @@ export default function Review() {
                 <div className="ux4g-fw-semibold" style={{ fontSize: "1.0625rem" }}>
                   {taskId ? (audit?.domain || "…") : (data?.subject || "…")}
                 </div>
-                <div className="gx-muted small">
+                <div className="gx-muted ux4g-fs-14">
                   {taskId ? <>Task {taskId}</>
                     : <>Answered by hand — no engine run behind this, so it yields a
                         compliance verdict, not a GovUX score.</>}
@@ -412,31 +412,31 @@ export default function Review() {
               </div>
               {/* right-aligned only while it sits beside the subject; once it
                   wraps under it on a phone, right-aligned reads as a mistake */}
-              <div className="ux4g-ml-auto ux4g-text-start text-md-end">
+              <div className="ux4g-ml-auto ux4g-text-start ux4g-md-text-end">
                 {taskId && audit && (
                   <>
-                    <div className="gx-muted small">Current legal verdict</div>
+                    <div className="gx-muted ux4g-fs-14">Current legal verdict</div>
                     <span className={VERDICT_STYLE[audit.compliance_status] || "ux4g-tag-tonal-neutral ux4g-tag-s"}>
                       {(audit.compliance_status || "—").replace(/_/g, " ")}
                     </span>
-                    <span className="gx-muted small ux4g-ml-xs">({audit.confidence || "automated_only"})</span>
+                    <span className="gx-muted ux4g-fs-14 ux4g-ml-xs">({audit.confidence || "automated_only"})</span>
                   </>
                 )}
                 {assessmentId && data && (
                   <>
-                    <div className="gx-muted small">Status</div>
+                    <div className="gx-muted ux4g-fs-14">Status</div>
                     <span className={locked
                       ? VERDICT_STYLE[data.verdict] || "ux4g-tag-tonal-neutral ux4g-tag-s" : "ux4g-tag-tonal-neutral ux4g-tag-s"}>
                       {locked ? (data.verdict || "signed off").replace(/_/g, " ") : "in progress"}
                     </span>
                     {locked && data.signed_off_at && (
-                      <div className="gx-muted small ux4g-mt-2xs">{absolute(data.signed_off_at)}</div>
+                      <div className="gx-muted ux4g-fs-14 ux4g-mt-2xs">{absolute(data.signed_off_at)}</div>
                     )}
                   </>
                 )}
               </div>
               <div style={{ flexBasis: "100%" }}>
-                <Link href="/review" onClick={showPicker} className="small">
+                <Link href="/review" onClick={showPicker} className="ux4g-fs-14">
                   ← All manual reviews
                 </Link>
               </div>
@@ -453,7 +453,7 @@ export default function Review() {
                   which corpus the answers already recorded belong to. */}
               {taskId && (
               <div>
-                <span className="ux4g-label-m-default small ux4g-fw-semibold ux4g-mb-2xs ux4g-d-block">Platform</span>
+                <span className="ux4g-label-m-default ux4g-fs-14 ux4g-fw-semibold ux4g-mb-2xs ux4g-d-block">Platform</span>
                 <div className="ux4g-d-inline-flex ux4g-gap-2xs" role="group" aria-label="Platform being reviewed">
                   {/* "Mobile app", not "App": the UX4G self-check's own Mobile
                       toggle means anything that renders on a phone, responsive
@@ -470,7 +470,7 @@ export default function Review() {
               </div>
               )}
               <div>
-                <label htmlFor="rev-tier" className="ux4g-label-m-default small ux4g-fw-semibold ux4g-mb-2xs">Enforcement tier</label>
+                <label htmlFor="rev-tier" className="ux4g-label-m-default ux4g-fs-14 ux4g-fw-semibold ux4g-mb-2xs">Enforcement tier</label>
                 <select id="rev-tier" className="ux4g-form-select" style={{ minWidth: 170 }}
                   value={tier} onChange={e => setTier(e.target.value)}>
                   {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
@@ -478,7 +478,7 @@ export default function Review() {
                 </select>
               </div>
               <div>
-                <label htmlFor="rev-std" className="ux4g-label-m-default small ux4g-fw-semibold ux4g-mb-2xs">Compliance</label>
+                <label htmlFor="rev-std" className="ux4g-label-m-default ux4g-fs-14 ux4g-fw-semibold ux4g-mb-2xs">Compliance</label>
                 <select id="rev-std" className="ux4g-form-select" style={{ minWidth: 215 }}
                   value={standard} onChange={e => setStandard(e.target.value)}>
                   <option value="">All compliances ({data?.reviewable_total ?? "—"})</option>
@@ -487,7 +487,7 @@ export default function Review() {
                 </select>
               </div>
               <div>
-                <label htmlFor="rev-cat" className="ux4g-label-m-default small ux4g-fw-semibold ux4g-mb-2xs">Category</label>
+                <label htmlFor="rev-cat" className="ux4g-label-m-default ux4g-fs-14 ux4g-fw-semibold ux4g-mb-2xs">Category</label>
                 <select id="rev-cat" className="ux4g-form-select" style={{ minWidth: 260 }}
                   value={category} onChange={e => setCategory(e.target.value)}>
                   <option value="">All categories</option>
@@ -542,7 +542,7 @@ export default function Review() {
 
         {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs" role="alert">✗ {err}</div>}
         {loading && !data && (
-          <div className="gx-muted small ux4g-py-s">
+          <div className="gx-muted ux4g-fs-14 ux4g-py-s">
             <Spinner size="sm" className="ux4g-mr-xs" />Loading…
           </div>
         )}
@@ -590,7 +590,7 @@ export default function Review() {
               const whole = (data.categories || []).find((c: any) => c.name === category)?.count;
               if (!category || !whole || whole <= data.items.length) return null;
               return (
-                <div className="gx-muted small ux4g-px-m ux4g-pb-xs" style={{ marginTop: "-.25rem" }}>
+                <div className="gx-muted ux4g-fs-14 ux4g-px-m ux4g-pb-xs" style={{ marginTop: "-.25rem" }}>
                   Showing the {tier ? `${tier.toLowerCase()} ` : ""}items in this category —
                   {" "}{data.items.length} of {whole}. The rail counts the whole category;
                   choose <b>All tiers</b> to see the rest.
@@ -621,9 +621,9 @@ export default function Review() {
                           title="Machine gathers evidence, a human decides">assisted</span>
                       )}
                     </div>
-                    {it.issue && <div className="gx-muted small ux4g-mt-xs">{it.issue}</div>}
+                    {it.issue && <div className="gx-muted ux4g-fs-14 ux4g-mt-xs">{it.issue}</div>}
                     {it.advice && (
-                      <details className="small ux4g-mt-xs">
+                      <details className="ux4g-fs-14 ux4g-mt-xs">
                         <summary style={{ cursor: "pointer", color: "var(--ux4g-text-brand-primary-default)" }}>
                           How to meet it
                         </summary>
@@ -633,7 +633,7 @@ export default function Review() {
                         {it.reference && <div className="gx-muted ux4g-mt-2xs">{it.reference}</div>}
                       </details>
                     )}
-                    {it.note && <div className="gx-muted small ux4g-mt-xs"><i>Note:</i> {it.note}</div>}
+                    {it.note && <div className="gx-muted ux4g-fs-14 ux4g-mt-xs"><i>Note:</i> {it.note}</div>}
                   </div>
 
                   <div className="gx-check-actions">
@@ -685,19 +685,19 @@ export default function Review() {
 
             <div className="gx-card-body" style={{ borderTop: "1px solid var(--gx-border)",
                                                     background: "var(--gx-surface-muted)" }}>
-              <h2 className="h6 ux4g-mb-s">Sign off</h2>
+              <h2 className="ux4g-heading-2xs-strong ux4g-mb-s">Sign off</h2>
               {locked && !result ? (
                 <div className="ux4g-alert ux4g-alert-info ux4g-mb-none" role="status">
                   <b>Signed off {data.signed_off_at ? absolute(data.signed_off_at) : ""} —{" "}
                   {(data.verdict || "").replace(/_/g, " ") || "no verdict"}.</b>
-                  <div className="small ux4g-mt-2xs">
+                  <div className="ux4g-fs-14 ux4g-mt-2xs">
                     {data.decided} of {data.reviewable_total ?? data.total} answered,
                     {" "}{data.failed} not met.
                     {" "}This record cannot be changed. Start a new assessment from{" "}
                     <Link href="/review" onClick={showPicker}>All manual reviews</Link>
                     {" "}to reassess this subject.
                   </div>
-                  {data.notes && <div className="small ux4g-mt-xs"><i>Assessor notes:</i> {data.notes}</div>}
+                  {data.notes && <div className="ux4g-fs-14 ux4g-mt-xs"><i>Assessor notes:</i> {data.notes}</div>}
                 </div>
               ) : (
               <>
@@ -751,7 +751,7 @@ export default function Review() {
                       onClick={() => signOff(false)}>
                       Reject — needs work
                     </button>
-                    <span className="gx-muted small ux4g-ml-2xs">
+                    <span className="gx-muted ux4g-fs-14 ux4g-ml-2xs">
                       Either decision is recorded against your account in the audit log.
                     </span>
                   </div>

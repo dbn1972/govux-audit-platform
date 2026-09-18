@@ -7,7 +7,10 @@ test("login shows the OTP step after a valid gov email", async ({ page }) => {
   await page.route("**/v1/auth/otp/request", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" }));
   await page.goto("/login");
-  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  // exact: the migration wrapped this page in the site header, which added an
+  // <h1>Sign in to GovUX Audit</h1> above the card's own <h2>Sign in</h2>; a
+  // substring match now resolves to both and fails strict mode.
+  await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible();
   await page.getByPlaceholder("name.dept@nic.in").fill("d.nayak@meity.gov.in");
   await page.getByRole("button", { name: "Send OTP" }).click();
   await expect(page.getByText(/Enter the/i)).toBeVisible();

@@ -46,7 +46,7 @@ export default function Ministries() {
                       </span>
                     </div>
                   </td>
-                  <td data-label="Band"><span className="ux4g-badge-m" style={bandStyle(r.band)}>{r.band}</span></td>
+                  <td data-label="Band"><span className="ux4g-tag-tonal-neutral ux4g-tag-s" style={bandStyle(r.band)}>{r.band}</span></td>
                 </tr>
               ))}
             </tbody>

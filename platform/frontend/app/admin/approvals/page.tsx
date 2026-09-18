@@ -76,10 +76,10 @@ export default function Approvals() {
               )}
               {(rows || []).map((r) => (
                 <tr key={r.id}>
-                  <td data-label="Requested by" className="small">{r.user_email || "—"}</td>
+                  <td data-label="Requested by" className="ux4g-fs-14">{r.user_email || "—"}</td>
                   <td data-label="Domain" className="ux4g-fw-semibold">{r.domain_url || "—"}</td>
                   <td data-label="Pages"><b>{r.requested_pages}</b></td>
-                  <td data-label="Reason" className="gx-muted small">{r.reason || "—"}</td>
+                  <td data-label="Reason" className="gx-muted ux4g-fs-14">{r.reason || "—"}</td>
                   <td data-label="Status"><span className={statusBadge[r.status] || "ux4g-tag-tonal-neutral ux4g-tag-s"}>{r.status}</span></td>
                   <td data-label="">
                     {r.status === "pending" ? (
@@ -89,7 +89,7 @@ export default function Approvals() {
                         <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm" disabled={busy === r.id}
                           onClick={() => decide(r.id, "rejected")}>Reject</button>
                       </div>
-                    ) : <span className="gx-muted small">decided</span>}
+                    ) : <span className="gx-muted ux4g-fs-14">decided</span>}
                   </td>
                 </tr>
               ))}

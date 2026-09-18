@@ -50,20 +50,20 @@ export default function BulkScan() {
 
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="gx-card"><div className="gx-card-body">
-            <h2 className="h6">Start a bulk scan</h2>
+            <h2 className="ux4g-heading-2xs-strong">Start a bulk scan</h2>
             <label className="ux4g-label-m-default" htmlFor="scope">Scope</label>
             <select id="scope" className="ux4g-form-select ux4g-form-select-md ux4g-mb-s" value={scope}
               onChange={e => setScope(e.target.value)}>
               <option value="never_audited">All never-audited domains</option>
               <option value="all">Entire register</option>
             </select>
-            <div className="ux4g-alert ux4g-alert-info ux4g-b-1 small">
+            <div className="ux4g-alert ux4g-alert-info ux4g-b-1 ux4g-fs-14">
               <Icon name="info-circle" size={16} className="ux4g-mr-2xs" />
               Each domain is queued as its own audit and crawled at a polite rate, so a large
               estate takes hours rather than minutes. Re-running is safe — a domain already
               queued is not scanned twice.
             </div>
-            {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs small" role="alert">{err}</div>}
+            {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs ux4g-fs-14" role="alert">{err}</div>}
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100" onClick={enqueue} disabled={busy}>
               {busy ? "Enqueuing…" : <><Icon name="play-fill" size={16} className="ux4g-mr-2xs" />Enqueue bulk scan</>}</button>
             <span className="ux4g-label-s-default gx-muted ux4g-d-block ux4g-mt-xs">
@@ -73,7 +73,7 @@ export default function BulkScan() {
           </div></div></div>
 
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="gx-card ux4g-h-100"><div className="gx-card-body">
-            <h2 className="h6">Batch status</h2>
+            <h2 className="ux4g-heading-2xs-strong">Batch status</h2>
             {result ? (
               <>
                 <div className="ux4g-alert ux4g-alert-success">
@@ -89,7 +89,7 @@ export default function BulkScan() {
                       <div className="ux4g-progress-bar-track"><div className="ux4g-progress-bar-fill" style={{ width: `${progress.percent}%` }} /></div>
                       <span data-ux-progress-label>{progress.percent}%</span>
                     </article>
-                    <div className="ux4g-d-flex ux4g-jc-between ux4g-mt-xs small gx-muted">
+                    <div className="ux4g-d-flex ux4g-jc-between ux4g-mt-xs ux4g-fs-14 gx-muted">
                       <span>{progress.done} / {progress.total} done</span>
                       <span>
                         {progress.finished
@@ -103,13 +103,13 @@ export default function BulkScan() {
                         used to show. */}
                   </>
                 )}
-                <p className="small gx-muted ux4g-mt-xs ux4g-mb-none">
+                <p className="ux4g-fs-14 gx-muted ux4g-mt-xs ux4g-mb-none">
                   Each domain is a separate audit — open them in{" "}
                   <Link href="/audits">Audit History</Link>.
                 </p>
               </>
             ) : (
-              <div className="gx-muted small">
+              <div className="gx-muted ux4g-fs-14">
                 Submit a bulk scan to enqueue the estate. The batch reference and the number of
                 domains queued will appear here.
               </div>

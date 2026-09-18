@@ -89,7 +89,7 @@ export default function Report({ params }: { params: { id: string } }) {
             <div>
               <b>Integrity check — possible gaming detected.</b> The compliance verdict is capped pending
               human review. The GovUX score itself is unchanged.
-              <ul className="ux4g-mb-none ux4g-mt-2xs small">
+              <ul className="ux4g-mb-none ux4g-mt-2xs ux4g-fs-14">
                 {r.integrity.techniques.map((t: any) => <li key={t.key}>{t.label}</li>)}
                 {r.integrity.jump && <li>Score rose {r.integrity.jump.from} → {r.integrity.jump.to} with no matching change.</li>}
               </ul>
@@ -154,7 +154,7 @@ export default function Report({ params }: { params: { id: string } }) {
           <div className="gx-card">
             <div className="gx-card-body">
               <div className="gx-label">Legal compliance verdict</div>
-              <div className="h4 ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--gx-navy-800)" }}>
+              <div className="ux4g-heading-xs-strong ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--gx-navy-800)" }}>
                 {String(r.compliance?.status || "not assessed").replace(/_/g, " ")}
               </div>
               <div className="gx-muted" style={{ fontSize: ".875rem" }}>

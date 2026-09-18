@@ -132,7 +132,7 @@ export default function Studio() {
                 <select id="s-mode" className="ux4g-form-select ux4g-form-select-md" value={mode} onChange={e => setMode(e.target.value)}>
                   <option value="light">Light</option><option value="dark">Dark</option></select></div>
             </div>
-            <label className="ux4g-label-m-default ux4g-fw-semibold small ux4g-mt-xs" htmlFor="s-accent">Accent</label>
+            <label className="ux4g-label-m-default ux4g-fw-semibold ux4g-fs-14 ux4g-mt-xs" htmlFor="s-accent">Accent</label>
             <select id="s-accent" className="ux4g-form-select ux4g-form-select-sm ux4g-mb-s" value={accent} onChange={e => setAccent(e.target.value)}>
               {ACCENTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
@@ -145,7 +145,7 @@ export default function Studio() {
               <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                 {history.slice(0, 10).map(h => (
                   <li key={h.id} className="ux4g-list-item">
-                    <button className="ux4g-list-item-row small ux4g-text-start ux4g-w-100" onClick={() => openRun(h.id)}
+                    <button className="ux4g-list-item-row ux4g-fs-14 ux4g-text-start ux4g-w-100" onClick={() => openRun(h.id)}
                       style={{ background: "none", border: 0, cursor: "pointer" }}>
                       <div className="ux4g-fw-semibold ux4g-line-clamp-1">{h.department || "Untitled"}</div>
                       <span className="gx-muted">{h.status === "scored" ? `${h.score} · Band ${h.band}` : h.status} · {h.pages} pages</span>
@@ -170,11 +170,11 @@ export default function Studio() {
 
           {run?.status === "scored" && (<>
             <div className="gx-card ux4g-mb-s"><div className="gx-card-body ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
-              <div><span className="score-value" style={{ fontSize: 28 }}>{run.score}</span>
+              <div><span className="gx-score-value" style={{ fontSize: 28 }}>{run.score}</span>
                 <span className="gx-pill ux4g-ml-2xs" style={bandStyle(run.band)}>Band {run.band}</span></div>
               {/* a static analysis of generated markup, not an audit of a live
                   site — saying which is the difference between a claim and a hint */}
-              <span className="gx-muted small">
+              <span className="gx-muted ux4g-fs-14">
                 Static score of the generated markup · {run.iterations} refinement{run.iterations === 1 ? "" : "s"}
                 {run.billing?.cost_inr != null && <> · ₹{run.billing.cost_inr}</>}
               </span>
@@ -189,7 +189,7 @@ export default function Studio() {
 
             {run.published && publicUrl && (
               <div className="ux4g-alert ux4g-alert-success ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-xs">
-                <span className="small">Public demo: <a href={publicUrl} target="_blank" rel="noopener">{publicUrl}</a></span>
+                <span className="ux4g-fs-14">Public demo: <a href={publicUrl} target="_blank" rel="noopener">{publicUrl}</a></span>
                 <div className="ux4g-ml-auto ux4g-d-flex ux4g-gap-xs">
                   <a className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-neutral" href={share.whatsapp} target="_blank" rel="noopener">WhatsApp</a>
                   <a className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-primary" href={share.facebook} target="_blank" rel="noopener">Facebook</a>
@@ -211,7 +211,7 @@ export default function Studio() {
                       <iframe title={f} srcDoc={htmls[f] || ""} sandbox="allow-same-origin"
                         style={{ width: 1180, height: 800, border: 0, transform: "scale(.186)", transformOrigin: "top left" }} />
                     </div>
-                    <div className="small ux4g-line-clamp-1 ux4g-px-xs ux4g-py-2xs ux4g-bt-1">{f}</div>
+                    <div className="ux4g-fs-14 ux4g-line-clamp-1 ux4g-px-xs ux4g-py-2xs ux4g-bt-1">{f}</div>
                   </div>
                 ))}
               </div>
@@ -220,7 +220,7 @@ export default function Studio() {
             {/* Expanded preview of the selected screen */}
             {zoom && (
               <div className="gx-card"><div className="gx-card-body">
-                <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold small">{zoom}</span>
+                <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold ux4g-fs-14">{zoom}</span>
                   <span className="ux4g-ml-auto ux4g-d-inline-flex ux4g-gap-2xs">
                     {DEVICES.map(([l, w]) => <button key={l} className={`ux4g-btn ux4g-btn-sm ${device === w ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setDevice(w)}>{l}</button>)}
                   </span></div>

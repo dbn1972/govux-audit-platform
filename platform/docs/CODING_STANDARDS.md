@@ -29,8 +29,13 @@
 
 ## TypeScript / Next.js
 - Client pages mount `AppShell`; all data goes through `lib/api.ts` (handles silent token refresh).
-- Use Bootstrap 5 / UX4G classes (`btn`, `card`, `table`, `badge`, `bi-*`); deep-blue headings via
-  `var(--ux-navy)`. No bespoke CSS when a token/class exists.
+- Use UX4G classes (`ux4g-btn`, `ux4g-table`, `ux4g-alert`, `ux4g-tag-tonal-*`, `ux4g-container`);
+  icons via `components/Icon.tsx`; deep-blue headings via `var(--gx-navy-800)`. Bootstrap is gone —
+  a bare `card`/`btn`/`small`/`container` class styles nothing. No bespoke CSS when a UX4G
+  token/class exists; when there is genuinely none, add a `gx-`prefixed rule to `design-system.css`
+  built from tokens.
+- `ux4g-heading-*`/`ux4g-body-*`/`ux4g-label-*` only apply when first in the class attribute
+  (`[class^=]`); `ux4g-fs-*` applies anywhere (`[class*=]`).
 - Every new screen passes `scripts/verify_screens.py` (structure + reachability) and is linked
   from the `AppShell` nav or another page — orphaned routes fail the check.
 

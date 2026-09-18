@@ -34,11 +34,11 @@ export default function Trends({ params }: { params: { id: string } }) {
   return wrap(
     <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
       <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8"><div className="gx-card ux4g-h-100"><div className="gx-card-body">
-        <h2 className="h6">GovUX Score over time</h2>
+        <h2 className="ux4g-heading-2xs-strong">GovUX Score over time</h2>
         <div className="ux4g-d-flex ux4g-ai-end ux4g-gap-m ux4g-mt-s" style={{ height: 180 }}>
           {asc.map(h => (
             <div key={h.task_id} className="ux4g-text-center ux4g-flex-grow-1">
-              <div style={{ height: `${(h.score / max) * 150}px`, background: "#0d6efd", borderRadius: "6px 6px 0 0" }} />
+              <div style={{ height: `${(h.score / max) * 150}px`, background: "var(--gx-action)", borderRadius: "6px 6px 0 0" }} />
               <div className="ux4g-fw-bold ux4g-mt-2xs">{Math.round(h.score)}</div>
               <div className="gx-muted" style={{ fontSize: 10 }}>{fmt(h.date)}</div>
             </div>
@@ -53,9 +53,9 @@ export default function Trends({ params }: { params: { id: string } }) {
             const prev = hist[i + 1];   // next in the newest-first list = older run
             const delta = prev ? Math.round(h.score - prev.score) : null;
             return (
-              <tr key={h.task_id}><td className="small">{fmt(h.date)}</td>
+              <tr key={h.task_id}><td className="ux4g-fs-14">{fmt(h.date)}</td>
                 <td className="ux4g-fw-bold">{Math.round(h.score)}</td>
-                <td className="small gx-num ux4g-fw-semibold" style={{
+                <td className="ux4g-fs-14 gx-num ux4g-fw-semibold" style={{
                   color: delta == null ? "var(--gx-text-muted)"
                     : delta > 0 ? "var(--gx-band-A)" : delta < 0 ? "var(--gx-band-E)" : "var(--gx-text-muted)" }}>
                   {delta == null ? "baseline" : `${delta >= 0 ? "+" : ""}${delta}`}</td></tr>

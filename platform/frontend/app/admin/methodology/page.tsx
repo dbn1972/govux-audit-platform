@@ -18,19 +18,19 @@ export default function Methodology() {
         </div>
 
         <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
-          <h2 className="h5">Two verdicts, never conflated</h2>
+          <h2 className="ux4g-heading-2xs-strong">Two verdicts, never conflated</h2>
           <p className="ux4g-mb-xs">Every audit produces two independent results:</p>
           <ul>
             <li><b>UX band (A–E)</b> — an aspirational, comparable quality score across 8 weighted
               categories. Good for league tables and trend-tracking.</li>
             <li><b>Legal compliance status</b> — a hard, WCAG 2.2 AA-anchored pass/fail signal.
-              A site can hold a decent band and still be <span className="ux4g-badge-m bg-danger">non-compliant</span>;
+              A site can hold a decent band and still be <span className="ux4g-tag-filled-error ux4g-tag-s">non-compliant</span>;
               we surface that instead of hiding it inside the band.</li>
           </ul>
         </div></div>
 
         <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
-          <h2 className="h5">Two-tier rigour</h2>
+          <h2 className="ux4g-heading-2xs-strong">Two-tier rigour</h2>
           <p className="ux4g-mb-xs">Automated testing catches only ~30–40% of WCAG issues (UK GDS / Deque).
             So our methodology is explicit:</p>
           <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-s">
@@ -42,12 +42,12 @@ export default function Methodology() {
                 <td><span className="ux4g-tag-tonal-success ux4g-tag-s">compliant</span> possible</td></tr>
             </tbody>
           </table></div>
-          <p className="small gx-muted ux4g-mb-none">An automated run can never yield a full compliance
+          <p className="ux4g-fs-14 gx-muted ux4g-mb-none">An automated run can never yield a full compliance
             claim — that requires human review. This is enforced in the scoring engine.</p>
         </div></div>
 
         <div className="gx-card"><div className="gx-card-body">
-          <h2 className="h5">No accessibility overlays</h2>
+          <h2 className="ux4g-heading-2xs-strong">No accessibility overlays</h2>
           <p className="ux4g-mb-none">Overlay widgets (accessiBe / UserWay-type) create legal risk and a false
             sense of compliance. The engine <b>flags</b> them and we require the underlying markup to be
             fixed — overlays never count toward a passing result.</p>

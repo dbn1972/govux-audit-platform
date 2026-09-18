@@ -17,5 +17,7 @@ test("non-gov URL is rejected client-side before any request", async ({ page }) 
 
 test("public sample report renders its score card", async ({ page }) => {
   await page.goto("/report");
-  await expect(page.getByText(/Category sub-scores/i)).toBeVisible();
+  // "Category sub-scores" was renamed to "Where the points went" when the
+  // design system landed (bc06084); this assertion was not updated with it.
+  await expect(page.getByRole("heading", { name: /Where the points went/i })).toBeVisible();
 });

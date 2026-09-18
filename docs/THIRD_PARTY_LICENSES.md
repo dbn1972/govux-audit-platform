@@ -62,8 +62,8 @@ Playwright downloads **Chromium** (BSD-style), **Firefox** (MPL-2.0), and
 |---|---|---|
 | next | 14.2.3 | MIT |
 | react / react-dom | 18.3.1 | MIT |
-| bootstrap | 5.3.3 | MIT |
-| bootstrap-icons | 1.11.3 | MIT |
+| ux4g-web-components | 2.1.0 | MIT |
+| lucide-react | 1.47.0 | ISC |
 | typescript | 5.4.5 | Apache-2.0 |
 | vitest | 1.6.0 | MIT |
 

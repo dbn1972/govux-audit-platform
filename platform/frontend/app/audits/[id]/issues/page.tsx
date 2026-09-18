@@ -64,13 +64,13 @@ export default function Issues({ params }: { params: { id: string } }) {
           )}
         </div>
         {aiState === "unavailable" && (
-          <div className="ux4g-alert ux4g-alert-info ux4g-py-xs small">
+          <div className="ux4g-alert ux4g-alert-info ux4g-py-xs ux4g-fs-14">
             Advisory AI is off. A steward can enable it in <b>Configuration → Advisory AI</b>. The
             deterministic fix guidance below still applies.
           </div>
         )}
         {aiState === "done" && (
-          <div className="ux4g-alert ux4g-alert-info ux4g-py-xs small">
+          <div className="ux4g-alert ux4g-alert-info ux4g-py-xs ux4g-fs-14">
             <Icon name="stars" size={16} className="ux4g-mr-2xs" />AI guidance is <b>advisory</b> — plain-language help for the top issues. It never affects the score or verdict.
           </div>
         )}
@@ -84,19 +84,19 @@ export default function Issues({ params }: { params: { id: string } }) {
                   <td data-label="Issue">
                     <div className="gx-cell-primary">{f.title || f.guideline}</div>
                     {f.remediation && (
-                      <div className="gx-muted small ux4g-mt-2xs">
+                      <div className="gx-muted ux4g-fs-14 ux4g-mt-2xs">
                         <Icon name="arrow-return-right" size={16} className="ux4g-mr-2xs" />{f.remediation}
                       </div>
                     )}
                     {ai[f.id] && (
-                      <div className="small ux4g-mt-2xs ux4g-p-xs ux4g-radius-m" style={{ background: "var(--bs-tertiary-bg, #f6f8fa)", whiteSpace: "pre-line" }}>
+                      <div className="ux4g-fs-14 ux4g-mt-2xs ux4g-p-xs ux4g-radius-m" style={{ background: "var(--gx-surface-muted)", whiteSpace: "pre-line" }}>
                         <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">
                           <Icon name="stars" size={16} className="ux4g-mr-2xs" />AI advisory</span>{ai[f.id]}
                       </div>
                     )}
                   </td>
                   <td data-label="Category"><span className="ux4g-tag-tonal-neutral ux4g-tag-s">{f.category}</span></td>
-                  <td data-label="Guideline"><code className="small">{f.guideline}</code></td>
+                  <td data-label="Guideline"><code className="ux4g-fs-14">{f.guideline}</code></td>
                   <td data-label="Severity"><span className={SEV[f.severity as keyof typeof SEV] || "ux4g-tag-tonal-neutral ux4g-tag-s"}>{f.severity}</span></td>
                 </tr>
               ))}

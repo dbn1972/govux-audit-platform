@@ -33,16 +33,16 @@ export default function Remediation({ params }: { params: { id: string } }) {
         <div className="ux4g-d-flex ux4g-flex-column ux4g-gap-xs">
           {items.map((f, i) => (
             <div className="gx-card" key={i}>
-              <div className="card-body ux4g-d-flex ux4g-gap-s ux4g-ai-start">
+              <div className="gx-card-body ux4g-d-flex ux4g-gap-s ux4g-ai-start">
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s" style={{ minWidth: 34 }}>#{i + 1}</span>
                 <div className="ux4g-flex-grow-1" style={{ minWidth: 0 }}>
                   <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center">
                     <b>{f.title || f.guideline}</b>
                     <span className={SEV[f.severity as keyof typeof SEV] || "ux4g-tag-tonal-neutral ux4g-tag-s"}>{f.severity}</span>
-                    <span className="ux4g-badge-m bg-secondary">{f.category}</span>
+                    <span className="ux4g-tag-tonal-neutral ux4g-tag-s">{f.category}</span>
                   </div>
                   <div className="ux4g-mt-2xs">{f.remediation}</div>
-                  {f.code_hint && <div className="gx-muted small font-monospace ux4g-mt-2xs" style={{ overflowWrap: "anywhere" }}>{f.code_hint}</div>}
+                  {f.code_hint && <div className="gx-muted ux4g-fs-14 gx-mono ux4g-mt-2xs" style={{ overflowWrap: "anywhere" }}>{f.code_hint}</div>}
                 </div>
                 <span className="ux4g-tag-tonal-success ux4g-tag-s" title="impact x effort priority">
                   P{f.priority}

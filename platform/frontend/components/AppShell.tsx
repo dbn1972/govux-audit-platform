@@ -115,11 +115,11 @@ function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
 
 function AccessDenied() {
   return (
-    <div className="container-fluid ux4g-p-m">
+    <div className="ux4g-container-fluid ux4g-p-m">
       <div className="gx-card ux4g-mx-auto ux4g-mt-xl" style={{ maxWidth: 520 }}>
         <div className="gx-card-body ux4g-text-center ux4g-p-m">
           <div className="gx-empty-icon ux4g-mb-s"><Icon name="shield-lock" size={24} /></div>
-          <h1 className="h4" style={{ color: "var(--ux-navy)" }}>This area is for MeitY/NIC stewards</h1>
+          <h1 className="ux4g-heading-xs-strong" style={{ color: "var(--gx-navy-800)" }}>This area is for MeitY/NIC stewards</h1>
           <p className="gx-muted">
             National oversight, rankings, monitoring and platform configuration are available to
             programme stewards only. Your account manages your own organisation’s domains and audits.
@@ -142,7 +142,7 @@ function IdleWarning({ secondsLeft, onContinue, onSignOut }:
       <div ref={panel} className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
         <div className="gx-card-body ux4g-p-m ux4g-text-center">
           <div className="gx-empty-icon ux4g-mb-s"><Icon name="hourglass-split" size={24} /></div>
-          <h2 id="idle-warning-title" className="h5">Still there?</h2>
+          <h2 id="idle-warning-title" className="ux4g-heading-2xs-strong">Still there?</h2>
           <p className="gx-muted ux4g-mb-s">
             You've been inactive — for your security, you'll be signed out in{" "}
             <strong>{secondsLeft}s</strong> unless you continue.
@@ -388,8 +388,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           }}>
           <div className="ux4g-d-flex ux4g-ai-center ux4g-jc-between ux4g-px-xs ux4g-pb-xs ux4g-mb-2xs ux4g-bb-1">
             <span className="ux4g-fw-bold ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
-              <span className="ux4g-d-inline-flex ux4g-ai-center ux4g-jc-center ux4g-text-white ux4g-fw-bold"
-                style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#0a3d7a,#0d6efd)", fontSize: 13 }}>GX</span>
+              <BrandMark size={30} />
               GovUX
             </span>
             <button type="button" onClick={() => setOpen(false)}
@@ -409,7 +408,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <div ref={signOutPanel} className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
             <div className="gx-card-body ux4g-text-center">
               <div className="gx-empty-icon ux4g-mb-s"><Icon name="box-arrow-right" size={24} /></div>
-              <h2 id="signout-title" className="h5">Sign out?</h2>
+              <h2 id="signout-title" className="ux4g-heading-2xs-strong">Sign out?</h2>
               <p className="gx-muted ux4g-mb-s">
                 You'll need a new one-time code by email to sign back in.
               </p>

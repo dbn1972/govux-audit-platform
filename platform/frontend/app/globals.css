@@ -1,24 +1,15 @@
-/* Thin GovUX layer on top of Bootstrap 5 + the UX4G theme.
-   Bootstrap provides the components; this file only adds the few
-   app-specific helpers not covered by the framework. */
+/* App-specific helpers that belong to neither UX4G nor the gx product layer.
+   Loads last. Everything Bootstrap-shaped that used to live here — the .small
+   and .text-muted AA overrides, the .btn-outline-secondary colour pins and the
+   .badge.text-bg-*-subtle pairs — went out with Bootstrap: those class names
+   have no markup behind them any more, and UX4G's own tokens carry the
+   contrast guarantees they existed to patch. */
 
-body { background: var(--bs-body-bg); }
-
-/* score bar (report / compatibility screens) */
-.score-bar { height: 9px; border-radius: 6px; background: #edf1f5; overflow: hidden; }
-.score-bar > i { display: block; height: 100%; border-radius: 6px; }
-
-/* OTP boxes */
-.otp-boxes { display: flex; gap: 8px; }
-.otp-boxes input {
-  width: 46px; height: 54px; text-align: center; font-size: 22px; font-weight: 700;
-  border: 1px solid var(--bs-border-color); border-radius: .5rem; outline: 0;
-  color: var(--ux-navy);
-}
-.otp-boxes input:focus { border-color: var(--bs-primary); box-shadow: 0 0 0 .2rem rgba(13,110,253,.2); }
-
-/* score ring number */
-.score-value { font-size: 44px; font-weight: 800; color: var(--ux-navy); line-height: 1; }
+/* The product frame sits on the sunken ground, not UX4G's default surface, so
+   cards and tables read as raised. UX4G's --ux4g-bg-* tokens flip with the
+   theme; --gx-surface-sunken is redeclared under [data-theme="dark"] in
+   design-system.css, so this one line covers both themes. */
+body { background: var(--gx-surface-sunken); }
 
 /* --- Responsive data tables ---------------------------------------------------
    Data tables clip on phones (off-screen columns behind a horizontal scroll).
@@ -29,48 +20,16 @@ body { background: var(--bs-body-bg); }
   .gx-responsive thead { display: none; }
   .gx-responsive, .gx-responsive tbody, .gx-responsive tr, .gx-responsive td { display: block; width: 100%; }
   .gx-responsive tr {
-    border: 1px solid var(--bs-border-color); border-radius: .6rem;
-    margin-bottom: .6rem; padding: .15rem .1rem; background: #fff;
+    border: 1px solid var(--gx-border); border-radius: .6rem;
+    margin-bottom: .6rem; padding: .15rem .1rem; background: var(--gx-surface);
   }
   .gx-responsive td {
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     border: 0; padding: .4rem .8rem; text-align: right;
   }
   .gx-responsive td::before {
-    content: attr(data-label); font-weight: 600; color: #5c636a;
+    content: attr(data-label); font-weight: 600; color: var(--gx-text-muted);
     text-align: left; margin-right: auto;
   }
   .gx-responsive td:empty, .gx-responsive td[data-label=""]:empty { display: none; }
 }
-
-/* --- AA-safe muted text ------------------------------------------------------
-   Bootstrap's default secondary/muted grey (#6c757d) is only 4.44:1 on the
-   #f8f9fa page ground — just under WCAG 2.2 AA (4.5:1). Darken it to #5c636a
-   (~5.3:1 on light) so every `.text-secondary` / `.text-muted` clears AA. On
-   dark grounds, use an explicit light colour at the element (never these). */
-.text-secondary, .text-muted { color: #5c636a !important; }
-:root { --bs-secondary-color: #5c636a; --bs-tertiary-color: #5c636a; }
-
-/* `.btn-outline-secondary` renders its label in #6c757d (4.44:1 resting) and
-   fills to #6c757d on hover (white text → 4.44:1). Both miss AA — darken the
-   button's colour tokens to #5c636a so resting and hover states clear 4.5:1. */
-.btn-outline-secondary {
-  --bs-btn-color: #5c636a;
-  --bs-btn-hover-bg: #5c636a;
-  --bs-btn-hover-border-color: #5c636a;
-  --bs-btn-active-bg: #5c636a;
-  --bs-btn-active-border-color: #5c636a;
-}
-
-/* --- AA-safe "subtle" badges -------------------------------------------------
-   `text-bg-*-subtle` isn't a real Bootstrap utility, so those badges rendered
-   with a light ground and near-invisible text (e.g. the old "Minor"/"Pending").
-   Pair each subtle background with Bootstrap's matching *-text-emphasis token —
-   those pairs are engineered to clear WCAG 2.2 AA (≥4.5:1). Fixes every such
-   badge across the app at the source. Ironic to leave broken on a11y software. */
-.badge.text-bg-primary-subtle   { background-color: var(--bs-primary-bg-subtle);   color: var(--bs-primary-text-emphasis)   !important; }
-.badge.text-bg-secondary-subtle { background-color: var(--bs-secondary-bg-subtle); color: var(--bs-secondary-text-emphasis) !important; }
-.badge.text-bg-success-subtle   { background-color: var(--bs-success-bg-subtle);   color: var(--bs-success-text-emphasis)   !important; }
-.badge.text-bg-warning-subtle   { background-color: var(--bs-warning-bg-subtle);   color: var(--bs-warning-text-emphasis)   !important; }
-.badge.text-bg-danger-subtle    { background-color: var(--bs-danger-bg-subtle);    color: var(--bs-danger-text-emphasis)    !important; }
-.badge.text-bg-info-subtle      { background-color: var(--bs-info-bg-subtle);      color: var(--bs-info-text-emphasis)      !important; }

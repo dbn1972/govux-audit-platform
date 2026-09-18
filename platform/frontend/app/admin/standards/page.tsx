@@ -36,11 +36,11 @@ export default function Standards() {
               {WEIGHTS.map(([name, wt]) => (
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-s ux4g-my-xs" key={name as string}>
                   <div style={{ width: 220, fontSize: 13 }}>{name}</div>
-                  <div className="score-bar ux4g-flex-grow-1"><i style={{ width: `${(wt as number) * 4}%`, background: "#0d6efd" }} /></div>
+                  <div className="gx-score-bar ux4g-flex-grow-1"><i style={{ width: `${(wt as number) * 4}%`, background: "var(--gx-action)" }} /></div>
                   <b style={{ width: 40, textAlign: "right", color: "var(--gx-navy-800)" }}>{wt}%</b>
                 </div>
               ))}
-              <div className="ux4g-alert ux4g-alert-info small ux4g-mt-xs ux4g-mb-none">
+              <div className="ux4g-alert ux4g-alert-info ux4g-fs-14 ux4g-mt-xs ux4g-mb-none">
                 ℹ Weight changes apply only to <b>future</b> audits and create a new engine version. Past scores stay tied to their version.
               </div>
             </div>
@@ -54,10 +54,10 @@ export default function Standards() {
                 <label className="ux4g-switch ux4g-switch-md" key={label as string}>
                   <input className="ux4g-switch-input" type="checkbox" defaultChecked={on as boolean} />
                   <div className="ux4g-switch-control"><span className="ux4g-switch-track"><span className="ux4g-switch-thumb"></span></span></div>
-                  <div className="ux4g-switch-content"><span className="ux4g-switch-label small">{label}</span></div>
+                  <div className="ux4g-switch-content"><span className="ux4g-switch-label ux4g-fs-14">{label}</span></div>
                 </label>
               ))}
-              <div className="ux4g-alert ux4g-alert-warning small ux4g-mt-s ux4g-mb-none">🔐 Only Programme-Admins can publish; changes require a second approver.</div>
+              <div className="ux4g-alert ux4g-alert-warning ux4g-fs-14 ux4g-mt-s ux4g-mb-none">🔐 Only Programme-Admins can publish; changes require a second approver.</div>
             </div>
           </div></div>
         </div>

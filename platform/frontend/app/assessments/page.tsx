@@ -166,7 +166,7 @@ export default function Assessments() {
             {rows && rows.length === 0 && (
               <div className="gx-empty">
                 <div className="gx-empty-icon"><Icon name="shield-check" size={24} /></div>
-                <h3 className="h6 ux4g-mt-s ux4g-mb-2xs">No external assessments yet</h3>
+                <h3 className="ux4g-heading-2xs-strong ux4g-mt-s ux4g-mb-2xs">No external assessments yet</h3>
                 <p className="gx-muted ux4g-mb-none">
                   {canWrite
                     ? "Record VAPT, native-app accessibility, lived-experience panels or STQC outcomes above — they travel with every evidence pack."
@@ -186,16 +186,16 @@ export default function Assessments() {
                   <tbody>
                     {rows.map(a => (
                       <tr key={a.id}>
-                        <td className="small">{KIND_LABEL[a.kind] || a.kind}</td>
-                        <td className="ux4g-fw-semibold small">{a.title}
+                        <td className="ux4g-fs-14">{KIND_LABEL[a.kind] || a.kind}</td>
+                        <td className="ux4g-fw-semibold ux4g-fs-14">{a.title}
                           {a.summary && <div className="ux4g-fw-regular gx-muted">{a.summary}</div>}
                         </td>
-                        <td className="small">{a.domain || "Org-wide"}</td>
-                        <td className="small">{a.agency || "—"}</td>
-                        <td className="small">{a.assessed_on || "—"}</td>
+                        <td className="ux4g-fs-14">{a.domain || "Org-wide"}</td>
+                        <td className="ux4g-fs-14">{a.agency || "—"}</td>
+                        <td className="ux4g-fs-14">{a.assessed_on || "—"}</td>
                         <td><span className={`ux4g-tag-s ${OUTCOME_STYLE[a.outcome] || "ux4g-tag-tonal-neutral"}`}>
                           {a.outcome.replace(/_/g, " ")}</span></td>
-                        <td className="small">{a.report_ref || "—"}</td>
+                        <td className="ux4g-fs-14">{a.report_ref || "—"}</td>
                       </tr>
                     ))}
                   </tbody>

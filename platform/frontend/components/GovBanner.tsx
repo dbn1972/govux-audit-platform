@@ -16,8 +16,13 @@ export default function GovBanner() {
   const [scale, setScale] = useState(100);
 
   useEffect(() => {
-    const stored = Number(localStorage.getItem(FONT_KEY));
-    if (stored >= MIN && stored <= MAX) setScale(stored);
+    // Same guard as the write below and the pre-paint script in layout.tsx:
+    // storage access throws outright when site data is blocked, and this bar
+    // renders on every page — an unguarded read takes the whole app down.
+    try {
+      const stored = Number(localStorage.getItem(FONT_KEY));
+      if (stored >= MIN && stored <= MAX) setScale(stored);
+    } catch { /* private mode */ }
   }, []);
 
   function apply(next: number) {
@@ -33,7 +38,7 @@ export default function GovBanner() {
           is the first thing rendered — a skip link that is not first is not a
           skip link. */}
       <a href="#main" className="gx-skip">Skip to main content</a>
-      <div className="container ux4g-d-flex ux4g-ai-center ux4g-jc-between ux4g-gap-s">
+      <div className="ux4g-container ux4g-d-flex ux4g-ai-center ux4g-jc-between ux4g-gap-s">
         <span className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
           <b>Government of India</b>
           <span className="ux4g-d-none ux4g-sm-d-inline gx-govbar-dept">

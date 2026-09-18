@@ -17,7 +17,7 @@ function contrast(fg: string, bg: string): number {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
-/** Bootstrap's card/table surface (--bs-body-bg), not white. */
+/** The product's page ground (--gx-surface-sunken), not white. */
 const SURFACE = BAND_SURFACE.light;
 
 /**

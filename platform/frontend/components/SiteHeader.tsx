@@ -17,7 +17,7 @@ export default function SiteHeader() {
   const onSignIn = usePathname() === "/login";
   return (
     <header className="gx-siteheader">
-      <div className="container ux4g-d-flex ux4g-ai-center ux4g-jc-between ux4g-gap-s ux4g-py-xs">
+      <div className="ux4g-container ux4g-d-flex ux4g-ai-center ux4g-jc-between ux4g-gap-s ux4g-py-xs">
         <Link href="/" className="gx-brand">
           <BrandMark size={40} />
           <span>
