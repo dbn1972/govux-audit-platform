@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
+import Spinner from "@/components/Spinner";
 import { BAND_COLOR as bandColor, bandFor } from "@/lib/score";
 import { relative } from "@/lib/format";
 
@@ -132,8 +133,8 @@ export default function Dashboard() {
             <Link href="/domains" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm">Manage domains</Link>
           </div>
         </div>
-        <div className="table-responsive">
-          <table className="gx-table gx-responsive">
+        <div className="ux4g-table-responsive ux4g-table-rounded">
+          <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead>
               <tr>
                 <th>Domain</th><th>Status</th><th>Latest score</th>
@@ -143,7 +144,7 @@ export default function Dashboard() {
             <tbody>
               {domains == null && (
                 <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m">
-                  <span className="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true" />Loading…
+                  <Spinner size="sm" className="ux4g-mr-xs" />Loading…
                 </td></tr>
               )}
               {domains?.length === 0 && !err && (

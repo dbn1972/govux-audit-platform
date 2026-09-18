@@ -63,19 +63,29 @@ export default function Registry() {
           </div>
           <div className="gx-card-body">
             <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center ux4g-mb-xs">
-              <input type="file" accept=".csv,text/csv" className="ux4g-input ux4g-w-100"
-                style={{ maxWidth: 320 }} aria-label="Choose a CSV file" onChange={onFile} />
+              <div className="ux4g-input-container ux4g-input-sm" style={{ maxWidth: 320 }}>
+                <div className="ux4g-input">
+                  <input type="file" accept=".csv,text/csv" className="ux4g-input-input"
+                    aria-label="Choose a CSV file" onChange={onFile} />
+                </div>
+              </div>
               <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm"
                 onClick={() => { setCsv(SAMPLE); setRes(null); }}>Use sample</button>
             </div>
-            <textarea className="ux4g-input ux4g-w-100 font-monospace" rows={10} spellCheck={false}
-              aria-label="Registry CSV contents"
-              placeholder={SAMPLE}
-              value={csv} onChange={(e) => { setCsv(e.target.value); setRes(null); }} />
-            <div className="form-text">
-              Required columns: <code>url</code>, <code>organisation</code>. Optional:{" "}
-              <code>org_type</code> (ministry/department/state/ut/psu/other),{" "}
-              <code>state_code</code>, <code>category</code>. Up to 5,000 rows per import.
+            <div className="ux4g-textarea-container ux4g-textarea-md ux4g-w-100">
+              <div className="ux4g-textarea">
+                <textarea className="ux4g-textarea-input font-monospace" rows={10} spellCheck={false}
+                  aria-label="Registry CSV contents"
+                  placeholder={SAMPLE}
+                  value={csv} onChange={(e) => { setCsv(e.target.value); setRes(null); }} />
+              </div>
+              <div className="ux4g-input-helper">
+                <span className="ux4g-input-helper-text">
+                  Required columns: <code>url</code>, <code>organisation</code>. Optional:{" "}
+                  <code>org_type</code> (ministry/department/state/ut/psu/other),{" "}
+                  <code>state_code</code>, <code>category</code>. Up to 5,000 rows per import.
+                </span>
+              </div>
             </div>
           </div>
           <div className="gx-card-body ux4g-d-flex ux4g-gap-xs ux4g-ai-center ux4g-flex-wrap"
@@ -135,14 +145,14 @@ export default function Registry() {
               )}
 
               {res.errors.length > 0 && (
-                <div className="table-responsive">
-                  <table className="gx-table gx-responsive">
+                <div className="ux4g-table-responsive ux4g-table-rounded">
+                  <table className="ux4g-table ux4g-table-m gx-responsive">
                     <thead><tr><th>Row</th><th>Value</th><th>Problem</th></tr></thead>
                     <tbody>
                       {res.errors.map((e, i) => (
                         <tr key={i}>
                           <td data-label="Row" className="small gx-num">{e.row}</td>
-                          <td data-label="Value" className="small font-monospace">
+                          <td data-label="Value" className="small" style={{ fontFamily: "var(--ux4g-font-family-mono, ui-monospace, monospace)" }}>
                             {e.url || <span className="gx-muted">—</span>}</td>
                           <td data-label="Problem" className="small" style={{ color: "var(--gx-band-E)" }}>
                             {e.error}</td>
@@ -151,7 +161,7 @@ export default function Registry() {
                     </tbody>
                   </table>
                   {res.errors_truncated > 0 && (
-                    <div className="form-text">…and {res.errors_truncated} more rows with problems.</div>
+                    <span className="ux4g-label-s-default gx-muted">…and {res.errors_truncated} more rows with problems.</span>
                   )}
                 </div>
               )}

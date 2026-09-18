@@ -3,6 +3,7 @@ import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 import { relative, absolute } from "@/lib/format";
 
@@ -12,8 +13,8 @@ import { relative, absolute } from "@/lib/format";
 // cannot decide) and every decision is persisted as it is made.
 
 const VERDICT_STYLE: Record<string, string> = {
-  compliant: "text-bg-success", partially_compliant: "text-bg-warning-subtle",
-  non_compliant: "text-bg-danger",
+  compliant: "ux4g-tag-tonal-success ux4g-tag-s", partially_compliant: "ux4g-tag-tonal-warning ux4g-tag-s",
+  non_compliant: "ux4g-tag-tonal-error ux4g-tag-s",
 };
 // Phrased as the UX4G self-health-check does — a reviewer answers "does the site
 // do this?", which is a question about the site, not a verdict on the guideline.
@@ -258,7 +259,7 @@ export default function Review() {
 
               <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
                 <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6">
-                  <label className="form-label" htmlFor="assess-domain">Website</label>
+                  <label className="ux4g-label-m-default" htmlFor="assess-domain">Website</label>
                   <select id="assess-domain" className="ux4g-form-select ux4g-mb-s" defaultValue=""
                     onChange={(e) => e.target.value &&
                       startAssessment({ domain_id: e.target.value, platform: "website" })}
@@ -274,7 +275,7 @@ export default function Review() {
                       organisation has not registered — or cannot, because
                       another department holds the claim. Registering is not a
                       precondition for answering questions about one. */}
-                  <label className="form-label" htmlFor="assess-url">
+                  <label className="ux4g-label-m-default" htmlFor="assess-url">
                     …or any <code>.gov.in</code> / <code>.nic.in</code> address
                   </label>
                   <div className="ux4g-d-flex ux4g-gap-xs">
@@ -286,13 +287,13 @@ export default function Review() {
                       Start website
                     </button>
                   </div>
-                  <div className="form-text">
+                  <div className="ux4g-input-helper"><span className="ux4g-input-helper-text">
                     Verification is only needed to run the engine, not to assess by hand.
-                  </div>
+                  </span></div>
                 </div>
 
                 <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6">
-                  <label className="form-label" htmlFor="assess-app">Mobile app</label>
+                  <label className="ux4g-label-m-default" htmlFor="assess-app">Mobile app</label>
                   <div className="ux4g-d-flex ux4g-gap-xs">
                     <input id="assess-app" className="ux4g-input ux4g-w-100" value={appName}
                       placeholder="e.g. India Post Mobile"
@@ -302,9 +303,9 @@ export default function Review() {
                       Start app
                     </button>
                   </div>
-                  <div className="form-text">
+                  <div className="ux4g-input-helper"><span className="ux4g-input-helper-text">
                     Scoped to the guidelines that apply to a native app.
-                  </div>
+                  </span></div>
                 </div>
               </div>
 
@@ -318,9 +319,10 @@ export default function Review() {
                 return (
                   <div key={heading as string}>
                     <h3 className="h6 ux4g-mt-m ux4g-mb-xs">{heading as string}</h3>
-                    <ul className="list-group">
+                    <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                       {rows.map((a: any) => (
-                        <li key={a.id} className="list-group-item ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
+                        <li key={a.id} className="ux4g-list-item">
+                          <div className="ux4g-list-item-row ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
                           <div>
                             <div className="ux4g-fw-semibold">{a.subject}</div>
                             <div className="gx-muted small">
@@ -334,6 +336,7 @@ export default function Review() {
                                 className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm ux4g-ml-auto">
                             {done ? "View" : "Continue"}
                           </Link>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -351,9 +354,7 @@ export default function Review() {
                 <b> “Certify (expert review)”</b> action that opens it here directly.
               </p>
               {choices === null && (
-                <div className="spinner-border spinner-border-sm gx-muted" role="status">
-                  <span className="ux4g-sr-only">Loading audits…</span>
-                </div>
+                <Spinner size="sm" label="Loading audits…" className="gx-muted" />
               )}
               {choices?.length === 0 && (
                 <div className="ux4g-alert ux4g-alert-info ux4g-mb-none" role="alert">
@@ -362,10 +363,10 @@ export default function Review() {
                 </div>
               )}
               {!!choices?.length && (
-                <ul className="list-group">
+                <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                   {choices.map((c: any) => (
-                    <li key={c.task_id}
-                        className="list-group-item ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
+                    <li key={c.task_id} className="ux4g-list-item">
+                      <div className="ux4g-list-item-row ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
                       <div>
                         <div className="ux4g-fw-semibold">{c.domain}</div>
                         <div className="gx-muted small">
@@ -379,6 +380,7 @@ export default function Review() {
                             className="ux4g-btn ux4g-btn-primary ux4g-btn-sm ux4g-ml-auto">
                         Review
                       </Link>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -414,7 +416,7 @@ export default function Review() {
                 {taskId && audit && (
                   <>
                     <div className="gx-muted small">Current legal verdict</div>
-                    <span className={`ux4g-badge-m ${VERDICT_STYLE[audit.compliance_status] || "text-bg-secondary"}`}>
+                    <span className={VERDICT_STYLE[audit.compliance_status] || "ux4g-tag-tonal-neutral ux4g-tag-s"}>
                       {(audit.compliance_status || "—").replace(/_/g, " ")}
                     </span>
                     <span className="gx-muted small ux4g-ml-xs">({audit.confidence || "automated_only"})</span>
@@ -423,8 +425,8 @@ export default function Review() {
                 {assessmentId && data && (
                   <>
                     <div className="gx-muted small">Status</div>
-                    <span className={`ux4g-badge-m ${locked
-                      ? VERDICT_STYLE[data.verdict] || "text-bg-secondary" : "text-bg-secondary"}`}>
+                    <span className={locked
+                      ? VERDICT_STYLE[data.verdict] || "ux4g-tag-tonal-neutral ux4g-tag-s" : "ux4g-tag-tonal-neutral ux4g-tag-s"}>
                       {locked ? (data.verdict || "signed off").replace(/_/g, " ") : "in progress"}
                     </span>
                     {locked && data.signed_off_at && (
@@ -451,7 +453,7 @@ export default function Review() {
                   which corpus the answers already recorded belong to. */}
               {taskId && (
               <div>
-                <span className="form-label small ux4g-fw-semibold ux4g-mb-2xs ux4g-d-block">Platform</span>
+                <span className="ux4g-label-m-default small ux4g-fw-semibold ux4g-mb-2xs ux4g-d-block">Platform</span>
                 <div className="ux4g-d-inline-flex ux4g-gap-2xs" role="group" aria-label="Platform being reviewed">
                   {/* "Mobile app", not "App": the UX4G self-check's own Mobile
                       toggle means anything that renders on a phone, responsive
@@ -468,7 +470,7 @@ export default function Review() {
               </div>
               )}
               <div>
-                <label htmlFor="rev-tier" className="form-label small ux4g-fw-semibold ux4g-mb-2xs">Enforcement tier</label>
+                <label htmlFor="rev-tier" className="ux4g-label-m-default small ux4g-fw-semibold ux4g-mb-2xs">Enforcement tier</label>
                 <select id="rev-tier" className="ux4g-form-select" style={{ minWidth: 170 }}
                   value={tier} onChange={e => setTier(e.target.value)}>
                   {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
@@ -476,7 +478,7 @@ export default function Review() {
                 </select>
               </div>
               <div>
-                <label htmlFor="rev-std" className="form-label small ux4g-fw-semibold ux4g-mb-2xs">Compliance</label>
+                <label htmlFor="rev-std" className="ux4g-label-m-default small ux4g-fw-semibold ux4g-mb-2xs">Compliance</label>
                 <select id="rev-std" className="ux4g-form-select" style={{ minWidth: 215 }}
                   value={standard} onChange={e => setStandard(e.target.value)}>
                   <option value="">All compliances ({data?.reviewable_total ?? "—"})</option>
@@ -485,7 +487,7 @@ export default function Review() {
                 </select>
               </div>
               <div>
-                <label htmlFor="rev-cat" className="form-label small ux4g-fw-semibold ux4g-mb-2xs">Category</label>
+                <label htmlFor="rev-cat" className="ux4g-label-m-default small ux4g-fw-semibold ux4g-mb-2xs">Category</label>
                 <select id="rev-cat" className="ux4g-form-select" style={{ minWidth: 260 }}
                   value={category} onChange={e => setCategory(e.target.value)}>
                   <option value="">All categories</option>
@@ -511,11 +513,11 @@ export default function Review() {
               </div>
             </div>
             <div className="ux4g-flex-grow-1" style={{ minWidth: 160 }}>
-              <div className="progress" style={{ height: 8 }}
-                role="progressbar" aria-label="Review progress"
-                aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-                <div className="progress-bar" style={{ width: `${pct}%` }} />
-              </div>
+              <article className="ux4g-progress-bar" role="progressbar" aria-label="Review progress"
+                aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}
+                data-ux-progress-bar data-ux-shape="rounded" data-ux-label-placement="outside">
+                <div className="ux4g-progress-bar-track"><div className="ux4g-progress-bar-fill" style={{ width: `${pct}%` }} /></div>
+              </article>
             </div>
             {data.failed > 0 && (
               <div className="ux4g-text-end">
@@ -541,7 +543,7 @@ export default function Review() {
         {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs" role="alert">✗ {err}</div>}
         {loading && !data && (
           <div className="gx-muted small ux4g-py-s">
-            <span className="spinner-border spinner-border-sm me-2" role="status" />Loading…
+            <Spinner size="sm" className="ux4g-mr-xs" />Loading…
           </div>
         )}
 
@@ -615,14 +617,14 @@ export default function Review() {
                       <span className="gx-chip">{it.category}</span>
                       {it.severity && <span className="gx-chip">{it.severity}</span>}
                       {it.automation === "assisted" && (
-                        <span className="ux4g-badge-m text-bg-info-subtle"
+                        <span className="ux4g-tag-tonal-info ux4g-tag-s"
                           title="Machine gathers evidence, a human decides">assisted</span>
                       )}
                     </div>
                     {it.issue && <div className="gx-muted small ux4g-mt-xs">{it.issue}</div>}
                     {it.advice && (
                       <details className="small ux4g-mt-xs">
-                        <summary style={{ cursor: "pointer", color: "var(--bs-link-color)" }}>
+                        <summary style={{ cursor: "pointer", color: "var(--ux4g-text-brand-primary-default)" }}>
                           How to meet it
                         </summary>
                         <div className="ux4g-mt-xs">{it.advice}</div>
@@ -699,7 +701,7 @@ export default function Review() {
                 </div>
               ) : (
               <>
-              <label htmlFor="review-notes" className="form-label">
+              <label htmlFor="review-notes" className="ux4g-label-m-default">
                 Assessor notes <span className="gx-muted ux4g-fw-regular">(optional)</span>
               </label>
               <textarea id="review-notes" className="ux4g-input ux4g-w-100 ux4g-mb-s" rows={2}

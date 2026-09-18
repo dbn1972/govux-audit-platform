@@ -75,10 +75,14 @@ export default function Login() {
               <p className="gx-muted small ux4g-mb-s">
                 Enter your official government email. We&apos;ll send a one-time password.
               </p>
-              <label htmlFor="login-email" className="form-label">Government email</label>
-              <input id="login-email" type="email" autoComplete="email" className="ux4g-input ux4g-w-100" value={email}
-                onChange={e => setEmail(e.target.value)} placeholder="name.dept@nic.in" />
-              <div className="form-text">Only <b>.gov.in</b> / <b>.nic.in</b> are accepted.</div>
+              <div className="ux4g-input-container ux4g-input-md ux4g-input-default">
+                <label htmlFor="login-email" className="ux4g-label-m-default">Government email</label>
+                <div className="ux4g-input">
+                  <input id="login-email" type="email" autoComplete="email" className="ux4g-input-input" value={email}
+                    onChange={e => setEmail(e.target.value)} placeholder="name.dept@nic.in" />
+                </div>
+              </div>
+              <div className="ux4g-input-helper"><span className="ux4g-input-helper-text">Only <b>.gov.in</b> / <b>.nic.in</b> are accepted.</span></div>
               {err && <div className="ux4g-text-error small ux4g-mt-2xs" role="alert">✗ {err}</div>}
               <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100 ux4g-mt-s" onClick={sendOtp} disabled={busy}>
                 {busy ? "Sending…" : "Send OTP"}</button>
@@ -88,11 +92,15 @@ export default function Login() {
               <p className="gx-muted small ux4g-mb-s">
                 Enter the 6-digit OTP sent to <b>{email}</b>.
               </p>
-              <label htmlFor="login-otp" className="form-label">One-time password</label>
-              <input id="login-otp" className="ux4g-input ux4g-w-100 ux4g-text-center" inputMode="numeric" maxLength={6}
-                autoComplete="one-time-code" aria-label="6-digit one-time password"
-                value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
-                placeholder="••••••" style={{ letterSpacing: 8, fontSize: 20 }} />
+              <div className="ux4g-input-container ux4g-input-md ux4g-input-default">
+                <label htmlFor="login-otp" className="ux4g-label-m-default">One-time password</label>
+                <div className="ux4g-input">
+                  <input id="login-otp" className="ux4g-input-input ux4g-text-center" inputMode="numeric" maxLength={6}
+                    autoComplete="one-time-code" aria-label="6-digit one-time password"
+                    value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
+                    placeholder="••••••" style={{ letterSpacing: 8, fontSize: 20 }} />
+                </div>
+              </div>
               {err && <div className="ux4g-text-error small ux4g-mt-2xs" role="alert">✗ {err}</div>}
               <div className="ux4g-alert ux4g-alert-success ux4g-py-xs ux4g-mt-s small ux4g-mb-none">
                 <Icon name="shield-check" size={15} className="ux4g-mr-2xs" />

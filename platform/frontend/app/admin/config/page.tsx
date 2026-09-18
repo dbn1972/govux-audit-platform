@@ -91,7 +91,7 @@ export default function ConfigAdmin() {
             <div className="gx-card ux4g-mb-s">
               <div className="gx-card-head ux4g-d-flex ux4g-ai-center">
                 <Icon name="activity" size={16} className="ux4g-mr-xs" />Live health
-                <span className="ux4g-badge-m bg-success-subtle text-success-emphasis ux4g-ml-xs">auto · 5s</span>
+                <span className="ux4g-tag-tonal-success ux4g-tag-s ux4g-ml-xs">auto · 5s</span>
                 <span className="ux4g-ml-auto gx-muted" style={{ fontSize: 11 }}>
                   Prometheus: <code>GET /metrics</code>
                 </span>
@@ -126,31 +126,40 @@ export default function ConfigAdmin() {
                         being attached to any of them, so every one of them —
                         switch, secret, select and text alike — reached a screen
                         reader as an unnamed control. */}
-                    <label className="ux4g-cols-span-12 ux4g-sm-cols-span-6 col-form-label" htmlFor={`cfg-${s.key}`}>
+                    <label className="ux4g-cols-span-12 ux4g-sm-cols-span-6 ux4g-label-m-default" htmlFor={`cfg-${s.key}`}>
                       {s.label}
-                      {s.is_override && <span className="ux4g-badge-m bg-info-subtle text-info-emphasis ux4g-ml-xs">overridden</span>}
+                      {s.is_override && <span className="ux4g-tag-tonal-info ux4g-tag-s ux4g-ml-xs">overridden</span>}
                       <div className="gx-muted" style={{ fontSize: 11 }}><code>{s.key}</code></div>
                     </label>
                     <div className="ux4g-cols-span-12 ux4g-sm-cols-span-6">
                       {s.type === "bool" ? (
-                        <div className="form-check form-switch">
-                          <input className="form-check-input" type="checkbox" id={`cfg-${s.key}`}
+                        <label className="ux4g-switch ux4g-switch-md">
+                          <input className="ux4g-switch-input" type="checkbox" id={`cfg-${s.key}`}
                             checked={val === true || val === "true"}
                             onChange={e => change(s.key, e.target.checked)} />
-                        </div>
+                          <div className="ux4g-switch-control"><span className="ux4g-switch-track"><span className="ux4g-switch-thumb"></span></span></div>
+                        </label>
                       ) : s.secret ? (
-                        <input className="ux4g-input ux4g-w-100" type="password" id={`cfg-${s.key}`}
-                          placeholder="•••••• (leave blank to keep)"
-                          onChange={e => change(s.key, e.target.value)} />
+                        <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                          <div className="ux4g-input">
+                            <input className="ux4g-input-input" type="password" id={`cfg-${s.key}`}
+                              placeholder="•••••• (leave blank to keep)"
+                              onChange={e => change(s.key, e.target.value)} />
+                          </div>
+                        </div>
                       ) : OPTIONS[s.key] ? (
-                        <select className="ux4g-form-select" id={`cfg-${s.key}`} value={val ?? ""}
+                        <select className="ux4g-form-select ux4g-form-select-md" id={`cfg-${s.key}`} value={val ?? ""}
                           onChange={e => change(s.key, e.target.value)}>
                           {OPTIONS[s.key].map(o => <option key={o} value={o}>{o}</option>)}
                         </select>
                       ) : (
-                        <input className="ux4g-input ux4g-w-100" id={`cfg-${s.key}`}
-                          type={s.type === "int" ? "number" : "text"}
-                          value={val ?? ""} onChange={e => change(s.key, e.target.value)} />
+                        <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                          <div className="ux4g-input">
+                            <input className="ux4g-input-input" id={`cfg-${s.key}`}
+                              type={s.type === "int" ? "number" : "text"}
+                              value={val ?? ""} onChange={e => change(s.key, e.target.value)} />
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -158,10 +167,14 @@ export default function ConfigAdmin() {
               })}
               {cat.name.startsWith("Email") && (
                 <div className="ux4g-bt-1 ux4g-pt-s ux4g-mt-xs">
-                  <label className="form-label small gx-muted">Send a test email (uses the saved provider)</label>
-                  <div className="input-group" style={{ maxWidth: 460 }}>
-                    <input className="ux4g-input ux4g-w-100" type="email" placeholder="you@nic.in"
-                      value={testTo} onChange={e => setTestTo(e.target.value)} />
+                  <div className="ux4g-d-flex ux4g-gap-xs ux4g-ai-end" style={{ maxWidth: 460 }}>
+                    <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                      <label className="ux4g-label-m-default" htmlFor="cfg-test-email">Send a test email (uses the saved provider)</label>
+                      <div className="ux4g-input">
+                        <input id="cfg-test-email" className="ux4g-input-input" type="email" placeholder="you@nic.in"
+                          value={testTo} onChange={e => setTestTo(e.target.value)} />
+                      </div>
+                    </div>
                     <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!testTo} onClick={sendTest}>
                       <Icon name="send" size={16} className="ux4g-mr-2xs" />Send test
                     </button>

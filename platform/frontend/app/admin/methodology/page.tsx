@@ -33,13 +33,13 @@ export default function Methodology() {
           <h2 className="h5">Two-tier rigour</h2>
           <p className="ux4g-mb-xs">Automated testing catches only ~30–40% of WCAG issues (UK GDS / Deque).
             So our methodology is explicit:</p>
-          <div className="table-responsive"><table className="table table-sm">
+          <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-s">
             <thead><tr><th>Tier</th><th>Evidence</th><th>Strongest claim</th></tr></thead>
             <tbody>
               <tr><td>Automated</td><td>Engine only</td>
-                <td><span className="ux4g-badge-m text-bg-warning">partially_compliant</span> at best</td></tr>
+                <td><span className="ux4g-tag-tonal-warning ux4g-tag-s">partially_compliant</span> at best</td></tr>
               <tr><td>Expert-reviewed</td><td>Automated + assessor</td>
-                <td><span className="ux4g-badge-m text-bg-success">compliant</span> possible</td></tr>
+                <td><span className="ux4g-tag-tonal-success ux4g-tag-s">compliant</span> possible</td></tr>
             </tbody>
           </table></div>
           <p className="small gx-muted ux4g-mb-none">An automated run can never yield a full compliance

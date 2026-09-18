@@ -87,9 +87,9 @@ async function openSignedIn(path: string) {
   // Asserting the placeholder is *absent* is not enough on its own — it is also
   // absent in the moment before it renders, so that check passes trivially and
   // the audit runs too early. Settle the network first, then confirm no spinner
-  // is left; .spinner-border is what every one of these pages uses.
+  // is left; every loader is the UX4G Spinner (<span class="ux4g-spinner-*">).
   await page.waitForLoadState("networkidle");
-  await expect(page.locator(".spinner-border")).toHaveCount(0);
+  await expect(page.locator('[class*="ux4g-spinner-"]')).toHaveCount(0);
 }
 
 /** Critical + serious WCAG 2.2 AA violations, each naming its elements. */

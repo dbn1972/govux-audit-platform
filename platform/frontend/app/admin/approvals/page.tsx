@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 type Req = {
@@ -9,7 +10,7 @@ type Req = {
 };
 
 const statusBadge: Record<string, string> = {
-  pending: "text-bg-warning-subtle", approved: "text-bg-success-subtle text-success", rejected: "text-bg-danger-subtle text-danger",
+  pending: "ux4g-tag-tonal-warning ux4g-tag-s", approved: "ux4g-tag-tonal-success ux4g-tag-s", rejected: "ux4g-tag-tonal-error ux4g-tag-s",
 };
 
 export default function Approvals() {
@@ -59,15 +60,15 @@ export default function Approvals() {
       {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
       <div className="gx-card">
-        <div className="table-responsive">
-          <table className="gx-table gx-responsive">
+        <div className="ux4g-table-responsive ux4g-table-rounded">
+          <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead>
               <tr><th>Requested by</th><th>Domain</th><th>Pages</th><th>Reason</th><th>Status</th><th></th></tr>
             </thead>
             <tbody>
               {rows == null && (
                 <tr><td colSpan={6} className="ux4g-text-center ux4g-py-m">
-                  <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading…
+                  <Spinner size="sm" className="ux4g-mr-xs" />Loading…
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
@@ -79,7 +80,7 @@ export default function Approvals() {
                   <td data-label="Domain" className="ux4g-fw-semibold">{r.domain_url || "—"}</td>
                   <td data-label="Pages"><b>{r.requested_pages}</b></td>
                   <td data-label="Reason" className="gx-muted small">{r.reason || "—"}</td>
-                  <td data-label="Status"><span className={`ux4g-badge-m ${statusBadge[r.status] || "text-bg-light"}`}>{r.status}</span></td>
+                  <td data-label="Status"><span className={statusBadge[r.status] || "ux4g-tag-tonal-neutral ux4g-tag-s"}>{r.status}</span></td>
                   <td data-label="">
                     {r.status === "pending" ? (
                       <div className="ux4g-d-flex ux4g-gap-2xs ux4g-jc-end">

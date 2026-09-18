@@ -29,7 +29,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
   return (
     <div style={{ minHeight: "100vh", background: "var(--gx-surface-sunken)" }}>
       <GovBanner />
-      <header className="bg-white ux4g-bb-1">
+      <header className="ux4g-bg-neutral-elevated ux4g-bb-1">
         <div className="container ux4g-py-xs ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
           <span className="gx-brand-name">GovUX Studio</span>
           <span className="gx-muted small">· public demo · AI-generated draft</span>
@@ -64,7 +64,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
 
           <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-s ux4g-mb-s">
             {(meta.files || []).map((f: string) => (
-              <div key={f} role="button" onClick={() => setActive(f)} className="ux4g-b-1 ux4g-radius-m ux4g-o-hidden bg-white"
+              <div key={f} role="button" onClick={() => setActive(f)} className="ux4g-b-1 ux4g-radius-m ux4g-o-hidden ux4g-bg-neutral-elevated"
                 style={{ width: 220, boxShadow: active === f ? "0 0 0 2px var(--gx-action)" : undefined }}>
                 <div style={{ height: 150, overflow: "hidden", pointerEvents: "none" }}>
                   <iframe title={f} src={src(f)} sandbox="allow-same-origin"

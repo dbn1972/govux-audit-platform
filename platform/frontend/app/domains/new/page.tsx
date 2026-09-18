@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 const GOV = /(\.gov\.in|\.nic\.in)$/i;
@@ -86,23 +87,29 @@ export default function RegisterDomain() {
 
         {step === 1 ? (
           <div className="gx-card"><div className="gx-card-body">
-            <label className="form-label" htmlFor="domain-url">Website domain</label>
-            <div className="input-group">
-              <span className="input-group-text">https://</span>
-              <input id="domain-url" className="ux4g-input" placeholder="tracking.indiapost.nic.in"
-                value={url} onChange={e => setUrl(e.target.value)} />
-            </div>
-            {err && (
-              <div className="small ux4g-mt-xs" style={{ color: "var(--gx-band-E)" }} role="alert">
-                <Icon name="exclamation-circle" size={16} className="ux4g-mr-2xs" />{err}
+            {/* UX4G Input contract (input.css): container > label + .ux4g-input > .ux4g-input-input.
+                The https:// scheme sits in the leading-icon slot as a text prefix — UX4G has no
+                Bootstrap-style input-group addon, and the leading slot is the documented place for it. */}
+            <div className={`ux4g-input-container ux4g-input-md ${err ? "ux4g-input-error" : "ux4g-input-default"}`}>
+              <label className="ux4g-label-m-default" htmlFor="domain-url">Website domain</label>
+              <div className="ux4g-input">
+                <span className="ux4g-input-leading-icon" aria-hidden="true" style={{ fontFamily: "inherit", fontSize: ".875rem" }}>https://</span>
+                <input id="domain-url" className="ux4g-input-input" placeholder="tracking.indiapost.nic.in"
+                  value={url} onChange={e => setUrl(e.target.value)} />
               </div>
-            )}
+              {err && (
+                <div className="ux4g-input-helper" role="alert">
+                  <Icon name="exclamation-circle" size={16} className="ux4g-input-helper-icon" />
+                  <span className="ux4g-input-helper-text">{err}</span>
+                </div>
+              )}
+            </div>
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-mt-s" onClick={register} disabled={busy}>
               {busy ? "Registering…" : "Register domain"}</button>
           </div></div>
         ) : (
           <div className="gx-card"><div className="gx-card-body">
-            <span className="ux4g-badge-m text-bg-warning-subtle ux4g-mb-xs">Not yet verified</span>
+            <span className="ux4g-tag-tonal-warning ux4g-tag-s ux4g-mb-xs">Not yet verified</span>
             {url && <div className="ux4g-fw-semibold ux4g-mb-xs">{url}</div>}
 
             {/* Both proofs demonstrate the same thing — control of the domain —
@@ -110,35 +117,39 @@ export default function RegisterDomain() {
                 Plenty of government teams run the web server but not the DNS
                 zone (often held centrally by NIC), and the API has supported the
                 metafile route all along; only the UI hard-coded dns_txt. */}
-            <fieldset className="ux4g-mb-s">
-              <legend className="form-label ux4g-fw-semibold fs-6">How do you want to prove ownership?</legend>
-              <div className="form-check">
-                <input className="form-check-input" type="radio" name="verify-method" id="m-dns"
+            {/* UX4G Radio contract (radio.css): label.ux4g-radio > input.ux4g-radio-input
+                + div.ux4g-radio-control>span.ux4g-radiomark + content. */}
+            <fieldset className="ux4g-mb-s ux4g-d-flex ux4g-flex-column ux4g-gap-xs">
+              <legend className="ux4g-label-m-default ux4g-fw-semibold ux4g-mb-2xs">How do you want to prove ownership?</legend>
+              <label className="ux4g-radio ux4g-radio-md">
+                <input className="ux4g-radio-input" type="radio" name="verify-method"
                   checked={method === "dns_txt"} onChange={() => setMethod("dns_txt")} />
-                <label className="form-check-label" htmlFor="m-dns">
+                <div className="ux4g-radio-control"><span className="ux4g-radiomark"></span></div>
+                <div className="ux4g-radio-content">
                   <b>DNS TXT record</b>
                   <span className="ux4g-d-block gx-muted small">
                     Best if you manage the domain&apos;s DNS zone.
                   </span>
-                </label>
-              </div>
-              <div className="form-check">
-                <input className="form-check-input" type="radio" name="verify-method" id="m-file"
+                </div>
+              </label>
+              <label className="ux4g-radio ux4g-radio-md">
+                <input className="ux4g-radio-input" type="radio" name="verify-method"
                   checked={method === "file_upload"} onChange={() => setMethod("file_upload")} />
-                <label className="form-check-label" htmlFor="m-file">
+                <div className="ux4g-radio-control"><span className="ux4g-radiomark"></span></div>
+                <div className="ux4g-radio-content">
                   <b>File on your website</b>
                   <span className="ux4g-d-block gx-muted small">
                     Best if DNS is managed elsewhere but you can publish a file.
                   </span>
-                </label>
-              </div>
+                </div>
+              </label>
             </fieldset>
 
             {method === "dns_txt" ? (
               <>
                 <p className="small ux4g-mb-xs">Add this TXT record to your domain&apos;s DNS, then verify:</p>
-                <pre className="bg-dark text-light ux4g-p-s ux4g-radius-m small"><code>{reg?.verify_token}</code></pre>
-                <div className="alert alert-light ux4g-b-1 small">
+                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m small"><code>{reg?.verify_token}</code></pre>
+                <div className="ux4g-alert ux4g-alert-info small">
                   ⏱ DNS changes can take up to 30 minutes; we re-check automatically.
                   You can leave this page — the record is kept, and “Verify” on your
                   domains list brings you straight back here.
@@ -149,12 +160,12 @@ export default function RegisterDomain() {
                 <p className="small ux4g-mb-xs">
                   Publish a file at this address containing exactly the text below, then verify:
                 </p>
-                <pre className="bg-dark text-light ux4g-p-s ux4g-radius-m small"><code>
+                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m small"><code>
                   https://{url || "your-domain.gov.in"}/.well-known/govux-verify.txt
                 </code></pre>
                 <p className="small ux4g-mb-xs">File contents:</p>
-                <pre className="bg-dark text-light ux4g-p-s ux4g-radius-m small"><code>{reg?.verify_token}</code></pre>
-                <div className="alert alert-light ux4g-b-1 small">
+                <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m small"><code>{reg?.verify_token}</code></pre>
+                <div className="ux4g-alert ux4g-alert-info small">
                   The file must be served over HTTPS and reachable without sign-in.
                   You can leave this page — “Verify” on your domains list brings you
                   straight back here.

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 import { absoluteTime } from "@/lib/format";
 
@@ -16,11 +17,11 @@ const PROGRESS = ["queued", "crawling", "analyzing", "scoring"];
 const PAGE = 15;
 
 function statusBadge(s: string) {
-  if (s === "completed") return ["text-bg-success-subtle text-success", "completed"];
-  if (s === "failed") return ["text-bg-danger-subtle text-danger", "failed"];
-  if (s === "cancelled") return ["text-bg-secondary-subtle", "cancelled"];
-  if (s === "insufficient_evidence") return ["text-bg-warning-subtle", "no score"];
-  return ["text-bg-primary-subtle", s.replace(/_/g, " ")]; // in-progress states
+  if (s === "completed") return ["ux4g-tag-tonal-success ux4g-tag-s", "completed"];
+  if (s === "failed") return ["ux4g-tag-tonal-error ux4g-tag-s", "failed"];
+  if (s === "cancelled") return ["ux4g-tag-tonal-neutral ux4g-tag-s", "cancelled"];
+  if (s === "insufficient_evidence") return ["ux4g-tag-tonal-warning ux4g-tag-s", "no score"];
+  return ["ux4g-tag-tonal-neutral ux4g-tag-s", s.replace(/_/g, " ")]; // in-progress states
 }
 
 // filter key -> predicate. "" = default (everything except cancelled noise).
@@ -94,15 +95,15 @@ export default function Audits() {
       )}
 
       <div className="gx-card">
-        <div className="table-responsive">
-          <table className="gx-table gx-responsive">
+        <div className="ux4g-table-responsive ux4g-table-rounded">
+          <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead>
               <tr><th>Domain</th><th>Date</th><th>Status</th><th>Score</th><th>Compliance</th><th></th></tr>
             </thead>
             <tbody>
               {rows == null && (
                 <tr><td colSpan={6} className="ux4g-text-center ux4g-py-m">
-                  <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading…
+                  <Spinner size="sm" className="ux4g-mr-xs" />Loading…
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
@@ -122,7 +123,7 @@ export default function Audits() {
                     {/* was toLocaleString(): "18/08/2026, 09:27:34" — seconds
                         nobody needs, in a day/month order that flips by locale */}
                     <td data-label="Date" className="gx-muted small">{absoluteTime(a.date)}</td>
-                    <td data-label="Status"><span className={`ux4g-badge-m ${cls}`}>{label}</span></td>
+                    <td data-label="Status"><span className={cls}>{label}</span></td>
                     <td data-label="Score">
                       {done && a.score != null
                         ? <><b>{a.score}</b>{a.band && <span className="ux4g-badge-m ux4g-ml-2xs" style={bandStyle(a.band)}>Band {a.band}</span>}</>
@@ -146,7 +147,7 @@ export default function Audits() {
           </table>
         </div>
         {filtered.length > limit && (
-          <div className="card-footer bg-white ux4g-text-center">
+          <div className="ux4g-card-footer ux4g-text-center">
             <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" onClick={() => setLimit((n) => n + PAGE)}>
               Show more ({filtered.length - limit} more)
             </button>

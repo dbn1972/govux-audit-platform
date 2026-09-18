@@ -130,7 +130,7 @@ describe("Guided manual review", () => {
     render(<Review />);
     expect(await screen.findByText("digilocker.gov.in")).toBeInTheDocument();
     // the verdict badge specifically (the phrase also appears in the intro copy)
-    expect(screen.getByText("partially compliant", { selector: "span.ux4g-badge-m" })).toBeInTheDocument();
+    expect(screen.getByText("partially compliant", { selector: "span.ux4g-tag-s" })).toBeInTheDocument();
     expect(auditStatus).toHaveBeenCalledWith("T1");
   });
 

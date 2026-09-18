@@ -4,6 +4,7 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 import { BAND_COLOR, barColor } from "@/lib/score";
 
@@ -33,7 +34,7 @@ export default function Report({ params }: { params: { id: string } }) {
   useEffect(() => { api.auditReport(params.id).then(setR).catch(e => setErr(e.message)); }, [params.id]);
 
   if (err) return <AppShell><div className="gx-page"><div className="ux4g-alert ux4g-alert-warning">Report not ready: {err}</div></div></AppShell>;
-  if (!r) return <AppShell><div className="gx-page"><div className="spinner-border text-primary" role="status"><span className="ux4g-sr-only">Loading report…</span></div></div></AppShell>;
+  if (!r) return <AppShell><div className="gx-page"><Spinner size="md" label="Loading report…" /></div></AppShell>;
 
   const sev = (s: string) => r.findings.filter((f: any) => f.severity === s).length;
 

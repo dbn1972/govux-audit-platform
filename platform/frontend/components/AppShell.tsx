@@ -379,7 +379,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             transition: "opacity .25s ease",
           }} />
         <div id="app-drawer" ref={drawerRef} role="dialog" aria-modal="true" aria-label="Navigation"
-          className="bg-white shadow"
+          className="ux4g-bg-neutral-elevated ux4g-shadow-l3"
           style={{
             position: "fixed", top: 0, left: 0, bottom: 0, width: 280, maxWidth: "82vw", zIndex: 1046,
             transform: open ? "translateX(0)" : "translateX(-100%)",

@@ -4,8 +4,8 @@ import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
-const SEV = { critical: "text-bg-danger", high: "text-bg-warning",
-  medium: "text-bg-warning-subtle", low: "text-bg-light" } as const;
+const SEV = { critical: "ux4g-tag-tonal-error ux4g-tag-s", high: "ux4g-tag-tonal-warning ux4g-tag-s",
+  medium: "ux4g-tag-tonal-warning ux4g-tag-s", low: "ux4g-tag-tonal-neutral ux4g-tag-s" } as const;
 
 // Impact x effort prioritised fix list with advisory guidance (gap G5).
 export default function Remediation({ params }: { params: { id: string } }) {
@@ -34,17 +34,17 @@ export default function Remediation({ params }: { params: { id: string } }) {
           {items.map((f, i) => (
             <div className="gx-card" key={i}>
               <div className="card-body ux4g-d-flex ux4g-gap-s ux4g-ai-start">
-                <span className="ux4g-badge-m text-bg-primary" style={{ minWidth: 34 }}>#{i + 1}</span>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s" style={{ minWidth: 34 }}>#{i + 1}</span>
                 <div className="ux4g-flex-grow-1" style={{ minWidth: 0 }}>
                   <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center">
                     <b>{f.title || f.guideline}</b>
-                    <span className={`ux4g-badge-m ${SEV[f.severity as keyof typeof SEV] || "text-bg-light"}`}>{f.severity}</span>
+                    <span className={SEV[f.severity as keyof typeof SEV] || "ux4g-tag-tonal-neutral ux4g-tag-s"}>{f.severity}</span>
                     <span className="ux4g-badge-m bg-secondary">{f.category}</span>
                   </div>
                   <div className="ux4g-mt-2xs">{f.remediation}</div>
                   {f.code_hint && <div className="gx-muted small font-monospace ux4g-mt-2xs" style={{ overflowWrap: "anywhere" }}>{f.code_hint}</div>}
                 </div>
-                <span className="ux4g-badge-m text-bg-success" title="impact x effort priority">
+                <span className="ux4g-tag-tonal-success ux4g-tag-s" title="impact x effort priority">
                   P{f.priority}
                 </span>
               </div>

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
@@ -100,21 +101,39 @@ export default function Studio() {
       <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
         <div className="ux4g-cols-span-12 ux4g-lg-cols-span-3">
           <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
-            <label className="form-label" htmlFor="s-dept">Organisation</label>
-            <input id="s-dept" className="ux4g-input ux4g-w-100 ux4g-mb-xs" value={department} onChange={e => setDepartment(e.target.value)} placeholder="Department of Posts" />
-            <label className="form-label" htmlFor="s-purpose">Purpose</label>
-            <textarea id="s-purpose" className="ux4g-input ux4g-w-100 ux4g-mb-xs" rows={2} value={purpose} onChange={e => setPurpose(e.target.value)} placeholder="Citizen services portal" />
-            <label className="form-label" htmlFor="s-pages">Pages (comma-separated)</label>
-            <input id="s-pages" className="ux4g-input ux4g-w-100 ux4g-mb-xs" value={pagesText} onChange={e => setPagesText(e.target.value)} />
+            <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-mb-xs">
+              <label className="ux4g-label-m-default" htmlFor="s-dept">Organisation</label>
+              <div className="ux4g-input">
+                <input id="s-dept" className="ux4g-input-input" value={department} onChange={e => setDepartment(e.target.value)} placeholder="Department of Posts" />
+              </div>
+            </div>
+            <div className="ux4g-textarea-container ux4g-textarea-md ux4g-mb-xs">
+              <label className="ux4g-label-m-default" htmlFor="s-purpose">Purpose</label>
+              <div className="ux4g-textarea">
+                <textarea id="s-purpose" className="ux4g-textarea-input" rows={2} value={purpose} onChange={e => setPurpose(e.target.value)} placeholder="Citizen services portal" />
+              </div>
+            </div>
+            <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-mb-xs">
+              <label className="ux4g-label-m-default" htmlFor="s-pages">Pages (comma-separated)</label>
+              <div className="ux4g-input">
+                <input id="s-pages" className="ux4g-input-input" value={pagesText} onChange={e => setPagesText(e.target.value)} />
+              </div>
+            </div>
             <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs">
-              <div className="ux4g-cols-span-6"><label className="form-label" htmlFor="s-lang">Language</label>
-                <input id="s-lang" className="ux4g-input ux4g-w-100" value={language} onChange={e => setLanguage(e.target.value)} /></div>
-              <div className="ux4g-cols-span-6"><label className="form-label" htmlFor="s-mode">Theme</label>
-                <select id="s-mode" className="ux4g-form-select" value={mode} onChange={e => setMode(e.target.value)}>
+              <div className="ux4g-cols-span-6">
+                <div className="ux4g-input-container ux4g-input-md ux4g-input-default">
+                  <label className="ux4g-label-m-default" htmlFor="s-lang">Language</label>
+                  <div className="ux4g-input">
+                    <input id="s-lang" className="ux4g-input-input" value={language} onChange={e => setLanguage(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+              <div className="ux4g-cols-span-6"><label className="ux4g-label-m-default" htmlFor="s-mode">Theme</label>
+                <select id="s-mode" className="ux4g-form-select ux4g-form-select-md" value={mode} onChange={e => setMode(e.target.value)}>
                   <option value="light">Light</option><option value="dark">Dark</option></select></div>
             </div>
-            <label className="form-label ux4g-fw-semibold small ux4g-mt-xs" htmlFor="s-accent">Accent</label>
-            <select id="s-accent" className="ux4g-form-select form-select-sm ux4g-mb-s" value={accent} onChange={e => setAccent(e.target.value)}>
+            <label className="ux4g-label-m-default ux4g-fw-semibold small ux4g-mt-xs" htmlFor="s-accent">Accent</label>
+            <select id="s-accent" className="ux4g-form-select ux4g-form-select-sm ux4g-mb-s" value={accent} onChange={e => setAccent(e.target.value)}>
               {ACCENTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100" onClick={submit} disabled={busy}>
@@ -123,33 +142,36 @@ export default function Studio() {
 
           {history.length > 0 && (
             <div className="gx-card"><div className="gx-card-head">Your prototypes</div>
-              <div className="list-group list-group-flush">
+              <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                 {history.slice(0, 10).map(h => (
-                  <button key={h.id} className="list-group-item list-group-item-action small ux4g-text-start" onClick={() => openRun(h.id)}>
-                    <div className="ux4g-fw-semibold ux4g-line-clamp-1">{h.department || "Untitled"}</div>
-                    <span className="gx-muted">{h.status === "scored" ? `${h.score} · Band ${h.band}` : h.status} · {h.pages} pages</span>
-                  </button>
+                  <li key={h.id} className="ux4g-list-item">
+                    <button className="ux4g-list-item-row small ux4g-text-start ux4g-w-100" onClick={() => openRun(h.id)}
+                      style={{ background: "none", border: 0, cursor: "pointer" }}>
+                      <div className="ux4g-fw-semibold ux4g-line-clamp-1">{h.department || "Untitled"}</div>
+                      <span className="gx-muted">{h.status === "scored" ? `${h.score} · Band ${h.band}` : h.status} · {h.pages} pages</span>
+                    </button>
+                  </li>
                 ))}
-              </div></div>
+              </ul></div>
           )}
         </div>
 
         <div className="ux4g-cols-span-12 ux4g-lg-cols-span-9">
           {run == null && (
             <div className="gx-card ux4g-h-100"><div className="gx-card-body ux4g-d-flex ux4g-ai-center ux4g-jc-center gx-muted" style={{ minHeight: 400 }}>
-              {busy ? <span><span className="spinner-border spinner-border-sm me-2" />Generating and auditing…</span> : "Your generated screens will appear here — like a design board."}
+              {busy ? <span><Spinner size="sm" className="ux4g-mr-xs" />Generating and auditing…</span> : "Your generated screens will appear here — like a design board."}
             </div></div>
           )}
           {run?.status === "failed" && <div className="ux4g-alert ux4g-alert-error">Generation failed: {run.error}</div>}
           {run?.status === "generating" && (
             <div className="gx-card"><div className="gx-card-body gx-empty gx-muted">
-              <span className="spinner-border text-primary ux4g-mb-xs" /><div>Generating and refining toward the audit target…</div></div></div>
+              <Spinner className="ux4g-mb-xs" /><div>Generating and refining toward the audit target…</div></div></div>
           )}
 
           {run?.status === "scored" && (<>
             <div className="gx-card ux4g-mb-s"><div className="gx-card-body ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
               <div><span className="score-value" style={{ fontSize: 28 }}>{run.score}</span>
-                <span className="ux4g-badge-m ux4g-ml-2xs" style={bandStyle(run.band)}>Band {run.band}</span></div>
+                <span className="gx-pill ux4g-ml-2xs" style={bandStyle(run.band)}>Band {run.band}</span></div>
               {/* a static analysis of generated markup, not an audit of a live
                   site — saying which is the difference between a claim and a hint */}
               <span className="gx-muted small">

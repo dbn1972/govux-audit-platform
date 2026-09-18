@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 // No demo fallback: this page used to seed itself with four hardcoded
@@ -54,11 +55,13 @@ export default function Library() {
           </div>
           <div className="ux4g-flex-grow-1" style={{ minWidth: 220, maxWidth: 420 }}>
             <label htmlFor="lib-search" className="ux4g-sr-only">Search guidelines</label>
-            <div className="input-group">
-              <span className="input-group-text"><Icon name="search" size={16} /></span>
-              <input id="lib-search" className="ux4g-input ux4g-w-100" value={q} type="search"
-                placeholder="Search by id, title or wording…"
-                onChange={(e) => setQ(e.target.value)} />
+            <div className="ux4g-input-container ux4g-input-md ux4g-w-100">
+              <div className="ux4g-input">
+                <span className="ux4g-input-leading-icon" aria-hidden="true"><Icon name="search" size={16} /></span>
+                <input id="lib-search" className="ux4g-input-input" value={q} type="search"
+                  placeholder="Search by id, title or wording…"
+                  onChange={(e) => setQ(e.target.value)} />
+              </div>
             </div>
           </div>
           {/* A library is unusable without knowing its size: 470 entries behind
@@ -73,7 +76,7 @@ export default function Library() {
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         {rows == null && !err && (
           <div className="ux4g-text-center ux4g-py-l">
-            <span className="spinner-border text-primary" role="status" aria-label="Loading the library" />
+            <Spinner size="md" label="Loading the library" />
           </div>
         )}
         {rows != null && matches.length === 0 && !err && (
@@ -94,8 +97,8 @@ export default function Library() {
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           {shown.map(g => (
             <div className="ux4g-cols-span-12 ux4g-md-cols-span-6" key={g.id}><div className="gx-card ux4g-h-100"><div className="gx-card-body">
-              <div className="ux4g-d-flex ux4g-gap-xs ux4g-mb-2xs"><span className="ux4g-badge-m text-bg-primary-subtle">{g.id}</span>
-                <span className="ux4g-badge-m text-bg-light">{g.family}</span></div>
+              <div className="ux4g-d-flex ux4g-gap-xs ux4g-mb-2xs"><span className="ux4g-tag-tonal-neutral ux4g-tag-s">{g.id}</span>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s">{g.family}</span></div>
               <h2 className="h6">{g.title}</h2>
               <p className="gx-muted small ux4g-mb-xs">{g.plain_language}</p>
               {g.good_example && (

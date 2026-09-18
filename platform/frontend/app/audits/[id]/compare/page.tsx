@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 type Issue = { guideline_id: string; title: string | null };
@@ -52,7 +53,7 @@ export default function Compare({ params }: { params: { id: string } }) {
   );
 
   if (err) return wrap(<div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>);
-  if (!data) return wrap(<div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
+  if (!data) return wrap(<div className="ux4g-text-center ux4g-py-m"><Spinner size="md" label="Loading" /></div>);
   if (!data.has_baseline) {
     return wrap(<div className="ux4g-alert ux4g-alert-info" role="status">
       <Icon name="info-circle" size={16} className="ux4g-mr-2xs" />{data.message || "No earlier completed audit for this domain yet."}
@@ -104,10 +105,12 @@ export default function Compare({ params }: { params: { id: string } }) {
                 </h2>
                 <span className="gx-muted ux4g-ml-auto gx-num">{newIssues.length}</span>
               </div>
-              <ul className="list-group list-group-flush">
+              <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                 {newIssues.map(i => (
-                  <li key={i.guideline_id} className="list-group-item small">
+                  <li key={i.guideline_id} className="ux4g-list-item">
+                    <div className="ux4g-list-item-row small">
                     <span className="gx-chip ux4g-mr-xs">{i.guideline_id}</span>{i.title || "—"}
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -121,10 +124,12 @@ export default function Compare({ params }: { params: { id: string } }) {
                 </h2>
                 <span className="gx-muted ux4g-ml-auto gx-num">{resolvedIssues.length}</span>
               </div>
-              <ul className="list-group list-group-flush">
+              <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                 {resolvedIssues.map(i => (
-                  <li key={i.guideline_id} className="list-group-item small">
+                  <li key={i.guideline_id} className="ux4g-list-item">
+                    <div className="ux4g-list-item-row small">
                     <span className="gx-chip ux4g-mr-xs">{i.guideline_id}</span>{i.title || "—"}
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -140,7 +145,7 @@ export default function Compare({ params }: { params: { id: string } }) {
             A page missing from the newer run keeps its earlier score, marked not recrawled
           </span>
         </div>
-        <div className="table-responsive"><table className="gx-table gx-responsive">
+        <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
           <thead><tr><th>Page</th><th>Status</th><th>Score</th><th>Change</th></tr></thead>
           <tbody>
             {pages.length === 0 && (
@@ -149,7 +154,7 @@ export default function Compare({ params }: { params: { id: string } }) {
             {pages.map(p => (
               <tr key={p.url}>
                 <td data-label="Page" className="gx-cell-primary">
-                  {p.url}{p.new_page && <span className="ux4g-badge-m text-bg-info-subtle ux4g-ml-xs">new</span>}
+                  {p.url}{p.new_page && <span className="ux4g-tag-tonal-info ux4g-tag-s ux4g-ml-xs">new</span>}
                 </td>
                 <td data-label="Status"><span className="gx-chip">{statusLabel(p.status)}</span></td>
                 <td data-label="Score" className="ux4g-fw-bold gx-num">{p.score ?? "—"}</td>

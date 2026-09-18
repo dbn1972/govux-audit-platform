@@ -15,7 +15,7 @@ export default function Standards() {
           <div>
             <h1 className="ux4g-mb-2xs">
               Standards &amp; rules engine
-              <span className="ux4g-badge-m text-bg-primary-subtle ux4g-ml-xs" style={{ verticalAlign: "middle" }}>v3.2</span>
+              <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-xs" style={{ verticalAlign: "middle" }}>v3.2</span>
             </h1>
             <div className="gx-muted">
               The weights and rule sets every score is produced from. Versioned and change-logged,
@@ -40,7 +40,7 @@ export default function Standards() {
                   <b style={{ width: 40, textAlign: "right", color: "var(--gx-navy-800)" }}>{wt}%</b>
                 </div>
               ))}
-              <div className="alert alert-light ux4g-b-1 small ux4g-mt-xs ux4g-mb-none">
+              <div className="ux4g-alert ux4g-alert-info small ux4g-mt-xs ux4g-mb-none">
                 ℹ Weight changes apply only to <b>future</b> audits and create a new engine version. Past scores stay tied to their version.
               </div>
             </div>
@@ -51,10 +51,11 @@ export default function Standards() {
               {[["Critical accessibility failure caps at Band C", true],
                 ["No HTTPS caps at Band D", true],
                 ["Missing mandatory GIGW elements caps at Band B", false]].map(([label, on]) => (
-                <div className="form-check form-switch" key={label as string}>
-                  <input className="form-check-input" type="checkbox" defaultChecked={on as boolean} />
-                  <label className="form-check-label small">{label}</label>
-                </div>
+                <label className="ux4g-switch ux4g-switch-md" key={label as string}>
+                  <input className="ux4g-switch-input" type="checkbox" defaultChecked={on as boolean} />
+                  <div className="ux4g-switch-control"><span className="ux4g-switch-track"><span className="ux4g-switch-thumb"></span></span></div>
+                  <div className="ux4g-switch-content"><span className="ux4g-switch-label small">{label}</span></div>
+                </label>
               ))}
               <div className="ux4g-alert ux4g-alert-warning small ux4g-mt-s ux4g-mb-none">🔐 Only Programme-Admins can publish; changes require a second approver.</div>
             </div>

@@ -44,8 +44,8 @@ export default function Documents({ params }: { params: { id: string } }) {
               language are the three PDF/UA basics
             </span>
           </div>
-          <div className="table-responsive">
-          <table className="gx-table gx-responsive">
+          <div className="ux4g-table-responsive ux4g-table-rounded">
+          <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead><tr>
               <th>Document</th><th>Type</th><th>Pages</th><th>Tagged</th>
               <th>Title</th><th>Language</th><th>Score</th><th>Issues</th>

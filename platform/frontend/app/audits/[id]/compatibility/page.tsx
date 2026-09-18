@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 type Browser = {
@@ -36,13 +37,13 @@ export default function Compatibility({ params }: { params: { id: string } }) {
     <AuditNav id={params.id} />{b}</div></AppShell>;
 
   if (err) return wrap(<div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>);
-  if (!browsers) return wrap(<div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
+  if (!browsers) return wrap(<div className="ux4g-text-center ux4g-py-m"><Spinner size="md" label="Loading" /></div>);
   if (browsers.length === 0) return wrap(<div className="gx-muted ux4g-text-center ux4g-py-l">No cross-browser results captured for this audit.</div>);
 
   return wrap(
     <div className="gx-card">
       <div className="gx-card-head">Cross-browser matrix</div>
-      <div className="table-responsive"><table className="gx-table ux4g-text-center">
+      <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m ux4g-text-center">
         <thead><tr>
           <th className="ux4g-text-start">Engine</th><th>Loads</th><th>Horizontal overflow</th>
           <th>Broken images</th><th>JS errors</th></tr></thead>
@@ -56,7 +57,7 @@ export default function Compatibility({ params }: { params: { id: string } }) {
           </tr>
         ))}</tbody>
       </table></div>
-      <div className="card-footer bg-white small gx-muted">
+      <div className="ux4g-card-footer small gx-muted">
         Divergence between engines (a page that loads in Chromium but not WebKit, or overflows only on one) is what surfaces here.
       </div>
     </div>

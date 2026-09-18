@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 type Domain = {
@@ -69,13 +70,13 @@ export default function Domains() {
         </div>
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="gx-card">
-          <div className="table-responsive">
-            <table className="gx-table gx-responsive">
+          <div className="ux4g-table-responsive ux4g-table-rounded">
+            <table className="ux4g-table ux4g-table-m gx-responsive">
               <thead><tr><th>Domain</th><th>Category</th><th>Status</th><th>Latest score</th><th>Last audited</th><th></th></tr></thead>
               <tbody>
                 {rows == null && (
                   <tr><td colSpan={6} className="ux4g-text-center ux4g-py-m">
-                    <span className="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true" />Loading…
+                    <Spinner size="sm" className="ux4g-mr-xs" />Loading…
                   </td></tr>
                 )}
                 {rows?.length === 0 && !err && (
@@ -85,20 +86,20 @@ export default function Domains() {
                 )}
                 {(rows || []).map(d => (
                   <tr key={d.id}>
-                    <td data-label="Domain" className="ux4g-fw-semibold">{d.url}</td>
+                    <td data-label="Domain" className="ux4g-fw-semibold ux4g-table-cell-text">{d.url}</td>
                     <td data-label="Category" className="gx-muted small">{d.category || "—"}</td>
                     <td data-label="Status">{d.verify_status === "verified"
                       ? (d.verify_method === "steward_override"
                           // an override is verified, but nobody proved anything —
                           // say so rather than letting it look DNS-proven
-                          ? <span className="ux4g-badge-m text-bg-info-subtle text-info-emphasis"
+                          ? <span className="ux4g-tag-tonal-info ux4g-tag-s"
                               title="Verified by a programme admin — ownership was not proven">
                               Verified · override</span>
-                          : <span className="ux4g-badge-m text-bg-success-subtle text-success">Verified</span>)
-                      : <span className="ux4g-badge-m text-bg-warning-subtle">Pending</span>}</td>
+                          : <span className="ux4g-tag-tonal-success ux4g-tag-s">Verified</span>)
+                      : <span className="ux4g-tag-tonal-warning ux4g-tag-s">Pending</span>}</td>
                     <td data-label="Latest score">{d.latest_score != null
                       ? <><b>{d.latest_score}</b>{d.latest_band &&
-                          <span className="ux4g-badge-m ux4g-ml-2xs" style={bandStyle(d.latest_band)}>{d.latest_band}</span>}</>
+                          <span className="gx-pill ux4g-ml-2xs" style={bandStyle(d.latest_band)}>{d.latest_band}</span>}</>
                       : <span className="gx-muted">Not audited</span>}</td>
                     <td data-label="Last audited" className="gx-muted small">{relative(d.last_audited_at)}</td>
                     <td data-label="">{d.verify_status === "verified"
@@ -118,9 +119,9 @@ export default function Domains() {
                 ))}
                 {overriding && (
                   <tr>
-                    <td colSpan={6} className="bg-light">
+                    <td colSpan={6} className="ux4g-bg-neutral-soft">
                       <div className="ux4g-p-xs">
-                        <label className="form-label" htmlFor="override-reason">
+                        <label className="ux4g-label-m-default" htmlFor="override-reason">
                           Why is this domain being verified without proof?
                         </label>
                         <div className="gx-muted small ux4g-mb-xs">
@@ -128,10 +129,13 @@ export default function Domains() {
                           as an override rather than DNS-proven.
                         </div>
                         <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-start">
-                          <input id="override-reason" className="ux4g-input"
-                            style={{ maxWidth: 460 }} value={reason}
-                            placeholder="e.g. DNS held by a third-party vendor; ownership confirmed by letter"
-                            onChange={(e) => setReason(e.target.value)} />
+                          <div className="ux4g-input-container ux4g-input-md ux4g-input-default" style={{ maxWidth: 460 }}>
+                            <div className="ux4g-input">
+                              <input id="override-reason" className="ux4g-input-input" value={reason}
+                                placeholder="e.g. DNS held by a third-party vendor; ownership confirmed by letter"
+                                onChange={(e) => setReason(e.target.value)} />
+                            </div>
+                          </div>
                           <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm"
                             disabled={busy || reason.trim().length < 10}
                             onClick={() => forceVerify(overriding)}>

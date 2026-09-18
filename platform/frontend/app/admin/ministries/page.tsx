@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 import { BAND_COLOR as bandBg, bandStyle } from "@/lib/score";
@@ -24,11 +25,11 @@ export default function Ministries() {
           </div>
         </div>
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
-        <div className="gx-card"><div className="table-responsive">
-          <table className="gx-table gx-responsive">
+        <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded">
+          <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead><tr><th>#</th><th>Ministry / Department</th><th>Domains</th><th>Avg score</th><th>Band</th></tr></thead>
             <tbody>
-              {rows == null && <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m"><span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" /></td></tr>}
+              {rows == null && <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m"><Spinner size="sm" /></td></tr>}
               {rows?.length === 0 && !err && <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">No audited organisations yet.</td></tr>}
               {(rows || []).map((r, i) => (
                 <tr key={r.name}>

@@ -1,6 +1,7 @@
 "use client";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
@@ -14,8 +15,8 @@ const KINDS: [string, string][] = [
 ];
 const KIND_LABEL = Object.fromEntries(KINDS);
 const OUTCOME_STYLE: Record<string, string> = {
-  passed: "text-bg-success", failed: "text-bg-danger",
-  partial: "text-bg-warning-subtle", in_progress: "text-bg-secondary",
+  passed: "ux4g-tag-tonal-success", failed: "ux4g-tag-tonal-error",
+  partial: "ux4g-tag-tonal-warning", in_progress: "ux4g-tag-tonal-neutral",
 };
 const WRITER_ROLES = ["assessor", "programme_admin", "super_admin"];
 const EMPTY = { kind: "vapt", title: "", agency: "", domain_id: "", assessed_on: "",
@@ -75,54 +76,74 @@ export default function Assessments() {
             <div className="gx-card-body">
               <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs">
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-4">
-                  <label className="form-label" htmlFor="as-kind">Type</label>
-                  <select id="as-kind" className="ux4g-form-select" value={form.kind}
+                  <label className="ux4g-label-m-default" htmlFor="as-kind">Type</label>
+                  <select id="as-kind" className="ux4g-form-select ux4g-form-select-md" value={form.kind}
                           onChange={e => set("kind", e.target.value)}>
                     {KINDS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                   </select>
                 </div>
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-8">
-                  <label className="form-label" htmlFor="as-title">Title</label>
-                  <input id="as-title" className="ux4g-input ux4g-w-100" value={form.title}
-                         placeholder="e.g. Annual VAPT of the citizen portal"
-                         onChange={e => set("title", e.target.value)} />
+                  <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                    <label className="ux4g-label-m-default" htmlFor="as-title">Title</label>
+                    <div className="ux4g-input">
+                      <input id="as-title" className="ux4g-input-input" value={form.title}
+                             placeholder="e.g. Annual VAPT of the citizen portal"
+                             onChange={e => set("title", e.target.value)} />
+                    </div>
+                  </div>
                 </div>
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-4">
-                  <label className="form-label" htmlFor="as-domain">Domain (optional)</label>
-                  <select id="as-domain" className="ux4g-form-select" value={form.domain_id}
+                  <label className="ux4g-label-m-default" htmlFor="as-domain">Domain (optional)</label>
+                  <select id="as-domain" className="ux4g-form-select ux4g-form-select-md" value={form.domain_id}
                           onChange={e => set("domain_id", e.target.value)}>
                     <option value="">Organisation-wide</option>
                     {domains.map((d: any) => <option key={d.id} value={d.id}>{d.url}</option>)}
                   </select>
                 </div>
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-4">
-                  <label className="form-label" htmlFor="as-agency">Performed by</label>
-                  <input id="as-agency" className="ux4g-input ux4g-w-100" value={form.agency}
-                         placeholder="Agency / lab / panel organiser"
-                         onChange={e => set("agency", e.target.value)} />
+                  <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                    <label className="ux4g-label-m-default" htmlFor="as-agency">Performed by</label>
+                    <div className="ux4g-input">
+                      <input id="as-agency" className="ux4g-input-input" value={form.agency}
+                             placeholder="Agency / lab / panel organiser"
+                             onChange={e => set("agency", e.target.value)} />
+                    </div>
+                  </div>
                 </div>
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-2">
-                  <label className="form-label" htmlFor="as-date">Assessed on</label>
-                  <input id="as-date" type="date" className="ux4g-input ux4g-w-100"
-                         value={form.assessed_on} onChange={e => set("assessed_on", e.target.value)} />
+                  <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                    <label className="ux4g-label-m-default" htmlFor="as-date">Assessed on</label>
+                    <div className="ux4g-input">
+                      <input id="as-date" type="date" className="ux4g-input-input"
+                             value={form.assessed_on} onChange={e => set("assessed_on", e.target.value)} />
+                    </div>
+                  </div>
                 </div>
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-2">
-                  <label className="form-label" htmlFor="as-outcome">Outcome</label>
-                  <select id="as-outcome" className="ux4g-form-select" value={form.outcome}
+                  <label className="ux4g-label-m-default" htmlFor="as-outcome">Outcome</label>
+                  <select id="as-outcome" className="ux4g-form-select ux4g-form-select-md" value={form.outcome}
                           onChange={e => set("outcome", e.target.value)}>
                     {["in_progress", "passed", "partial", "failed"].map(o =>
                       <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
                   </select>
                 </div>
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-8">
-                  <label className="form-label" htmlFor="as-summary">Summary (optional)</label>
-                  <input id="as-summary" className="ux4g-input ux4g-w-100" value={form.summary}
-                         onChange={e => set("summary", e.target.value)} />
+                  <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                    <label className="ux4g-label-m-default" htmlFor="as-summary">Summary (optional)</label>
+                    <div className="ux4g-input">
+                      <input id="as-summary" className="ux4g-input-input" value={form.summary}
+                             onChange={e => set("summary", e.target.value)} />
+                    </div>
+                  </div>
                 </div>
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-4">
-                  <label className="form-label" htmlFor="as-ref">Report ref / certificate no.</label>
-                  <input id="as-ref" className="ux4g-input ux4g-w-100" value={form.report_ref}
-                         onChange={e => set("report_ref", e.target.value)} />
+                  <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                    <label className="ux4g-label-m-default" htmlFor="as-ref">Report ref / certificate no.</label>
+                    <div className="ux4g-input">
+                      <input id="as-ref" className="ux4g-input-input" value={form.report_ref}
+                             onChange={e => set("report_ref", e.target.value)} />
+                    </div>
+                  </div>
                 </div>
               </div>
               <button className="ux4g-btn ux4g-btn-primary ux4g-btn-sm ux4g-mt-s" disabled={busy || form.title.trim().length < 3}
@@ -141,7 +162,7 @@ export default function Assessments() {
             </span>}
           </div>
           <div>
-            {!rows && <div className="ux4g-p-m ux4g-text-center"><div className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}
+            {!rows && <div className="ux4g-p-m ux4g-text-center"><Spinner size="md" /></div>}
             {rows && rows.length === 0 && (
               <div className="gx-empty">
                 <div className="gx-empty-icon"><Icon name="shield-check" size={24} /></div>
@@ -154,8 +175,8 @@ export default function Assessments() {
               </div>
             )}
             {rows && rows.length > 0 && (
-              <div className="table-responsive">
-                <table className="gx-table">
+              <div className="ux4g-table-responsive ux4g-table-rounded">
+                <table className="ux4g-table ux4g-table-m">
                   <thead>
                     <tr>
                       <th>Type</th><th>Title</th><th>Scope</th><th>Performed by</th>
@@ -172,7 +193,7 @@ export default function Assessments() {
                         <td className="small">{a.domain || "Org-wide"}</td>
                         <td className="small">{a.agency || "—"}</td>
                         <td className="small">{a.assessed_on || "—"}</td>
-                        <td><span className={`ux4g-badge-m ${OUTCOME_STYLE[a.outcome] || "text-bg-secondary"}`}>
+                        <td><span className={`ux4g-tag-s ${OUTCOME_STYLE[a.outcome] || "ux4g-tag-tonal-neutral"}`}>
                           {a.outcome.replace(/_/g, " ")}</span></td>
                         <td className="small">{a.report_ref || "—"}</td>
                       </tr>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 export default function StudioAccess() {
@@ -35,11 +36,11 @@ export default function StudioAccess() {
         </div>
       </div>
       {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
-      <div className="gx-card"><div className="table-responsive">
-        <table className="gx-table gx-responsive">
+      <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded">
+        <table className="ux4g-table ux4g-table-m gx-responsive">
           <thead><tr><th>Organisation</th><th>Type</th><th>Runs</th><th>Studio access</th></tr></thead>
           <tbody>
-            {rows == null && <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m"><span className="spinner-border spinner-border-sm text-primary" /></td></tr>}
+            {rows == null && <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m"><Spinner size="sm" /></td></tr>}
             {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">No organisations.</td></tr>}
             {(rows || []).map((o) => (
               <tr key={o.id}>
@@ -47,13 +48,14 @@ export default function StudioAccess() {
                 <td data-label="Type"><span className="gx-chip">{o.org_type}</span></td>
                 <td data-label="Runs" className="gx-muted">{o.runs}</td>
                 <td data-label="Studio access">
-                  <div className="form-check form-switch ux4g-mb-none">
-                    <input className="form-check-input" type="checkbox" role="switch"
+                  <label className="ux4g-switch ux4g-switch-md ux4g-mb-none">
+                    <input className="ux4g-switch-input" type="checkbox" role="switch"
                       checked={!!o.studio_enabled} disabled={busy === o.id}
                       onChange={(e) => toggle(o.id, e.target.checked)}
                       aria-label={`Studio access for ${o.name}`} />
-                    <span className="small ux4g-ml-2xs">{o.studio_enabled ? "Approved" : "Not approved"}</span>
-                  </div>
+                    <div className="ux4g-switch-control"><span className="ux4g-switch-track"><span className="ux4g-switch-thumb"></span></span></div>
+                    <div className="ux4g-switch-content"><span className="ux4g-switch-label">{o.studio_enabled ? "Approved" : "Not approved"}</span></div>
+                  </label>
                 </td>
               </tr>
             ))}

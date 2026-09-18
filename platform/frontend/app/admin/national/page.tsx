@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 import { BAND_COLOR as bandBg, bandStyle } from "@/lib/score";
@@ -24,7 +25,7 @@ export default function National() {
   }, []);
 
   if (err) return <AppShell><div className="gx-page"><div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div></div></AppShell>;
-  if (!d) return <AppShell><div className="gx-page ux4g-text-center"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div></AppShell>;
+  if (!d) return <AppShell><div className="gx-page ux4g-text-center"><Spinner size="md" label="Loading" /></div></AppShell>;
 
   const dist = d.band_distribution || {};
   const scored = BANDS.reduce((t, b) => t + Number(dist[b] || 0), 0);
@@ -56,7 +57,7 @@ export default function National() {
                 } finally { setExporting(false); }
               }}>
               {exporting
-                ? <><span className="spinner-border spinner-border-sm me-2" role="status" />Preparing…</>
+                ? <><Spinner size="sm" className="ux4g-mr-xs" />Preparing…</>
                 : <><Icon name="download" size={16} className="ux4g-mr-2xs" />Export brief</>}
             </button>
           </div>
@@ -130,8 +131,8 @@ export default function National() {
                 <h2>Top performers</h2>
                 <Link href="/admin/league" className="ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Full league table</Link>
               </div>
-              <div className="table-responsive">
-                <table className="gx-table gx-responsive">
+              <div className="ux4g-table-responsive ux4g-table-rounded">
+                <table className="ux4g-table ux4g-table-m gx-responsive">
                   <thead><tr><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
                   <tbody>
                     {(d.league || []).length === 0 && (

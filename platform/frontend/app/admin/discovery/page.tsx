@@ -43,14 +43,24 @@ export default function Discovery() {
           <div className="gx-card-body">
             {/* labelled properly: these two inputs had no `for`, so a screen
                 reader announced an unnamed text box and an unnamed textarea */}
-            <label className="form-label" htmlFor="disc-seed">Source URL (for the record)</label>
-            <input id="disc-seed" className="ux4g-input ux4g-w-100 ux4g-mb-s" value={seed}
-              onChange={e => setSeed(e.target.value)} placeholder="https://example.gov.in/sitemap.xml" />
-            <label className="form-label" htmlFor="disc-body">Fetched content</label>
-            <textarea id="disc-body" className="ux4g-input ux4g-w-100 font-monospace" rows={5} value={body}
-              onChange={e => setBody(e.target.value)}
-              placeholder="Sitemap: https://example.gov.in/sitemap.xml" />
-            <div className="form-text ux4g-mb-s">Sitemap XML, robots.txt or page source — anything containing links.</div>
+            <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100 ux4g-mb-s">
+              <label className="ux4g-label-m-default" htmlFor="disc-seed">Source URL (for the record)</label>
+              <div className="ux4g-input">
+                <input id="disc-seed" className="ux4g-input-input" value={seed}
+                  onChange={e => setSeed(e.target.value)} placeholder="https://example.gov.in/sitemap.xml" />
+              </div>
+            </div>
+            <div className="ux4g-textarea-container ux4g-textarea-md ux4g-w-100 ux4g-mb-s">
+              <label className="ux4g-label-m-default" htmlFor="disc-body">Fetched content</label>
+              <div className="ux4g-textarea">
+                <textarea id="disc-body" className="ux4g-textarea-input font-monospace" rows={5} value={body}
+                  onChange={e => setBody(e.target.value)}
+                  placeholder="Sitemap: https://example.gov.in/sitemap.xml" />
+              </div>
+              <div className="ux4g-input-helper">
+                <span className="ux4g-input-helper-text">Sitemap XML, robots.txt or page source — anything containing links.</span>
+              </div>
+            </div>
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" onClick={scan} disabled={!body.trim()}>
               <Icon name="search" size={16} className="ux4g-mr-2xs" />Scan for gov domains
             </button>
@@ -63,7 +73,7 @@ export default function Discovery() {
           </div>
         </div>
 
-        <div className="gx-card"><div className="table-responsive"><table className="gx-table gx-responsive">
+        <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
           <thead><tr><th>Discovered host</th><th>Source</th><th>Imported</th><th>When</th></tr></thead>
           <tbody>
             {rows.map((d, i) => (

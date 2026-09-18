@@ -5,7 +5,7 @@ import AuditNav from "@/components/AuditNav";
 import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 
-const SEV = { critical: "text-bg-danger", high: "text-bg-warning", medium: "text-bg-warning-subtle", low: "text-bg-light" } as const;
+const SEV = { critical: "ux4g-tag-tonal-error ux4g-tag-s", high: "ux4g-tag-tonal-warning ux4g-tag-s", medium: "ux4g-tag-tonal-warning ux4g-tag-s", low: "ux4g-tag-tonal-neutral ux4g-tag-s" } as const;
 
 export default function Issues({ params }: { params: { id: string } }) {
   const [findings, setFindings] = useState<any[]>([]);
@@ -75,8 +75,8 @@ export default function Issues({ params }: { params: { id: string } }) {
           </div>
         )}
 
-        <div className="gx-card"><div className="table-responsive">
-          <table className="gx-table gx-responsive">
+        <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded">
+          <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead><tr><th>Issue &amp; how to fix</th><th>Category</th><th>Guideline</th><th>Severity</th></tr></thead>
             <tbody>
               {shown.map((f, i) => (
@@ -90,14 +90,14 @@ export default function Issues({ params }: { params: { id: string } }) {
                     )}
                     {ai[f.id] && (
                       <div className="small ux4g-mt-2xs ux4g-p-xs ux4g-radius-m" style={{ background: "var(--bs-tertiary-bg, #f6f8fa)", whiteSpace: "pre-line" }}>
-                        <span className="ux4g-badge-m text-bg-primary-subtle ux4g-mr-2xs">
+                        <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">
                           <Icon name="stars" size={16} className="ux4g-mr-2xs" />AI advisory</span>{ai[f.id]}
                       </div>
                     )}
                   </td>
-                  <td data-label="Category"><span className="ux4g-badge-m text-bg-primary-subtle">{f.category}</span></td>
+                  <td data-label="Category"><span className="ux4g-tag-tonal-neutral ux4g-tag-s">{f.category}</span></td>
                   <td data-label="Guideline"><code className="small">{f.guideline}</code></td>
-                  <td data-label="Severity"><span className={`ux4g-badge-m ${SEV[f.severity as keyof typeof SEV] || "text-bg-light"}`}>{f.severity}</span></td>
+                  <td data-label="Severity"><span className={SEV[f.severity as keyof typeof SEV] || "ux4g-tag-tonal-neutral ux4g-tag-s"}>{f.severity}</span></td>
                 </tr>
               ))}
               {!shown.length && (

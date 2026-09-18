@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 import { BAND_COLOR as bandBg, bandStyle } from "@/lib/score";
@@ -26,8 +27,8 @@ export default function League() {
           </div>
           <div className="gx-actions ux4g-ai-end">
             <div>
-              <label className="form-label" htmlFor="league-category">Service category</label>
-              <select id="league-category" className="ux4g-form-select" style={{ minWidth: 190 }} value={cat}
+              <label className="ux4g-label-m-default" htmlFor="league-category">Service category</label>
+              <select id="league-category" className="ux4g-form-select ux4g-form-select-md" style={{ minWidth: 190 }} value={cat}
                 onChange={e => setCat(e.target.value)}>
                 <option value="transactional">Transactional</option>
                 <option value="information">Information</option>
@@ -51,17 +52,17 @@ export default function League() {
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8"><div className="gx-card">
             <div className="gx-card-head"><h2>Ranking — {cat}</h2></div>
-            <div className="table-responsive"><table className="gx-table gx-responsive">
+            <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
               <thead><tr><th>#</th><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
               <tbody>
-                {rows == null && <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m"><span className="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading" /></td></tr>}
+                {rows == null && <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m"><Spinner size="sm" /></td></tr>}
                 {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">No audited domains in this segment yet.</td></tr>}
                 {(rows || []).map((r, i) => (
                 <tr key={r.url}><td data-label="Rank" className="gx-num gx-muted">{i + 1}</td>
                   <td data-label="Domain" className="gx-cell-primary">{r.url}</td>
                   <td data-label="Score" className="gx-num ux4g-fw-bold">{r.score ?? "—"}</td>
                   <td data-label="Band">{r.band
-                    ? <span className="ux4g-badge-m" style={bandStyle(r.band)}>{r.band}</span>
+                    ? <span className="gx-pill" style={bandStyle(r.band)}>{r.band}</span>
                     : <span className="gx-muted">—</span>}</td></tr>
               ))}</tbody>
             </table></div>
@@ -70,7 +71,7 @@ export default function League() {
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4">
             <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
               <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><h2 className="h6 ux4g-mb-none">Publishing</h2>
-                <span className="ux4g-badge-m text-bg-primary-subtle ux4g-ml-auto">Governance-gated</span></div>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-auto">Governance-gated</span></div>
               <div className="ux4g-d-inline-flex ux4g-gap-2xs ux4g-w-100 ux4g-mb-xs">
                 <button className={`ux4g-btn ux4g-btn-sm ${pub === "internal" ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setPub("internal")}>
                   <Icon name="lock" size={16} className="ux4g-mr-2xs" />Internal</button>

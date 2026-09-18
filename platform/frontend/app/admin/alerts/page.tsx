@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 type Alert = { severity: "critical" | "high" | "medium"; title: string; detail: string };
@@ -34,7 +35,7 @@ export default function Alerts() {
 
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         {!err && !data && (
-          <div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>
+          <div className="ux4g-text-center ux4g-py-m"><Spinner size="md" label="Loading" /></div>
         )}
 
         {data && (
@@ -62,23 +63,29 @@ export default function Alerts() {
                   {data.alerts.length} open
                 </span>
               </div>
-              <div className="list-group list-group-flush">
+              <ul className="ux4g-list ux4g-list-m ux4g-list-default">
               {data.alerts.length === 0 && (
-                <div className="gx-empty">
+                <li className="ux4g-list-item">
+                  <div className="ux4g-list-item-row">
+                  <div className="gx-empty">
                   <div className="gx-empty-icon"><Icon name="check2-circle" size={24} /></div>
                   <h3 className="h6 ux4g-mt-s ux4g-mb-2xs">Nothing to act on</h3>
                   <p className="gx-muted ux4g-mb-none">The estate is clean against these four checks.</p>
-                </div>
+                  </div>
+                  </div>
+                </li>
               )}
               {data.alerts.map((a, i) => (
-                <div className="list-group-item ux4g-d-flex ux4g-gap-s ux4g-ai-start" key={i}>
+                <li className="ux4g-list-item" key={i}>
+                  <div className="ux4g-list-item-row ux4g-d-flex ux4g-gap-s ux4g-ai-start">
                   <span className="ux4g-radius-full ux4g-mt-2xs" style={{ width: 10, height: 10, background: dot[a.severity], flex: "none" }} />
                   <div className="ux4g-flex-grow-1"><b>{a.title}</b><div className="gx-muted small">{a.detail}</div></div>
                   <span className="ux4g-badge-m" style={{ background: `color-mix(in srgb, ${dot[a.severity]} 14%, transparent)`,
                                                    color: dot[a.severity] }}>{a.severity}</span>
-                </div>
+                  </div>
+                </li>
               ))}
-              </div>
+              </ul>
             </div>
           </>
         )}

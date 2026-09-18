@@ -1,24 +1,16 @@
 import { Noto_Sans, Noto_Sans_Devanagari } from "next/font/google";
-// UX4G Design System, layered:
+// UX4G Design System, two layers only (Bootstrap fully removed):
 //   1. ux4g-web-components — the official UX4G CSS bundle (utilities + components +
-//      tokens). The primary system: every page's layout, spacing, buttons, cards,
-//      alerts, tabs and colour come from ux4g-* classes.
-//   2. bootstrap 5 — retained ONLY for the handful of components UX4G has no drop-in
-//      equivalent for and whose markup we did not restructure: native tables,
-//      form-check/switch, input-group, list-group, progress and the .spinner-border
-//      the e2e a11y suite waits on. Documented residual dependency, not a full stack.
-//   3. ux4g-theme.css — maps the GovUX brand onto Bootstrap's --bs-* variables so those
-//      residual Bootstrap components inherit the brand.
-//   4. design-system.css — the gx-* product layer (page/card/stat/table/pill/report/
-//      review primitives) + the UX4G primary-token rebase to the GovUX brand (Option A).
-//   5. globals.css — a few app-specific helpers.
-// Theme: the app writes BOTH data-theme (drives UX4G) and data-bs-theme (drives the
-// retained Bootstrap components + gx layer) in lockstep — see the pre-paint script below.
-// Import order matters: UX4G first so its base can be overridden by the brand layers,
-// and design-system.css last among the token layers so the gx-* system wins.
+//      tokens + stock default theme). The system: layout, spacing, buttons, cards,
+//      alerts, tabs, tables, forms, inputs, tags, spinners, colour — all ux4g-*.
+//   2. design-system.css — the bespoke gx-* product primitives UX4G has no component
+//      for (score meter, verdict/severity blocks, review workflow, nav rail, stat
+//      tiles), authored on UX4G semantic tokens. Includes a small documented --bs-*
+//      compatibility shim (18 vars → UX4G tokens) so those primitives need no Bootstrap.
+//   3. globals.css — a few app-specific helpers.
+// Theme: single data-theme attribute (UX4G's switch). Default theme, no brand override.
+// Import order: UX4G first (establishes reset + tokens), then the gx layer, then globals.
 import "ux4g-web-components/styles.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./ux4g-theme.css";
 import "./design-system.css";
 import "./globals.css";
 import type { ReactNode } from "react";
@@ -45,16 +37,14 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${devanagari.variable}`}
-      data-theme="light" data-bs-theme="light">
+      data-theme="light">
       <head>
         {/* Applied before first paint. Reading localStorage in an effect would
             paint the light theme, then repaint dark — a white flash on every
-            navigation for anyone who chose dark.
-            Sets BOTH attributes: data-theme drives the UX4G design system,
-            data-bs-theme still drives the (shrinking) Bootstrap/gx dark layer
-            until the migration retires it. UX4G has no prefers-color-scheme
-            fallback, so the stored/system choice must be written explicitly. */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem('govux-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}d.setAttribute('data-theme',t);d.setAttribute('data-bs-theme',t);var f=Number(localStorage.getItem('govux-font-scale'));if(f>=90&&f<=140){d.style.fontSize=f+'%';}}catch(e){}})();` }} />
+            navigation for anyone who chose dark. data-theme is UX4G's theme
+            switch; UX4G has no prefers-color-scheme fallback, so the stored or
+            system choice must be written explicitly here. */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem('govux-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}d.setAttribute('data-theme',t);var f=Number(localStorage.getItem('govux-font-scale'));if(f>=90&&f<=140){d.style.fontSize=f+'%';}}catch(e){}})();` }} />
       </head>
       <body>
         <Ux4gRuntime />

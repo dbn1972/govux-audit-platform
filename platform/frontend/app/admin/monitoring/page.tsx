@@ -45,16 +45,16 @@ export default function Monitoring() {
           <div className="gx-card-body">
           <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-ai-end">
             <div className="ux4g-cols-span-12 ux4g-md-cols-span-6">
-              <label className="form-label" htmlFor="monitor-domain">Domain</label>
-              <select id="monitor-domain" className="ux4g-form-select" value={domainId}
+              <label className="ux4g-label-m-default" htmlFor="monitor-domain">Domain</label>
+              <select id="monitor-domain" className="ux4g-form-select ux4g-form-select-md" value={domainId}
                 onChange={e => setDomainId(e.target.value)}>
                 <option value="">Select a verified domain…</option>
                 {domains.map(d => <option key={d.id} value={d.id}>{d.url}</option>)}
               </select>
             </div>
             <div className="ux4g-cols-span-12 ux4g-md-cols-span-3">
-              <label className="form-label" htmlFor="monitor-cadence">Cadence</label>
-              <select id="monitor-cadence" className="ux4g-form-select" value={cadence}
+              <label className="ux4g-label-m-default" htmlFor="monitor-cadence">Cadence</label>
+              <select id="monitor-cadence" className="ux4g-form-select ux4g-form-select-md" value={cadence}
                 onChange={e => setCadence(e.target.value)}>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
@@ -75,7 +75,7 @@ export default function Monitoring() {
           </div>
         </div>
 
-        <div className="gx-card"><div className="table-responsive"><table className="gx-table gx-responsive">
+        <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
           <thead><tr><th>Domain</th><th>Cadence</th><th>Next run</th><th>Last run</th>
             <th><span className="ux4g-sr-only">Actions</span></th></tr></thead>
           <tbody>

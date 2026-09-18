@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 import { BAND_COLOR } from "@/lib/score";
 
@@ -26,7 +27,7 @@ export default function States() {
         </div>
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="gx-card"><div className="gx-card-body">
-          {rows == null && <div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>}
+          {rows == null && <div className="ux4g-text-center ux4g-py-m"><Spinner size="md" label="Loading" /></div>}
           {rows?.length === 0 && !err && <div className="gx-muted ux4g-text-center ux4g-py-l">No state-tagged organisations audited yet.</div>}
           {rows && rows.length > 0 && (
             <>

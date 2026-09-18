@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 type Claim = {
@@ -56,13 +57,14 @@ export default function DomainClaims() {
         </div>
 
         <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-s ux4g-ai-center ux4g-mb-s">
-          <div className="form-check">
-            <input className="form-check-input" type="checkbox" id="contested"
+          <label className="ux4g-checkbox ux4g-checkbox-md">
+            <input className="ux4g-checkbox-input" type="checkbox" id="contested"
               checked={contestedOnly} onChange={(e) => setContestedOnly(e.target.checked)} />
-            <label className="form-check-label" htmlFor="contested">
-              Contested only (more than one organisation claiming)
-            </label>
-          </div>
+            <div className="ux4g-checkbox-control"><span className="ux4g-checkmark"></span></div>
+            <div className="ux4g-checkbox-content"><div className="ux4g-checkbox-header">
+              <span className="ux4g-checkbox-label">Contested only (more than one organisation claiming)</span>
+            </div></div>
+          </label>
           <span className="gx-muted small ux4g-ml-auto">
             {rows == null ? "Loading…"
               : `${rows.length} unverified host${rows.length === 1 ? "" : "s"}`
@@ -74,14 +76,14 @@ export default function DomainClaims() {
         {msg && <div className="ux4g-alert ux4g-alert-success ux4g-py-xs" role="status">{msg}</div>}
 
         <div className="gx-card">
-          <div className="table-responsive"><table className="gx-table">
+          <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m">
             <thead>
               <tr><th>Domain</th><th>Claimed by</th><th>Status</th><th>Claimed</th><th></th></tr>
             </thead>
             <tbody>
               {rows == null && (
                 <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m">
-                  <span className="spinner-border spinner-border-sm text-primary me-2" role="status" />Loading…
+                  <Spinner size="sm" className="ux4g-mr-xs" />Loading…
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
@@ -96,14 +98,14 @@ export default function DomainClaims() {
                     <td className="ux4g-fw-semibold">
                       {i === 0 ? r.url : ""}
                       {i === 0 && r.contested &&
-                        <span className="ux4g-badge-m text-bg-warning-subtle ux4g-ml-xs">
+                        <span className="ux4g-tag-tonal-warning ux4g-tag-s ux4g-ml-xs">
                           contested · {r.claims.length}
                         </span>}
                     </td>
                     <td className="small">{c.org_name}</td>
                     <td>
-                      <span className={`ux4g-badge-m ${c.verify_status === "superseded"
-                        ? "text-bg-secondary-subtle" : "text-bg-warning-subtle"}`}>
+                      <span className={c.verify_status === "superseded"
+                        ? "ux4g-tag-tonal-neutral ux4g-tag-s" : "ux4g-tag-tonal-warning ux4g-tag-s"}>
                         {c.verify_status}
                       </span>
                     </td>

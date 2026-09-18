@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 type Domain = { id: string; url: string; verify_status: string; category?: string | null };
@@ -85,17 +86,17 @@ export default function NewAudit() {
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8">
             <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
-              <label className="form-label" htmlFor="audit-domain">Domain</label>
+              <label className="ux4g-label-m-default" htmlFor="audit-domain">Domain</label>
               {domains == null ? (
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs gx-muted">
-                  <span className="spinner-border spinner-border-sm text-primary" role="status" /> Loading your verified domains…
+                  <Spinner size="sm" /> Loading your verified domains…
                 </div>
               ) : noDomains ? (
                 <div className="ux4g-alert ux4g-alert-info ux4g-mb-none">
                   You have no verified domains yet. <Link href="/domains/new">Register and verify a domain →</Link> to run an audit.
                 </div>
               ) : (
-                <select id="audit-domain" className="ux4g-form-select" value={domainId}
+                <select id="audit-domain" className="ux4g-form-select ux4g-form-select-md" value={domainId}
                         onChange={(e) => setDomainId(e.target.value)}>
                   {domains.map((d) => (
                     <option key={d.id} value={d.id}>
@@ -106,7 +107,7 @@ export default function NewAudit() {
               )}
               {!noDomains && domains != null && (
                 <div className="ux4g-mt-s ux4g-pt-s ux4g-bt-1">
-                  <label className="form-label" htmlFor="audit-depth">Pages to crawl</label>
+                  <label className="ux4g-label-m-default" htmlFor="audit-depth">Pages to crawl</label>
                   <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs ux4g-mb-s">
                     {[1, 2, 5, 10].map((n) => (
                       <button key={n} type="button"
@@ -117,7 +118,7 @@ export default function NewAudit() {
                     ))}
                   </div>
                   <div className="ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
-                    <span className="ux4g-badge-m text-bg-primary-subtle">Covers up to {freePages} pages · free</span>
+                    <span className="ux4g-tag-tonal-neutral ux4g-tag-s">Covers up to {freePages} pages · free</span>
                     <span className="gx-muted small">Unlimited audits on your verified domains.</span>
                     <button type="button" className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm ux4g-ml-auto ux4g-p-none"
                       onClick={() => { setShowReq((v) => !v); setReqMsg(""); }} disabled={!domainId}>
@@ -125,20 +126,28 @@ export default function NewAudit() {
                     </button>
                   </div>
                   {showReq && (
-                    <div className="ux4g-mt-xs ux4g-p-s ux4g-radius-m" style={{ background: "var(--bs-tertiary-bg, #f6f8fa)" }}>
-                      <div className="row g-2 align-items-end">
-                        <div className="col-auto">
-                          <label className="form-label small ux4g-mb-2xs" htmlFor="req-pages">Pages requested</label>
-                          <input id="req-pages" type="number" min={freePages + 1} className="ux4g-input"
-                            style={{ width: 110 }} value={reqPages}
-                            onChange={(e) => setReqPages(parseInt(e.target.value) || freePages + 1)} />
+                    <div className="ux4g-mt-xs ux4g-p-s ux4g-radius-m ux4g-bg-neutral-soft">
+                      <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-end">
+                        <div>
+                          <div className="ux4g-input-container ux4g-input-sm ux4g-input-default" style={{ width: 110 }}>
+                            <label className="ux4g-label-m-default" htmlFor="req-pages">Pages requested</label>
+                            <div className="ux4g-input">
+                              <input id="req-pages" type="number" min={freePages + 1} className="ux4g-input-input"
+                                value={reqPages}
+                                onChange={(e) => setReqPages(parseInt(e.target.value) || freePages + 1)} />
+                            </div>
+                          </div>
                         </div>
-                        <div className="col">
-                          <label className="form-label small ux4g-mb-2xs" htmlFor="req-reason">Reason (optional)</label>
-                          <input id="req-reason" className="ux4g-input ux4g-w-100" placeholder="e.g. full portal audit before launch"
-                            value={reqReason} onChange={(e) => setReqReason(e.target.value)} />
+                        <div className="ux4g-flex-grow-1">
+                          <div className="ux4g-input-container ux4g-input-sm ux4g-input-default ux4g-w-100">
+                            <label className="ux4g-label-m-default" htmlFor="req-reason">Reason (optional)</label>
+                            <div className="ux4g-input">
+                              <input id="req-reason" className="ux4g-input-input" placeholder="e.g. full portal audit before launch"
+                                value={reqReason} onChange={(e) => setReqReason(e.target.value)} />
+                            </div>
+                          </div>
                         </div>
-                        <div className="col-auto">
+                        <div>
                           <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm" onClick={requestCrawl}
                             disabled={reqBusy || reqPages <= freePages}>
                             {reqBusy ? "Sending…" : "Submit request"}</button>
@@ -158,7 +167,7 @@ export default function NewAudit() {
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs ux4g-b-1 ux4g-radius-m ux4g-p-xs ux4g-mb-xs" key={name}>
                   <Icon name="check-circle-fill" size={16} className="ux4g-text-success" />
                   <span className="ux4g-flex-grow-1">{name}</span>
-                  <span className="ux4g-badge-m text-bg-primary-subtle">{wt}%</span>
+                  <span className="ux4g-tag-tonal-neutral ux4g-tag-s">{wt}%</span>
                 </div>
               ))}
             </div></div>
@@ -167,14 +176,14 @@ export default function NewAudit() {
             <div className="gx-card"><div className="gx-card-body">
               <h2 className="h6">Compatibility matrix</h2>
               <div className="ux4g-mb-xs"><div className="gx-muted small">Browser engines</div>
-                <span className="ux4g-badge-m text-bg-secondary ux4g-mr-2xs">Chromium</span>
-                <span className="ux4g-badge-m text-bg-secondary ux4g-mr-2xs">Firefox</span>
-                <span className="ux4g-badge-m text-bg-secondary">WebKit</span></div>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">Chromium</span>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">Firefox</span>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s">WebKit</span></div>
               <div className="ux4g-mb-s"><div className="gx-muted small">Device sizes</div>
-                <span className="ux4g-badge-m text-bg-secondary ux4g-mr-2xs">360</span>
-                <span className="ux4g-badge-m text-bg-secondary ux4g-mr-2xs">414</span>
-                <span className="ux4g-badge-m text-bg-secondary ux4g-mr-2xs">768</span>
-                <span className="ux4g-badge-m text-bg-secondary">1440</span></div>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">360</span>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">414</span>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">768</span>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s">1440</span></div>
               <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100" onClick={submit} disabled={busy || !domainId}>
                 {busy ? "Submitting…" : <><Icon name="play-fill" size={16} className="ux4g-mr-2xs" />Submit — get task ID</>}</button>
             </div></div>

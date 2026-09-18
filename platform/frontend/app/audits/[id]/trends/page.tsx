@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 type H = { task_id: string; date: string; score: number; band: string };
@@ -25,7 +26,7 @@ export default function Trends({ params }: { params: { id: string } }) {
     <AuditNav id={params.id} />{b}</div></AppShell>;
 
   if (err) return wrap(<div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>);
-  if (!hist) return wrap(<div className="ux4g-text-center ux4g-py-m"><span className="spinner-border text-primary" role="status" aria-label="Loading" /></div>);
+  if (!hist) return wrap(<div className="ux4g-text-center ux4g-py-m"><Spinner size="md" label="Loading" /></div>);
   if (hist.length === 0) return wrap(<div className="gx-muted ux4g-text-center ux4g-py-l">No completed audits yet for this domain — run one to start the trend.</div>);
 
   const max = 100;
@@ -46,7 +47,7 @@ export default function Trends({ params }: { params: { id: string } }) {
       </div></div></div>
       <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4"><div className="gx-card ux4g-h-100">
         <div className="gx-card-head">Audit history</div>
-        <div className="table-responsive"><table className="table table-hover ux4g-mb-none">
+        <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m ux4g-mb-none">
           <thead><tr><th>Date</th><th>Score</th><th>Δ</th></tr></thead>
           <tbody>{hist.map((h, i) => {
             const prev = hist[i + 1];   // next in the newest-first list = older run

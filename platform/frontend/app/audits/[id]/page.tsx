@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 const STATES = ["queued", "crawling", "analyzing", "scoring", "completed"];
@@ -87,7 +88,7 @@ export default function Running({ params }: { params: { id: string } }) {
         {done ? (
           <div className="ux4g-alert ux4g-alert-success ux4g-d-flex ux4g-jc-between ux4g-ai-center">
             <span><Icon name="check-circle-fill" size={16} className="ux4g-mr-2xs" />Completed — GovUX Score <b>{status.overall_score}</b> · Band {status.band}
-              {status.guardrail_active && <span className="ux4g-badge-m text-bg-warning ux4g-ml-xs">guard-rail active</span>}</span>
+              {status.guardrail_active && <span className="ux4g-tag-tonal-warning ux4g-tag-s ux4g-ml-xs">guard-rail active</span>}</span>
             <Link href={`/audits/${params.id}/report`} className="ux4g-btn ux4g-btn-primary ux4g-btn-sm">View report →</Link>
           </div>
         ) : status.status === "failed" ? (
@@ -119,7 +120,7 @@ export default function Running({ params }: { params: { id: string } }) {
         ) : (
           <div className="gx-card"><div className="gx-card-body">
             <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
-              <div className="spinner-border spinner-border-sm text-primary" role="status" />
+              <Spinner size="sm" />
               <span>Running the engine — Playwright · Lighthouse · axe-core · GIGW rules · responsiveness matrix…</span>
               <button type="button" className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm ux4g-ml-auto"
                 onClick={cancelAudit} disabled={cancelling}>

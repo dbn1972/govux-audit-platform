@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import GovBanner from "@/components/GovBanner";
 import SiteHeader from "@/components/SiteHeader";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { BAND_COLOR as bandCol } from "@/lib/score";
 
 // UX4G-aligned public landing page for the FREE single-URL audit (no sign-in).
@@ -115,28 +116,36 @@ export default function ScanLanding() {
               </p>
 
               <form onSubmit={start} className="ux4g-mx-auto" style={{ maxWidth: 640 }}>
-                <div className="input-group input-group-lg shadow-sm">
-                  <span className="input-group-text bg-white"><Icon name="globe2" size={16} className="gx-muted" /></span>
-                  <input className="form-control" placeholder="e.g. digilocker.gov.in" value={url}
-                    onChange={e => setUrl(e.target.value)} aria-label="Website URL to scan" required />
+                <div className="ux4g-d-flex ux4g-gap-xs ux4g-ai-end">
+                  <div className="ux4g-input-container ux4g-input-lg ux4g-input-default ux4g-flex-grow-1">
+                    <div className="ux4g-input">
+                      <span className="ux4g-input-leading-icon" aria-hidden="true"><Icon name="globe2" size={16} className="gx-muted" /></span>
+                      <input className="ux4g-input-input" placeholder="e.g. digilocker.gov.in" value={url}
+                        onChange={e => setUrl(e.target.value)} aria-label="Website URL to scan" required />
+                    </div>
+                  </div>
                   <button className="ux4g-btn ux4g-btn-primary ux4g-btn-lg ux4g-px-m" disabled={busy || !url}>
-                    {busy ? <><span className="spinner-border spinner-border-sm me-2" />Scanning…</> : <><Icon name="search" size={16} className="ux4g-mr-xs" />Scan free</>}
+                    {busy ? <><Spinner size="sm" className="ux4g-mr-xs" />Scanning…</> : <><Icon name="search" size={16} className="ux4g-mr-xs" />Scan free</>}
                   </button>
                 </div>
-                <div className="form-text ux4g-mt-xs">Only public <code>.gov.in</code> / <code>.nic.in</code> pages · one page per free scan.</div>
+                <div className="ux4g-input-helper ux4g-mt-xs"><span className="ux4g-input-helper-text">Only public <code>.gov.in</code> / <code>.nic.in</code> pages · one page per free scan.</span></div>
 
                 {captcha && (
-                  <div className="gx-card bg-white ux4g-mt-s ux4g-mx-auto ux4g-text-start" style={{ maxWidth: 420 }}>
+                  <div className="gx-card ux4g-mt-s ux4g-mx-auto ux4g-text-start" style={{ maxWidth: 420 }}>
                     <div className="gx-card-body ux4g-py-s">
                       <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs ux4g-mb-xs">
                         <Icon name="shield-check" size={16} className="ux4g-text-warning" />
                         <span className="ux4g-fw-semibold">Quick check</span>
                         <span className="gx-muted small">(you’ve used your free scans)</span>
                       </div>
-                      <label className="form-label small ux4g-mb-2xs">{captcha.question}</label>
-                      <input className="ux4g-input ux4g-w-100" inputMode="numeric" value={captchaAns}
-                        onChange={e => setCaptchaAns(e.target.value)} placeholder="Your answer"
-                        aria-label={captcha.question} />
+                      <div className="ux4g-input-container ux4g-input-md ux4g-input-default">
+                        <label className="ux4g-label-m-default small ux4g-mb-2xs">{captcha.question}</label>
+                        <div className="ux4g-input">
+                          <input className="ux4g-input-input" inputMode="numeric" value={captchaAns}
+                            onChange={e => setCaptchaAns(e.target.value)} placeholder="Your answer"
+                            aria-label={captcha.question} />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -153,7 +162,7 @@ export default function ScanLanding() {
                   <div className="gx-card-body">
                     {state.status !== "completed" && state.status !== "failed" && (
                       <div className="ux4g-text-center ux4g-py-s">
-                        <div className="spinner-border text-primary mb-2" role="status" />
+                        <Spinner className="ux4g-mb-xs" />
                         <div className="ux4g-fw-semibold" style={{ color: NAVY }}>
                           {state.status === "queued"
                             ? (state.queue_position > 0 ? `In queue — ${state.queue_position} scan${state.queue_position === 1 ? "" : "s"} ahead of you` : "You’re next in the queue…")

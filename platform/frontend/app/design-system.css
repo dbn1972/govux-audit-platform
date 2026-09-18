@@ -10,41 +10,49 @@
 
    Every colour is declared as a token here and used nowhere else as a literal,
    so a dark theme is a second :root block rather than a rewrite. No toggle
-   ships yet — see [data-bs-theme="dark"] at the foot for the seam.
+   ships yet — see [data-theme="dark"] at the foot for the seam.
    ========================================================================== */
+
+/* Theme: stock UX4G default (primary #4A2BC2). No brand token override — per the
+   UX4G skill, choosing the default theme means adding no redundant :root override
+   block. The gx-* product tokens below remain for the bespoke primitives UX4G has
+   no component for (score meter, verdict/severity blocks, review workflow). */
 
 /* ============================================================================
-   UX4G token rebase (Option A — keep the tuned GovUX brand).
+   Bootstrap-variable compatibility shim.
 
-   The UX4G package ships a purple primary ramp (#6a4eff family). Every UX4G
-   component reads its colour from the numbered --ux4g-color-primary-* scale via
-   semantic aliases (--ux4g-bg-primary-strong drives .ux4g-btn-primary, etc.),
-   so re-pointing that ONE scale re-themes the whole system to the GovUX brand —
-   the token cascade the package documents, no !important needed.
-
-   The brand is navy (#0a3d7a) for the strong fills white text sits on, easing
-   to the action blue (#0d6efd) through the mid range, and to washes at the top.
-   These values are the ones already tuned to clear WCAG 2.2 AA in this product.
+   The gx-* product primitives (pill, check, stage, alert accents) were authored
+   against Bootstrap's subtle/emphasis colour pairs. Bootstrap and the old
+   ux4g-theme.css are now removed, so those --bs-* variables no longer exist.
+   Rather than rewrite ~67 scattered references, define exactly the 18 --bs-*
+   vars the gx layer consumes as aliases of UX4G semantic tokens. UX4G tokens are
+   theme-aware (they flip under [data-theme="dark"]), so these inherit dark mode
+   automatically — no separate dark block needed for them. This is the single
+   documented custom shim (skill Rule 5) that lets the bespoke gx-* layer run on
+   pure UX4G tokens with zero Bootstrap.
    ========================================================================== */
 :root {
-  --ux4g-color-primary-50:#eef4fb;
-  --ux4g-color-primary-100:#d7e6f8;
-  --ux4g-color-primary-200:#aecdf1;
-  --ux4g-color-primary-300:#7fb0ee;
-  --ux4g-color-primary-400:#3d8bfd;
-  --ux4g-color-primary-500:#0d6efd;   /* action blue */
-  --ux4g-color-primary-600:#0a58ca;   /* action-strong — links/hover as text */
-  --ux4g-color-primary-700:#0a3d7a;   /* GovUX navy — primary fills */
-  --ux4g-color-primary-800:#082f5e;
-  --ux4g-color-primary-900:#06203f;
-  --ux4g-color-primary-950:#041428;
-}
-/* Dark theme lifts the brand toward the lighter steps so it reads on dark
-   grounds, mirroring the navy→light-blue move the gx layer already makes. */
-[data-theme="dark"] {
-  --ux4g-color-primary-500:#4d94ff;
-  --ux4g-color-primary-600:#7fb0ee;
-  --ux4g-color-primary-700:#a8caf5;
+  --bs-body-bg: var(--ux4g-bg-neutral);
+  --bs-border-color: var(--ux4g-border-color-neutral-subtle);
+  --bs-tertiary-bg: var(--ux4g-bg-neutral-soft);
+  --bs-primary: var(--ux4g-bg-primary-strong);
+  --bs-danger: var(--ux4g-text-status-error);
+  --bs-link-color: var(--ux4g-text-brand-primary-default);
+
+  --bs-primary-bg-subtle: var(--ux4g-bg-primary-subtle);
+  --bs-primary-text-emphasis: var(--ux4g-text-brand-primary-default);
+  --bs-success-bg-subtle: var(--ux4g-bg-success-subtle);
+  --bs-success-text-emphasis: var(--ux4g-text-status-success);
+  --bs-danger-bg-subtle: var(--ux4g-bg-error-subtle);
+  --bs-danger-text-emphasis: var(--ux4g-text-status-error);
+  --bs-danger-border-subtle: var(--ux4g-border-color-error-default);
+  --bs-warning-bg-subtle: var(--ux4g-bg-warning-subtle);
+  --bs-warning-text-emphasis: var(--ux4g-text-status-warning);
+  --bs-warning-border-subtle: var(--ux4g-border-color-warning-default);
+  --bs-info-bg-subtle: var(--ux4g-bg-info-subtle);
+  --bs-info-text-emphasis: var(--ux4g-text-status-info);
+  --bs-secondary-bg-subtle: var(--ux4g-bg-neutral-subtle);
+  --bs-secondary-text-emphasis: var(--ux4g-text-neutral-secondary);
 }
 
 :root {
@@ -87,7 +95,7 @@
   --gx-page-max:1280px;
 
   /* landing-page washes (declared here, not beside the landing styles, because
-     :root and [data-bs-theme="dark"] tie on specificity and source order decides) */
+     :root and [data-theme="dark"] tie on specificity and source order decides) */
   --gx-brand-tint:#e7f0fb; --gx-brand-wash:#eef4fb;
 
   /* Band palette as tokens. These were hexes in lib/score.ts, inlined as
@@ -303,9 +311,9 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
    forward (sunken page < surface < muted), borders lighten rather than darken,
    and the tints that carry meaning are rebuilt at low opacity so a pill keeps
    its hue without glowing. No toggle ships yet, but this renders correctly
-   under data-bs-theme="dark" — which is what makes the token layer worth having.
+   under data-theme="dark" — which is what makes the token layer worth having.
    ------------------------------------------------------------------------ */
-[data-bs-theme="dark"] {
+[data-theme="dark"] {
   --gx-ink-950:#f6f8fa; --gx-ink-900:#e8eef7; --gx-ink-800:#d3dbe6;
   --gx-ink-700:#b8c2d0; --gx-ink-600:#9aa6b6; --gx-ink-500:#8592a6;
   --gx-ink-400:#6b7889; --gx-ink-300:#4a5567; --gx-ink-200:#33425e;
@@ -348,20 +356,20 @@ main h1.h3,main h1.h4 { font-size:1.5rem; letter-spacing:-.015em; }
 
 /* The AA-safe overrides in globals.css pin muted text to a light-theme grey;
    under dark that value is 2.4:1. Follow the token instead. */
-[data-bs-theme="dark"] .text-secondary,
-[data-bs-theme="dark"] .text-muted { color:var(--gx-text-muted) !important; }
+[data-theme="dark"] .text-secondary,
+[data-theme="dark"] .text-muted { color:var(--gx-text-muted) !important; }
 
 /* Band colours are tuned for white grounds and go muddy on a dark one; these
    are the same hues lifted until they clear 4.5:1 against --gx-surface. */
-[data-bs-theme="dark"] {
+[data-theme="dark"] {
   --gx-band-A:#5dc98a; --gx-band-B:#54c9bd; --gx-band-C:#e39a5c;
   --gx-band-D:#ef8b63; --gx-band-E:#f08a90; --gx-band-none:#a8b4c6;
   --gx-band-A-tint:#5dc98a26; --gx-band-B-tint:#54c9bd26; --gx-band-C-tint:#e39a5c26;
   --gx-band-D-tint:#ef8b6326; --gx-band-E-tint:#f08a9026; --gx-band-none-tint:#a8b4c626;
 }
-[data-bs-theme="dark"] .band-A { color:var(--gx-band-A) } [data-bs-theme="dark"] .band-B { color:var(--gx-band-B) }
-[data-bs-theme="dark"] .band-C { color:var(--gx-band-C) } [data-bs-theme="dark"] .band-D { color:var(--gx-band-D) }
-[data-bs-theme="dark"] .band-E { color:var(--gx-band-E) }
+[data-theme="dark"] .band-A { color:var(--gx-band-A) } [data-theme="dark"] .band-B { color:var(--gx-band-B) }
+[data-theme="dark"] .band-C { color:var(--gx-band-C) } [data-theme="dark"] .band-D { color:var(--gx-band-D) }
+[data-theme="dark"] .band-E { color:var(--gx-band-E) }
 
 
 
@@ -610,41 +618,41 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
    ux4g-theme.css darkens them for AA on white). Those same values are 2.6:1 on
    a dark surface — the filter chips on the library read as disabled. Lift them
    to the dark palette; hover still fills, so white-on-fill only improves. */
-[data-bs-theme="dark"] .btn-outline-secondary {
+[data-theme="dark"] .btn-outline-secondary {
   --bs-btn-color:#b8c2d0; --bs-btn-border-color:#4a5567;
   --bs-btn-hover-bg:#4a5567; --bs-btn-hover-border-color:#4a5567; --bs-btn-hover-color:#fff;
   --bs-btn-active-bg:#4a5567; --bs-btn-active-border-color:#4a5567;
   --bs-btn-disabled-color:#6b7889; --bs-btn-disabled-border-color:#33425e;
 }
-[data-bs-theme="dark"] .btn-outline-primary {
+[data-theme="dark"] .btn-outline-primary {
   --bs-btn-color:#7fb0ee; --bs-btn-border-color:#3d6ea8;
   --bs-btn-hover-bg:#3d6ea8; --bs-btn-hover-border-color:#3d6ea8; --bs-btn-hover-color:#fff;
   --bs-btn-active-bg:#3d6ea8; --bs-btn-active-border-color:#3d6ea8;
 }
-[data-bs-theme="dark"] .btn-outline-success {
+[data-theme="dark"] .btn-outline-success {
   --bs-btn-color:#7fd6a1; --bs-btn-border-color:#2f6b4a;
   --bs-btn-hover-bg:#2f6b4a; --bs-btn-hover-border-color:#2f6b4a; --bs-btn-hover-color:#fff;
 }
-[data-bs-theme="dark"] .btn-outline-danger {
+[data-theme="dark"] .btn-outline-danger {
   --bs-btn-color:#f09aa3; --bs-btn-border-color:#7d3038;
   --bs-btn-hover-bg:#7d3038; --bs-btn-hover-border-color:#7d3038; --bs-btn-hover-color:#fff;
 }
 /* .btn-light on the dark landing CTA would be a white slab; keep it readable */
-[data-bs-theme="dark"] .badge.text-bg-light { background:var(--gx-ink-100) !important;
+[data-theme="dark"] .badge.text-bg-light { background:var(--gx-ink-100) !important;
                                               color:var(--gx-ink-800) !important; }
 
 /* Hard-coded light grounds. 29 call sites reach for .bg-white / .bg-light to
    mean "a surface" — under dark those paint a white slab with dark text, which
    is how the settings footnote ended up as a torn strip of daylight. Point them
    at the surface tokens instead of hunting them down one by one. */
-[data-bs-theme="dark"] .bg-white { background-color:var(--gx-surface) !important; }
-[data-bs-theme="dark"] .bg-light { background-color:var(--gx-surface-muted) !important;
+[data-theme="dark"] .bg-white { background-color:var(--gx-surface) !important; }
+[data-theme="dark"] .bg-light { background-color:var(--gx-surface-muted) !important;
                                    color:var(--gx-text); }
-[data-bs-theme="dark"] .table-light,
-[data-bs-theme="dark"] .table-light > th { background-color:var(--gx-surface-muted) !important; }
-[data-bs-theme="dark"] .alert-light { background-color:var(--gx-surface-muted);
+[data-theme="dark"] .table-light,
+[data-theme="dark"] .table-light > th { background-color:var(--gx-surface-muted) !important; }
+[data-theme="dark"] .alert-light { background-color:var(--gx-surface-muted);
                                       border-color:var(--gx-border); color:var(--gx-text); }
-[data-bs-theme="dark"] .btn-light { --bs-btn-bg:var(--gx-ink-100); --bs-btn-color:var(--gx-ink-900);
+[data-theme="dark"] .btn-light { --bs-btn-bg:var(--gx-ink-100); --bs-btn-color:var(--gx-ink-900);
                                     --bs-btn-border-color:var(--gx-ink-200);
                                     --bs-btn-hover-bg:var(--gx-ink-200); --bs-btn-hover-color:var(--gx-ink-950); }
 
@@ -705,17 +713,17 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
    dark surface it is 3.2:1, and it is what the guideline ids on the issues
    table are set in. Form controls, progress tracks and list rows are the other
    Bootstrap components that carry a light ground of their own. */
-[data-bs-theme="dark"] { --bs-code-color:#f2a3c4; }
-[data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
+[data-theme="dark"] { --bs-code-color:#f2a3c4; }
+[data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
   background-color:var(--gx-surface-muted); border-color:var(--gx-border-strong);
   color:var(--gx-text);
 }
-[data-bs-theme="dark"] .form-control::placeholder { color:var(--gx-ink-400); }
-[data-bs-theme="dark"] .input-group-text { background-color:var(--gx-surface-muted);
+[data-theme="dark"] .form-control::placeholder { color:var(--gx-ink-400); }
+[data-theme="dark"] .input-group-text { background-color:var(--gx-surface-muted);
                                            border-color:var(--gx-border-strong);
                                            color:var(--gx-text-muted); }
-[data-bs-theme="dark"] .progress { background-color:var(--gx-ink-100); }
-[data-bs-theme="dark"] .list-group-item { background-color:transparent;
+[data-theme="dark"] .progress { background-color:var(--gx-ink-100); }
+[data-theme="dark"] .list-group-item { background-color:transparent;
                                           border-color:var(--gx-border); color:var(--gx-text); }
 
 /* ---------------------------------------------------------------------------
@@ -764,7 +772,7 @@ main .container-fluid,main .container { max-width:var(--gx-page-max); margin-inl
            font-weight:600; text-decoration:none;
            transition:top .12s ease-out; }
 .gx-skip:focus { top:.5rem; color:var(--gx-text-invert); }
-[data-bs-theme="dark"] .gx-skip { background:var(--gx-action); color:#06203f; }
+[data-theme="dark"] .gx-skip { background:var(--gx-action); color:#06203f; }
 
 /* ---------------------------------------------------------------------------
    Public content pages — about, privacy, terms. Long-form reading, so the
