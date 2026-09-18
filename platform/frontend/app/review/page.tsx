@@ -683,8 +683,8 @@ export default function Review() {
               </div>
             )}
 
-            <div className="gx-card-body" style={{ borderTop: "1px solid var(--gx-border)",
-                                                    background: "var(--gx-surface-muted)" }}>
+            <div className="gx-card-body" style={{ borderTop: "1px solid var(--ux4g-border-color-neutral-subtle)",
+                                                    background: "var(--ux4g-bg-neutral-soft)" }}>
               <h2 className="ux4g-heading-2xs-strong ux4g-mb-s">Sign off</h2>
               {locked && !result ? (
                 <div className="ux4g-alert ux4g-alert-info ux4g-mb-none" role="status">

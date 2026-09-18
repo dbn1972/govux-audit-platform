@@ -72,7 +72,7 @@ export default function Running({ params }: { params: { id: string } }) {
             <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-s ux4g-mt-m">
               <span className="gx-meter ux4g-flex-grow-1">
                 <span style={{ width: `${Math.round((status.pages_done / status.pages_total) * 100)}%`,
-                               background: "var(--gx-action)" }} />
+                               background: "var(--ux4g-bg-primary-strong)" }} />
               </span>
               <span className="gx-num gx-muted" style={{ fontSize: ".8125rem" }}>
                 {status.pages_done} of {status.pages_total} pages

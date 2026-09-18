@@ -206,7 +206,7 @@ export default function Studio() {
               <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-s">
                 {(run.files || []).map((f: string) => (
                   <div key={f} role="button" onClick={() => setZoom(f)} className="ux4g-b-1 ux4g-radius-m ux4g-o-hidden"
-                    style={{ width: 220, boxShadow: zoom === f ? "0 0 0 2px var(--gx-action)" : undefined }}>
+                    style={{ width: 220, boxShadow: zoom === f ? "0 0 0 2px var(--ux4g-border-color-primary-default)" : undefined }}>
                     <div style={{ height: 150, overflow: "hidden", background: "#fff", pointerEvents: "none" }}>
                       <iframe title={f} srcDoc={htmls[f] || ""} sandbox="allow-same-origin"
                         style={{ width: 1180, height: 800, border: 0, transform: "scale(.186)", transformOrigin: "top left" }} />
@@ -229,7 +229,7 @@ export default function Studio() {
                     government page is white in both themes, and tinting it
                     would misrepresent what was built */}
                 <div className="ux4g-b-1 ux4g-radius-m ux4g-d-flex ux4g-jc-center"
-                  style={{ background: "var(--gx-surface-sunken)", overflow: "auto" }}>
+                  style={{ background: "var(--ux4g-bg-neutral)", overflow: "auto" }}>
                   <iframe title="preview" srcDoc={htmls[zoom] || ""} sandbox="allow-same-origin" style={{ width: device, height: 640, border: 0, background: "#fff" }} />
                 </div>
               </div></div>

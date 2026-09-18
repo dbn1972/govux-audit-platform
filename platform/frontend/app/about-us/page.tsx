@@ -115,7 +115,7 @@ export default function AboutUs() {
             against the gx-cta gradient (documented custom, per contract Rule 7). */}
         <div className="ux4g-d-flex ux4g-gap-xs ux4g-flex-wrap">
           <a href="/" className="ux4g-btn ux4g-btn-md ux4g-fw-semibold"
-            style={{ background: "#fff", color: "var(--gx-navy-800)", border: "1px solid #fff" }}>
+            style={{ background: "#fff", color: "var(--ux4g-text-brand-primary-default)", border: "1px solid #fff" }}>
             Free scan
           </a>
           <a href="/login" className="ux4g-btn ux4g-btn-md ux4g-fw-semibold"

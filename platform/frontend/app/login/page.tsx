@@ -55,7 +55,7 @@ export default function Login() {
   // same identity bar, the same masthead and the same skip link as the rest.
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column",
-                  background: "var(--gx-surface-sunken)" }}>
+                  background: "var(--ux4g-bg-neutral)" }}>
       <GovBanner />
       <SiteHeader />
 

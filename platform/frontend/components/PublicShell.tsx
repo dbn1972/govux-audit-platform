@@ -15,7 +15,7 @@ import SiteHeader from "@/components/SiteHeader";
 export default function PublicShell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column",
-                  background: "var(--gx-surface-sunken)" }}>
+                  background: "var(--ux4g-bg-neutral)" }}>
       <GovBanner />
 
       <SiteHeader />

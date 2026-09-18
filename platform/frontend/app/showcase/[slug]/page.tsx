@@ -27,7 +27,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
   const src = (f: string) => `/api/v1/public/showcase/${slug}/${f}`;
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--gx-surface-sunken)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--ux4g-bg-neutral)" }}>
       <GovBanner />
       <header className="ux4g-bg-neutral-elevated ux4g-bb-1">
         <div className="ux4g-container ux4g-py-xs ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
@@ -65,7 +65,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
           <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-s ux4g-mb-s">
             {(meta.files || []).map((f: string) => (
               <div key={f} role="button" onClick={() => setActive(f)} className="ux4g-b-1 ux4g-radius-m ux4g-o-hidden ux4g-bg-neutral-elevated"
-                style={{ width: 220, boxShadow: active === f ? "0 0 0 2px var(--gx-action)" : undefined }}>
+                style={{ width: 220, boxShadow: active === f ? "0 0 0 2px var(--ux4g-border-color-primary-default)" : undefined }}>
                 <div style={{ height: 150, overflow: "hidden", pointerEvents: "none" }}>
                   <iframe title={f} src={src(f)} sandbox="allow-same-origin"
                     style={{ width: 1180, height: 800, border: 0, transform: "scale(.186)", transformOrigin: "top left" }} />

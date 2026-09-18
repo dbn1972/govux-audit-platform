@@ -111,12 +111,38 @@ async function seriousViolations() {
     .map((v) => `${v.id}: ${v.help} → ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);
 }
 
+/** Switch the app's theme the way a reader does, and keep it across navigation. */
+async function setTheme(theme: "light" | "dark") {
+  await page.evaluate((t) => {
+    try { localStorage.setItem("govux-theme", t); } catch { /* blocked storage */ }
+    document.documentElement.setAttribute("data-theme", t);
+  }, theme);
+}
+
 for (const path of PAGES) {
   test(`no critical/serious a11y violations · ${path}`, async () => {
     await openSignedIn(path);
     expect(await seriousViolations()).toEqual([]);
   });
 }
+
+// The same sweep in dark. The product ships two themes, and until this existed
+// only one of them was ever checked — every colour-contrast defect found while
+// moving onto UX4G's tokens was dark-only (a nav item at 4.15:1, a link inside
+// an info alert at 2.34:1, an unread badge at 1.71:1). A theme that is not
+// audited is a theme that regresses.
+test.describe("dark theme", () => {
+  test.beforeAll(async () => { await setTheme("dark"); });
+  test.afterAll(async () => { await setTheme("light"); });
+
+  for (const path of PAGES) {
+    test(`no critical/serious a11y violations · ${path} @ dark`, async () => {
+      await openSignedIn(path);
+      await setTheme("dark");           // survives the reload openSignedIn does
+      expect(await seriousViolations()).toEqual([]);
+    });
+  }
+});
 
 // The navigation drawer is a11y-relevant and only exists at mobile widths, so a
 // desktop-only sweep never sees it. It is also the one piece of UI present on

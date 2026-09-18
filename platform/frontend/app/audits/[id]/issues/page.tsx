@@ -89,7 +89,7 @@ export default function Issues({ params }: { params: { id: string } }) {
                       </div>
                     )}
                     {ai[f.id] && (
-                      <div className="ux4g-fs-14 ux4g-mt-2xs ux4g-p-xs ux4g-radius-m" style={{ background: "var(--gx-surface-muted)", whiteSpace: "pre-line" }}>
+                      <div className="ux4g-fs-14 ux4g-mt-2xs ux4g-p-xs ux4g-radius-m" style={{ background: "var(--ux4g-bg-neutral-soft)", whiteSpace: "pre-line" }}>
                         <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">
                           <Icon name="stars" size={16} className="ux4g-mr-2xs" />AI advisory</span>{ai[f.id]}
                       </div>

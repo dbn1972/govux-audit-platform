@@ -36,8 +36,8 @@ export default function Standards() {
               {WEIGHTS.map(([name, wt]) => (
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-s ux4g-my-xs" key={name as string}>
                   <div style={{ width: 220, fontSize: 13 }}>{name}</div>
-                  <div className="gx-score-bar ux4g-flex-grow-1"><i style={{ width: `${(wt as number) * 4}%`, background: "var(--gx-action)" }} /></div>
-                  <b style={{ width: 40, textAlign: "right", color: "var(--gx-navy-800)" }}>{wt}%</b>
+                  <div className="gx-score-bar ux4g-flex-grow-1"><i style={{ width: `${(wt as number) * 4}%`, background: "var(--ux4g-bg-primary-strong)" }} /></div>
+                  <b style={{ width: 40, textAlign: "right", color: "var(--ux4g-text-brand-primary-default)" }}>{wt}%</b>
                 </div>
               ))}
               <div className="ux4g-alert ux4g-alert-info ux4g-fs-14 ux4g-mt-xs ux4g-mb-none">

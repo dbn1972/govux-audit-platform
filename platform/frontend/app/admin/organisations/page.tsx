@@ -144,7 +144,7 @@ export default function Organisations() {
         )}
 
         {editing && (
-          <div className="gx-card ux4g-mb-s" style={{ borderColor: "var(--gx-action)" }}><div className="gx-card-body">
+          <div className="gx-card ux4g-mb-s" style={{ borderColor: "var(--ux4g-border-color-primary-default)" }}><div className="gx-card-body">
             <h2 className="ux4g-heading-2xs-strong">Edit organisation</h2>
             <form className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs ux4g-ai-end" onSubmit={saveEdit}>
               <div className="ux4g-cols-span-12 ux4g-md-cols-span-5">

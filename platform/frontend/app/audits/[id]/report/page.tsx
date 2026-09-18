@@ -154,7 +154,7 @@ export default function Report({ params }: { params: { id: string } }) {
           <div className="gx-card">
             <div className="gx-card-body">
               <div className="gx-label">Legal compliance verdict</div>
-              <div className="ux4g-heading-xs-strong ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--gx-navy-800)" }}>
+              <div className="ux4g-heading-xs-strong ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--ux4g-text-brand-primary-default)" }}>
                 {String(r.compliance?.status || "not assessed").replace(/_/g, " ")}
               </div>
               <div className="gx-muted" style={{ fontSize: ".875rem" }}>

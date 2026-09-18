@@ -159,8 +159,8 @@ export default function Compare({ params }: { params: { id: string } }) {
                 <td data-label="Status"><span className="gx-chip">{statusLabel(p.status)}</span></td>
                 <td data-label="Score" className="ux4g-fw-bold gx-num">{p.score ?? "—"}</td>
                 <td data-label="Change" className="gx-num ux4g-fw-semibold"
-                  style={{ color: p.delta == null ? "var(--gx-text-muted)"
-                    : p.delta > 0 ? "var(--gx-band-A)" : p.delta < 0 ? "var(--gx-band-E)" : "var(--gx-text-muted)" }}>
+                  style={{ color: p.delta == null ? "var(--ux4g-text-neutral-secondary)"
+                    : p.delta > 0 ? "var(--gx-band-A)" : p.delta < 0 ? "var(--gx-band-E)" : "var(--ux4g-text-neutral-secondary)" }}>
                   {p.delta == null ? "—" : (
                     <>
                       <Icon name={p.delta > 0 ? "arrow-up" : p.delta < 0 ? "arrow-down" : "dash"} size={16} className="ux4g-mr-2xs" />

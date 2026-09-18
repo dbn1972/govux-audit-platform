@@ -38,7 +38,7 @@ export default function Trends({ params }: { params: { id: string } }) {
         <div className="ux4g-d-flex ux4g-ai-end ux4g-gap-m ux4g-mt-s" style={{ height: 180 }}>
           {asc.map(h => (
             <div key={h.task_id} className="ux4g-text-center ux4g-flex-grow-1">
-              <div style={{ height: `${(h.score / max) * 150}px`, background: "var(--gx-action)", borderRadius: "6px 6px 0 0" }} />
+              <div style={{ height: `${(h.score / max) * 150}px`, background: "var(--ux4g-bg-primary-strong)", borderRadius: "6px 6px 0 0" }} />
               <div className="ux4g-fw-bold ux4g-mt-2xs">{Math.round(h.score)}</div>
               <div className="gx-muted" style={{ fontSize: 10 }}>{fmt(h.date)}</div>
             </div>
@@ -56,8 +56,8 @@ export default function Trends({ params }: { params: { id: string } }) {
               <tr key={h.task_id}><td className="ux4g-fs-14">{fmt(h.date)}</td>
                 <td className="ux4g-fw-bold">{Math.round(h.score)}</td>
                 <td className="ux4g-fs-14 gx-num ux4g-fw-semibold" style={{
-                  color: delta == null ? "var(--gx-text-muted)"
-                    : delta > 0 ? "var(--gx-band-A)" : delta < 0 ? "var(--gx-band-E)" : "var(--gx-text-muted)" }}>
+                  color: delta == null ? "var(--ux4g-text-neutral-secondary)"
+                    : delta > 0 ? "var(--gx-band-A)" : delta < 0 ? "var(--gx-band-E)" : "var(--ux4g-text-neutral-secondary)" }}>
                   {delta == null ? "baseline" : `${delta >= 0 ? "+" : ""}${delta}`}</td></tr>
             );
           })}</tbody>

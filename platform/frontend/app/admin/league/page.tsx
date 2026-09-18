@@ -38,8 +38,8 @@ export default function League() {
           </div>
         </div>
 
-        <div className="gx-callout" style={{ background: "var(--gx-surface-muted)",
-          borderColor: "var(--gx-border)", color: "var(--gx-ink-700)" }}>
+        <div className="gx-callout" style={{ background: "var(--ux4g-bg-neutral-soft)",
+          borderColor: "var(--ux4g-border-color-neutral-subtle)", color: "var(--ux4g-text-neutral-secondary)" }}>
           <Icon name="diagram-3" size={20} />
           <div>
             Ranking <b>{cat}</b> services against {rows?.length ?? 0} peer{rows?.length === 1 ? "" : "s"}.
@@ -82,7 +82,7 @@ export default function League() {
                 Rankings default to the internal steward view. Public publication is a MeitY policy decision — GSA/EU precedent.
               </p>
             </div></div>
-            <div className="gx-card" style={{ background: "var(--gx-surface-muted)" }}><div className="gx-card-body">
+            <div className="gx-card" style={{ background: "var(--ux4g-bg-neutral-soft)" }}><div className="gx-card-body">
               <h2 className="ux4g-heading-2xs-strong">Anti-gaming safeguards</h2>
               <ul className="ux4g-fs-14 gx-muted ux4g-mb-none ux4g-ps-s">
                 <li>Guard-rails cap the band on critical failures</li>

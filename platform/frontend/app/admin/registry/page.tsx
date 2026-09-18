@@ -89,7 +89,7 @@ export default function Registry() {
             </div>
           </div>
           <div className="gx-card-body ux4g-d-flex ux4g-gap-xs ux4g-ai-center ux4g-flex-wrap"
-            style={{ borderTop: "1px solid var(--gx-border)", background: "var(--gx-surface-muted)" }}>
+            style={{ borderTop: "1px solid var(--ux4g-border-color-neutral-subtle)", background: "var(--ux4g-bg-neutral-soft)" }}>
             <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!csv.trim() || busy}
               onClick={() => run(true)}>{busy ? "Checking…" : "Preview"}</button>
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" disabled={!previewed || busy}

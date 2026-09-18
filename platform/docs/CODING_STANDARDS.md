@@ -30,7 +30,10 @@
 ## TypeScript / Next.js
 - Client pages mount `AppShell`; all data goes through `lib/api.ts` (handles silent token refresh).
 - Use UX4G classes (`ux4g-btn`, `ux4g-table`, `ux4g-alert`, `ux4g-tag-tonal-*`, `ux4g-container`);
-  icons via `components/Icon.tsx`; deep-blue headings via `var(--gx-navy-800)`. Bootstrap is gone —
+  icons via `components/Icon.tsx`; brand colour via `var(--ux4g-text-brand-primary-default)`.
+  Never reach for a `--ux4g-color-*` primitive or a hex — use the semantic tokens, which flip with
+  the theme. A status *text* token (`--ux4g-text-status-*`) is not a background; painting one as a
+  background inverts under dark. Bootstrap is gone —
   a bare `card`/`btn`/`small`/`container` class styles nothing. No bespoke CSS when a UX4G
   token/class exists; when there is genuinely none, add a `gx-`prefixed rule to `design-system.css`
   built from tokens.

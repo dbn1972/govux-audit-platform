@@ -172,7 +172,7 @@ export default function Dashboard() {
                         </span>
                         <span className="gx-meter ux4g-flex-grow-1">
                           <span style={{ width: `${d.latest_score}%`,
-                                         background: bandColor[d.latest_band || ""] || "var(--gx-ink-400)" }} />
+                                         background: bandColor[d.latest_band || ""] || "var(--ux4g-bg-neutral-subtle)" }} />
                         </span>
                       </div>
                     ) : <span className="gx-muted">Not audited</span>}

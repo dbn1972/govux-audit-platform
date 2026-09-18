@@ -72,8 +72,12 @@ most-specific User-agent group wins, longest-match with Allow winning ties. Unit
   `routers/`, include it in `main.py`. Use `Depends(current_user)` / `require_role(...)`.
 - Frontend: client pages use `AppShell`; data via `lib/api.ts` (silent refresh). UX4G classes directly
   (`ux4g-btn ux4g-btn-primary`, `ux4g-table`, `ux4g-alert`, `ux4g-tag-tonal-*`), icons via
-  `components/Icon.tsx`, deep-blue headings via `var(--gx-navy-800)`. Bespoke primitives only where
-  UX4G has no component, prefixed `gx-` and built from tokens — never a colour literal.
+  `components/Icon.tsx`, brand colour via `var(--ux4g-text-brand-primary-default)`. Colour, elevation
+  and shape all come from UX4G's **semantic** tokens (`--ux4g-bg-*`, `--ux4g-text-*`,
+  `--ux4g-border-color-*`), which are theme-aware — so nothing carries a dark palette of its own.
+  Bespoke primitives only where UX4G has no component, prefixed `gx-` and built from those tokens —
+  never a colour literal. The only gx-* tokens left are the page frame, the spacing rhythm, the A–E
+  score bands, and `--gx-on-*` (accessible ink for UX4G's own status grounds; see below).
   UX4G's `ux4g-heading-*`/`ux4g-body-*`/`ux4g-label-*` are matched by `[class^=]`, so they must lead
   the class attribute; `ux4g-fs-*` is matched by `[class*=]` and works in any position.
 - Every new screen passes `scripts/verify_screens.py`, which checks structure AND that the

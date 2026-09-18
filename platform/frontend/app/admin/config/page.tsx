@@ -102,7 +102,7 @@ export default function ConfigAdmin() {
                     <div className="ux4g-cols-span-6 ux4g-md-cols-span-3" key={label}>
                       <div className="ux4g-b-1 ux4g-radius-m ux4g-p-xs ux4g-h-100">
                         <div className="gx-muted" style={{ fontSize: 11 }}>{label}</div>
-                        <div className="ux4g-fw-bold" style={{ fontSize: 18, color: warn ? BAND_COLOR.E : "var(--gx-navy-800)" }}>
+                        <div className="ux4g-fw-bold" style={{ fontSize: 18, color: warn ? BAND_COLOR.E : "var(--ux4g-text-brand-primary-default)" }}>
                           {val ?? "—"}
                         </div>
                       </div>

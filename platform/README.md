@@ -50,8 +50,10 @@ remapping layer, no `--bs-*` variables anywhere in the source.
   spacing scale. See `login`, `dashboard`, `report`.
 - `app/design-system.css` is the **gx-\* product layer**: only the primitives UX4G
   has no component for — the score meter, the verdict and severity blocks, the
-  guided-review workflow, the nav rail, the stat tiles and the landing page. It is
-  authored on UX4G semantic tokens, so both themes come from one source.
+  guided-review workflow, the stat tiles and the landing page — plus the narrow
+  contrast repairs to UX4G's own components listed below. It is authored on UX4G
+  semantic tokens, so both themes come from one source. (The identity bar, the
+  masthead and the signed-in rail are UX4G components, not gx-\* primitives.)
 - Icons come from `lucide-react` behind `components/Icon.tsx`, which maps the
   project's icon vocabulary (the historical `bi-*` names, still used as data in
   the nav and notification models) onto lucide components.
@@ -61,13 +63,122 @@ remapping layer, no `--bs-*` variables anywhere in the source.
   at build time — no request leaves the origin, and the Indic face is loaded now
   rather than swapped in later (a face swap changes every line length).
 
-### Two rules that bite
+### Theme
+
+The product runs UX4G's **stock theme** — no brand override block, no
+`--ux4g-color-primary-*` remap. Colour, elevation and shape come from UX4G's
+*semantic* tokens (`--ux4g-bg-*`, `--ux4g-text-*`, `--ux4g-border-color-*`,
+`--ux4g-shadow-*`, `--ux4g-radius-*`), used directly at each call site. Those
+tokens are theme-aware inside UX4G's bundle, so **dark mode needs no CSS of our
+own** — `design-system.css` carries no dark palette at all.
+
+Only four kinds of token remain ours, because UX4G has no equivalent:
+
+| Token | Why it stays |
+|---|---|
+| `--gx-page-max` | the product's 1280px frame |
+| `--gx-space-1..7` | UX4G's scale steps 1.5rem → 2.5rem → 3.5rem, so 2rem and 3rem have no equivalent; converting would move layout, not colour |
+| `--gx-band-A..E` | the A–E score palette — meaning, not identity, and tuned per theme for AA |
+| `--gx-on-success/error/warning/info` | accessible ink for UX4G's own status grounds (see below) |
+
+### Three rules that bite
 
 1. `ux4g-heading-*`, `ux4g-body-*` and `ux4g-label-*` are applied through
    `[class^=ux4g-…]` selectors, so they only take effect when they are **first**
    in the class attribute. `ux4g-fs-*` uses `[class*=…]` and works anywhere.
-2. Anything genuinely bespoke goes in the `gx-*` layer with a `gx-` prefix and is
+2. Use the **semantic** tokens, never the `--ux4g-color-*` primitives: the
+   primitive ramp does not flip with the theme, the semantic layer does. And a
+   status *text* token is not a background — painting `--ux4g-text-status-error`
+   as one inverts to pale pink under dark.
+3. Anything genuinely bespoke goes in the `gx-*` layer with a `gx-` prefix and is
    built from tokens — never a colour literal, or it cannot follow the theme.
+
+### The accessibility bar
+
+The Government of India identity strip is UX4G's own accessibility bar
+(`topbar` / `__wrap` / `__group` / `__iconbtn` / `__selectbtn`), not a bespoke
+bar — `components/GovBanner.tsx`. The root class comes from the package's
+`buildAccessibilityBarClasses()` rather than a hardcoded string.
+
+> **What `ux4g-web-components` actually ships.** Despite the name it exports no
+> renderable components — no React components and no custom elements. Three
+> entry points: `./styles.css` (the CSS bundle), `./runtime` (`initRuntime()`,
+> which injects the vendor JS behind dropdowns, modals, tooltips and the like —
+> wired up in `components/Ux4gRuntime.tsx`), and `./types`, which is **55
+> class-name builder functions** (`buildButtonClasses`, `buildTagClasses`,
+> `buildAccessibilityBarClasses`, …) plus their TypeScript types. You still
+> write the markup; the package supplies the classes. Prefer the builders over
+> hardcoded class strings where one exists — they are the supported API, so an
+> upstream class rename arrives as a package version bump instead of silently
+> unstyling a component. `./types` is side-effect-free and tree-shakes.
+
+### The navbar
+
+The signed-out masthead (`components/SiteHeader.tsx`) is UX4G's published
+**Navbar** — `ux4g-navbar` from `buildNavbarClasses()`, the `ux4g-navbar-wrap`
+row, the brand block with `ux4g-divider-vertical` and its title/description
+pair, and an `ux4g-navbar-links` list of `ux4g-text-link-sm` anchors. The
+bespoke `.gx-siteheader` rules are retired.
+
+Two classes from the published example are deliberately **not** used:
+
+- `ux4g-navbar-desktop` / `ux4g-navbar-mobile` — an all-or-nothing pair.
+  `navbar-desktop` is `display:none !important` below 768px and everything in it
+  is expected to reappear in a `navbar-mobile` dropdown you build yourself.
+  Adopting the wrapper without that dropdown would take the links *and the Sign
+  in button* off every phone. With three links and two actions, hiding links
+  individually keeps sign-in reachable at every width. Build the dropdown if the
+  nav ever grows.
+- `ux4g-navbar-logo` — it is `filter:brightness(0) invert(1)`, meant for a white
+  logo on a dark bar. This navbar's ground is `--ux4g-bg-neutral-elevated`, so
+  the class would paint the mark white on white.
+
+### The signed-in shell
+
+`AppShell` is UX4G's **Dashboard** pattern, not the Navbar: the rail is
+`ux4g-dashboard-sidebar` with an `ux4g-dashboard-sidebar-nav`, and each item is
+an `ux4g-dashboard-nav-item` (plus `.active`, carried alongside `aria-current`)
+with an `ux4g-dashboard-nav-icon`. The app bar on top is `ux4g-navbar` — UX4G's
+`ux4g-dashboard-header-container` is a content card, not a sticky bar — and the
+mobile drawer is `buildDrawerClasses("left", open)`.
+
+The drawer takes UX4G's *surface* only. The package ships styling with no
+behaviour for it, so the dialog contract — focus trap, Escape, scroll lock,
+focus restore, close on route change — stays in React, where it is tested.
+
+> **`ux4g-dashboard-nav-item.active` is unreadable as shipped.** UX4G pairs
+> `--ux4g-bg-primary` with `--ux4g-text-white`: `#fff` on `#f2efff` under light
+> (**1.13:1**) and `#000` on `#24145c` under dark (**1.33:1**). The selected nav
+> item disappears in both themes. `design-system.css` repaints it with
+> `--ux4g-bg-primary-strong` + `--ux4g-text-neutral-inverse` (8.33:1 / 6.87:1)
+> and restores a non-colour marker, since UX4G's item is 600-weight at every
+> state and would otherwise be told apart by colour alone. It carries the GIGW text-size control (A− A A+,
+90–140% in steps of 10), which persists in `localStorage` and is applied before
+first paint by the inline script in `layout.tsx`, so a reader who needs 130% gets
+it on every page without a flash. The buttons are UX4G's 36px icon buttons, well
+clear of WCAG 2.5.8's 24px minimum, and the change is announced through a
+`role="status"` live region.
+
+The skip link is the one part still bespoke (`.gx-skip`): UX4G's `__skip` is a
+permanently visible link, while ours stays off-screen until focused — the pattern
+the e2e keyboard test asserts. It uses an elevated surface rather than the brand
+ground, because it lands *on* the bar and would otherwise be invisible at the
+moment it is needed.
+
+### Known upstream gap: status contrast
+
+`ux4g-web-components@2.1.0` pairs each status background with its matching
+status text colour, and several of those pairs miss WCAG 2.2 AA. Measured on the
+shipped bundle: alerts 1.90–4.02:1, tonal tags 3.58:1 (dark warning) and 4.30:1
+(dark info). The `ux4g-topbar` has the same defect for a different reason — it
+pairs `--ux4g-color-neutral-0`, a *primitive* that does not flip, with
+`--ux4g-bg-primary-strong`, which does, so the whole bar is white-on-lavender at
+2.61:1 under dark. The dashboard nav item's active state fails the same way at
+1.13:1 and 1.33:1 (see *The signed-in shell*). `design-system.css` overrides
+only the **ink** in each case
+(via `--gx-on-*` for status, the semantic inverse token for the topbar); UX4G
+keeps ownership of every background, spacing and shape. Remove those overrides when upstream fixes the token pairs — the measured
+ratios are recorded beside each rule as the check.
 
 ## Layout
 

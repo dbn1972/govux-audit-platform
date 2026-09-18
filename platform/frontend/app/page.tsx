@@ -13,7 +13,7 @@ import { BAND_COLOR as bandCol } from "@/lib/score";
 // UX4G-aligned public landing page for the FREE single-URL audit (no sign-in).
 // This is the page the "UX4G Audit" link on ux4g.gov.in points to.
 
-const NAVY = "var(--gx-navy-800)";
+const BRAND = "var(--ux4g-text-brand-primary-default)";
 
 const CHECKS = [
   ["bi-universal-access-circle", "Accessibility — WCAG 2.2 AA", "Colour contrast, labels, alt text, keyboard and screen-reader support (axe-core)."],
@@ -106,7 +106,7 @@ export default function ScanLanding() {
         <div className="ux4g-container gx-section">
           <div className="ux4g-text-center ux4g-mx-auto" style={{ maxWidth: 820 }}>
             <div>
-              <span className="ux4g-tag-tonal-primary ux4g-tag-s ux4g-radius-full ux4g-mx-auto ux4g-mb-s" style={{ background: "var(--gx-brand-tint)", color: NAVY }}>
+              <span className="ux4g-tag-tonal-primary ux4g-tag-s ux4g-radius-full ux4g-mx-auto ux4g-mb-s" style={{ background: "var(--ux4g-bg-primary-soft)", color: BRAND }}>
                 Free · No sign-up · For .gov.in / .nic.in websites
               </span>
               <h1 className="gx-hero-title ux4g-mb-s">Free UX4G Website Audit</h1>
@@ -163,7 +163,7 @@ export default function ScanLanding() {
                     {state.status !== "completed" && state.status !== "failed" && (
                       <div className="ux4g-text-center ux4g-py-s">
                         <Spinner className="ux4g-mb-xs" />
-                        <div className="ux4g-fw-semibold" style={{ color: NAVY }}>
+                        <div className="ux4g-fw-semibold" style={{ color: BRAND }}>
                           {state.status === "queued"
                             ? (state.queue_position > 0 ? `In queue — ${state.queue_position} scan${state.queue_position === 1 ? "" : "s"} ahead of you` : "You’re next in the queue…")
                             : "Scanning the page…"}
@@ -178,10 +178,10 @@ export default function ScanLanding() {
                       <div className="ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-m">
                         <div style={{ minWidth: 120 }}>
                           <div className="gx-label">GovUX score</div>
-                          <div className="gx-score-figure" style={{ color: bandCol[band] || "var(--gx-navy-800)" }}>
+                          <div className="gx-score-figure" style={{ color: bandCol[band] || "var(--ux4g-text-brand-primary-default)" }}>
                             {state.overall_score}
                           </div>
-                          <div className="ux4g-fw-semibold" style={{ color: bandCol[band] || "var(--gx-text-muted)" }}>
+                          <div className="ux4g-fw-semibold" style={{ color: bandCol[band] || "var(--ux4g-text-neutral-secondary)" }}>
                             Band {band}
                           </div>
                           {/* the same A–E ladder the full report draws, so the
@@ -194,7 +194,7 @@ export default function ScanLanding() {
                           </div>
                         </div>
                         <div className="ux4g-flex-grow-1">
-                          <div className="ux4g-fw-semibold" style={{ color: NAVY }}>{state.url}</div>
+                          <div className="ux4g-fw-semibold" style={{ color: BRAND }}>{state.url}</div>
                           <div className="gx-muted ux4g-fs-14 ux4g-mb-xs">
                             Scanned {state.url_scan_count} time{state.url_scan_count === 1 ? "" : "s"} on
                             GovUX · free single-page scan.
@@ -227,7 +227,7 @@ export default function ScanLanding() {
                   <div className="gx-feature-icon ux4g-mb-s">
                     <Icon name={icon} size={24} />
                   </div>
-                  <h3 className="ux4g-heading-2xs-strong ux4g-fw-bold" style={{ color: NAVY }}>{title}</h3>
+                  <h3 className="ux4g-heading-2xs-strong ux4g-fw-bold" style={{ color: BRAND }}>{title}</h3>
                   <p className="gx-muted ux4g-fs-14 ux4g-mb-none">{desc}</p>
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function ScanLanding() {
               ["3", "Get your score + PDF", "A 0–100 GovUX Score, an A–E band, and a downloadable report."]].map(([n, t, d]) => (
               <div className="ux4g-cols-span-12 ux4g-md-cols-span-4" key={n}>
                 <div className="gx-step-badge ux4g-mb-s">{n}</div>
-                <h3 className="ux4g-heading-2xs-strong ux4g-fw-bold" style={{ color: NAVY }} dangerouslySetInnerHTML={{ __html: t }} />
+                <h3 className="ux4g-heading-2xs-strong ux4g-fw-bold" style={{ color: BRAND }} dangerouslySetInnerHTML={{ __html: t }} />
                 <p className="gx-muted ux4g-fs-14" dangerouslySetInnerHTML={{ __html: d }} />
               </div>
             ))}
@@ -264,7 +264,7 @@ export default function ScanLanding() {
             </div>
             {/* light-on-dark CTA button: no ux4g light variant, colours inline (Rule 7) */}
             <Link href="/login" className="ux4g-btn ux4g-btn-lg ux4g-fw-semibold"
-              style={{ background: "#fff", color: NAVY, border: "1px solid #fff" }}>Sign in with gov email</Link>
+              style={{ background: "#fff", color: BRAND, border: "1px solid #fff" }}>Sign in with gov email</Link>
         </div>
       </section>
 

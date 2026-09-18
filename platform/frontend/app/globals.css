@@ -9,7 +9,7 @@
    cards and tables read as raised. UX4G's --ux4g-bg-* tokens flip with the
    theme; --gx-surface-sunken is redeclared under [data-theme="dark"] in
    design-system.css, so this one line covers both themes. */
-body { background: var(--gx-surface-sunken); }
+body { background: var(--ux4g-bg-neutral); }
 
 /* --- Responsive data tables ---------------------------------------------------
    Data tables clip on phones (off-screen columns behind a horizontal scroll).
@@ -20,15 +20,15 @@ body { background: var(--gx-surface-sunken); }
   .gx-responsive thead { display: none; }
   .gx-responsive, .gx-responsive tbody, .gx-responsive tr, .gx-responsive td { display: block; width: 100%; }
   .gx-responsive tr {
-    border: 1px solid var(--gx-border); border-radius: .6rem;
-    margin-bottom: .6rem; padding: .15rem .1rem; background: var(--gx-surface);
+    border: 1px solid var(--ux4g-border-color-neutral-subtle); border-radius: .6rem;
+    margin-bottom: .6rem; padding: .15rem .1rem; background: var(--ux4g-bg-neutral-elevated);
   }
   .gx-responsive td {
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     border: 0; padding: .4rem .8rem; text-align: right;
   }
   .gx-responsive td::before {
-    content: attr(data-label); font-weight: 600; color: var(--gx-text-muted);
+    content: attr(data-label); font-weight: 600; color: var(--ux4g-text-neutral-secondary);
     text-align: left; margin-right: auto;
   }
   .gx-responsive td:empty, .gx-responsive td[data-label=""]:empty { display: none; }

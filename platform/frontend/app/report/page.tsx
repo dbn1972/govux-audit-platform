@@ -79,7 +79,7 @@ export default function SampleReport() {
 
         <div className="gx-card"><div className="gx-card-body">
           <div className="gx-label">Legal compliance verdict</div>
-          <div className="ux4g-heading-xs-strong ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--gx-navy-800)" }}>partially compliant</div>
+          <div className="ux4g-heading-xs-strong ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--ux4g-text-brand-primary-default)" }}>partially compliant</div>
           <div className="gx-muted" style={{ fontSize: ".875rem" }}>Evidence: automated only</div>
           <hr className="ux4g-my-s" />
           <p className="gx-muted ux4g-mb-none" style={{ fontSize: ".8125rem" }}>

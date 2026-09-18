@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { buildNavbarClasses, buildDrawerClasses } from "ux4g-web-components/types";
 import { api, setToken } from "@/lib/api";
 import BrandMark from "@/components/BrandMark";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -89,7 +90,7 @@ function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
     .filter(h => path === h || path.startsWith(h + "/"))
     .sort((a, b) => b.length - a.length)[0];
   return (
-    <nav aria-label="Primary">
+    <nav aria-label="Primary" className="ux4g-dashboard-sidebar-nav">
       {filteredGroups.map(g => (
         <div key={g.group}>
           <div className="gx-rail-group gx-label">{g.group}</div>
@@ -97,14 +98,17 @@ function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
             const active = href === activeHref;
             return (
               <Link key={href} href={href} onClick={onNavigate}
-                aria-current={active ? "page" : undefined} className="gx-nav-link">
-                <Icon name={icon} size={16} /> <span>{label}</span>
+                aria-current={active ? "page" : undefined}
+                className={`ux4g-dashboard-nav-item${active ? " active" : ""}`}>
+                <Icon name={icon} size={16} className="ux4g-dashboard-nav-icon" />
+                <span>{label}</span>
               </Link>
             );
           })}
           {g.group === "Account" && (
-            <button type="button" onClick={onSignOut} className="gx-nav-link">
-              <Icon name="box-arrow-right" size={16} /> <span>Sign out</span>
+            <button type="button" onClick={onSignOut} className="ux4g-dashboard-nav-item">
+              <Icon name="box-arrow-right" size={16} className="ux4g-dashboard-nav-icon" />
+              <span>Sign out</span>
             </button>
           )}
         </div>
@@ -119,7 +123,7 @@ function AccessDenied() {
       <div className="gx-card ux4g-mx-auto ux4g-mt-xl" style={{ maxWidth: 520 }}>
         <div className="gx-card-body ux4g-text-center ux4g-p-m">
           <div className="gx-empty-icon ux4g-mb-s"><Icon name="shield-lock" size={24} /></div>
-          <h1 className="ux4g-heading-xs-strong" style={{ color: "var(--gx-navy-800)" }}>This area is for MeitY/NIC stewards</h1>
+          <h1 className="ux4g-heading-xs-strong" style={{ color: "var(--ux4g-text-brand-primary-default)" }}>This area is for MeitY/NIC stewards</h1>
           <p className="gx-muted">
             National oversight, rankings, monitoring and platform configuration are available to
             programme stewards only. Your account manages your own organisation’s domains and audits.
@@ -289,7 +293,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <div>
       <GovBanner />
 
-      <header className="gx-topbar ux4g-d-flex ux4g-ai-center ux4g-px-s ux4g-sticky-top" style={{ zIndex: 1040 }}>
+      <header className={buildNavbarClasses("gx-topbar ux4g-d-flex ux4g-ai-center ux4g-px-s ux4g-sticky-top")}
+        style={{ zIndex: 1040 }}>
         {/* hamburger — only on tablet/mobile (<lg) */}
         <button type="button" ref={triggerRef} onClick={() => setOpen(true)}
           className="gx-icon-btn ux4g-mr-xs ux4g-lg-d-none"
@@ -341,7 +346,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       <div className="ux4g-d-flex">
         {/* desktop rail — sticky, self-scrolling, hidden below lg */}
-        <aside className="gx-rail ux4g-d-none ux4g-lg-d-block ux4g-flex-shrink-0"
+        <aside className="ux4g-dashboard-sidebar gx-rail ux4g-d-none ux4g-lg-d-flex ux4g-flex-shrink-0"
           style={{ position: "sticky", top: 60, height: "calc(100vh - 60px)", overflowY: "auto" }}>
           {/* Which organisation am I acting for, and as what? Stewards and
               owners see very different screens under the same nav labels, and
@@ -365,7 +370,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
         {/* tabIndex -1 so the skip link can move focus here, not merely scroll */}
         <main id="main" tabIndex={-1} className="ux4g-flex-grow-1"
-          style={{ background: "var(--gx-surface-sunken)", minWidth: 0, outline: "none" }}>
+          style={{ background: "var(--ux4g-bg-neutral)", minWidth: 0, outline: "none" }}>
           {denied ? <AccessDenied /> : children}
         </main>
       </div>
@@ -378,8 +383,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
             opacity: open ? 1 : 0, pointerEvents: open ? "auto" : "none",
             transition: "opacity .25s ease",
           }} />
+        {/* UX4G's drawer for the surface; the dialog behaviour (focus trap,
+            Escape, scroll lock, focus restore) stays in React above, because the
+            package ships styling only — no behaviour for this component. */}
         <div id="app-drawer" ref={drawerRef} role="dialog" aria-modal="true" aria-label="Navigation"
-          className="ux4g-bg-neutral-elevated ux4g-shadow-l3"
+          className={buildDrawerClasses("left", open)}
           style={{
             position: "fixed", top: 0, left: 0, bottom: 0, width: 280, maxWidth: "82vw", zIndex: 1046,
             transform: open ? "translateX(0)" : "translateX(-100%)",
