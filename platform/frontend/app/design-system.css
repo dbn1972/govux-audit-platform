@@ -336,8 +336,8 @@ p > a:only-child { display:inline-flex; align-items:center; min-height:1.5rem; }
       #f2efff under light (1.13:1) and #000 on #24145c under dark (1.33:1) —
       the selected item disappears in BOTH themes. Repaint it with the
       strong brand ground and the semantic inverse ink: 8.33:1 and 6.87:1.
-   2. The item is 600-weight at every state, so the selected one is told apart
-      by colour alone; the marker rule restores a non-colour cue.
+   2. The item is 600-weight at every state, so the selected one would be told
+      apart by colour alone; the heavier active weight is the non-colour cue.
    3. Padding is --ux4g-padding-m all round, which is roomy for a rail of 20
       items — tightened so the groups stay legible without scrolling. */
 .ux4g-dashboard-nav-item { position:relative; padding:.5rem .625rem;
@@ -352,9 +352,6 @@ p > a:only-child { display:inline-flex; align-items:center; min-height:1.5rem; }
 .ux4g-dashboard-nav-item.active { background:var(--ux4g-bg-primary-strong);
                                   color:var(--ux4g-text-neutral-inverse); font-weight:650; }
 .ux4g-dashboard-nav-item.active .ux4g-dashboard-nav-icon { color:var(--ux4g-text-neutral-inverse); }
-.ux4g-dashboard-nav-item.active::before { content:""; position:absolute; inset-inline-start:0;
-  top:.375rem; bottom:.375rem; width:3px; border-radius:var(--ux4g-radius-full);
-  background:var(--ux4g-text-neutral-inverse); }
 
 /* context block at the top of the rail: which organisation, which role */
 .gx-context { padding:var(--gx-space-4) var(--gx-space-4) var(--gx-space-3);
