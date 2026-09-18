@@ -70,7 +70,7 @@ export default function RegisterDomain() {
         {/* Registering and verifying are two steps with a wait in between —
             DNS propagates, a file has to be published — and the screen gave no
             sense of that shape. Same stepper the audit run uses. */}
-        <div className="gx-card"><div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
           <div className="gx-steps-rail" style={{ maxWidth: 420 }}>
             {[["Register the domain", 1], ["Prove ownership", 2]].map(([label, n]) => (
               <div key={label as string}
@@ -86,7 +86,7 @@ export default function RegisterDomain() {
         </div></div>
 
         {step === 1 ? (
-          <div className="gx-card"><div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
             {/* UX4G Input contract (input.css): container > label + .ux4g-input > .ux4g-input-input.
                 The https:// scheme sits in the leading-icon slot as a text prefix — UX4G has no
                 Bootstrap-style input-group addon, and the leading slot is the documented place for it. */}
@@ -108,7 +108,7 @@ export default function RegisterDomain() {
               {busy ? "Registering…" : "Register domain"}</button>
           </div></div>
         ) : (
-          <div className="gx-card"><div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
             <span className="ux4g-tag-tonal-warning ux4g-tag-s ux4g-mb-xs">Not yet verified</span>
             {url && <div className="ux4g-fw-semibold ux4g-mb-xs">{url}</div>}
 

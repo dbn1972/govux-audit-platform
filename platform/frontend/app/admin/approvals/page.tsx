@@ -51,7 +51,7 @@ export default function Approvals() {
             steward opens this screen with, and colour carries the state */}
         {rows != null && (
           <div className="gx-actions">
-            <span className={`gx-pill ${pending > 0 ? "gx-pill-wait" : "gx-pill-ok"}`}>
+            <span className={`ux4g-tag-s gx-dot ${pending > 0 ? "ux4g-tag-tonal-warning" : "ux4g-tag-tonal-success"}`}>
               {pending} pending
             </span>
           </div>
@@ -59,7 +59,7 @@ export default function Approvals() {
       </div>
       {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
-      <div className="gx-card">
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
         <div className="ux4g-table-responsive ux4g-table-rounded">
           <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead>

@@ -131,8 +131,8 @@ export default function ScanLanding() {
                 <div className="ux4g-input-helper ux4g-mt-xs"><span className="ux4g-input-helper-text">Only public <code>.gov.in</code> / <code>.nic.in</code> pages · one page per free scan.</span></div>
 
                 {captcha && (
-                  <div className="gx-card ux4g-mt-s ux4g-mx-auto ux4g-text-start" style={{ maxWidth: 420 }}>
-                    <div className="gx-card-body ux4g-py-s">
+                  <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mt-s ux4g-mx-auto ux4g-text-start" style={{ maxWidth: 420 }}>
+                    <div className="ux4g-card-body ux4g-py-s">
                       <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs ux4g-mb-xs">
                         <Icon name="shield-check" size={16} className="ux4g-text-warning" />
                         <span className="ux4g-fw-semibold">Quick check</span>
@@ -158,8 +158,8 @@ export default function ScanLanding() {
           {state && (
             <div className="ux4g-d-flex ux4g-jc-center ux4g-mt-m" aria-live="polite" aria-atomic="true">
               <div className="ux4g-w-100" style={{ maxWidth: 720 }}>
-                <div className="gx-card">
-                  <div className="gx-card-body">
+                <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+                  <div className="ux4g-card-body">
                     {state.status !== "completed" && state.status !== "failed" && (
                       <div className="ux4g-text-center ux4g-py-s">
                         <Spinner className="ux4g-mb-xs" />
@@ -222,8 +222,8 @@ export default function ScanLanding() {
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           {CHECKS.map(([icon, title, desc]) => (
             <div className="ux4g-cols-span-12 ux4g-md-cols-span-6 ux4g-lg-cols-span-4" key={title}>
-              <div className="gx-card ux4g-h-100">
-                <div className="gx-card-body">
+              <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100">
+                <div className="ux4g-card-body">
                   <div className="gx-feature-icon ux4g-mb-s">
                     <Icon name={icon} size={24} />
                   </div>

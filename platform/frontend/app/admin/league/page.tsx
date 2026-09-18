@@ -50,8 +50,8 @@ export default function League() {
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
-          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8"><div className="gx-card">
-            <div className="gx-card-head"><h2>Ranking — {cat}</h2></div>
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8"><div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-header"><h2>Ranking — {cat}</h2></div>
             <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
               <thead><tr><th>#</th><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
               <tbody>
@@ -62,14 +62,14 @@ export default function League() {
                   <td data-label="Domain" className="gx-cell-primary">{r.url}</td>
                   <td data-label="Score" className="gx-num ux4g-fw-bold">{r.score ?? "—"}</td>
                   <td data-label="Band">{r.band
-                    ? <span className="gx-pill" style={bandStyle(r.band)}>{r.band}</span>
+                    ? <span className="ux4g-tag-tonal-neutral ux4g-tag-s gx-dot" style={bandStyle(r.band)}>{r.band}</span>
                     : <span className="gx-muted">—</span>}</td></tr>
               ))}</tbody>
             </table></div>
           </div></div>
 
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4">
-            <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s"><div className="ux4g-card-body">
               <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><h2 className="ux4g-heading-2xs-strong ux4g-mb-none">Publishing</h2>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-auto">Governance-gated</span></div>
               <div className="ux4g-d-inline-flex ux4g-gap-2xs ux4g-w-100 ux4g-mb-xs">
@@ -82,7 +82,7 @@ export default function League() {
                 Rankings default to the internal steward view. Public publication is a MeitY policy decision — GSA/EU precedent.
               </p>
             </div></div>
-            <div className="gx-card" style={{ background: "var(--ux4g-bg-neutral-soft)" }}><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline" style={{ background: "var(--ux4g-bg-neutral-soft)" }}><div className="ux4g-card-body">
               <h2 className="ux4g-heading-2xs-strong">Anti-gaming safeguards</h2>
               <ul className="ux4g-fs-14 gx-muted ux4g-mb-none ux4g-ps-s">
                 <li>Guard-rails cap the band on critical failures</li>

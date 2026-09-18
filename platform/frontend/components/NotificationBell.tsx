@@ -47,7 +47,7 @@ export default function NotificationBell() {
 
   return (
     <div className="gx-menu-wrap">
-      <button type="button" className="gx-icon-btn ux4g-relative"
+      <button type="button" className="ux4g-icon-btn ux4g-icon-btn-text-primary ux4g-icon-btn-md ux4g-relative"
         onClick={() => { setOpen(o => !o); if (!open) load(); }}
         aria-haspopup="menu" aria-expanded={open}
         aria-label={unread ? `Notifications — ${unread} unread` : "Notifications"}>
@@ -56,7 +56,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="gx-menu gx-menu-wide" role="menu">
+        <div className="ux4g-list gx-menu gx-menu-wide" role="menu">
           <div className="gx-menu-head ux4g-d-flex ux4g-ai-center">
             <span className="ux4g-fw-semibold">Notifications</span>
             {unread > 0 && (

@@ -7,8 +7,8 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
   useEffect(() => { console.error(error); }, [error]);
   return (
     <div className="ux4g-container ux4g-py-l" role="alert">
-      <div className="gx-card ux4g-mx-auto" style={{ maxWidth: 560 }}>
-        <div className="gx-card-body ux4g-text-center ux4g-p-m">
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mx-auto" style={{ maxWidth: 560 }}>
+        <div className="ux4g-card-body ux4g-text-center ux4g-p-m">
           <Icon name="exclamation-triangle" size={34} className="ux4g-text-warning" />
           <h1 className="ux4g-heading-xs-strong ux4g-mt-xs ux4g-mb-2xs">Something went wrong</h1>
           <p className="gx-muted">

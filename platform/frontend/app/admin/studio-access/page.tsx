@@ -36,7 +36,7 @@ export default function StudioAccess() {
         </div>
       </div>
       {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
-      <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded">
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-table-responsive ux4g-table-rounded">
         <table className="ux4g-table ux4g-table-m gx-responsive">
           <thead><tr><th>Organisation</th><th>Type</th><th>Runs</th><th>Studio access</th></tr></thead>
           <tbody>

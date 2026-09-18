@@ -46,7 +46,7 @@ export default function Library() {
             <div className="gx-muted">Every check explained in plain language with a good example.</div>
           </div>
         </div>
-        <div className="gx-card"><div className="gx-card-body ux4g-d-flex ux4g-gap-s ux4g-flex-wrap ux4g-ai-center">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body ux4g-d-flex ux4g-gap-s ux4g-flex-wrap ux4g-ai-center">
           <div className="ux4g-d-flex ux4g-gap-xs ux4g-flex-wrap">
             {["", "WCAG", "GIGW", "UX4G", "CWV"].map(f => (
               <button key={f} onClick={() => setFam(f)} aria-pressed={fam === f}
@@ -80,8 +80,8 @@ export default function Library() {
           </div>
         )}
         {rows != null && matches.length === 0 && !err && (
-          <div className="gx-card"><div className="gx-empty">
-            <div className="gx-empty-icon"><Icon name="search" size={24} /></div>
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-empty-state">
+            <div className="ux4g-empty-state-icon"><Icon name="search" size={24} /></div>
             <h2 className="ux4g-mt-s ux4g-mb-2xs">Nothing matches “{q || fam}”</h2>
             <p className="gx-muted ux4g-mb-s">
               {needle && all.length
@@ -96,7 +96,7 @@ export default function Library() {
 
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           {shown.map(g => (
-            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6" key={g.id}><div className="gx-card ux4g-h-100"><div className="gx-card-body">
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6" key={g.id}><div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100"><div className="ux4g-card-body">
               <div className="ux4g-d-flex ux4g-gap-xs ux4g-mb-2xs"><span className="ux4g-tag-tonal-neutral ux4g-tag-s">{g.id}</span>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s">{g.family}</span></div>
               <h2 className="ux4g-heading-2xs-strong">{g.title}</h2>

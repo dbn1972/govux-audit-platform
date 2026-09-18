@@ -36,7 +36,7 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
   // Rendered inert until mounted: the server cannot know the stored choice, and
   // guessing produces a button whose label contradicts the screen for a frame.
   return (
-    <button type="button" onClick={toggle} className={`gx-icon-btn ${className}`}
+    <button type="button" onClick={toggle} className={`ux4g-icon-btn ux4g-icon-btn-text-primary ux4g-icon-btn-md ${className}`}
       aria-label={ready ? `Switch to ${theme === "dark" ? "light" : "dark"} theme` : "Switch theme"}
       title={ready ? `Switch to ${theme === "dark" ? "light" : "dark"} theme` : undefined}>
       <Icon name={theme === "dark" ? "sun" : "moon-stars"} size={17} />

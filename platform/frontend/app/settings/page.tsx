@@ -196,7 +196,7 @@ export default function Settings() {
             then how the account is secured and what it tells us about. */}
         <h2 className="gx-section-label">Organisation &amp; people</h2>
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-mb-s">
-          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="gx-card ux4g-h-100"><div className="gx-card-body">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100"><div className="ux4g-card-body">
             <h3 className="ux4g-heading-2xs-strong ux4g-mb-s">Organisation</h3>
             <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-mb-xs">
               <label className="ux4g-label-m-default" htmlFor="org-name">Name</label>
@@ -223,8 +223,8 @@ export default function Settings() {
             {orgMsg && <div className="ux4g-fs-14 ux4g-mt-xs gx-muted">{orgMsg}</div>}
           </div></div></div>
 
-          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="gx-card ux4g-h-100">
-            <div className="gx-card-head">Team members</div>
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100">
+            <div className="ux4g-card-header">Team members</div>
             {teamErr && <div className="ux4g-alert ux4g-alert-warning ux4g-m-xs ux4g-mb-none ux4g-py-2xs ux4g-fs-14" role="alert">{teamErr}</div>}
             <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-s ux4g-mb-none">
               <thead><tr><th>Member</th><th>Role</th><th></th></tr></thead>
@@ -277,9 +277,9 @@ export default function Settings() {
         </div>
 
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-mb-s">
-          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-12"><div className="gx-card">
-            <div className="gx-card-head">Invite a colleague</div>
-            <div className="gx-card-body">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-12"><div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-header">Invite a colleague</div>
+            <div className="ux4g-card-body">
               <p className="gx-muted ux4g-fs-14">
                 Invited colleagues join <b>this</b> organisation when they first sign in, so you
                 share the same domains, audits and reports. Only .gov.in / .nic.in addresses can
@@ -343,8 +343,8 @@ export default function Settings() {
         <h2 className="gx-section-label">Security &amp; preferences</h2>
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8">
-            <div className="gx-card">
-              <div className="gx-card-head ux4g-d-flex ux4g-ai-center">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+              <div className="ux4g-card-header ux4g-d-flex ux4g-ai-center">
                 <span className="ux4g-fw-semibold">Trusted devices &amp; active sessions</span>
                 <button className="ux4g-btn ux4g-btn-sm ux4g-btn-outline-neutral ux4g-ml-auto" onClick={revokeOthers}
                   disabled={busy || !(devices || []).some((d) => !d.current)}>
@@ -380,7 +380,7 @@ export default function Settings() {
             </div>
           </div>
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4">
-            <div className="gx-card"><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
               <h3 className="ux4g-heading-2xs-strong ux4g-mb-s">Notifications</h3>
               {["Audit completed", "New critical issue", "Score regression"].map(n => (
                 <label className="ux4g-switch ux4g-switch-md" key={n}>
@@ -393,7 +393,7 @@ export default function Settings() {
               <p className="gx-muted ux4g-fs-14 ux4g-mb-none ux4g-mt-xs">Saved on this device. Email delivery to your verified government address is being rolled out.</p>
             </div></div>
 
-            <div className="gx-card ux4g-mt-s"><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mt-s"><div className="ux4g-card-body">
               <h3 className="ux4g-heading-2xs-strong ux4g-mb-s">Data &amp; privacy <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-ml-2xs">DPDP</span></h3>
               <p className="gx-muted ux4g-fs-14">Under the Digital Personal Data Protection Act, you can access
                 and erase the personal data we hold about you.</p>

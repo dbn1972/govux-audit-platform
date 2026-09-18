@@ -56,11 +56,6 @@ body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 /* Bare heading elements. A heading that needs a size other than its level's
    uses UX4G's own scale (ux4g-heading-*), which must lead the class attribute:
    the design system applies it through a [class^=ux4g-heading-] selector. */
-h1,.gx-h1 { font-size:1.5rem;   line-height:1.25; font-weight:700; letter-spacing:-.015em; }
-h2,.gx-h2 { font-size:1.1875rem;line-height:1.3;  font-weight:650; letter-spacing:-.01em; }
-h3,.gx-h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
-.gx-display { font-size:2rem; line-height:1.1; font-weight:700; letter-spacing:-.025em;
-              color:var(--ux4g-text-brand-primary-default); font-variant-numeric:tabular-nums slashed-zero; }
 
 /* micro label — the workhorse for stat captions, table heads, meta rows */
 .gx-label { font-size:.6875rem; font-weight:700; letter-spacing:.07em;
@@ -181,14 +176,26 @@ h3,.gx-h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
    Card — a bordered surface. Deliberately flat: on a screen that is mostly
    cards, shadows on all of them read as noise rather than hierarchy.
    ------------------------------------------------------------------------ */
-.gx-card { background:var(--ux4g-bg-neutral-elevated); border:1px solid var(--ux4g-border-color-neutral-subtle);
-           border-radius:var(--ux4g-radius-lg); box-shadow:var(--ux4g-shadow-l1); }
-.gx-card-head { display:flex; align-items:center; gap:var(--gx-space-3);
-                padding:var(--gx-space-4) var(--gx-space-5);
-                border-bottom:1px solid var(--ux4g-border-color-neutral-subtle); }
-.gx-card-head h2,.gx-card-head h3 { margin:0; }
-.gx-card-head .gx-actions { margin-inline-start:auto; }
-.gx-card-body { padding:var(--gx-space-5); }
+/* Cards are UX4G's: .ux4g-card .ux4g-card-solid .ux4g-card-outline, with
+   .ux4g-card-header / .ux4g-card-body. Three corrections:
+
+   1. -outline draws --ux4g-border-color-neutral-default. On a page carrying 20
+      cards that reads as a grid of boxes; the subtle border is the one that
+      lets the shadow do the lifting.
+   2. UX4G's card-header is a flex COLUMN (title stacked over subtitle). Every
+      header here is a title with actions opposite, so it is a row, and it
+      carries the divider UX4G leaves out.
+   3. Body padding is --ux4g-padding-m; the product's card rhythm is space-5.
+
+   `buildCardClasses()` is not used: its `layout` argument is required and
+   `ux4g-card-vertical` adds margin-top:2.5rem, which no card here wants. */
+.ux4g-card-outline { border-color:var(--ux4g-border-color-neutral-subtle); }
+.ux4g-card-header { flex-direction:row; align-items:center; gap:var(--gx-space-3);
+                    padding:var(--gx-space-4) var(--gx-space-5);
+                    border-bottom:1px solid var(--ux4g-border-color-neutral-subtle); }
+.ux4g-card-header h2,.ux4g-card-header h3 { margin:0; }
+.ux4g-card-header .gx-actions { margin-inline-start:auto; }
+.ux4g-card-body { padding:var(--gx-space-5); }
 
 /* ---------------------------------------------------------------------------
    Stat tile. Label above, figure below — the figure is the object, the label
@@ -207,31 +214,25 @@ h3,.gx-h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
    Table. Government work is table work: keep rows scannable, give the first
    column the weight, and keep the head quiet so data leads.
    ------------------------------------------------------------------------ */
-.gx-table { width:100%; margin:0; border-collapse:separate; border-spacing:0; }
-.gx-table thead th { background:var(--ux4g-bg-neutral-soft);
-                     font-size:.6875rem; font-weight:700; letter-spacing:.07em;
-                     text-transform:uppercase; color:var(--ux4g-text-neutral-secondary);
-                     padding:.625rem var(--gx-space-5); white-space:nowrap;
-                     border-bottom:1px solid var(--ux4g-border-color-neutral-subtle); }
-.gx-table tbody td { padding:.875rem var(--gx-space-5); vertical-align:middle;
-                     border-bottom:1px solid var(--ux4g-border-color-neutral-subtle); }
-.gx-table tbody tr:last-child td { border-bottom:0; }
-.gx-table tbody tr:hover { background:var(--ux4g-bg-neutral-soft); }
-.gx-table .gx-cell-primary { font-weight:600; color:var(--ux4g-text-brand-primary-default); }
+.ux4g-table .gx-cell-primary { font-weight:600; color:var(--ux4g-text-brand-primary-default); }
 
 /* ---------------------------------------------------------------------------
    Status pill. Subtle ground + emphasis text — the AA-safe pairing already
    established in globals.css, given a consistent shape.
    ------------------------------------------------------------------------ */
-.gx-pill { display:inline-flex; align-items:center; gap:.375rem;
-           padding:.1875rem .5rem; border-radius:var(--ux4g-radius-full);
-           font-size:.75rem; font-weight:600; line-height:1.4; white-space:nowrap; }
-.gx-pill::before { content:""; width:.375rem; height:.375rem; border-radius:50%;
-                   background:currentColor; flex:none; }
-.gx-pill-ok    { background:var(--ux4g-bg-success-soft); color:var(--gx-on-success); }
-.gx-pill-wait  { background:var(--ux4g-bg-warning-soft); color:var(--gx-on-warning); }
-.gx-pill-off   { background:var(--ux4g-bg-neutral-subtle);           color:var(--ux4g-text-neutral-secondary); }
-.gx-pill-bad   { background:var(--ux4g-bg-error-soft);  color:var(--gx-on-error); }
+/* Status pills are UX4G tonal tags (.ux4g-tag-tonal-* .ux4g-tag-s).
+
+   `gx-dot` adds back the leading dot those pills carried before the swap. UX4G
+   draws no dot, and most tags here should not have one — a category label or a
+   compatibility result is not a state — so this is a modifier on the eleven
+   tags that report status, not a change to the component.
+
+   The dot is currentColor, so it inherits whatever ink the variant (or the
+   inline band colour) sets, and UX4G's tag is already a flex row with a 4px
+   gap, so it needs no layout of its own. Decorative: the label carries the
+   meaning, which is why there is no non-colour cue to preserve here. */
+.gx-dot::before { content:""; inline-size:.375rem; block-size:.375rem;
+                  border-radius:50%; background:currentColor; flex:none; }
 
 /* chip — a quiet metadata tag, no status meaning */
 .gx-chip { display:inline-block; padding:.125rem .4375rem; border-radius:var(--ux4g-radius-md);
@@ -241,9 +242,13 @@ h3,.gx-h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
 /* ---------------------------------------------------------------------------
    Meter — a score as a line. Paired with the number, never replacing it.
    ------------------------------------------------------------------------ */
-.gx-meter { height:6px; border-radius:var(--ux4g-radius-full); background:var(--ux4g-bg-neutral-subtle);
-            overflow:hidden; min-width:64px; }
-.gx-meter > span { display:block; height:100%; border-radius:inherit; }
+/* Meters are UX4G's progress bar (.ux4g-progress-bar .ux4g-progress-bar-track
+   on one element, so the track's custom properties resolve on self). The fill
+   stays a plain span: these carry band colours set per row, and UX4G's
+   .ux4g-progress-bar-fill paints a fixed brand gradient instead. */
+.ux4g-progress-bar-track { border-radius:var(--ux4g-radius-full); min-width:64px;
+                           block-size:6px; }
+.ux4g-progress-bar-track > span { display:block; height:100%; border-radius:inherit; }
 
 /* ---------------------------------------------------------------------------
    Brand mark. A verification seal: a check inside a navy field. Replaces the
@@ -313,23 +318,33 @@ h3,.gx-h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
  /* The app bar is UX4G's .ux4g-navbar (ground + elevation); the fixed height
     is ours, because the rail below is positioned against it. */
 .gx-topbar { height:60px; }
-.gx-icon-btn { display:inline-flex; align-items:center; justify-content:center;
-               width:36px; height:36px; border-radius:var(--ux4g-radius-md); border:0;
-               background:transparent; color:var(--ux4g-text-neutral-secondary); font-size:1.0625rem; }
-.gx-icon-btn:hover { background:var(--ux4g-bg-neutral-soft); color:var(--ux4g-text-brand-primary-default); }
-.gx-avatar { width:34px; height:34px; border-radius:50%; border:0;
-             background:var(--ux4g-bg-primary-strong); color:var(--ux4g-text-neutral-inverse);
-             font-size:.8125rem; font-weight:650; letter-spacing:.02em;
-             display:inline-flex; align-items:center; justify-content:center; }
+
+/* UX4G un-sticks the navbar on small screens:
+       @media (max-width:768px){ .ux4g-navbar { position:relative } }
+   That exists for its `ux4g-navbar-mobile` dropdown, which expects static
+   positioning — and which this app does not use (see the README). The reset
+   still fires, so a navbar marked sticky pins on desktop and scrolls away on a
+   phone, which is where a pinned nav is worth most. Re-assert it, scoped to
+   navbars we explicitly marked sticky so UX4G's default is untouched. */
+@media (max-width:768px) {
+  .ux4g-navbar.ux4g-sticky-top { position:sticky; }
+}
+/* Icon buttons and the account avatar are UX4G's .ux4g-icon-btn and
+   .ux4g-avatar; only the hover wash is added, which UX4G's text variant
+   leaves transparent. */
+.ux4g-icon-btn-text-primary:hover { background:var(--ux4g-bg-neutral-soft); }
 
 /* ---------------------------------------------------------------------------
    First-run / empty state. The dashboard's blank half was the single biggest
    UX failure here: a new account saw three zeroes and no next step.
    ------------------------------------------------------------------------ */
-.gx-empty { text-align:center; padding:var(--gx-space-6) var(--gx-space-5); }
-.gx-empty-icon { width:52px; height:52px; border-radius:var(--ux4g-radius-lg); margin-inline:auto;
-                 background:var(--ux4g-bg-primary-soft); color:var(--ux4g-text-brand-primary-default);
-                 display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+/* Empty states are UX4G's .ux4g-empty-state / -icon. Two additions: the block
+   padding UX4G leaves to the container, and the tinted tile behind the icon
+   (UX4G's icon is a bare glyph). */
+.ux4g-empty-state { padding:var(--gx-space-6) var(--gx-space-5); }
+.ux4g-empty-state-icon { border-radius:var(--ux4g-radius-lg); margin-inline:auto;
+                         background:var(--ux4g-bg-primary-soft);
+                         color:var(--ux4g-text-brand-primary-default); }
 .gx-steps { display:grid; gap:var(--gx-space-3); text-align:start;
             grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
             margin-top:var(--gx-space-5); }
@@ -382,8 +397,7 @@ h3,.gx-h3 { font-size:1.0625rem;line-height:1.35; font-weight:650; }
      across three. Anything that doesn't fit takes the next line whole. */
   .gx-page-head .gx-actions { margin-inline-start:0; width:100%; flex-wrap:wrap; }
   .gx-page-head .gx-actions > * { flex:1 1 45%; justify-content:center; white-space:nowrap; }
-  .gx-card-head,.gx-card-body { padding-inline:var(--gx-space-4); }
-  .gx-table tbody td,.gx-table thead th { padding-inline:var(--gx-space-4); }
+  .ux4g-card-header,.ux4g-card-body { padding-inline:var(--gx-space-4); }
 }
 
 
@@ -455,7 +469,7 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
      stack put the share on its own left-aligned line below a right-aligned
      count, so a five-band distribution ran to two phone screens. */
   .gx-cat { grid-template-columns:1fr auto auto; row-gap:.25rem; column-gap:var(--gx-space-3); }
-  .gx-cat .gx-meter { grid-column:1 / -1; order:3; }
+  .gx-cat .ux4g-progress-bar-track { grid-column:1 / -1; order:3; }
   .gx-cat-cost { min-width:0; text-align:end; }
 }
 
@@ -469,16 +483,13 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
 .gx-callout i { font-size:1.125rem; flex:none; }
 
 /* Definition row for report metadata: label above value, several across. */
-.gx-meta { display:flex; flex-wrap:wrap; gap:var(--gx-space-5); }
-.gx-meta-item .gx-label { display:block; margin-bottom:.125rem; }
-.gx-meta-item div:last-child { font-weight:600; font-size:.875rem; }
 
 /* Measure. A subtitle that runs the full 1280px is a line of ~180 characters —
    the eye loses the return sweep. Cap explanatory text at a readable measure;
    tables and data are exempt because they are scanned, not read. */
 .gx-page-head .gx-muted { max-width:76ch; }
-.gx-card-body > p, .gx-empty p { max-width:78ch; }
-.gx-empty p { margin-inline:auto; }
+.ux4g-card-body > p, .ux4g-empty-state p { max-width:78ch; }
+.ux4g-empty-state p { margin-inline:auto; }
 
 /* ============================================================================
    Public landing page. Same tokens as the product: someone who scans a site
@@ -535,16 +546,20 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
    column it truncates the chosen option, which is the one thing it exists to
    show ("contributo⌄"). The table scrolls in its wrapper instead. */
 .ux4g-table select.ux4g-form-select,
-.gx-table select.ux4g-form-select { min-width:9.5rem; }
 
 /* ---------------------------------------------------------------------------
    Menus — account menu and the notification panel
    ------------------------------------------------------------------------ */
 .gx-menu-wrap { position:relative; }
+/* The panel surface is UX4G's .ux4g-list (ground, radius, shadow, padding);
+   .gx-menu adds only the positioning, which UX4G puts in .ux4g-dropdown-menu —
+   unusable here because that class is display:none and expects the vendor
+   runtime to toggle it, while React owns open/closed state for this menu.
+   The rows likewise stay .gx-menu-item: .ux4g-list-item-row is
+   `background:none!important`, which would kill the hover state. */
 .gx-menu { position:absolute; inset-inline-end:0; top:calc(100% + .5rem); z-index:1050;
-           min-width:260px; max-width:min(92vw,380px); padding:.375rem;
-           background:var(--ux4g-bg-neutral-elevated); border:1px solid var(--ux4g-border-color-neutral-subtle);
-           border-radius:var(--ux4g-radius-lg); box-shadow:var(--ux4g-shadow-l3); }
+           min-width:260px; max-width:min(92vw,380px);
+           border:1px solid var(--ux4g-border-color-neutral-subtle); }
 .gx-menu-wide { min-width:340px; max-height:70vh; overflow-y:auto; }
 .gx-menu-head { padding:.625rem .75rem; border-bottom:1px solid var(--ux4g-border-color-neutral-subtle);
                 margin-bottom:.25rem; }
@@ -633,32 +648,32 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
    A card is rounded but does NOT clip (overflow:hidden would kill sticky
    headers and cut off any menu opened inside one). So when a table is the
    card's first child, the grey thead paints a square corner inside the rounded
-   one; when a .gx-card-head sits above it, the head covers those corners and
+   one; when a .ux4g-card-header sits above it, the head covers those corners and
    the same table looks fine. That is why only some tables looked wrong.
 
    Round the corner cells themselves instead. Separate borders are required for
    a cell's radius to be honoured — the collapsed model discards it.
    ------------------------------------------------------------------------ */
-.gx-card > .ux4g-table-responsive:first-child > table,
-.gx-card > table:first-child { border-collapse:separate; border-spacing:0; }
+.ux4g-card > .ux4g-table-responsive:first-child > table,
+.ux4g-card > table:first-child { border-collapse:separate; border-spacing:0; }
 
-.gx-card > .ux4g-table-responsive:first-child thead tr:first-child th:first-child,
-.gx-card > table:first-child thead tr:first-child th:first-child {
+.ux4g-card > .ux4g-table-responsive:first-child thead tr:first-child th:first-child,
+.ux4g-card > table:first-child thead tr:first-child th:first-child {
   border-start-start-radius:var(--ux4g-radius-lg);
 }
-.gx-card > .ux4g-table-responsive:first-child thead tr:first-child th:last-child,
-.gx-card > table:first-child thead tr:first-child th:last-child {
+.ux4g-card > .ux4g-table-responsive:first-child thead tr:first-child th:last-child,
+.ux4g-card > table:first-child thead tr:first-child th:last-child {
   border-start-end-radius:var(--ux4g-radius-lg);
 }
 
 /* and the foot of the card: a hovered last row would otherwise square the
    bottom corners the same way */
-.gx-card > .ux4g-table-responsive:last-child tbody tr:last-child td:first-child,
-.gx-card > table:last-child tbody tr:last-child td:first-child {
+.ux4g-card > .ux4g-table-responsive:last-child tbody tr:last-child td:first-child,
+.ux4g-card > table:last-child tbody tr:last-child td:first-child {
   border-end-start-radius:var(--ux4g-radius-lg);
 }
-.gx-card > .ux4g-table-responsive:last-child tbody tr:last-child td:last-child,
-.gx-card > table:last-child tbody tr:last-child td:last-child {
+.ux4g-card > .ux4g-table-responsive:last-child tbody tr:last-child td:last-child,
+.ux4g-card > table:last-child tbody tr:last-child td:last-child {
   border-end-end-radius:var(--ux4g-radius-lg);
 }
 

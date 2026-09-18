@@ -27,12 +27,12 @@ export default function Standards() {
           </div>
         </div>
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
-          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-7"><div className="gx-card">
-            <div className="gx-card-head">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-7"><div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-header">
               <h2>Category weights</h2>
               <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>must total 100%</span>
             </div>
-            <div className="gx-card-body">
+            <div className="ux4g-card-body">
               {WEIGHTS.map(([name, wt]) => (
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-s ux4g-my-xs" key={name as string}>
                   <div style={{ width: 220, fontSize: 13 }}>{name}</div>
@@ -45,9 +45,9 @@ export default function Standards() {
               </div>
             </div>
           </div></div>
-          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-5"><div className="gx-card">
-            <div className="gx-card-head">Guard-rail rules</div>
-            <div className="gx-card-body">
+          <div className="ux4g-cols-span-12 ux4g-lg-cols-span-5"><div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-header">Guard-rail rules</div>
+            <div className="ux4g-card-body">
               {[["Critical accessibility failure caps at Band C", true],
                 ["No HTTPS caps at Band D", true],
                 ["Missing mandatory GIGW elements caps at Band B", false]].map(([label, on]) => (

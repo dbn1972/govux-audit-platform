@@ -120,9 +120,9 @@ function NavList({ path, isSteward, studioEnabled, onSignOut, onNavigate }:
 function AccessDenied() {
   return (
     <div className="ux4g-container-fluid ux4g-p-m">
-      <div className="gx-card ux4g-mx-auto ux4g-mt-xl" style={{ maxWidth: 520 }}>
-        <div className="gx-card-body ux4g-text-center ux4g-p-m">
-          <div className="gx-empty-icon ux4g-mb-s"><Icon name="shield-lock" size={24} /></div>
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mx-auto ux4g-mt-xl" style={{ maxWidth: 520 }}>
+        <div className="ux4g-card-body ux4g-text-center ux4g-p-m">
+          <div className="ux4g-empty-state-icon ux4g-mb-s"><Icon name="shield-lock" size={24} /></div>
           <h1 className="ux4g-heading-xs-strong" style={{ color: "var(--ux4g-text-brand-primary-default)" }}>This area is for MeitY/NIC stewards</h1>
           <p className="gx-muted">
             National oversight, rankings, monitoring and platform configuration are available to
@@ -143,9 +143,9 @@ function IdleWarning({ secondsLeft, onContinue, onSignOut }:
     <div role="alertdialog" aria-modal="true" aria-labelledby="idle-warning-title"
       style={{ position: "fixed", inset: 0, zIndex: 1080, background: "rgba(9,20,40,.45)",
         display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div ref={panel} className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
-        <div className="gx-card-body ux4g-p-m ux4g-text-center">
-          <div className="gx-empty-icon ux4g-mb-s"><Icon name="hourglass-split" size={24} /></div>
+      <div ref={panel} className="ux4g-card ux4g-card-solid ux4g-card-outline" style={{ maxWidth: 420, width: "92%" }}>
+        <div className="ux4g-card-body ux4g-p-m ux4g-text-center">
+          <div className="ux4g-empty-state-icon ux4g-mb-s"><Icon name="hourglass-split" size={24} /></div>
           <h2 id="idle-warning-title" className="ux4g-heading-2xs-strong">Still there?</h2>
           <p className="gx-muted ux4g-mb-s">
             You've been inactive — for your security, you'll be signed out in{" "}
@@ -297,7 +297,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         style={{ zIndex: 1040 }}>
         {/* hamburger — only on tablet/mobile (<lg) */}
         <button type="button" ref={triggerRef} onClick={() => setOpen(true)}
-          className="gx-icon-btn ux4g-mr-xs ux4g-lg-d-none"
+          className="ux4g-icon-btn ux4g-icon-btn-text-primary ux4g-icon-btn-md ux4g-mr-xs ux4g-lg-d-none"
           aria-label="Open navigation menu" aria-expanded={open} aria-controls="app-drawer">
           <Icon name="list" size={18} />
         </button>
@@ -313,13 +313,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <ThemeToggle />
           <NotificationBell />
           <div className="gx-menu-wrap">
-            <button type="button" className="gx-avatar" onClick={() => setMenuOpen(o => !o)}
+            <button type="button" className="ux4g-avatar ux4g-avatar-m" onClick={() => setMenuOpen(o => !o)}
               aria-haspopup="menu" aria-expanded={menuOpen}
               aria-label={`Account menu — ${me?.email || "signed in"}`}>
               {initials}
             </button>
             {menuOpen && (
-              <div className="gx-menu" role="menu">
+              <div className="ux4g-list gx-menu" role="menu">
                 {/* the avatar used to be a bare link to /settings, so clicking it
                     was a guess. Say who you are signed in as, then offer the two
                     things that follow from that. */}
@@ -413,9 +413,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <div role="alertdialog" aria-modal="true" aria-labelledby="signout-title"
           style={{ position: "fixed", inset: 0, zIndex: 1080, background: "rgba(9,20,40,.45)",
             display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div ref={signOutPanel} className="gx-card" style={{ maxWidth: 420, width: "92%" }}>
-            <div className="gx-card-body ux4g-text-center">
-              <div className="gx-empty-icon ux4g-mb-s"><Icon name="box-arrow-right" size={24} /></div>
+          <div ref={signOutPanel} className="ux4g-card ux4g-card-solid ux4g-card-outline" style={{ maxWidth: 420, width: "92%" }}>
+            <div className="ux4g-card-body ux4g-text-center">
+              <div className="ux4g-empty-state-icon ux4g-mb-s"><Icon name="box-arrow-right" size={24} /></div>
               <h2 id="signout-title" className="ux4g-heading-2xs-strong">Sign out?</h2>
               <p className="gx-muted ux4g-mb-s">
                 You'll need a new one-time code by email to sign back in.

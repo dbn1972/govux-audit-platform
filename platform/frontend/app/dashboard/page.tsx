@@ -93,9 +93,9 @@ export default function Dashboard() {
       {/* First run. Three verified domains and nothing audited used to render as
           half a screen of white space with no next step anywhere on it. */}
       {nothingAudited && (
-        <div className="gx-card">
-          <div className="gx-empty">
-            <div className="gx-empty-icon"><Icon name="clipboard-check" size={24} /></div>
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+          <div className="ux4g-empty-state">
+            <div className="ux4g-empty-state-icon"><Icon name="clipboard-check" size={24} /></div>
             <h2 className="ux4g-mt-s ux4g-mb-2xs">Nothing audited yet</h2>
             <p className="gx-muted ux4g-mb-none" style={{ maxWidth: 560, marginInline: "auto" }}>
               Your domains are verified and ready. An audit crawls the site, runs the
@@ -126,8 +126,8 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className="gx-card">
-        <div className="gx-card-head">
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+        <div className="ux4g-card-header">
           <h2>My domains</h2>
           <div className="gx-actions">
             <Link href="/domains" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm">Manage domains</Link>
@@ -160,7 +160,7 @@ export default function Dashboard() {
                     {d.category && <span className="gx-chip ux4g-mt-2xs">{d.category}</span>}
                   </td>
                   <td data-label="Status">
-                    <span className={`gx-pill ${d.verify_status === "verified" ? "gx-pill-ok" : "gx-pill-wait"}`}>
+                    <span className={`ux4g-tag-s gx-dot ${d.verify_status === "verified" ? "ux4g-tag-tonal-success" : "ux4g-tag-tonal-warning"}`}>
                       {d.verify_status}
                     </span>
                   </td>
@@ -170,7 +170,7 @@ export default function Dashboard() {
                         <span className="gx-num ux4g-fw-bold" style={{ color: bandColor[d.latest_band || ""] }}>
                           {d.latest_score}
                         </span>
-                        <span className="gx-meter ux4g-flex-grow-1">
+                        <span className="ux4g-progress-bar ux4g-progress-bar-track ux4g-flex-grow-1">
                           <span style={{ width: `${d.latest_score}%`,
                                          background: bandColor[d.latest_band || ""] || "var(--ux4g-bg-neutral-subtle)" }} />
                         </span>

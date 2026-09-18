@@ -21,8 +21,8 @@ export default function Contact() {
 
       <div className="gx-doc">
         <div className="gx-prose">
-          <div className="gx-card ux4g-mb-m">
-            <div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-m">
+            <div className="ux4g-card-body">
               <div className="gx-label">Support</div>
               <p className="ux4g-heading-2xs-strong ux4g-mt-xs ux4g-mb-2xs">
                 <a href="mailto:support.ux4g@digitalindia.gov.in">support.ux4g@digitalindia.gov.in</a>

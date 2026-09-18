@@ -33,7 +33,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
         <div className="ux4g-container ux4g-py-xs ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
           <span className="gx-brand-name">GovUX Studio</span>
           <span className="gx-muted ux4g-fs-14">· public demo · AI-generated draft</span>
-          {meta && <span className="gx-pill ux4g-ml-xs" style={bandStyle(meta.band)}>GovUX {meta.score} · Band {meta.band}</span>}
+          {meta && <span className="ux4g-tag-tonal-neutral ux4g-tag-s gx-dot ux4g-ml-xs" style={bandStyle(meta.band)}>GovUX {meta.score} · Band {meta.band}</span>}
           <div className="ux4g-ml-auto ux4g-d-flex ux4g-gap-xs">
             <a className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" target="_blank" rel="noopener" href={`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`}>WhatsApp</a>
             <a className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm" target="_blank" rel="noopener" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}>Facebook</a>
@@ -76,7 +76,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
           </div>
 
           {active && (
-            <div className="gx-card"><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
               <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold ux4g-fs-14">{active}</span>
                 <span className="ux4g-ml-auto ux4g-d-inline-flex ux4g-gap-2xs">
                   {DEVICES.map(([l, w]) => <button key={l} className={`ux4g-btn ux4g-btn-sm ${device === w ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setDevice(w)}>{l}</button>)}

@@ -39,7 +39,10 @@ export default function SiteHeader() {
   // already are.
   const onSignIn = usePathname() === "/login";
   return (
-    <header className={buildNavbarClasses()}>
+    // Sticky so the nav — and Sign in — stay reachable down a long page. The
+    // identity bar above deliberately scrolls away: it is statutory chrome, not
+    // navigation, and pinning both costs 106px of every viewport.
+    <header className={buildNavbarClasses("ux4g-sticky-top")} style={{ zIndex: 1030 }}>
       <div className="ux4g-container">
         <div className="ux4g-navbar-wrap">
           <Link href="/" className="ux4g-d-flex ux4g-ai-center ux4g-gap-x-s gx-brand">

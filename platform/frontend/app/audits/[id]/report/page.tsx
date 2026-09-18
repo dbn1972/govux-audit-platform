@@ -111,8 +111,8 @@ export default function Report({ params }: { params: { id: string } }) {
 
         {/* Score and legal verdict, side by side and visibly distinct. */}
         <div className="gx-verdict">
-          <div className="gx-card">
-            <div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-body">
               <div className="gx-score">
                 <div>
                   <div className="gx-label">GovUX score</div>
@@ -151,8 +151,8 @@ export default function Report({ params }: { params: { id: string } }) {
             </div>
           </div>
 
-          <div className="gx-card">
-            <div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-body">
               <div className="gx-label">Legal compliance verdict</div>
               <div className="ux4g-heading-xs-strong ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--ux4g-text-brand-primary-default)" }}>
                 {String(r.compliance?.status || "not assessed").replace(/_/g, " ")}
@@ -186,8 +186,8 @@ export default function Report({ params }: { params: { id: string } }) {
           ))}
         </div>
 
-        <div className="gx-card">
-          <div className="gx-card-head">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+          <div className="ux4g-card-header">
             <h2>Where the points went</h2>
             <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Ordered by points lost</span>
           </div>
@@ -198,7 +198,7 @@ export default function Report({ params }: { params: { id: string } }) {
                   <div style={{ fontWeight: 600, fontSize: ".9375rem" }}>{c.label}</div>
                   <div className="gx-muted" style={{ fontSize: ".75rem" }}>Weight {c.weight}%</div>
                 </div>
-                <span className="gx-meter">
+                <span className="ux4g-progress-bar ux4g-progress-bar-track">
                   <span style={{ width: `${c.score}%`, background: barColor(c.score) }} />
                 </span>
                 <span className="gx-cat-score" style={{ color: barColor(c.score) }}>{Math.round(c.score)}</span>
@@ -209,12 +209,12 @@ export default function Report({ params }: { params: { id: string } }) {
         </div>
 
         {r.cwv && (r.cwv.lcp_ms != null || r.cwv.cls != null) && (
-          <div className="gx-card">
-            <div className="gx-card-head">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-header">
               <h2>Core Web Vitals</h2>
               <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Lab measurement</span>
             </div>
-            <div className="gx-card-body">
+            <div className="ux4g-card-body">
               <div className="gx-stats">
                 {[["Largest Contentful Paint", "lcp", r.cwv.lcp_ms != null ? (r.cwv.lcp_ms / 1000).toFixed(1) + "s" : null, r.cwv.lcp_ms, "under 2.5s"],
                   ["Cumulative Layout Shift", "cls", r.cwv.cls != null ? r.cwv.cls : null, r.cwv.cls != null ? r.cwv.cls * 1000 : null, "under 0.1"],

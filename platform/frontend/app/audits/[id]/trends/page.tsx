@@ -33,7 +33,7 @@ export default function Trends({ params }: { params: { id: string } }) {
   const asc = [...hist].reverse();   // oldest → newest for the bar chart
   return wrap(
     <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
-      <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8"><div className="gx-card ux4g-h-100"><div className="gx-card-body">
+      <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8"><div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100"><div className="ux4g-card-body">
         <h2 className="ux4g-heading-2xs-strong">GovUX Score over time</h2>
         <div className="ux4g-d-flex ux4g-ai-end ux4g-gap-m ux4g-mt-s" style={{ height: 180 }}>
           {asc.map(h => (
@@ -45,8 +45,8 @@ export default function Trends({ params }: { params: { id: string } }) {
           ))}
         </div>
       </div></div></div>
-      <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4"><div className="gx-card ux4g-h-100">
-        <div className="gx-card-head">Audit history</div>
+      <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4"><div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100">
+        <div className="ux4g-card-header">Audit history</div>
         <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m ux4g-mb-none">
           <thead><tr><th>Date</th><th>Score</th><th>Δ</th></tr></thead>
           <tbody>{hist.map((h, i) => {

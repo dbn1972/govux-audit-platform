@@ -40,9 +40,9 @@ export default function Monitoring() {
         </div>
         {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs">{err}</div>}
 
-        <div className="gx-card">
-          <div className="gx-card-head"><h2>Add a monitor</h2></div>
-          <div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+          <div className="ux4g-card-header"><h2>Add a monitor</h2></div>
+          <div className="ux4g-card-body">
           <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-ai-end">
             <div className="ux4g-cols-span-12 ux4g-md-cols-span-6">
               <label className="ux4g-label-m-default" htmlFor="monitor-domain">Domain</label>
@@ -75,7 +75,7 @@ export default function Monitoring() {
           </div>
         </div>
 
-        <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
           <thead><tr><th>Domain</th><th>Cadence</th><th>Next run</th><th>Last run</th>
             <th><span className="ux4g-sr-only">Actions</span></th></tr></thead>
           <tbody>

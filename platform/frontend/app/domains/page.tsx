@@ -69,7 +69,7 @@ export default function Domains() {
           </div>
         </div>
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
-        <div className="gx-card">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
           <div className="ux4g-table-responsive ux4g-table-rounded">
             <table className="ux4g-table ux4g-table-m gx-responsive">
               <thead><tr><th>Domain</th><th>Category</th><th>Status</th><th>Latest score</th><th>Last audited</th><th></th></tr></thead>
@@ -99,7 +99,7 @@ export default function Domains() {
                       : <span className="ux4g-tag-tonal-warning ux4g-tag-s">Pending</span>}</td>
                     <td data-label="Latest score">{d.latest_score != null
                       ? <><b>{d.latest_score}</b>{d.latest_band &&
-                          <span className="gx-pill ux4g-ml-2xs" style={bandStyle(d.latest_band)}>{d.latest_band}</span>}</>
+                          <span className="ux4g-tag-tonal-neutral ux4g-tag-s gx-dot ux4g-ml-2xs" style={bandStyle(d.latest_band)}>{d.latest_band}</span>}</>
                       : <span className="gx-muted">Not audited</span>}</td>
                     <td data-label="Last audited" className="gx-muted ux4g-fs-14">{relative(d.last_audited_at)}</td>
                     <td data-label="">{d.verify_status === "verified"

@@ -25,7 +25,7 @@ export default function Ministries() {
           </div>
         </div>
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
-        <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-table-responsive ux4g-table-rounded">
           <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead><tr><th>#</th><th>Ministry / Department</th><th>Domains</th><th>Avg score</th><th>Band</th></tr></thead>
             <tbody>
@@ -41,7 +41,7 @@ export default function Ministries() {
                         reader compare digits instead of seeing the spread */}
                     <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs" style={{ maxWidth: 160 }}>
                       <span className="gx-num ux4g-fw-bold">{r.avg_score}</span>
-                      <span className="gx-meter ux4g-flex-grow-1">
+                      <span className="ux4g-progress-bar ux4g-progress-bar-track ux4g-flex-grow-1">
                         <span style={{ width: `${r.avg_score}%`, background: bandStyle(r.band).color }} />
                       </span>
                     </div>

@@ -105,7 +105,7 @@ export default function Organisations() {
         </div>
 
         {showNew && (
-          <div className="gx-card"><div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
             <h2 className="ux4g-heading-2xs-strong ux4g-mb-s">New organisation</h2>
             <form className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs ux4g-ai-end" onSubmit={create}>
               <div className="ux4g-cols-span-12 ux4g-md-cols-span-5">
@@ -144,7 +144,7 @@ export default function Organisations() {
         )}
 
         {editing && (
-          <div className="gx-card ux4g-mb-s" style={{ borderColor: "var(--ux4g-border-color-primary-default)" }}><div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s" style={{ borderColor: "var(--ux4g-border-color-primary-default)" }}><div className="ux4g-card-body">
             <h2 className="ux4g-heading-2xs-strong">Edit organisation</h2>
             <form className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs ux4g-ai-end" onSubmit={saveEdit}>
               <div className="ux4g-cols-span-12 ux4g-md-cols-span-5">
@@ -206,7 +206,7 @@ export default function Organisations() {
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         {msg && <div className="ux4g-alert ux4g-alert-success ux4g-py-xs" role="status">{msg}</div>}
 
-        <div className="gx-card">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
           <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
             <thead>
               <tr>

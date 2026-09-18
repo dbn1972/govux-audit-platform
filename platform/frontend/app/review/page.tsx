@@ -243,14 +243,14 @@ export default function Review() {
               review needed a completed crawl behind it, so an org with three
               domains could review only the one it had audited — and a mobile
               app, which the engine cannot crawl, had no route at all. */}
-          <div className="gx-card">
-            <div className="gx-card-head">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-header">
               <h2>Assess without an audit</h2>
               <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                 No crawl needed
               </span>
             </div>
-            <div className="gx-card-body">
+            <div className="ux4g-card-body">
               <p className="gx-muted">
                 Answer the checklist directly for any registered domain, or for a mobile app.
                 This produces a compliance verdict and a completion rating — not a GovUX score,
@@ -346,8 +346,8 @@ export default function Review() {
             </div>
           </div>
 
-          <div className="gx-card">
-            <div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-body">
               <h2 className="ux4g-heading-2xs-strong ux4g-mb-2xs">Certify a completed audit</h2>
               <p className="gx-muted ux4g-fs-14">
                 Only completed audits can be certified. Every report also carries a
@@ -394,8 +394,8 @@ export default function Review() {
             no subject at all: the reviewer had answered questions about a site
             the page never named. */}
         {reviewing && (
-          <div className="gx-card">
-            <div className="gx-card-body ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-body ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-s">
               <div>
                 <div className="gx-label">
                   {taskId ? "Certifying audit of"
@@ -445,8 +445,8 @@ export default function Review() {
         )}
 
         {reviewing && (
-          <div className="gx-card ux4g-mb-s">
-            <div className="gx-card-body ux4g-d-flex ux4g-flex-wrap ux4g-gap-s ux4g-ai-end">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s">
+            <div className="ux4g-card-body ux4g-d-flex ux4g-flex-wrap ux4g-gap-s ux4g-ai-end">
               {/* An assessment's platform is fixed when it is started — it is
                   what the subject IS — so it is stated in the header above
                   rather than offered as a control that would silently change
@@ -579,8 +579,8 @@ export default function Review() {
               })}
             </nav>
 
-          <div className="gx-card">
-            <div className="gx-card-head">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-header">
               <h2>{category || "All categories"}</h2>
               <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                 {data.page_decided ?? 0} of {data.items.length} answered here
@@ -683,7 +683,7 @@ export default function Review() {
               </div>
             )}
 
-            <div className="gx-card-body" style={{ borderTop: "1px solid var(--ux4g-border-color-neutral-subtle)",
+            <div className="ux4g-card-body" style={{ borderTop: "1px solid var(--ux4g-border-color-neutral-subtle)",
                                                     background: "var(--ux4g-bg-neutral-soft)" }}>
               <h2 className="ux4g-heading-2xs-strong ux4g-mb-s">Sign off</h2>
               {locked && !result ? (

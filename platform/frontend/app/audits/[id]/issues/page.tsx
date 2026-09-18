@@ -75,7 +75,7 @@ export default function Issues({ params }: { params: { id: string } }) {
           </div>
         )}
 
-        <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-table-responsive ux4g-table-rounded">
           <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead><tr><th>Issue &amp; how to fix</th><th>Category</th><th>Guideline</th><th>Severity</th></tr></thead>
             <tbody>

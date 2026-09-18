@@ -26,7 +26,7 @@ export default function States() {
           </div>
         </div>
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
-        <div className="gx-card"><div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
           {rows == null && <div className="ux4g-text-center ux4g-py-m"><Spinner size="md" label="Loading" /></div>}
           {rows?.length === 0 && !err && <div className="gx-muted ux4g-text-center ux4g-py-l">No state-tagged organisations audited yet.</div>}
           {rows && rows.length > 0 && (

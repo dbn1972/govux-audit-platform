@@ -87,8 +87,8 @@ export default function National() {
 
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-7">
-            <div className="gx-card ux4g-h-100">
-              <div className="gx-card-head">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100">
+              <div className="ux4g-card-header">
                 <h2>Score distribution</h2>
                 <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                   {scored} scored domain{scored === 1 ? "" : "s"}
@@ -99,7 +99,7 @@ export default function National() {
                   domain became one enormous block and the four empty bands
                   vanished — the estate looked like it had no distribution at
                   all rather than one with four gaps in it. */}
-              <div className="gx-card-body">
+              <div className="ux4g-card-body">
                 {scored === 0 ? (
                   <p className="gx-muted ux4g-mb-none">
                     No scored audits yet. The distribution appears here as domains are audited.
@@ -113,7 +113,7 @@ export default function National() {
                         <div style={{ fontWeight: 700, color: bandBg[b] }}>Band {b}</div>
                         <div className="gx-muted" style={{ fontSize: ".75rem" }}>{BAND_MEANING[b]}</div>
                       </div>
-                      <span className="gx-meter">
+                      <span className="ux4g-progress-bar ux4g-progress-bar-track">
                         <span style={{ width: `${share}%`, background: bandBg[b] }} />
                       </span>
                       <span className="gx-cat-score gx-num">{n}</span>
@@ -126,8 +126,8 @@ export default function National() {
           </div>
 
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-5">
-            <div className="gx-card ux4g-h-100">
-              <div className="gx-card-head">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100">
+              <div className="ux4g-card-header">
                 <h2>Top performers</h2>
                 <Link href="/admin/league" className="ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Full league table</Link>
               </div>

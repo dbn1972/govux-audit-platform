@@ -100,7 +100,7 @@ export default function Studio() {
 
       <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
         <div className="ux4g-cols-span-12 ux4g-lg-cols-span-3">
-          <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s"><div className="ux4g-card-body">
             <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-mb-xs">
               <label className="ux4g-label-m-default" htmlFor="s-dept">Organisation</label>
               <div className="ux4g-input">
@@ -141,7 +141,7 @@ export default function Studio() {
           </div></div>
 
           {history.length > 0 && (
-            <div className="gx-card"><div className="gx-card-head">Your prototypes</div>
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-header">Your prototypes</div>
               <ul className="ux4g-list ux4g-list-m ux4g-list-default">
                 {history.slice(0, 10).map(h => (
                   <li key={h.id} className="ux4g-list-item">
@@ -158,20 +158,20 @@ export default function Studio() {
 
         <div className="ux4g-cols-span-12 ux4g-lg-cols-span-9">
           {run == null && (
-            <div className="gx-card ux4g-h-100"><div className="gx-card-body ux4g-d-flex ux4g-ai-center ux4g-jc-center gx-muted" style={{ minHeight: 400 }}>
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100"><div className="ux4g-card-body ux4g-d-flex ux4g-ai-center ux4g-jc-center gx-muted" style={{ minHeight: 400 }}>
               {busy ? <span><Spinner size="sm" className="ux4g-mr-xs" />Generating and auditing…</span> : "Your generated screens will appear here — like a design board."}
             </div></div>
           )}
           {run?.status === "failed" && <div className="ux4g-alert ux4g-alert-error">Generation failed: {run.error}</div>}
           {run?.status === "generating" && (
-            <div className="gx-card"><div className="gx-card-body gx-empty gx-muted">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body ux4g-empty-state gx-muted">
               <Spinner className="ux4g-mb-xs" /><div>Generating and refining toward the audit target…</div></div></div>
           )}
 
           {run?.status === "scored" && (<>
-            <div className="gx-card ux4g-mb-s"><div className="gx-card-body ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s"><div className="ux4g-card-body ux4g-d-flex ux4g-ai-center ux4g-flex-wrap ux4g-gap-xs">
               <div><span className="gx-score-value" style={{ fontSize: 28 }}>{run.score}</span>
-                <span className="gx-pill ux4g-ml-2xs" style={bandStyle(run.band)}>Band {run.band}</span></div>
+                <span className="ux4g-tag-tonal-neutral ux4g-tag-s gx-dot ux4g-ml-2xs" style={bandStyle(run.band)}>Band {run.band}</span></div>
               {/* a static analysis of generated markup, not an audit of a live
                   site — saying which is the difference between a claim and a hint */}
               <span className="gx-muted ux4g-fs-14">
@@ -201,7 +201,7 @@ export default function Studio() {
             )}
 
             {/* Figma-style board of screens */}
-            <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s"><div className="ux4g-card-body">
               <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold">Screens ({run.files?.length})</span></div>
               <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-s">
                 {(run.files || []).map((f: string) => (
@@ -219,7 +219,7 @@ export default function Studio() {
 
             {/* Expanded preview of the selected screen */}
             {zoom && (
-              <div className="gx-card"><div className="gx-card-body">
+              <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-mb-xs"><span className="ux4g-fw-semibold ux4g-fs-14">{zoom}</span>
                   <span className="ux4g-ml-auto ux4g-d-inline-flex ux4g-gap-2xs">
                     {DEVICES.map(([l, w]) => <button key={l} className={`ux4g-btn ux4g-btn-sm ${device === w ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`} onClick={() => setDevice(w)}>{l}</button>)}

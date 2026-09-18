@@ -71,9 +71,9 @@ export default function Assessments() {
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
         {canWrite && (
-          <div className="gx-card ux4g-mb-m">
-            <div className="gx-card-head"><h2>Record an assessment</h2></div>
-            <div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-m">
+            <div className="ux4g-card-header"><h2>Record an assessment</h2></div>
+            <div className="ux4g-card-body">
               <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs">
                 <div className="ux4g-cols-span-12 ux4g-md-cols-span-4">
                   <label className="ux4g-label-m-default" htmlFor="as-kind">Type</label>
@@ -154,8 +154,8 @@ export default function Assessments() {
           </div>
         )}
 
-        <div className="gx-card">
-          <div className="gx-card-head">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+          <div className="ux4g-card-header">
             <h2>Recorded assessments</h2>
             {rows && <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
               {rows.length} record{rows.length === 1 ? "" : "s"}
@@ -164,8 +164,8 @@ export default function Assessments() {
           <div>
             {!rows && <div className="ux4g-p-m ux4g-text-center"><Spinner size="md" /></div>}
             {rows && rows.length === 0 && (
-              <div className="gx-empty">
-                <div className="gx-empty-icon"><Icon name="shield-check" size={24} /></div>
+              <div className="ux4g-empty-state">
+                <div className="ux4g-empty-state-icon"><Icon name="shield-check" size={24} /></div>
                 <h3 className="ux4g-heading-2xs-strong ux4g-mt-s ux4g-mb-2xs">No external assessments yet</h3>
                 <p className="gx-muted ux4g-mb-none">
                   {canWrite

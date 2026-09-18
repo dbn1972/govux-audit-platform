@@ -88,15 +88,15 @@ export default function ConfigAdmin() {
             ["DB pool in use", `${p.checked_out ?? "—"} / ${p.size ?? "—"}`, (p.checked_out ?? 0) >= (p.size ?? 999)],
           ];
           return (
-            <div className="gx-card ux4g-mb-s">
-              <div className="gx-card-head ux4g-d-flex ux4g-ai-center">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s">
+              <div className="ux4g-card-header ux4g-d-flex ux4g-ai-center">
                 <Icon name="activity" size={16} className="ux4g-mr-xs" />Live health
                 <span className="ux4g-tag-tonal-success ux4g-tag-s ux4g-ml-xs">auto · 5s</span>
                 <span className="ux4g-ml-auto gx-muted" style={{ fontSize: 11 }}>
                   Prometheus: <code>GET /metrics</code>
                 </span>
               </div>
-              <div className="gx-card-body">
+              <div className="ux4g-card-body">
                 <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-xs">
                   {tiles.map(([label, val, warn]) => (
                     <div className="ux4g-cols-span-6 ux4g-md-cols-span-3" key={label}>
@@ -115,9 +115,9 @@ export default function ConfigAdmin() {
         })()}
 
         {cats.map(cat => (
-          <div className="gx-card ux4g-mb-s" key={cat.name}>
-            <div className="gx-card-head">{cat.name}</div>
-            <div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s" key={cat.name}>
+            <div className="ux4g-card-header">{cat.name}</div>
+            <div className="ux4g-card-body">
               {cat.settings.map((s: any) => {
                 const val = s.key in edits ? edits[s.key] : s.value;
                 return (

@@ -67,8 +67,8 @@ export default function Login() {
               For officers of <code>.gov.in</code> and <code>.nic.in</code> departments
             </p>
           </div>
-      <div className="gx-card">
-        <div className="gx-card-body">
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+        <div className="ux4g-card-body">
           <h2 className="ux4g-heading-2xs-strong ux4g-mb-2xs">Sign in</h2>
           {step === 1 ? (
             <>

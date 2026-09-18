@@ -98,8 +98,8 @@ export default function Compare({ params }: { params: { id: string } }) {
       {(newIssues.length > 0 || resolvedIssues.length > 0) && (
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s ux4g-mb-s">
           {newIssues.length > 0 && (
-            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6"><div className="gx-card ux4g-h-100">
-              <div className="gx-card-head">
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6"><div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100">
+              <div className="ux4g-card-header">
                 <h2 style={{ color: "var(--gx-band-E)" }}>
                   <Icon name="plus-circle" size={20} className="ux4g-mr-2xs" />New issues
                 </h2>
@@ -117,8 +117,8 @@ export default function Compare({ params }: { params: { id: string } }) {
             </div></div>
           )}
           {resolvedIssues.length > 0 && (
-            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6"><div className="gx-card ux4g-h-100">
-              <div className="gx-card-head">
+            <div className="ux4g-cols-span-12 ux4g-md-cols-span-6"><div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100">
+              <div className="ux4g-card-header">
                 <h2 style={{ color: "var(--gx-band-A)" }}>
                   <Icon name="check-circle" size={20} className="ux4g-mr-2xs" />Resolved
                 </h2>
@@ -138,8 +138,8 @@ export default function Compare({ params }: { params: { id: string } }) {
         </div>
       )}
 
-      <div className="gx-card">
-        <div className="gx-card-head">
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+        <div className="ux4g-card-header">
           <h2>Page-wise coverage</h2>
           <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
             A page missing from the newer run keeps its earlier score, marked not recrawled

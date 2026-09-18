@@ -75,7 +75,7 @@ export default function DomainClaims() {
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         {msg && <div className="ux4g-alert ux4g-alert-success ux4g-py-xs" role="status">{msg}</div>}
 
-        <div className="gx-card">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
           <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m">
             <thead>
               <tr><th>Domain</th><th>Claimed by</th><th>Status</th><th>Claimed</th><th></th></tr>

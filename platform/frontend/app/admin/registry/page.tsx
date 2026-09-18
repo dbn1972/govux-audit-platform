@@ -54,14 +54,14 @@ export default function Registry() {
           </div>
         </div>
 
-        <div className="gx-card ux4g-mb-s">
-          <div className="gx-card-head">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s">
+          <div className="ux4g-card-header">
             <h2>CSV extract</h2>
             <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
               Preview, then import — nothing is written until you do
             </span>
           </div>
-          <div className="gx-card-body">
+          <div className="ux4g-card-body">
             <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center ux4g-mb-xs">
               <div className="ux4g-input-container ux4g-input-sm" style={{ maxWidth: 320 }}>
                 <div className="ux4g-input">
@@ -88,7 +88,7 @@ export default function Registry() {
               </div>
             </div>
           </div>
-          <div className="gx-card-body ux4g-d-flex ux4g-gap-xs ux4g-ai-center ux4g-flex-wrap"
+          <div className="ux4g-card-body ux4g-d-flex ux4g-gap-xs ux4g-ai-center ux4g-flex-wrap"
             style={{ borderTop: "1px solid var(--ux4g-border-color-neutral-subtle)", background: "var(--ux4g-bg-neutral-soft)" }}>
             <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!csv.trim() || busy}
               onClick={() => run(true)}>{busy ? "Checking…" : "Preview"}</button>
@@ -106,11 +106,11 @@ export default function Registry() {
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
 
         {res && (
-          <div className="gx-card">
-            <div className="gx-card-head">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+            <div className="ux4g-card-header">
               {res.dry_run ? "Preview — nothing has been saved" : "Import complete"}
             </div>
-            <div className="gx-card-body">
+            <div className="ux4g-card-body">
               <div className="gx-stats ux4g-mb-m">
                 {[["Rows read", res.total_rows, undefined, "in the file"],
                   [res.dry_run ? "Would import" : "Imported", res.imported,

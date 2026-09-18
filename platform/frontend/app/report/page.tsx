@@ -45,7 +45,7 @@ export default function SampleReport() {
       </div>
 
       <div className="gx-verdict">
-        <div className="gx-card"><div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
           <div className="gx-score">
             <div>
               <div className="gx-label">GovUX score</div>
@@ -77,7 +77,7 @@ export default function SampleReport() {
           </div>
         </div></div>
 
-        <div className="gx-card"><div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
           <div className="gx-label">Legal compliance verdict</div>
           <div className="ux4g-heading-xs-strong ux4g-mt-xs ux4g-mb-2xs" style={{ color: "var(--ux4g-text-brand-primary-default)" }}>partially compliant</div>
           <div className="gx-muted" style={{ fontSize: ".875rem" }}>Evidence: automated only</div>
@@ -101,8 +101,8 @@ export default function SampleReport() {
         ))}
       </div>
 
-      <div className="gx-card">
-        <div className="gx-card-head">
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+        <div className="ux4g-card-header">
           <h2>Where the points went</h2>
           <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>Ordered by points lost</span>
         </div>
@@ -113,7 +113,7 @@ export default function SampleReport() {
                 <div style={{ fontWeight: 600, fontSize: ".9375rem" }}>{c.label}</div>
                 <div className="gx-muted" style={{ fontSize: ".75rem" }}>Weight {c.weight}%</div>
               </div>
-              <span className="gx-meter">
+              <span className="ux4g-progress-bar ux4g-progress-bar-track">
                 <span style={{ width: `${c.score}%`, background: barColor(c.score) }} />
               </span>
               <span className="gx-cat-score" style={{ color: barColor(c.score) }}>{c.score}</span>

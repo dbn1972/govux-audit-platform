@@ -94,7 +94,7 @@ export default function Audits() {
         </div>
       )}
 
-      <div className="gx-card">
+      <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
         <div className="ux4g-table-responsive ux4g-table-rounded">
           <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead>

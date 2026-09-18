@@ -165,6 +165,37 @@ the e2e keyboard test asserts. It uses an elevated surface rather than the brand
 ground, because it lands *on* the bar and would otherwise be invisible at the
 moment it is needed.
 
+### Which UX4G components this app uses
+
+| UX4G component | Where |
+|---|---|
+| Accessibility Bar (`ux4g-topbar*`) | `GovBanner` — via `buildAccessibilityBarClasses()` |
+| Navbar (`ux4g-navbar*`) | `SiteHeader`, and the `AppShell` app bar — via `buildNavbarClasses()` |
+| Dashboard (`ux4g-dashboard-sidebar`, `-nav-item`) | `AppShell` rail |
+| Drawer (`ux4g-drawer*`) | `AppShell` mobile nav — via `buildDrawerClasses()` |
+| Card (`ux4g-card` `-solid` `-outline` `-header` `-body`) | every screen (183 call sites) |
+| Tag (`ux4g-tag-tonal-*`) | all status pills and band chips (`gx-dot` adds the leading dot back on the 11 that report state) |
+| Alert, Table, Input, Select, Button, Spinner | throughout |
+| Empty state (`ux4g-empty-state*`) | every empty list |
+| Icon button, Avatar, Progress bar, List | app bar, account menu, meters |
+
+**Not adopted, with reasons** — these looked like matches and are not:
+
+- `ux4g-footer` is `padding-bottom:32px!important`, not a footer component; the
+  `gx-footer*` layout stays.
+- `ux4g-status-pipeline*` is a reduced-motion override plus two helpers, not a
+  self-contained stepper; the audit pipeline stays `gx-stage*`.
+- `ux4g-dropdown-menu` is `display:none` and expects the vendor runtime to
+  toggle it, but React owns this menu's open state — only the panel surface
+  (`ux4g-list`) is used. `ux4g-list-item-row` is `background:none!important`,
+  which would kill row hover, so rows stay `gx-menu-item`.
+- `buildCardClasses()` requires a `layout` argument and `ux4g-card-vertical`
+  adds `margin-top:2.5rem`; the classes are applied directly instead.
+
+`gx-*` is now 95 classes, all of them things UX4G has no component for: the
+score meter and bands, the compliance verdict block, severity tiles, the guided
+review workflow, callouts, prose and TOC, stat tiles, and layout helpers.
+
 ### Known upstream gap: status contrast
 
 `ux4g-web-components@2.1.0` pairs each status background with its matching

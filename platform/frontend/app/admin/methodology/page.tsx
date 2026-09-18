@@ -17,7 +17,7 @@ export default function Methodology() {
           </div>
         </div>
 
-        <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s"><div className="ux4g-card-body">
           <h2 className="ux4g-heading-2xs-strong">Two verdicts, never conflated</h2>
           <p className="ux4g-mb-xs">Every audit produces two independent results:</p>
           <ul>
@@ -29,7 +29,7 @@ export default function Methodology() {
           </ul>
         </div></div>
 
-        <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s"><div className="ux4g-card-body">
           <h2 className="ux4g-heading-2xs-strong">Two-tier rigour</h2>
           <p className="ux4g-mb-xs">Automated testing catches only ~30–40% of WCAG issues (UK GDS / Deque).
             So our methodology is explicit:</p>
@@ -46,7 +46,7 @@ export default function Methodology() {
             claim — that requires human review. This is enforced in the scoring engine.</p>
         </div></div>
 
-        <div className="gx-card"><div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
           <h2 className="ux4g-heading-2xs-strong">No accessibility overlays</h2>
           <p className="ux4g-mb-none">Overlay widgets (accessiBe / UserWay-type) create legal risk and a false
             sense of compliance. The engine <b>flags</b> them and we require the underlying markup to be

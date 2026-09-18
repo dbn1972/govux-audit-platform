@@ -56,8 +56,8 @@ export default function Alerts() {
                 </div>
               ))}
             </div>
-            <div className="gx-card">
-              <div className="gx-card-head">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+              <div className="ux4g-card-header">
                 <h2>Exceptions</h2>
                 <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                   {data.alerts.length} open
@@ -67,8 +67,8 @@ export default function Alerts() {
               {data.alerts.length === 0 && (
                 <li className="ux4g-list-item">
                   <div className="ux4g-list-item-row">
-                  <div className="gx-empty">
-                  <div className="gx-empty-icon"><Icon name="check2-circle" size={24} /></div>
+                  <div className="ux4g-empty-state">
+                  <div className="ux4g-empty-state-icon"><Icon name="check2-circle" size={24} /></div>
                   <h3 className="ux4g-heading-2xs-strong ux4g-mt-s ux4g-mb-2xs">Nothing to act on</h3>
                   <p className="gx-muted ux4g-mb-none">The estate is clean against these four checks.</p>
                   </div>

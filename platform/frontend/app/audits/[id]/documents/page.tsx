@@ -18,9 +18,9 @@ export default function Documents({ params }: { params: { id: string } }) {
   // says which way it went in words too (WCAG 1.4.1), and "not checked" is kept
   // distinct from "failed" — a document we could not open is not a failing one.
   const yn = (v: boolean | null) => v === null || v === undefined
-    ? <span className="gx-pill gx-pill-off">not checked</span>
-    : v ? <span className="gx-pill gx-pill-ok">yes</span>
-        : <span className="gx-pill gx-pill-bad">no</span>;
+    ? <span className="ux4g-tag-tonal-neutral ux4g-tag-s gx-dot">not checked</span>
+    : v ? <span className="ux4g-tag-tonal-success ux4g-tag-s gx-dot">yes</span>
+        : <span className="ux4g-tag-tonal-error ux4g-tag-s gx-dot">no</span>;
 
   return (
     <AppShell>
@@ -36,8 +36,8 @@ export default function Documents({ params }: { params: { id: string } }) {
         </div>
         <AuditNav id={params.id} />
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
-        <div className="gx-card">
-          <div className="gx-card-head">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+          <div className="ux4g-card-header">
             <h2>Linked documents</h2>
             <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
               {docs.length} document{docs.length === 1 ? "" : "s"} · tagged structure, title and

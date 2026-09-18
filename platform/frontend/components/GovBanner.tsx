@@ -86,12 +86,6 @@ export default function GovBanner() {
           </a>
 
           <nav aria-label="Top utilities" className="ux4g-d-flex ux4g-ai-center">
-            <span className="ux4g-d-none ux4g-lg-d-inline ux4g-label-m-default">
-              Ministry of Electronics &amp; Information Technology
-            </span>
-            <span className="ux4g-bl-1 acc-top-divider ux4g-d-none ux4g-lg-d-inline-block ux4g-mx-2xs"
-              aria-hidden="true" />
-
             {/* smallest to largest, left to right — the old order ran A+ A A−,
                 which reads backwards against every other size control */}
             <div className="ux4g-topbar__group ux4g-d-flex ux4g-ai-center" role="group"

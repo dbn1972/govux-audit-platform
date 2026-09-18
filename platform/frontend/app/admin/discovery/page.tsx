@@ -38,9 +38,9 @@ export default function Discovery() {
         </div>
         {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs">{err}</div>}
 
-        <div className="gx-card">
-          <div className="gx-card-head"><h2>Scan a source</h2></div>
-          <div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+          <div className="ux4g-card-header"><h2>Scan a source</h2></div>
+          <div className="ux4g-card-body">
             {/* labelled properly: these two inputs had no `for`, so a screen
                 reader announced an unnamed text box and an unnamed textarea */}
             <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100 ux4g-mb-s">
@@ -73,7 +73,7 @@ export default function Discovery() {
           </div>
         </div>
 
-        <div className="gx-card"><div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
           <thead><tr><th>Discovered host</th><th>Source</th><th>Imported</th><th>When</th></tr></thead>
           <tbody>
             {rows.map((d, i) => (
@@ -82,8 +82,8 @@ export default function Discovery() {
                 <td data-label="Source"><span className="gx-chip">{d.source}</span></td>
                 <td data-label="Imported">
                   {d.imported
-                    ? <span className="gx-pill gx-pill-ok">imported</span>
-                    : <span className="gx-pill gx-pill-off">not imported</span>}
+                    ? <span className="ux4g-tag-tonal-success ux4g-tag-s gx-dot">imported</span>
+                    : <span className="ux4g-tag-tonal-neutral ux4g-tag-s gx-dot">not imported</span>}
                 </td>
                 <td data-label="When" className="ux4g-fs-14 gx-muted">{relative(d.discovered_at)}</td>
               </tr>

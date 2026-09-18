@@ -53,7 +53,7 @@ export default function Running({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <div className="gx-card"><div className="gx-card-body">
+        <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
           {/* A row of badges gave no sense of a pipeline — which stage follows
               which, or how far along this run is. */}
           <div className="gx-steps-rail">
@@ -70,7 +70,7 @@ export default function Running({ params }: { params: { id: string } }) {
           {/* pages crawled: the only number that moves during the long middle */}
           {!done && status.pages_total > 0 && (
             <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-s ux4g-mt-m">
-              <span className="gx-meter ux4g-flex-grow-1">
+              <span className="ux4g-progress-bar ux4g-progress-bar-track ux4g-flex-grow-1">
                 <span style={{ width: `${Math.round((status.pages_done / status.pages_total) * 100)}%`,
                                background: "var(--ux4g-bg-primary-strong)" }} />
               </span>
@@ -118,7 +118,7 @@ export default function Running({ params }: { params: { id: string } }) {
             <Link href="/audits/new" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm ux4g-mt-xs">Start a new audit →</Link>
           </div>
         ) : (
-          <div className="gx-card"><div className="gx-card-body">
+          <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
             <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
               <Spinner size="sm" />
               <span>Running the engine — Playwright · Lighthouse · axe-core · GIGW rules · responsiveness matrix…</span>

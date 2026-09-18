@@ -32,8 +32,8 @@ export default function Remediation({ params }: { params: { id: string } }) {
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="ux4g-d-flex ux4g-flex-column ux4g-gap-xs">
           {items.map((f, i) => (
-            <div className="gx-card" key={i}>
-              <div className="gx-card-body ux4g-d-flex ux4g-gap-s ux4g-ai-start">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline" key={i}>
+              <div className="ux4g-card-body ux4g-d-flex ux4g-gap-s ux4g-ai-start">
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s" style={{ minWidth: 34 }}>#{i + 1}</span>
                 <div className="ux4g-flex-grow-1" style={{ minWidth: 0 }}>
                   <div className="ux4g-d-flex ux4g-flex-wrap ux4g-gap-xs ux4g-ai-center">

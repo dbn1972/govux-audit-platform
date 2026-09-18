@@ -41,8 +41,8 @@ export default function Compatibility({ params }: { params: { id: string } }) {
   if (browsers.length === 0) return wrap(<div className="gx-muted ux4g-text-center ux4g-py-l">No cross-browser results captured for this audit.</div>);
 
   return wrap(
-    <div className="gx-card">
-      <div className="gx-card-head">Cross-browser matrix</div>
+    <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
+      <div className="ux4g-card-header">Cross-browser matrix</div>
       <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m ux4g-text-center">
         <thead><tr>
           <th className="ux4g-text-start">Engine</th><th>Loads</th><th>Horizontal overflow</th>

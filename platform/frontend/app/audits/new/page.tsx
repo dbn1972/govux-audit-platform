@@ -85,7 +85,7 @@ export default function NewAudit() {
 
         <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8">
-            <div className="gx-card ux4g-mb-s"><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s"><div className="ux4g-card-body">
               <label className="ux4g-label-m-default" htmlFor="audit-domain">Domain</label>
               {domains == null ? (
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs gx-muted">
@@ -160,7 +160,7 @@ export default function NewAudit() {
                 </div>
               )}
             </div></div>
-            <div className="gx-card"><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
               <h2 className="ux4g-heading-2xs-strong">Standards &amp; categories</h2>
               <p className="gx-muted ux4g-fs-14">All eight scoring categories are always evaluated — the weights are fixed by the GovUX methodology.</p>
               {CATS.map(([name, wt]) => (
@@ -173,7 +173,7 @@ export default function NewAudit() {
             </div></div>
           </div>
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-4">
-            <div className="gx-card"><div className="gx-card-body">
+            <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
               <h2 className="ux4g-heading-2xs-strong">Compatibility matrix</h2>
               <div className="ux4g-mb-xs"><div className="gx-muted ux4g-fs-14">Browser engines</div>
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s ux4g-mr-2xs">Chromium</span>
