@@ -234,6 +234,56 @@ body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 .gx-dot::before { content:""; inline-size:.375rem; block-size:.375rem;
                   border-radius:50%; background:currentColor; flex:none; }
 
+/* ---------------------------------------------------------------------------
+   Target size — WCAG 2.2 SC 2.5.8 (AA), 24x24 CSS px.
+
+   Several link groups sat under it: the public navbar's own items (20px), the
+   rail's policy links (17px), the Government of India link (22px) and the
+   inline links in footers and prose. They are plain inline anchors, so their
+   box was exactly the text box and the 24px spacing exception did not apply
+   either — the policy links sit 12px apart.
+
+   min-height plus inline-flex grows the hit area without moving the text: the
+   extra height is centred on the existing baseline, so nothing reflows. Applied
+   to the link groups rather than globally, because a link inside a paragraph is
+   exempt under 2.5.8 ("inline" exception) and padding one would break the
+   line box.
+   ------------------------------------------------------------------------ */
+.ux4g-navbar-links a,
+.gx-rail-legal a,
+.gx-footer-nav a,
+.ux4g-topbar__wrap a,
+.gx-footer-brand a,
+.gx-footer-legal a {
+  display:inline-flex; align-items:center; min-height:1.5rem;
+}
+/* Link groups that lay out horizontally need the row to keep its alignment
+   once its children become flex boxes. */
+.gx-rail-legal, .gx-footer-nav, .gx-footer-legal { align-items:center; }
+
+/* A link that is the whole of its paragraph, or the trailing action in a card
+   header, is a standalone target — the SC 2.5.8 inline exception covers links
+   inside a sentence, not these. */
+.ux4g-card-header > a,
+.gx-prose p > a:only-child,
+p > a:only-child { display:inline-flex; align-items:center; min-height:1.5rem; }
+
+/* ---------------------------------------------------------------------------
+   Icon ligatures are text.
+
+   UX4G draws its icons with a ligature font, so `open_in_new`, `text_decrease`
+   and friends sit in the DOM as real text nodes. They already carry
+   aria-hidden, so assistive tech skips them, but they still land in a
+   selection: copying the identity bar used to yield
+   "Government of India open_in_new".
+
+   user-select:none keeps them out of copied text. Find-in-page will still
+   match them — that is inherent to a ligature icon font and cannot be fixed
+   from here; it would need UX4G to ship SVG icons, or us to drop the published
+   markup. Not worth that trade for the benefit.
+   ------------------------------------------------------------------------ */
+.ux4g-icon-outlined { -webkit-user-select:none; user-select:none; }
+
 /* chip — a quiet metadata tag, no status meaning */
 .gx-chip { display:inline-block; padding:.125rem .4375rem; border-radius:var(--ux4g-radius-md);
            background:var(--ux4g-bg-neutral-subtle); color:var(--ux4g-text-neutral-secondary);

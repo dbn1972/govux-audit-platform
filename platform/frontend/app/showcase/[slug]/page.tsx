@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
 import SiteFooter from "@/components/SiteFooter";
@@ -34,17 +35,31 @@ export default function Showcase({ params }: { params: { slug: string } }) {
           <span className="gx-brand-name">GovUX Studio</span>
           <span className="gx-muted ux4g-fs-14">· public demo · AI-generated draft</span>
           {meta && <span className="ux4g-tag-tonal-neutral ux4g-tag-s gx-dot ux4g-ml-xs" style={bandStyle(meta.band)}>GovUX {meta.score} · Band {meta.band}</span>}
-          <div className="ux4g-ml-auto ux4g-d-flex ux4g-gap-xs">
+          {/* Share controls appear only once a showcase has actually loaded —
+              they used to render over the "not available" state, offering to
+              post a dead link to WhatsApp. */}
+          {meta && <div className="ux4g-ml-auto ux4g-d-flex ux4g-gap-xs">
             <a className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" target="_blank" rel="noopener" href={`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`}>WhatsApp</a>
             <a className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-sm" target="_blank" rel="noopener" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}>Facebook</a>
             <a className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" href={`mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(text + "\n\n" + url)}`}>Email</a>
             <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm" onClick={() => { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>{copied ? "Copied!" : "Copy link"}</button>
-          </div>
+          </div>}
         </div>
       </header>
 
-      <div className="ux4g-container gx-section" style={{ paddingBlock: "2rem" }}>
-        {err && <div className="ux4g-alert ux4g-alert-warning">{err}</div>}
+      <main id="main" tabIndex={-1} className="ux4g-container gx-section"
+        style={{ paddingBlock: "2rem", outline: "none" }}>
+        {err && (<>
+          <h1 className="ux4g-mb-xs">Showcase unavailable</h1>
+          <div className="ux4g-alert ux4g-alert-warning ux4g-d-flex ux4g-ai-center ux4g-gap-xs"
+            role="alert">
+            <Icon name="exclamation-triangle" size={16} />
+            <span>{err}</span>
+          </div>
+          <p className="gx-muted ux4g-mt-s">
+            <Link href="/">Back to Audit 360 →</Link>
+          </p>
+        </>)}
         {meta && (<>
           <div className="gx-page-head" style={{ marginBottom: "1rem" }}>
             <div>
@@ -88,7 +103,7 @@ export default function Showcase({ params }: { params: { slug: string } }) {
           )}
 
         </>)}
-      </div>
+      </main>
       <SiteFooter />
     </div>
   );

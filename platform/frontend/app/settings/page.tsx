@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import StatusLine from "@/components/StatusLine";
 import Spinner from "@/components/Spinner";
 import { api, setToken } from "@/lib/api";
 import { relative, absolute } from "@/lib/format";
@@ -34,7 +35,7 @@ export default function Settings() {
   const [orgState, setOrgState] = useState("");
   const [canEditOrg, setCanEditOrg] = useState(false);
   const [orgBusy, setOrgBusy] = useState(false);
-  const [orgMsg, setOrgMsg] = useState("");
+  const [orgMsg, setOrgMsg] = useState<{ ok: boolean; text: string } | null>(null);
   useEffect(() => {
     api.me().then((m) => {
       setOrgName(m?.org_name || "");
@@ -43,11 +44,11 @@ export default function Settings() {
     }).catch(() => {});
   }, []);
   async function saveOrg() {
-    setOrgBusy(true); setOrgMsg("");
+    setOrgBusy(true); setOrgMsg(null);
     try {
       await api.updateOrganisation({ name: orgName, state_code: orgState });
-      setOrgMsg("✓ Saved.");
-    } catch (e: any) { setOrgMsg("✗ " + (e?.message || "Could not save.")); }
+      setOrgMsg({ ok: true, text: "Saved." });
+    } catch (e: any) { setOrgMsg({ ok: false, text: e?.message || "Could not save." }); }
     finally { setOrgBusy(false); }
   }
 
@@ -83,7 +84,7 @@ export default function Settings() {
   const [invites, setInvites] = useState<any[] | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("contributor");
-  const [inviteMsg, setInviteMsg] = useState("");
+  const [inviteMsg, setInviteMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [inviteBusy, setInviteBusy] = useState(false);
 
   function loadInvites() {
@@ -93,21 +94,21 @@ export default function Settings() {
 
   async function sendInvite(e: React.FormEvent) {
     e.preventDefault();
-    setInviteBusy(true); setInviteMsg("");
+    setInviteBusy(true); setInviteMsg(null);
     try {
       await api.createInvitation(inviteEmail.trim().toLowerCase(), inviteRole);
-      setInviteMsg(`✓ Invitation sent to ${inviteEmail.trim()}.`);
+      setInviteMsg({ ok: true, text: `Invitation sent to ${inviteEmail.trim()}.` });
       setInviteEmail("");
       loadInvites();
-    } catch (e: any) { setInviteMsg("✗ " + (e?.message || "Could not send that invitation.")); }
+    } catch (e: any) { setInviteMsg({ ok: false, text: e?.message || "Could not send that invitation." }); }
     finally { setInviteBusy(false); }
   }
 
   async function revokeInvite(id: string, email: string) {
     if (!confirm(`Revoke the invitation for ${email}?`)) return;
-    setInviteMsg("");
+    setInviteMsg(null);
     try { await api.revokeInvitation(id); setInvites((i) => (i || []).filter((x) => x.id !== id)); }
-    catch (e: any) { setInviteMsg("✗ " + (e?.message || "Could not revoke that invitation.")); }
+    catch (e: any) { setInviteMsg({ ok: false, text: e?.message || "Could not revoke that invitation." }); }
   }
 
   // Notification preferences persist per-device (no server endpoint yet) so the
@@ -138,10 +139,10 @@ export default function Settings() {
   }
 
   const [dpdpBusy, setDpdpBusy] = useState(false);
-  const [dpdpMsg, setDpdpMsg] = useState("");
+  const [dpdpMsg, setDpdpMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   async function downloadData() {
-    setDpdpBusy(true); setDpdpMsg("");
+    setDpdpBusy(true); setDpdpMsg(null);
     try {
       const data = await api.exportMyData();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -149,19 +150,19 @@ export default function Settings() {
       const a = document.createElement("a");
       a.href = url; a.download = "my-govux-data.json"; a.click();
       URL.revokeObjectURL(url);
-      setDpdpMsg("✓ Your data was downloaded.");
-    } catch (e: any) { setDpdpMsg("✗ " + (e?.message || "Export failed.")); }
+      setDpdpMsg({ ok: true, text: "Your data was downloaded." });
+    } catch (e: any) { setDpdpMsg({ ok: false, text: e?.message || "Export failed." }); }
     finally { setDpdpBusy(false); }
   }
 
   async function eraseAccount() {
     if (!confirm("Permanently erase your account and personal data? Your audit records are kept but anonymised. This cannot be undone.")) return;
-    setDpdpBusy(true); setDpdpMsg("");
+    setDpdpBusy(true); setDpdpMsg(null);
     try {
       await api.eraseMyData();
       setToken(null);
       window.location.assign("/login");
-    } catch (e: any) { setDpdpMsg("✗ " + (e?.message || "Could not erase your data.")); setDpdpBusy(false); }
+    } catch (e: any) { setDpdpMsg({ ok: false, text: e?.message || "Could not erase your data." }); setDpdpBusy(false); }
   }
 
   async function revokeOthers() {
@@ -220,7 +221,7 @@ export default function Settings() {
             ) : (
               <div className="gx-muted ux4g-fs-14">Only an owner or admin can edit organisation settings.</div>
             )}
-            {orgMsg && <div className="ux4g-fs-14 ux4g-mt-xs gx-muted">{orgMsg}</div>}
+            {orgMsg && <StatusLine {...orgMsg} />}
           </div></div></div>
 
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6"><div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-h-100">
@@ -308,7 +309,7 @@ export default function Settings() {
               ) : (
                 <div className="gx-muted ux4g-fs-14">Only an owner or admin can invite colleagues.</div>
               )}
-              {inviteMsg && <div className="ux4g-fs-14 ux4g-mt-xs gx-muted">{inviteMsg}</div>}
+              {inviteMsg && <StatusLine {...inviteMsg} />}
             </div>
 
             {invites != null && invites.length > 0 && (
@@ -373,9 +374,10 @@ export default function Settings() {
                   ))}
                 </tbody>
               </table></div>
-              <div className="ux4g-card-footer ux4g-fs-14 gx-muted">
-                🛡️ Sessions are device-bound: a short-lived access token + a rotating, device-keyed refresh token keep you
-                signed in on trusted devices (Gmail-style). Sensitive actions still require a fresh OTP.
+              <div className="ux4g-card-footer ux4g-fs-14 gx-muted ux4g-d-flex ux4g-ai-start ux4g-gap-xs">
+                <Icon name="shield-check" size={16} className="ux4g-flex-shrink-0 ux4g-mt-3xs" />
+                <span>Sessions are device-bound: a short-lived access token + a rotating, device-keyed refresh token keep you
+                signed in on trusted devices (Gmail-style). Sensitive actions still require a fresh OTP.</span>
               </div>
             </div>
           </div>
@@ -403,7 +405,7 @@ export default function Settings() {
                 <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm" onClick={eraseAccount} disabled={dpdpBusy}>
                   <Icon name="trash" size={16} className="ux4g-mr-2xs" />Delete my account &amp; data</button>
               </div>
-              {dpdpMsg && <div className="ux4g-fs-14 ux4g-mt-xs gx-muted">{dpdpMsg}</div>}
+              {dpdpMsg && <StatusLine {...dpdpMsg} className="ux4g-mt-xs" />}
             </div></div>
           </div>
         </div>

@@ -58,7 +58,7 @@ export default function Organisations() {
     setBusy(true); setErr(""); setMsg("");
     try {
       await api.createOrganisation({ ...form, state_code: form.state_code || undefined });
-      setMsg(`✓ Created ${form.name}.`);
+      setMsg(`Created ${form.name}.`);
       setForm({ name: "", org_type: "department", state_code: "" });
       setShowNew(false);
       load();
@@ -74,7 +74,7 @@ export default function Organisations() {
       await api.patchOrganisation(editing.id, {
         name: editing.name, org_type: editing.org_type, state_code: editing.state_code || "",
       });
-      setMsg(`✓ Updated ${editing.name}.`);
+      setMsg(`Updated ${editing.name}.`);
       setEditing(null);
       load();
     } catch (e: any) { setErr(e?.message || "Could not save that organisation."); }

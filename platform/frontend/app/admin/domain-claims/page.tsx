@@ -34,7 +34,7 @@ export default function DomainClaims() {
     setBusyId(c.id); setErr(""); setMsg("");
     try {
       await api.releaseClaim(c.id);
-      setMsg(`✓ Released ${url} from ${c.org_name}.`);
+      setMsg(`Released ${url} from ${c.org_name}.`);
       load();
     } catch (e: any) { setErr(e?.message || "Could not release that claim."); }
     finally { setBusyId(null); }

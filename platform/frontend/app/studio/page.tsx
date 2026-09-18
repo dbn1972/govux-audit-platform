@@ -137,7 +137,9 @@ export default function Studio() {
               {ACCENTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100" onClick={submit} disabled={busy}>
-              {busy ? "Generating & refining…" : "✨ Generate pages"}</button>
+              {busy
+                ? <><Spinner size="sm" className="ux4g-mr-2xs" />Generating &amp; refining…</>
+                : <><Icon name="stars" size={16} className="ux4g-mr-2xs" />Generate pages</>}</button>
           </div></div>
 
           {history.length > 0 && (

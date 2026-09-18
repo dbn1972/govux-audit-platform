@@ -101,7 +101,10 @@ describe("Organisation card", () => {
 
     await waitFor(() => expect(updateOrganisation)
       .toHaveBeenCalledWith({ name: "Dept of Telecom", state_code: "DL" }));
-    expect(await screen.findByText(/✓ Saved/)).toBeInTheDocument();
+    // Outcome is conveyed by the status line's role and icon, not by a ✓ in
+    // the string — assert the message and that it is announced as a status.
+    const ok = await screen.findByText("Saved.");
+    expect(ok.closest("[role=status]")).toBeInTheDocument();
   });
 
   it("hides Save and disables the fields for a role that cannot edit", async () => {
@@ -117,7 +120,8 @@ describe("Organisation card", () => {
     await mountAs("owner");
     updateOrganisation.mockImplementation(() => Promise.reject(new Error("State code invalid")));
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(await screen.findByText(/✗ State code invalid/)).toBeInTheDocument();
+    const failure = await screen.findByText("State code invalid");
+    expect(failure.closest("[role=status]")).toBeInTheDocument();
   });
 });
 
@@ -175,7 +179,7 @@ describe("Invitations", () => {
 
     await waitFor(() => expect(createInvitation)
       .toHaveBeenCalledWith("new.person@ministry.gov.in", "contributor"));
-    expect(await screen.findByText(/✓ Invitation sent/)).toBeInTheDocument();
+    expect(await screen.findByText(/Invitation sent to/)).toBeInTheDocument();
     expect(field).toHaveValue("");
   });
 

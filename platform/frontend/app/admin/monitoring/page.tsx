@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { relative, absoluteTime } from "@/lib/format";
@@ -8,7 +9,7 @@ import { relative, absoluteTime } from "@/lib/format";
 // Continuous, scheduled estate monitoring (gap G2) — audits run on a cadence
 // instead of waiting for an owner to click 'audit'.
 export default function Monitoring() {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<any[] | null>(null);
   const [domains, setDomains] = useState<any[]>([]);
   const [domainId, setDomainId] = useState("");
   const [cadence, setCadence] = useState("weekly");
@@ -79,7 +80,7 @@ export default function Monitoring() {
           <thead><tr><th>Domain</th><th>Cadence</th><th>Next run</th><th>Last run</th>
             <th><span className="ux4g-sr-only">Actions</span></th></tr></thead>
           <tbody>
-            {rows.map(s => (
+            {(rows || []).map(s => (
               <tr key={s.id}>
                 <td data-label="Domain" className="gx-cell-primary">{s.domain}</td>
                 <td data-label="Cadence"><span className="gx-chip">{s.cadence}</span></td>
@@ -93,7 +94,9 @@ export default function Monitoring() {
                   <Icon name="trash" size={16} /></button></td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">No monitors yet.</td></tr>}
+            {rows === null && <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">
+              <Spinner size="sm" className="ux4g-mr-xs" />Loading monitors…</td></tr>}
+            {rows !== null && !rows.length && <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">No monitors yet.</td></tr>}
           </tbody>
         </table></div></div>
       </div>

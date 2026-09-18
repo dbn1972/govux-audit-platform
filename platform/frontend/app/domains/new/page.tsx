@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import StatusLine from "@/components/StatusLine";
 import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
@@ -173,7 +174,7 @@ export default function RegisterDomain() {
               </>
             )}
 
-            {err && <div className="ux4g-text-error ux4g-fs-14 ux4g-mb-xs">✗ {err}</div>}
+            {err && <StatusLine ok={false} text={err} className="ux4g-mb-xs" />}
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md" onClick={verify} disabled={busy}>
               {busy ? "Checking…" : "Verify now"}</button>
           </div></div>

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import StatusLine from "@/components/StatusLine";
 import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
@@ -28,7 +29,7 @@ export default function NewAudit() {
   const [showReq, setShowReq] = useState(false);
   const [reqPages, setReqPages] = useState(25);
   const [reqReason, setReqReason] = useState("");
-  const [reqMsg, setReqMsg] = useState("");
+  const [reqMsg, setReqMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [reqBusy, setReqBusy] = useState(false);
 
   // Only verified domains can be audited (the API enforces this too). Pre-select
@@ -59,13 +60,13 @@ export default function NewAudit() {
 
   async function requestCrawl() {
     if (!domainId || reqBusy) return;
-    setReqBusy(true); setReqMsg("");
+    setReqBusy(true); setReqMsg(null);
     try {
       await api.createScanRequest(domainId, reqPages, reqReason || undefined);
-      setReqMsg(`✓ Request for ${reqPages} pages submitted — a steward will review it. You can keep running standard audits meanwhile.`);
+      setReqMsg({ ok: true, text: `Request for ${reqPages} pages submitted — a steward will review it. You can keep running standard audits meanwhile.` });
       setShowReq(false);
     } catch (e: any) {
-      setReqMsg("✗ " + (e?.message || "Could not submit the request."));
+      setReqMsg({ ok: false, text: e?.message || "Could not submit the request." });
     } finally { setReqBusy(false); }
   }
 
@@ -121,7 +122,7 @@ export default function NewAudit() {
                     <span className="ux4g-tag-tonal-neutral ux4g-tag-s">Covers up to {freePages} pages · free</span>
                     <span className="gx-muted ux4g-fs-14">Unlimited audits on your verified domains.</span>
                     <button type="button" className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm ux4g-ml-auto ux4g-p-none"
-                      onClick={() => { setShowReq((v) => !v); setReqMsg(""); }} disabled={!domainId}>
+                      onClick={() => { setShowReq((v) => !v); setReqMsg(null); }} disabled={!domainId}>
                       {showReq ? "Cancel" : "Need a deeper crawl? Request approval →"}
                     </button>
                   </div>
@@ -156,7 +157,7 @@ export default function NewAudit() {
                       <div className="gx-muted ux4g-fs-14 ux4g-mt-xs">A programme steward reviews and approves larger crawls.</div>
                     </div>
                   )}
-                  {reqMsg && <div className="ux4g-fs-14 ux4g-mt-xs">{reqMsg}</div>}
+                  {reqMsg && <StatusLine {...reqMsg} className="ux4g-mt-xs" />}
                 </div>
               )}
             </div></div>

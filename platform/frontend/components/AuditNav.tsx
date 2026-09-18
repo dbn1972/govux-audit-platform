@@ -31,12 +31,17 @@ const TABS: [string, string][] = [
 export default function AuditNav({ id }: { id: string }) {
   const path = usePathname();
   return (
-    <nav aria-label="Audit views">
+    // `ux4g-tab` and `ux4g-tab-list` are a NESTED pair, not two classes for one
+    // element: the container is `display:inline-flex; flex-direction:column`
+    // (tab row above, panel below) and the list is the row inside it. Stacking
+    // both on the <ul> let the container's `column` win, so these seven tabs
+    // rendered as a 280px right-aligned vertical list instead of a strip.
+    <nav aria-label="Audit views" className="ux4g-tab ux4g-mb-s">
       {/* UX4G underline tab strip, but routing-driven: each item is a Next
           <Link>, and the active item is the one whose route matches — not a
           JS-toggled panel. Keeps the `active` class UX4G styles against, and
           preserves aria-current for assistive tech. */}
-      <ul className="ux4g-tab ux4g-tab-underline ux4g-tab-md ux4g-tab-list ux4g-mb-s ux4g-flex-nowrap ux4g-o-x-auto">
+      <ul className="ux4g-tab-list ux4g-tab-underline ux4g-tab-md ux4g-flex-nowrap ux4g-o-x-auto">
         {TABS.map(([label, template]) => {
           const href = template.replace("[id]", id);
           const active = path === href;

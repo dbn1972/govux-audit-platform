@@ -83,28 +83,29 @@ export default function Report({ params }: { params: { id: string } }) {
             inbound link anywhere in the app */}
         <AuditNav id={params.id} />
 
-        {r.integrity?.flagged && (
+        {/* One integrity notice, not two.
+            This was two callouts: `integrity.flagged` and "any Integrity-*
+            finding". A detected technique sets both, so they always rendered
+            together and said the same thing twice — overlay detected, mandatory
+            elements hidden, verdict capped — in two different voices. Merged,
+            with the techniques listed once as the specific evidence. */}
+        {(r.integrity?.flagged ||
+          (r.findings || []).some((f: any) => String(f.guideline || "").startsWith("Integrity"))) && (
           <div className="gx-callout gx-callout-danger" role="alert">
             <Icon name="exclamation-octagon" size={20} />
             <div>
-              <b>Integrity check — possible gaming detected.</b> The compliance verdict is capped pending
-              human review. The GovUX score itself is unchanged.
-              <ul className="ux4g-mb-none ux4g-mt-2xs ux4g-fs-14">
-                {r.integrity.techniques.map((t: any) => <li key={t.key}>{t.label}</li>)}
-                {r.integrity.jump && <li>Score rose {r.integrity.jump.from} → {r.integrity.jump.to} with no matching change.</li>}
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {(r.findings || []).some((f: any) => String(f.guideline || "").startsWith("Integrity")) && (
-          <div className="gx-callout" role="alert">
-            <Icon name="shield-exclamation" size={20} />
-            <div>
-              <b>Integrity flag — possible “accessibility theater”.</b> An accessibility overlay widget
-              and/or mandatory elements hidden from users were detected. These can inflate an automated
-              score without helping citizens, so this audit <b>cannot be certified compliant</b>. See the
-              flagged issues below.
+              <b>Integrity check — possible “accessibility theater”.</b> An accessibility overlay
+              and/or mandatory elements hidden from users were detected. These inflate an automated
+              score without helping citizens, so this audit <b>cannot be certified compliant</b> and
+              the compliance verdict is capped pending human review. The GovUX score itself is
+              unchanged.
+              {(r.integrity?.techniques?.length || r.integrity?.jump) && (
+                <ul className="ux4g-mb-none ux4g-mt-2xs ux4g-fs-14">
+                  {(r.integrity?.techniques || []).map((t: any) => <li key={t.key}>{t.label}</li>)}
+                  {r.integrity?.jump && <li>Score rose {r.integrity.jump.from} → {r.integrity.jump.to} with no matching change.</li>}
+                </ul>
+              )}
+              <div className="ux4g-fs-14 ux4g-mt-2xs">See the flagged issues below.</div>
             </div>
           </div>
         )}

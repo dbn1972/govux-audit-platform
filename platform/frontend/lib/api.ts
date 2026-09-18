@@ -7,15 +7,29 @@ export function setToken(t: string | null) { accessToken = t; }
 export class AuthError extends Error {}
 
 async function req(path: string, opts: RequestInit = {}, retry = true): Promise<any> {
-  const res = await fetch(`/api${path}`, {
-    ...opts,
-    headers: {
-      "Content-Type": "application/json",
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-      ...(opts.headers || {}),
-    },
-    credentials: "include", // send/receive the HttpOnly refresh cookie
-  });
+  let res: Response;
+  try {
+    res = await fetch(`/api${path}`, {
+      ...opts,
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...(opts.headers || {}),
+      },
+      credentials: "include", // send/receive the HttpOnly refresh cookie
+    });
+  } catch {
+    // The request never reached the API — the service is down, or the device is
+    // offline. fetch rejects with "Failed to fetch", which is not something to
+    // put in front of a user; `offline` lets a screen offer the right recovery.
+    const e = new Error(
+      typeof navigator !== "undefined" && navigator.onLine === false
+        ? "You appear to be offline. Check your connection and try again."
+        : "Cannot reach the audit service. It may be restarting — try again in a moment."
+    ) as ApiError;
+    e.offline = true;
+    throw e;
+  }
   if (res.status === 401 && retry) {
     // silent refresh (device-bound rotating token), then retry once — this is
     // what makes a page reload (in-memory token gone) resume the session, same
@@ -33,15 +47,37 @@ async function req(path: string, opts: RequestInit = {}, retry = true): Promise<
     throw new AuthError("Your session has expired — please sign in again.");
   }
   if (!res.ok) {
-    const detail = (await res.json().catch(() => ({}))).detail;
+    const body = await res.json().catch(() => ({}));
+    const detail = body.detail;
     // detail is usually a string, but some endpoints (e.g. OTP lockout) send a
     // structured object — {message, retry_after, captcha_required} — instead.
+    // The API already writes a friendly, referenceable message for 500s; use it
+    // when it is there and only fall back when it is not. `res.statusText` is
+    // not a fallback: surfacing "Internal Server Error" tells a department
+    // officer nothing they can act on.
     const msg = typeof detail === "string" ? detail
       : detail && typeof detail === "object" && typeof detail.message === "string" ? detail.message
-      : res.statusText;
-    throw new Error(msg);
+      : humanStatus(res.status);
+    const e = new Error(msg) as ApiError;
+    e.status = res.status;
+    e.requestId = body.request_id || res.headers.get("x-request-id") || undefined;
+    throw e;
   }
   return res.status === 204 ? null : res.json();
+}
+
+/** An error carrying enough context for a screen to decide what to show. */
+export type ApiError = Error & { status?: number; requestId?: string; offline?: boolean };
+
+/** What to say when the server gave us no usable detail of its own. Phrased as
+ *  what the reader should do, not as an HTTP status. */
+function humanStatus(status: number): string {
+  if (status === 403) return "You do not have permission to do that.";
+  if (status === 404) return "That is no longer available — it may have been removed.";
+  if (status === 409) return "That conflicts with a change someone else made. Reload and try again.";
+  if (status === 429) return "Too many requests just now. Wait a moment and try again.";
+  if (status >= 500) return "The service is temporarily unavailable. Please try again.";
+  return "That request could not be completed.";
 }
 
 export const api = {

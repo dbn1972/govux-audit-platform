@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import AuditNav from "@/components/AuditNav";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
 
 // Document (PDF/Office) accessibility results (gap G3).
 export default function Documents({ params }: { params: { id: string } }) {
-  const [docs, setDocs] = useState<any[]>([]);
+  const [docs, setDocs] = useState<any[] | null>(null);
   const [err, setErr] = useState("");
   useEffect(() => {
     api.auditDocuments(params.id).then(r => setDocs(r.documents || []))
@@ -40,7 +41,7 @@ export default function Documents({ params }: { params: { id: string } }) {
           <div className="ux4g-card-header">
             <h2>Linked documents</h2>
             <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
-              {docs.length} document{docs.length === 1 ? "" : "s"} · tagged structure, title and
+              {(docs || []).length} document{(docs || []).length === 1 ? "" : "s"} · tagged structure, title and
               language are the three PDF/UA basics
             </span>
           </div>
@@ -51,7 +52,7 @@ export default function Documents({ params }: { params: { id: string } }) {
               <th>Title</th><th>Language</th><th>Score</th><th>Issues</th>
             </tr></thead>
             <tbody>
-              {docs.map((d, i) => (
+              {(docs || []).map((d, i) => (
                 <tr key={i}>
                   <td data-label="Document" className="ux4g-line-clamp-1 gx-cell-primary" style={{ maxWidth: 320 }}>
                     <a href={d.url} target="_blank" rel="noopener noreferrer">{d.url}
@@ -67,7 +68,9 @@ export default function Documents({ params }: { params: { id: string } }) {
                   <td data-label="Issues" className="gx-num">{d.issues}</td>
                 </tr>
               ))}
-              {!docs.length && <tr><td colSpan={8} className="gx-muted ux4g-text-center ux4g-py-l">
+              {docs === null && !err && <tr><td colSpan={8} className="gx-muted ux4g-text-center ux4g-py-l">
+                <Spinner size="sm" className="ux4g-mr-xs" />Loading documents…</td></tr>}
+              {docs !== null && !docs.length && <tr><td colSpan={8} className="gx-muted ux4g-text-center ux4g-py-l">
                 No documents were discovered in this audit.</td></tr>}
             </tbody>
           </table>

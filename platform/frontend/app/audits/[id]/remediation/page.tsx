@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
@@ -9,7 +10,7 @@ const SEV = { critical: "ux4g-tag-tonal-error ux4g-tag-s", high: "ux4g-tag-tonal
 
 // Impact x effort prioritised fix list with advisory guidance (gap G5).
 export default function Remediation({ params }: { params: { id: string } }) {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<any[] | null>(null);
   const [err, setErr] = useState("");
   useEffect(() => {
     api.remediation(params.id).then(r => setItems(r.items || []))
@@ -31,7 +32,7 @@ export default function Remediation({ params }: { params: { id: string } }) {
         <AuditNav id={params.id} />
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="ux4g-d-flex ux4g-flex-column ux4g-gap-xs">
-          {items.map((f, i) => (
+          {(items || []).map((f, i) => (
             <div className="ux4g-card ux4g-card-solid ux4g-card-outline" key={i}>
               <div className="ux4g-card-body ux4g-d-flex ux4g-gap-s ux4g-ai-start">
                 <span className="ux4g-tag-tonal-neutral ux4g-tag-s" style={{ minWidth: 34 }}>#{i + 1}</span>
@@ -50,7 +51,9 @@ export default function Remediation({ params }: { params: { id: string } }) {
               </div>
             </div>
           ))}
-          {!items.length && <div className="gx-muted ux4g-text-center ux4g-py-l">No findings to remediate.</div>}
+          {items === null && !err && <div className="gx-muted ux4g-text-center ux4g-py-l">
+            <Spinner size="sm" className="ux4g-mr-xs" />Loading the remediation plan…</div>}
+          {items !== null && !items.length && <div className="gx-muted ux4g-text-center ux4g-py-l">No findings to remediate.</div>}
         </div>
       </div>
     </AppShell>

@@ -5,6 +5,7 @@ import GovBanner from "@/components/GovBanner";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Icon from "@/components/Icon";
+import StatusLine from "@/components/StatusLine";
 import { api, setToken } from "@/lib/api";
 
 // Mirrors backend security.is_gov_email: bare @gov.in/@nic.in as well as any subdomain.
@@ -83,7 +84,7 @@ export default function Login() {
                 </div>
               </div>
               <div className="ux4g-input-helper"><span className="ux4g-input-helper-text">Only <b>.gov.in</b> / <b>.nic.in</b> are accepted.</span></div>
-              {err && <div className="ux4g-text-error ux4g-fs-14 ux4g-mt-2xs" role="alert">✗ {err}</div>}
+              {err && <StatusLine ok={false} text={err} className="ux4g-mt-2xs" />}
               <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-w-100 ux4g-mt-s" onClick={sendOtp} disabled={busy}>
                 {busy ? "Sending…" : "Send OTP"}</button>
             </>
@@ -101,7 +102,7 @@ export default function Login() {
                     placeholder="••••••" style={{ letterSpacing: 8, fontSize: 20 }} />
                 </div>
               </div>
-              {err && <div className="ux4g-text-error ux4g-fs-14 ux4g-mt-2xs" role="alert">✗ {err}</div>}
+              {err && <StatusLine ok={false} text={err} className="ux4g-mt-2xs" />}
               <div className="ux4g-alert ux4g-alert-success ux4g-py-xs ux4g-mt-s ux4g-fs-14 ux4g-mb-none">
                 <Icon name="shield-check" size={15} className="ux4g-mr-2xs" />
                 On verify we bind this session to this device. A stolen cookie won&apos;t work elsewhere.

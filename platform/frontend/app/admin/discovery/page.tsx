@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
 import { relative } from "@/lib/format";
@@ -8,7 +9,7 @@ import { relative } from "@/lib/format";
 // Estate auto-discovery (gap G2): parse a sitemap / robots / page for
 // .gov.in/.nic.in hosts we don't yet know about.
 export default function Discovery() {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<any[] | null>(null);
   const [seed, setSeed] = useState("https://www.india.gov.in/robots.txt");
   const [body, setBody] = useState("");
   const [result, setResult] = useState<any>(null);
@@ -76,7 +77,7 @@ export default function Discovery() {
         <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m gx-responsive">
           <thead><tr><th>Discovered host</th><th>Source</th><th>Imported</th><th>When</th></tr></thead>
           <tbody>
-            {rows.map((d, i) => (
+            {(rows || []).map((d, i) => (
               <tr key={i}>
                 <td data-label="Discovered host" className="gx-cell-primary">{d.url}</td>
                 <td data-label="Source"><span className="gx-chip">{d.source}</span></td>
@@ -88,7 +89,12 @@ export default function Discovery() {
                 <td data-label="When" className="ux4g-fs-14 gx-muted">{relative(d.discovered_at)}</td>
               </tr>
             ))}
-            {!rows.length && (
+            {rows === null && (
+              <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">
+                <Spinner size="sm" className="ux4g-mr-xs" />Loading discovered hosts…
+              </td></tr>
+            )}
+            {rows !== null && !rows.length && (
               <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">
                 Nothing discovered yet. Paste a sitemap or robots.txt above to find
                 hosts nobody has registered.

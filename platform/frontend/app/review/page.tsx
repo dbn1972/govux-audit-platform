@@ -1,6 +1,7 @@
 "use client";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
+import StatusLine from "@/components/StatusLine";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
@@ -282,7 +283,7 @@ export default function Review() {
                     <input id="assess-url" className="ux4g-input ux4g-w-100" value={siteUrl}
                       placeholder="e.g. cept.gov.in"
                       onChange={(e) => setSiteUrl(e.target.value)} />
-                    <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!siteUrl.trim() || starting}
+                    <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md ux4g-text-nowrap ux4g-flex-shrink-0" disabled={!siteUrl.trim() || starting}
                       onClick={() => startAssessment({ subject: siteUrl.trim(), platform: "website" })}>
                       Start website
                     </button>
@@ -298,7 +299,7 @@ export default function Review() {
                     <input id="assess-app" className="ux4g-input ux4g-w-100" value={appName}
                       placeholder="e.g. India Post Mobile"
                       onChange={(e) => setAppName(e.target.value)} />
-                    <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md" disabled={!appName.trim() || starting}
+                    <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md ux4g-text-nowrap ux4g-flex-shrink-0" disabled={!appName.trim() || starting}
                       onClick={() => startAssessment({ subject: appName.trim(), platform: "app" })}>
                       Start app
                     </button>
@@ -540,7 +541,7 @@ export default function Review() {
           </div>
         )}
 
-        {err && <div className="ux4g-alert ux4g-alert-warning ux4g-py-xs" role="alert">✗ {err}</div>}
+        {err && <StatusLine ok={false} text={err} className="ux4g-mt-xs" />}
         {loading && !data && (
           <div className="gx-muted ux4g-fs-14 ux4g-py-s">
             <Spinner size="sm" className="ux4g-mr-xs" />Loading…

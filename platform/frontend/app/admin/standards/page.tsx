@@ -1,5 +1,6 @@
 "use client";
 import AppShell from "@/components/AppShell";
+import Icon from "@/components/Icon";
 
 const WEIGHTS = [
   ["Accessibility (WCAG 2.2 AA)", 22], ["Usability & UX heuristics", 17], ["GIGW 3.0 compliance", 15],
@@ -57,7 +58,10 @@ export default function Standards() {
                   <div className="ux4g-switch-content"><span className="ux4g-switch-label ux4g-fs-14">{label}</span></div>
                 </label>
               ))}
-              <div className="ux4g-alert ux4g-alert-warning ux4g-fs-14 ux4g-mt-s ux4g-mb-none">🔐 Only Programme-Admins can publish; changes require a second approver.</div>
+              <div className="ux4g-alert ux4g-alert-warning ux4g-fs-14 ux4g-mt-s ux4g-mb-none ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
+                <Icon name="lock" size={16} className="ux4g-flex-shrink-0" />
+                <span>Only Programme-Admins can publish; changes require a second approver.</span>
+              </div>
             </div>
           </div></div>
         </div>

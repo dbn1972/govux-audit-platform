@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import Spinner from "@/components/Spinner";
 import Icon from "@/components/Icon";
+import StatusLine from "@/components/StatusLine";
 import { api } from "@/lib/api";
 import { BAND_COLOR } from "@/lib/score";
 
@@ -14,12 +16,12 @@ const OPTIONS: Record<string, string[]> = {
 };
 
 export default function ConfigAdmin() {
-  const [cats, setCats] = useState<any[]>([]);
+  const [cats, setCats] = useState<any[] | null>(null);
   const [edits, setEdits] = useState<Record<string, any>>({});
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
   const [testTo, setTestTo] = useState("");
-  const [testMsg, setTestMsg] = useState("");
+  const [testMsg, setTestMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [health, setHealth] = useState<any>(null);
 
   async function load() {
@@ -44,12 +46,13 @@ export default function ConfigAdmin() {
   }
 
   async function sendTest() {
-    setTestMsg("");
+    setTestMsg(null);
     try {
       const r = await api.testEmail(testTo);
-      setTestMsg(r.ok ? `✓ Test email sent via '${r.provider}'.`
-        : `✗ Failed via '${r.provider}'${r.error ? ": " + r.error : ""}.`);
-    } catch (e: any) { setTestMsg("✗ " + (e.message || "Failed to send.")); }
+      setTestMsg(r.ok
+        ? { ok: true, text: `Test email sent via '${r.provider}'.` }
+        : { ok: false, text: `Failed via '${r.provider}'${r.error ? ": " + r.error : ""}.` });
+    } catch (e: any) { setTestMsg({ ok: false, text: e.message || "Failed to send." }); }
   }
 
   const dirty = Object.keys(edits).length > 0;
@@ -114,7 +117,12 @@ export default function ConfigAdmin() {
           );
         })()}
 
-        {cats.map(cat => (
+        {cats === null && (
+          <div className="gx-muted ux4g-text-center ux4g-py-l">
+            <Spinner size="sm" className="ux4g-mr-xs" />Loading configuration…
+          </div>
+        )}
+        {(cats || []).map(cat => (
           <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s" key={cat.name}>
             <div className="ux4g-card-header">{cat.name}</div>
             <div className="ux4g-card-body">
@@ -179,7 +187,7 @@ export default function ConfigAdmin() {
                       <Icon name="send" size={16} className="ux4g-mr-2xs" />Send test
                     </button>
                   </div>
-                  {testMsg && <div className="ux4g-fs-14 ux4g-mt-xs">{testMsg}</div>}
+                  {testMsg && <StatusLine {...testMsg} className="ux4g-mt-xs" />}
                 </div>
               )}
             </div>

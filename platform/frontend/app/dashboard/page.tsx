@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
 import { api } from "@/lib/api";
@@ -18,12 +18,18 @@ export default function Dashboard() {
   const [me, setMe] = useState<any>(null);
   const [err, setErr] = useState("");
 
-  useEffect(() => {
+  // A failed load must not be dressed up as a real answer. This used to
+  // setDomains([]) in the catch, so an unreachable API rendered "0 registered
+  // domains" and a row of zeroed stat tiles — an audit platform stating a
+  // number it does not have. Leaving `domains` null keeps every figure at "—".
+  const load = useCallback(() => {
+    setErr("");
     api.listDomains()
       .then((d) => setDomains(d || []))
-      .catch((e) => { setErr(e?.message || "Could not load your domains."); setDomains([]); });
+      .catch((e) => { setErr(e?.message || "Could not load your domains."); setDomains(null); });
     api.me().then(setMe).catch(() => {});
   }, []);
+  useEffect(() => { load(); }, [load]);
 
   const list = domains || [];
   const verified = list.filter((d) => d.verify_status === "verified").length;
@@ -41,7 +47,8 @@ export default function Dashboard() {
         <div>
           <h1 className="ux4g-mb-2xs">Your workspace</h1>
           <div className="gx-muted">
-            {domains == null ? "Loading your estate…"
+            {err ? (me?.org_name || "Your estate")
+              : domains == null ? "Loading your estate…"
               : `${me?.org_name ? me.org_name + " · " : ""}${list.length} registered domain${list.length === 1 ? "" : "s"}`}
           </div>
         </div>
@@ -55,7 +62,16 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
+      {err && (
+        <div className="ux4g-alert ux4g-alert-warning ux4g-d-flex ux4g-ai-center ux4g-gap-xs" role="alert">
+          <Icon name="exclamation-triangle" size={16} />
+          <span>{err}</span>
+          <button type="button" onClick={load}
+            className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm ux4g-ml-auto">
+            <Icon name="arrow-repeat" size={14} className="ux4g-mr-2xs" />Try again
+          </button>
+        </div>
+      )}
 
       {/* Four figures, and the fourth is the one that matters: an estate with
           three verified domains and no score is not a healthy estate, which the
@@ -142,9 +158,16 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {domains == null && (
+              {/* null now means "loading" OR "failed"; only the former is a
+                  spinner, or a failed load spins forever. */}
+              {domains == null && !err && (
                 <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m">
                   <Spinner size="sm" className="ux4g-mr-xs" />Loading…
+                </td></tr>
+              )}
+              {domains == null && err && (
+                <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m gx-muted">
+                  Your domains could not be loaded.
                 </td></tr>
               )}
               {domains?.length === 0 && !err && (

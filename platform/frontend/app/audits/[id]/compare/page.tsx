@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
+import { absolute } from "@/lib/format";
 import AuditNav from "@/components/AuditNav";
 import Icon from "@/components/Icon";
 import Spinner from "@/components/Spinner";
@@ -21,10 +22,6 @@ type Compare = {
   pages_total?: number;
 };
 
-const fmt = (iso: string) => {
-  try { return new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); }
-  catch { return iso; }
-};
 const statusLabel = (s: string) =>
   s === "analysed" ? "Analysed" : s === "not_recrawled" ? "Not recrawled" : s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -69,8 +66,8 @@ export default function Compare({ params }: { params: { id: string } }) {
   return wrap(
     <>
       <p className="gx-muted ux4g-fs-14">
-        Comparing <b>{fmt(data.from_audit!.date)}</b> ({data.from_audit!.score ?? "—"}) against{" "}
-        <b>{fmt(data.to_audit!.date)}</b> ({data.to_audit!.score ?? "—"}) — this audit&rsquo;s most recent prior run.
+        Comparing <b>{absolute(data.from_audit!.date)}</b> ({data.from_audit!.score ?? "—"}) against{" "}
+        <b>{absolute(data.to_audit!.date)}</b> ({data.to_audit!.score ?? "—"}) — this audit&rsquo;s most recent prior run.
       </p>
       {/* A diff's job is to say which way things went. The four figures were
           all rendered in the same weight and colour, so "+3 new issues" and

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { buildNavbarClasses, buildDrawerClasses } from "ux4g-web-components/types";
 import { api, setToken } from "@/lib/api";
 import BrandMark from "@/components/BrandMark";
@@ -168,10 +168,23 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
 
-  // who is signed in — drives role-aware nav + route guarding + the avatar
-  useEffect(() => { api.me().then(setMe).catch(() => setMe({ is_steward: false })); }, []);
+  // who is signed in — drives role-aware nav + route guarding + the avatar.
+  //
+  // A failed /me must NOT be read as "not a steward". It used to set
+  // { is_steward: false }, so a transient API blip silently removed the whole
+  // STEWARD section from the rail and showed a steward standing on /admin/* the
+  // "this area is for stewards" page — telling them they had lost access when
+  // the truth was that we had lost the answer. Unknown is now its own state:
+  // the nav holds its shape and a banner says the profile could not be loaded.
+  const [meError, setMeError] = useState(false);
+  const loadMe = useCallback(() => {
+    setMeError(false);
+    api.me().then(m => { setMe(m); setMeError(false); }).catch(() => setMeError(true));
+  }, []);
+  useEffect(() => { loadMe(); }, [loadMe]);
   const isSteward = !!me?.is_steward;
   const studioEnabled = !!me?.entitlements?.studio_enabled;
+  // Only deny once we actually know the role. Unknown ≠ unauthorised.
   const denied = !!me && !me.is_steward && isStewardRoute(path);
   const initials = ((me?.display_name || me?.email || "").match(/[A-Za-z]+/g) || [])
     .slice(0, 2).map((s: string) => s[0].toUpperCase()).join("") || "GX";
@@ -353,7 +366,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
               nothing on the page said which one you were. */}
           <div className="gx-context">
             <div className="gx-label ux4g-mb-2xs">Signed in as</div>
-            <div className="gx-context-org">{me?.org_name || me?.email || "—"}</div>
+            <div className="gx-context-org">
+              {meError ? "Profile unavailable" : (me?.org_name || me?.email || "—")}
+            </div>
             <div className="gx-muted" style={{ fontSize: ".75rem" }}>
               {(me?.role || "").replace(/_/g, " ") || "\u00a0"}
             </div>
@@ -371,6 +386,20 @@ export default function AppShell({ children }: { children: ReactNode }) {
         {/* tabIndex -1 so the skip link can move focus here, not merely scroll */}
         <main id="main" tabIndex={-1} className="ux4g-flex-grow-1"
           style={{ background: "var(--ux4g-bg-neutral)", minWidth: 0, outline: "none" }}>
+          {meError && (
+            <div className="ux4g-alert ux4g-alert-warning ux4g-d-flex ux4g-ai-center ux4g-gap-xs ux4g-m-s"
+              role="alert">
+              <Icon name="exclamation-triangle" size={16} />
+              <span>
+                Your profile could not be loaded, so parts of the navigation may be missing.
+                You have not lost access.
+              </span>
+              <button type="button" onClick={loadMe}
+                className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm ux4g-ml-auto">
+                <Icon name="arrow-repeat" size={14} className="ux4g-mr-2xs" />Retry
+              </button>
+            </div>
+          )}
           {denied ? <AccessDenied /> : children}
         </main>
       </div>

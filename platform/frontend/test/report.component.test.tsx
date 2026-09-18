@@ -86,7 +86,12 @@ describe("Audit report", () => {
       },
     });
     render(<Report params={{ id: "t1" }} />);
-    expect(await screen.findByText(/possible gaming detected/i)).toBeInTheDocument();
+    // One integrity notice, not two: the "gaming detected" and "accessibility
+    // theater" callouts always fired together and said the same thing, so they
+    // are merged. Assert there is exactly one, and that it names the cap.
+    const notices = await screen.findAllByText(/Integrity check/i);
+    expect(notices).toHaveLength(1);
+    expect(screen.getByText(/cannot be certified compliant/i)).toBeInTheDocument();
     expect(screen.getByText(/Accessibility overlay widget detected/)).toBeInTheDocument();
     // the unexplained jump is spelled out, so a reviewer can judge it
     expect(screen.getByText(/40 → 88/)).toBeInTheDocument();
