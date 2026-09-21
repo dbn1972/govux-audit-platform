@@ -131,7 +131,12 @@ body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
   --gx-on-success:#116932; --gx-on-error:#b91c1c;
   --gx-on-warning:#9a4508; --gx-on-info:#0c655e;
 }
-.ux4g-alert :where(a) { color:inherit; }
+/* Plain links in alert prose take the alert's ink; button-shaped ones must
+   not. `.ux4g-alert :where(a)` is (0,1,0) — a tie with .ux4g-btn-primary,
+   broken by source order in this file's favour — so "View report →" inside
+   the success alert on /audits/[id] rendered #116932 on #4a2bc2, 1.28:1, and
+   #fafafa on #a391ff, 2.5:1, in dark. Seven such controls across five files. */
+.ux4g-alert :where(a:not([class*="ux4g-btn"])) { color:inherit; }
 .ux4g-alert-success { --ux4g-alert-text:var(--gx-on-success); }
 .ux4g-alert-error   { --ux4g-alert-text:var(--gx-on-error);   }
 .ux4g-alert-warning { --ux4g-alert-text:var(--gx-on-warning); }
@@ -292,6 +297,10 @@ p > a:only-child { display:inline-flex; align-items:center; min-height:1.5rem; }
 .gx-back { display:inline-flex; align-items:center; gap:.25rem; min-height:1.5rem;
            width:fit-content; text-decoration:none; color:var(--ux4g-text-neutral-secondary); }
 .gx-back:hover { color:var(--ux4g-text-brand-primary-default); text-decoration:underline; }
+
+/* An audit task UUID has no spaces, so it cannot wrap and simply runs out of
+   its container at high zoom or in a narrow column. */
+.gx-breakable { overflow-wrap:anywhere; }
 
 /* ---------------------------------------------------------------------------
    Icon ligatures are text.
@@ -684,7 +693,8 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
 /* ---------------------------------------------------------------------------
    Progress stepper — the audit pipeline while it runs.
    ------------------------------------------------------------------------ */
-.gx-steps-rail { display:flex; align-items:flex-start; gap:0; flex-wrap:wrap; }
+.gx-steps-rail { display:flex; align-items:flex-start; gap:0; flex-wrap:wrap;
+                 list-style:none; padding:0; margin:0; }
 .gx-stage { flex:1 1 0; min-width:96px; text-align:center; position:relative; }
 .gx-stage::before { content:""; position:absolute; top:11px; inset-inline-start:-50%;
                     width:100%; height:2px; background:var(--ux4g-border-color-neutral-subtle); z-index:0; }
@@ -697,9 +707,38 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
                  text-transform:capitalize; }
 .gx-stage-done .gx-stage-dot { background:var(--gx-band-A); border-color:var(--gx-band-A); color:#fff; }
 .gx-stage-done::before { background:var(--gx-band-A); }
-.gx-stage-now .gx-stage-dot { border-color:var(--ux4g-border-color-primary-default); color:var(--ux4g-text-brand-primary-default);
+/* The ring is the only thing marking the stage you are on, and
+   --ux4g-border-color-primary-default is 2.61:1 against the card — under the
+   3:1 that SC 1.4.11 asks of a non-text indicator. The strong brand border is
+   8.33:1 and the same hue. */
+.gx-stage-now .gx-stage-dot { border-color:var(--ux4g-border-color-primary-strong); color:var(--ux4g-text-brand-primary-default);
                               box-shadow:0 0 0 4px var(--ux4g-bg-primary-subtle); }
 .gx-stage-now .gx-stage-name { color:var(--ux4g-text-brand-primary-default); font-weight:650; }
+
+/* A run that ended without a score. Without this, failed/cancelled/
+   insufficient_evidence left every stage inert, reading as "nothing ran". */
+.gx-stage-stopped .gx-stage-dot { background:var(--ux4g-bg-error-strong); border-color:var(--ux4g-bg-error-strong);
+                                  color:var(--ux4g-text-neutral-inverse); }
+.gx-stage-stopped .gx-stage-name { color:var(--ux4g-text-status-error); font-weight:650; }
+
+/* The done dot is --gx-band-A, which is lifted for dark grounds; a white tick
+   on it is 2.06:1, under the 3:1 non-text bar. Ink it with the page ground
+   instead (9.6:1). Light is unaffected — white on the darker green is 6.79. */
+[data-theme="dark"] .gx-stage-done .gx-stage-dot { color:var(--ux4g-bg-neutral-elevated); }
+
+/* Below 600px the row wraps, and the connector — drawn on each stage at
+   inset-inline-start:-50% with only :first-child suppressed — escapes the card
+   to the left from the second row's first item. Stack instead: no wrap, no
+   orphan connector, and the stage names stop competing for 96px each. */
+@media (max-width:600px) {
+  .gx-steps-rail { flex-direction:column; align-items:stretch; gap:var(--gx-space-3); }
+  .gx-stage { flex:0 0 auto; min-width:0; text-align:start;
+              display:grid; grid-template-columns:24px 1fr; align-items:center;
+              column-gap:var(--gx-space-3); }
+  .gx-stage::before { inset-inline-start:11px; top:-14px; width:2px; height:14px; }
+  .gx-stage-dot { margin-inline:0; }
+  .gx-stage-name { margin-top:0; }
+}
 
 /* ---------------------------------------------------------------------------
    Guided review — the densest interaction in the product. An assessor answers
