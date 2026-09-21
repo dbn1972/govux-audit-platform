@@ -14,6 +14,12 @@ out/
 npm-debug.log*
 yarn-error.log*
 
+# ---- Playwright run artifacts (traces, screenshots, .last-run.json) ----
+platform/frontend/test-results/
+platform/frontend/playwright-report/
+platform/frontend/blob-report/
+platform/frontend/.playwright-artifacts-*/
+
 # ---- Secrets / environment ----
 #.env
 #.env.*
