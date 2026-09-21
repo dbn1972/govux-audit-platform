@@ -613,7 +613,11 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
               background:var(--ux4g-bg-warning-soft); color:var(--gx-on-warning); }
 .gx-callout-danger { border-color:var(--ux4g-border-color-error-default);
                      background:var(--ux4g-bg-error-soft); color:var(--gx-on-error); }
-.gx-callout i { font-size:1.125rem; flex:none; }
+/* The icon must not be squeezed. This read `.gx-callout i` — written when
+   icons were bootstrap <i> glyphs, and never updated when they became lucide
+   <svg>, so the guard silently stopped applying: a 20px icon measured 2.2px
+   wide inside the flex row at 375px. Target both, and the label text too. */
+.gx-callout > :is(i, svg) { font-size:1.125rem; flex:none; }
 
 /* Definition row for report metadata: label above value, several across. */
 

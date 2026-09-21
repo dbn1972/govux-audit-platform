@@ -34,6 +34,11 @@ import Running from "@/app/audits/[id]/page";
 import Audits from "@/app/audits/page";
 
 describe("New Audit — real domains, real ids", () => {
+  // Block body, not a concise arrow: `() => m.mockReset()` RETURNS the mock,
+  // and vitest treats a function returned from a hook as a teardown callback —
+  // so it calls the mock after every test. Harmless while every implementation
+  // resolved; the moment one rejects, that call's rejection is unhandled and
+  // fails the test that set it.
   beforeEach(() => { push.mockReset(); listDomains.mockReset(); submitAudit.mockReset();
     window.history.pushState({}, "", "/audits/new"); });
 
@@ -74,7 +79,7 @@ describe("New Audit — real domains, real ids", () => {
 });
 
 describe("Audit history list", () => {
-  beforeEach(() => listAudits.mockReset());
+  beforeEach(() => { listAudits.mockReset(); });
 
   it("lists audits: completed rows link to the report, unreachable rows show no score", async () => {
     listAudits.mockResolvedValue([
@@ -91,6 +96,29 @@ describe("Audit history list", () => {
     expect(screen.getByText("no score")).toBeInTheDocument();
   });
 
+  /* setRows([]) in the catch rendered "No audits yet. Run your first audit →"
+     directly under the error alert — an audit platform telling a department
+     nothing had ever run, when the truth was it could not read the list. */
+  it("does not claim there are no audits when the list could not be loaded", async () => {
+    listAudits.mockImplementation(() => Promise.reject(new Error("Cannot reach the audit service")));
+    render(<Audits />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/Cannot reach the audit service/);
+    expect(screen.queryByText(/No audits yet/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/could not be loaded/i)).toBeInTheDocument();
+  });
+
+  /* `counts[k] ? …` hid every zero, so "Cancelled" and "Cancelled 0" looked
+     the same: an unknown count and a known one told apart by nothing. */
+  it("shows a count of zero rather than no count at all", async () => {
+    listAudits.mockResolvedValue([
+      { task_id: "a1", domain: "posts.gov.in", status: "completed", score: 72, band: "B",
+        compliance_status: null, date: "2026-07-10T10:00:00Z" },
+    ]);
+    render(<Audits />);
+    expect(await screen.findByRole("button", { name: "Cancelled 0" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Completed 1" })).toBeInTheDocument();
+  });
+
   it("shows an empty state with a call to action when there are no audits", async () => {
     listAudits.mockResolvedValue([]);
     render(<Audits />);
@@ -99,7 +127,7 @@ describe("Audit history list", () => {
 });
 
 describe("Audit status — terminal states don't spin forever", () => {
-  beforeEach(() => auditStatus.mockReset());
+  beforeEach(() => { auditStatus.mockReset(); });
 
   it("renders an explanation for insufficient_evidence instead of an endless spinner", async () => {
     auditStatus.mockResolvedValue({ status: "insufficient_evidence", domain: "blocked.gov.in" });

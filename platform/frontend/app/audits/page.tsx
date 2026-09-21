@@ -49,7 +49,10 @@ export default function Audits() {
   useEffect(() => {
     api.listAudits()
       .then((d) => setRows(d || []))
-      .catch((e: any) => { setErr(e?.message || "Could not load your audits."); setRows([]); });
+      // null, not []: [] renders "No audits yet. Run your first audit →" under
+      // the error alert — an audit platform telling you nothing has ever run
+      // when the truth is it could not read the list.
+      .catch((e: any) => { setErr(e?.message || "Could not load your audits."); setRows(null); });
     api.me().then((m) => setIsSuperAdmin(m?.role === "super_admin")).catch(() => {});
   }, []);
 
@@ -84,13 +87,20 @@ export default function Audits() {
               <button key={k || "active"} type="button"
                 onClick={() => { setFilter(k); setLimit(PAGE); }}
                 className={`ux4g-btn ux4g-btn-sm ${filter === k ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`}>
-                {label}{counts[k] ? ` ${counts[k]}` : ""}
+                {/* `counts[k] ? …` hid every zero, so "Cancelled" and
+                    "Cancelled 0" were the same thing on screen */}
+                {label} {counts[k] ?? 0}
               </button>
             ))}
           </div>
-          <input className="ux4g-input ux4g-w-100 ux4g-ml-auto" style={{ maxWidth: 240 }}
-            placeholder="Filter by domain…" value={q}
-            onChange={(e) => { setQ(e.target.value); setLimit(PAGE); }} aria-label="Filter by domain" />
+          <div className="ux4g-input-container ux4g-input-sm ux4g-input-default ux4g-ml-auto"
+            style={{ maxWidth: 240, width: "100%" }}>
+            <div className="ux4g-input">
+              <input className="ux4g-input-input" placeholder="Filter by domain…" value={q}
+                onChange={(e) => { setQ(e.target.value); setLimit(PAGE); }}
+                aria-label="Filter by domain" />
+            </div>
+          </div>
         </div>
       )}
 
@@ -98,12 +108,18 @@ export default function Audits() {
         <div className="ux4g-table-responsive ux4g-table-rounded">
           <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead>
-              <tr><th>Domain</th><th>Date</th><th>Status</th><th>Score</th><th>Compliance</th><th></th></tr>
+              <tr><th>Domain</th><th>Date</th><th>Status</th><th>Score</th><th>Compliance</th>
+                <th><span className="ux4g-sr-only">Actions</span></th></tr>
             </thead>
             <tbody>
-              {rows == null && (
+              {rows == null && !err && (
                 <tr><td colSpan={6} className="ux4g-text-center ux4g-py-m">
                   <Spinner size="sm" className="ux4g-mr-xs" />Loading…
+                </td></tr>
+              )}
+              {rows == null && err && (
+                <tr><td colSpan={6} className="gx-muted ux4g-text-center ux4g-py-m">
+                  Your audits could not be loaded.
                 </td></tr>
               )}
               {rows?.length === 0 && !err && (
@@ -136,7 +152,7 @@ export default function Audits() {
                             <Link href={`/audits/${a.task_id}/report`} className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm">View report →</Link>
                             {/* the compare screen had no entry point at all — it was
                                 reachable only by typing the URL */}
-                            <Link href={`/audits/${a.task_id}/compare`} className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm gx-muted">Compare</Link>
+                            <Link href={`/audits/${a.task_id}/compare`} className="ux4g-btn ux4g-btn-text-neutral ux4g-btn-sm">Compare</Link>
                           </>
                         : <Link href={`/audits/${a.task_id}`} className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm">View status →</Link>}
                     </td>

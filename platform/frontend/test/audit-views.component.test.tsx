@@ -146,6 +146,36 @@ describe("Score trend & history", () => {
     expect(within(oldest).getByText("61")).toBeInTheDocument();
   });
 
+  /* Bars from a zero baseline made the page useless for its one purpose: 62
+     and 60 differ by 3px of a 150px bar. The axis is zoomed to the data — and
+     labelled, so the zoom cannot mislead about what is being shown. */
+  it("scales the chart to the data and says so", async () => {
+    auditTrend.mockResolvedValue({ history: [
+      { task_id: "a2", date: "2026-09-21T00:00:00Z", score: 60, band: "C" },
+      { task_id: "a1", date: "2026-09-18T00:00:00Z", score: 62, band: "C" },
+    ]});
+    render(<Trends params={{ id: "t1" }} />);
+    // the caption is built from several expressions, so match the element's
+    // text rather than a single node
+    const caption = (await screen.findByText(/so small movements are visible/)).closest("p")!;
+    // lo 60, hi 62, pad max(2, 0.5) → 58–64
+    expect(caption).toHaveTextContent("Axis 58–64, not 0–100");
+    expect(caption).toHaveTextContent("down 2 points since the first");
+  });
+
+  /* A row of unlabelled <div>s told a screen reader nothing at all. */
+  it("describes the whole series to assistive tech", async () => {
+    auditTrend.mockResolvedValue({ history: [
+      { task_id: "a2", date: "2026-09-21T00:00:00Z", score: 60, band: "C" },
+      { task_id: "a1", date: "2026-09-18T00:00:00Z", score: 62, band: "C" },
+    ]});
+    render(<Trends params={{ id: "t1" }} />);
+    const chart = await screen.findByRole("img");
+    expect(chart).toHaveAccessibleName(/GovUX score across 2 audits/);
+    expect(chart).toHaveAccessibleName(/62/);
+    expect(chart).toHaveAccessibleName(/60/);
+  });
+
   it("invites a first audit rather than drawing an empty chart", async () => {
     render(<Trends params={{ id: "t1" }} />);
     expect(await screen.findByText(/run one to start the trend/i)).toBeInTheDocument();

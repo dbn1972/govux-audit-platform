@@ -10,6 +10,15 @@ const SEV = { critical: "ux4g-tag-tonal-error ux4g-tag-s", high: "ux4g-tag-tonal
 export default function Issues({ params }: { params: { id: string } }) {
   const [findings, setFindings] = useState<any[]>([]);
   const [filter, setFilter] = useState("all");
+  /* The report's four severity tiles link here as ?severity=critical|high|…,
+     and this page ignored the query entirely — so "1 Critical" and "11 High"
+     both landed on the same unfiltered list of 27. Read it in an effect rather
+     than useSearchParams, which forces dynamic rendering and would need a
+     Suspense boundary (same reason as /audits/new and /review). */
+  useEffect(() => {
+    const s = new URLSearchParams(window.location.search).get("severity");
+    if (s && s in SEV) setFilter(s);
+  }, []);
   const [err, setErr] = useState("");
   const [ai, setAi] = useState<Record<string, string>>({});
   const [aiState, setAiState] = useState<"idle" | "loading" | "done" | "unavailable">("idle");

@@ -20,7 +20,12 @@ vi.mock("@/lib/api", () => ({
 import Login from "@/app/login/page";
 
 describe("Login — gov-email gate + OTP step", () => {
-  beforeEach(() => requestOtp.mockReset());
+  // Block body, not a concise arrow: `() => m.mockReset()` RETURNS the mock,
+  // and vitest treats a function returned from a hook as a teardown callback —
+  // so it calls the mock after every test. Harmless while every implementation
+  // resolved; the moment one rejects, that call's rejection is unhandled and
+  // fails the test that set it.
+  beforeEach(() => { requestOtp.mockReset(); });
 
   it("starts empty so no unintended request fires on first render", () => {
     render(<Login />);

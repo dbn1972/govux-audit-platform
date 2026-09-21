@@ -111,10 +111,32 @@ describe("Audit report", () => {
     expect(within(critical).getByText("2")).toBeInTheDocument();
   });
 
+  /* The heading states the situation and the alert carries the server's
+     reason, rather than gluing them into one string after a colon. */
   it("explains itself when the report isn't ready rather than hanging", async () => {
     auditReport.mockImplementation(() => Promise.reject(new Error("Audit still running")));
     render(<Report params={{ id: "t1" }} />);
-    expect(await screen.findByText(/Report not ready: Audit still running/)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /Report not ready/i })).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(/Audit still running/);
+  });
+
+  /* The old handler had no try/catch and no pending state: a slow zip looked
+     like a dead button, and a failed one said nothing whatsoever. */
+  it("reports a failed evidence pack instead of swallowing it", async () => {
+    evidencePack.mockImplementation(() => Promise.reject(new Error("Pack unavailable")));
+    render(<Report params={{ id: "t1" }} />);
+    await userEvent.click(await screen.findByRole("button", { name: /Evidence pack/i }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/Pack unavailable/);
+    expect(screen.getByRole("button", { name: /Try again/i })).toBeInTheDocument();
+  });
+
+  /* Both early returns used to render bare: a reader who hit a not-ready
+     report lost the view tabs and the only route back to the list at once. */
+  it("keeps the audit navigation when the report cannot be loaded", async () => {
+    auditReport.mockImplementation(() => Promise.reject(new Error("Audit still running")));
+    render(<Report params={{ id: "t1" }} />);
+    await screen.findByRole("heading", { name: /Report not ready/i });
+    expect(screen.getByRole("navigation", { name: /audit views/i })).toBeInTheDocument();
   });
 });
 
@@ -128,6 +150,27 @@ const FINDINGS = [
 ];
 
 describe("Prioritised issues", () => {
+  /* The report's four severity tiles link here as ?severity=…, and this page
+     ignored the query — so "1 Critical" and "11 High" both landed on the same
+     unfiltered list. */
+  it("opens on the severity the report linked to", async () => {
+    auditReport.mockResolvedValue({ ...REPORT, findings: FINDINGS });
+    window.history.pushState({}, "", "/audits/t1/issues?severity=high");
+    render(<Issues params={{ id: "t1" }} />);
+    expect(await screen.findByText("Missing page language")).toBeInTheDocument();
+    expect(screen.queryByText("Buttons must have discernible text")).not.toBeInTheDocument();
+    window.history.pushState({}, "", "/audits/t1/issues");
+  });
+
+  it("ignores a severity it does not recognise rather than showing nothing", async () => {
+    auditReport.mockResolvedValue({ ...REPORT, findings: FINDINGS });
+    window.history.pushState({}, "", "/audits/t1/issues?severity=bogus");
+    render(<Issues params={{ id: "t1" }} />);
+    expect(await screen.findByText("Buttons must have discernible text")).toBeInTheDocument();
+    expect(screen.getByText("Missing page language")).toBeInTheDocument();
+    window.history.pushState({}, "", "/audits/t1/issues");
+  });
+
   it("lists every finding with its fix guidance and severity", async () => {
     auditReport.mockResolvedValue({ ...REPORT, findings: FINDINGS });
     render(<Issues params={{ id: "t1" }} />);

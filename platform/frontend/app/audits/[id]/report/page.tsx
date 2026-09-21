@@ -16,8 +16,9 @@ const NAMES: Record<string, [string, number]> = {
 const BANDS = ["A", "B", "C", "D", "E"] as const;
 import { absolute as fmtDate } from "@/lib/format";
 // CWV lab thresholds (good/needs/poor)
+const MUTED_INK = "var(--ux4g-text-neutral-secondary)";
 const cwvJudge = (metric: string, v: number | null) => {
-  if (v == null) return ["—", "#5c636a"];
+  if (v == null) return ["—", MUTED_INK];
   if (metric === "lcp") return v <= 2500 ? ["Good", BAND_COLOR.A] : v <= 4000 ? ["Needs work", BAND_COLOR.C] : ["Poor", BAND_COLOR.E];
   if (metric === "cls") return v <= 0.1 ? ["Good", BAND_COLOR.A] : v <= 0.25 ? ["Needs work", BAND_COLOR.C] : ["Poor", BAND_COLOR.E];
   return v <= 200 ? ["Good", BAND_COLOR.A] : v <= 500 ? ["Needs work", BAND_COLOR.C] : ["Poor", BAND_COLOR.E];
@@ -25,16 +26,57 @@ const cwvJudge = (metric: string, v: number | null) => {
 
 const SEVERITIES: [string, string, string][] = [
   ["Critical", "critical", BAND_COLOR.E], ["High", "high", BAND_COLOR.D],
-  ["Medium", "medium", BAND_COLOR.C], ["Low", "low", "#5c636a"],
+  // Low is the only one that was a literal hex rather than a token, so it
+  // alone did not flip for dark: 3.25:1 there against the other three at 8+.
+  ["Medium", "medium", BAND_COLOR.C], ["Low", "low", MUTED_INK],
 ];
 
 export default function Report({ params }: { params: { id: string } }) {
   const [r, setR] = useState<any>(null);
   const [err, setErr] = useState("");
+  const [packing, setPacking] = useState(false);
+  const [packErr, setPackErr] = useState("");
   useEffect(() => { api.auditReport(params.id).then(setR).catch(e => setErr(e.message)); }, [params.id]);
 
-  if (err) return <AppShell><div className="gx-page"><div className="ux4g-alert ux4g-alert-warning">Report not ready: {err}</div></div></AppShell>;
-  if (!r) return <AppShell><div className="gx-page"><Spinner size="md" label="Loading report…" /></div></AppShell>;
+  /* Building the zip takes as long as it takes, and the old handler had no
+     try/catch and no pending state: a slow pack looked like a dead button and
+     a failed one said nothing at all. */
+  async function downloadPack() {
+    if (packing) return;
+    setPacking(true); setPackErr("");
+    try {
+      const blob = await api.evidencePack(params.id);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `govux-evidence-${params.id}.zip`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e: any) {
+      setPackErr(e?.message || "Could not build the evidence pack. Try again in a moment.");
+    } finally { setPacking(false); }
+  }
+
+  /* Both early returns used to drop AuditNav, so a reader who hit a
+     not-ready report lost the tabs, the run identity and the only route back
+     to the list in one go. */
+  const shell = (body: React.ReactNode, heading: string) => (
+    <AppShell><div className="gx-page gx-stack">
+      <AuditNav id={params.id} />
+      <div className="gx-page-head" style={{ marginBottom: 0 }}>
+        <div><h1 className="ux4g-mb-2xs">{heading}</h1></div>
+      </div>
+      {body}
+    </div></AppShell>
+  );
+
+  if (err) return shell(
+    <div className="ux4g-alert ux4g-alert-warning ux4g-d-flex ux4g-ai-start ux4g-gap-xs" role="alert">
+      <Icon name="exclamation-triangle" size={16} className="ux4g-flex-shrink-0 ux4g-mt-3xs" />
+      <span>{err}</span>
+    </div>, "Report not ready");
+  if (!r) return shell(
+    <div className="ux4g-text-center ux4g-py-m"><Spinner size="md" label="Loading report…" /></div>,
+    "Audit report");
 
   const sev = (s: string) => r.findings.filter((f: any) => f.severity === s).length;
 
@@ -63,15 +105,10 @@ export default function Report({ params }: { params: { id: string } }) {
           </div>
           <div className="gx-actions">
             <button type="button" className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md"
-              onClick={async () => {
-                const blob = await api.evidencePack(params.id);
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = `govux-evidence-${params.id}.zip`;
-                a.click();
-                URL.revokeObjectURL(a.href);
-              }}>
-              <Icon name="file-earmark-zip" size={16} className="ux4g-mr-2xs" />Evidence pack
+              onClick={downloadPack} disabled={packing}>
+              {packing
+                ? <><Spinner size="sm" className="ux4g-mr-2xs" />Building…</>
+                : <><Icon name="file-earmark-zip" size={16} className="ux4g-mr-2xs" />Evidence pack</>}
             </button>
             <Link href={`/review?audit=${params.id}`} className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-md">Certify</Link>
             <Link href={`/audits/${params.id}/issues`} className="ux4g-btn ux4g-btn-primary ux4g-btn-md">
@@ -80,8 +117,17 @@ export default function Report({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* every other view of this audit — four of them previously had no
-            inbound link anywhere in the app */}
+        {packErr && (
+          <div className="ux4g-alert ux4g-alert-warning ux4g-d-flex ux4g-ai-center ux4g-gap-xs" role="alert">
+            <Icon name="exclamation-triangle" size={16} className="ux4g-flex-shrink-0" />
+            <span>{packErr}</span>
+            <button type="button" onClick={downloadPack}
+              className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm ux4g-ml-auto">
+              <Icon name="arrow-repeat" size={14} className="ux4g-mr-2xs" />Try again
+            </button>
+          </div>
+        )}
+
 
         {/* One integrity notice, not two.
             This was two callouts: `integrity.flagged` and "any Integrity-*
