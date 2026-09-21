@@ -14,7 +14,7 @@
 // dropped brand icons (Chrome). We import the current names and alias them to
 // the vocabulary the map below expects, so the mapping table reads by intent.
 import {
-  Activity, ArrowDown, ArrowUp, ArrowRight, RefreshCw, CornerDownRight,
+  Activity, ArrowDown, ArrowUp, ArrowLeft, ArrowRight, RefreshCw, CornerDownRight,
   Landmark, Bell, Book, LogOut, ExternalLink, AppWindow as Chrome,
   Building as Building2, CircleCheckBig as CheckCircle2, Check,
   SquareCheck as CheckSquare, ClipboardCheck, RotateCcw as History, Layers,
@@ -36,6 +36,7 @@ const ICONS: Record<string, LucideIcon> = {
   "activity": Activity,
   "arrow-down": ArrowDown,
   "arrow-up": ArrowUp,
+  "arrow-left": ArrowLeft,
   "arrow-right": ArrowRight,
   "arrow-repeat": RefreshCw,
   "arrow-return-right": CornerDownRight,

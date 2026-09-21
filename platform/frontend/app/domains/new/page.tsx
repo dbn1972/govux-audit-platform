@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
 import StatusLine from "@/components/StatusLine";
@@ -67,6 +68,12 @@ export default function RegisterDomain() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
+            {/* This screen is only ever reached from /domains ("Add domain")
+                or from a "Verify" row on it, and it is not in the rail — so
+                without this the only way back was the browser button. */}
+            <Link href="/domains" className="gx-back ux4g-fs-14 ux4g-mb-2xs">
+              <Icon name="arrow-left" size={14} />My domains
+            </Link>
             <h1 className="ux4g-mb-2xs">{resumeId ? "Verify a domain" : "Register & verify a domain"}</h1>
             <div className="gx-muted">Only <b>.gov.in</b> and <b>.nic.in</b> domains can be audited.</div>
           </div>

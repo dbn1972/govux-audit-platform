@@ -77,6 +77,9 @@ export default function NewAudit() {
       <div className="gx-page gx-stack">
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
+            <Link href="/audits" className="gx-back ux4g-fs-14 ux4g-mb-2xs">
+              <Icon name="arrow-left" size={14} />Audit history
+            </Link>
             <h1 className="ux4g-mb-2xs">Configure audit</h1>
             <div className="gx-muted">Submitting returns a task ID instantly; the audit runs in the background.</div>
           </div>

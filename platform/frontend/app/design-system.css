@@ -285,6 +285,14 @@ body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 .gx-prose p > a:only-child,
 p > a:only-child { display:inline-flex; align-items:center; min-height:1.5rem; }
 
+/* Back link above a page title. The "new"/"verify" screens are reached from a
+   list and are not in the rail, so the browser button was the only way back.
+   inline-flex keeps it a 24px target under 2.5.8, and width:fit-content stops
+   the block-level anchor spanning the header and swallowing clicks beside it. */
+.gx-back { display:inline-flex; align-items:center; gap:.25rem; min-height:1.5rem;
+           width:fit-content; text-decoration:none; color:var(--ux4g-text-neutral-secondary); }
+.gx-back:hover { color:var(--ux4g-text-brand-primary-default); text-decoration:underline; }
+
 /* ---------------------------------------------------------------------------
    Icon ligatures are text.
 
