@@ -83,12 +83,21 @@ export default function BulkScan() {
                 </div>
                 {progress && (
                   <>
-                    <article className="ux4g-progress-bar" role="progressbar" aria-label="Batch progress"
-                      aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}
-                      data-ux-progress-bar data-ux-shape="rounded" data-ux-label-placement="outside">
-                      <div className="ux4g-progress-bar-track"><div className="ux4g-progress-bar-fill" style={{ width: `${progress.percent}%` }} /></div>
-                      <span data-ux-progress-label>{progress.percent}%</span>
-                    </article>
+                    {/* No `data-ux-progress-bar`: that hook hands the element to
+                        UX4G's runtime, which initialises from --ux4g-progress-value
+                        (never set here) and writes aria-valuenow="0" over the
+                        value React rendered. Measured directly on /review; this
+                        markup was identical, so it carries the same defect. */}
+                    <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs">
+                      <div className="ux4g-progress-bar ux4g-progress-bar-track ux4g-flex-grow-1"
+                        role="progressbar" aria-label="Batch progress"
+                        aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}>
+                        <span style={{ width: `${progress.percent}%`, background: "var(--ux4g-bg-primary-strong)" }} />
+                      </div>
+                      {/* beside the bar, not inside it: the label was a child of
+                          the 6px track once the runtime hook came off */}
+                      <span className="gx-num ux4g-fs-14 gx-muted">{progress.percent}%</span>
+                    </div>
                     <div className="ux4g-d-flex ux4g-jc-between ux4g-mt-xs ux4g-fs-14 gx-muted">
                       <span>{progress.done} / {progress.total} done</span>
                       <span>

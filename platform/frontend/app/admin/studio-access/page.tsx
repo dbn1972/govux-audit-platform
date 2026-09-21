@@ -41,6 +41,7 @@ export default function StudioAccess() {
           <thead><tr><th>Organisation</th><th>Type</th><th>Runs</th><th>Studio access</th></tr></thead>
           <tbody>
             {rows == null && <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m"><Spinner size="sm" /></td></tr>}
+            {rows?.length === 0 && err && <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">Organisations could not be loaded.</td></tr>}
             {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">No organisations.</td></tr>}
             {(rows || []).map((o) => (
               <tr key={o.id}>

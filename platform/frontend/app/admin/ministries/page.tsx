@@ -30,6 +30,7 @@ export default function Ministries() {
             <thead><tr><th>#</th><th>Ministry / Department</th><th>Domains</th><th>Avg score</th><th>Band</th></tr></thead>
             <tbody>
               {rows == null && <tr><td colSpan={5} className="ux4g-text-center ux4g-py-m"><Spinner size="sm" /></td></tr>}
+              {rows?.length === 0 && err && <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">The ministry roll-up could not be loaded.</td></tr>}
               {rows?.length === 0 && !err && <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">No audited organisations yet.</td></tr>}
               {(rows || []).map((r, i) => (
                 <tr key={r.name}>

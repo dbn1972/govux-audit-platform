@@ -228,11 +228,16 @@ export default function Settings() {
             <div className="ux4g-card-header">Team members</div>
             {teamErr && <div className="ux4g-alert ux4g-alert-warning ux4g-m-xs ux4g-mb-none ux4g-py-2xs ux4g-fs-14" role="alert">{teamErr}</div>}
             <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-s ux4g-mb-none">
-              <thead><tr><th>Member</th><th>Role</th><th></th></tr></thead>
+              <thead><tr><th>Member</th><th>Role</th><th><span className="ux4g-sr-only">Actions</span></th></tr></thead>
               <tbody>
                 {team == null && (
                   <tr><td colSpan={3} className="ux4g-text-center ux4g-py-s">
                     <Spinner size="sm" />
+                  </td></tr>
+                )}
+                {team?.length === 0 && teamErr && (
+                  <tr><td colSpan={3} className="gx-muted ux4g-text-center ux4g-py-l">
+                    Your team could not be loaded.
                   </td></tr>
                 )}
                 {team?.length === 0 && !teamErr && (
@@ -315,7 +320,7 @@ export default function Settings() {
             {invites != null && invites.length > 0 && (
               <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-s ux4g-mb-none">
                 <thead>
-                  <tr><th>Pending invitation</th><th>Role</th><th>Expires</th><th></th></tr>
+                  <tr><th>Pending invitation</th><th>Role</th><th>Expires</th><th><span className="ux4g-sr-only">Actions</span></th></tr>
                 </thead>
                 <tbody>
                   {invites.map((i) => (
@@ -352,12 +357,15 @@ export default function Settings() {
                   {busy ? "Signing out…" : "Sign out all others"}</button>
               </div>
               <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m">
-                <thead><tr><th>Device</th><th>Location</th><th>Last active</th><th></th></tr></thead>
+                <thead><tr><th>Device</th><th>Location</th><th>Last active</th><th><span className="ux4g-sr-only">Actions</span></th></tr></thead>
                 <tbody>
                   {devices == null && (
                     <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m">
                       <Spinner size="sm" className="ux4g-mr-xs" />Loading your sessions…
                     </td></tr>
+                  )}
+                  {devices?.length === 0 && err && (
+                    <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">Your devices could not be loaded.</td></tr>
                   )}
                   {devices?.length === 0 && !err && (
                     <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">No active sessions found.</td></tr>

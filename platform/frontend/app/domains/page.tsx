@@ -105,7 +105,7 @@ export default function Domains() {
         <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
           <div className="ux4g-table-responsive ux4g-table-rounded">
             <table className="ux4g-table ux4g-table-m gx-responsive">
-              <thead><tr><th>Domain</th><th>Category</th><th>Status</th><th>Latest score</th><th>Last audited</th><th></th></tr></thead>
+              <thead><tr><th>Domain</th><th>Category</th><th>Status</th><th>Latest score</th><th>Last audited</th><th><span className="ux4g-sr-only">Actions</span></th></tr></thead>
               <tbody>
                 {rows == null && (
                   <tr><td colSpan={6} className="ux4g-text-center ux4g-py-m">

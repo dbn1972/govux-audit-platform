@@ -63,7 +63,7 @@ export default function Approvals() {
         <div className="ux4g-table-responsive ux4g-table-rounded">
           <table className="ux4g-table ux4g-table-m gx-responsive">
             <thead>
-              <tr><th>Requested by</th><th>Domain</th><th>Pages</th><th>Reason</th><th>Status</th><th></th></tr>
+              <tr><th>Requested by</th><th>Domain</th><th>Pages</th><th>Reason</th><th>Status</th><th><span className="ux4g-sr-only">Actions</span></th></tr>
             </thead>
             <tbody>
               {rows == null && (
@@ -71,7 +71,12 @@ export default function Approvals() {
                   <Spinner size="sm" className="ux4g-mr-xs" />Loading…
                 </td></tr>
               )}
-              {rows?.length === 0 && !err && (
+              {rows?.length === 0 && err && (
+                  <tr><td colSpan={6} className="gx-muted ux4g-text-center ux4g-py-l">
+                    Crawl requests could not be loaded.
+                  </td></tr>
+                )}
+                {rows?.length === 0 && !err && (
                 <tr><td colSpan={6} className="gx-muted ux4g-text-center ux4g-py-l">No crawl requests yet.</td></tr>
               )}
               {(rows || []).map((r) => (

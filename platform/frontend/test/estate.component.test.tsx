@@ -78,7 +78,11 @@ describe("Bulk scan", () => {
       .toHaveBeenCalledWith("b1c2d3e4-aaaa-bbbb-cccc-dddddddddddd"));
     const bar = await screen.findByRole("progressbar");
     expect(bar).toHaveAttribute("aria-valuenow", "40");
-    expect(within(bar).getByText("40%")).toBeInTheDocument();
+    // the label sits BESIDE the bar now, not inside it: dropping UX4G's
+    // data-ux-progress-bar hook (which overwrote aria-valuenow) left it as a
+    // child of the 6px track
+    expect(screen.getByText("40%")).toBeInTheDocument();
+    expect(bar.querySelector("span")).toHaveStyle({ width: "40%" });
     expect(screen.getByText("17 / 42 done")).toBeInTheDocument();
     expect(screen.getByText("3 running · 22 queued")).toBeInTheDocument();
 

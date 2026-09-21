@@ -70,6 +70,17 @@ describe("New Audit — real domains, real ids", () => {
     await waitFor(() => expect(submitAudit).toHaveBeenCalledWith("uuid-verified-2", 10));
   });
 
+  /* setDomains([]) in the catch was indistinguishable from a genuinely empty
+     estate, so an unreachable API told a department with three verified
+     domains to go and register one — sending them somewhere pointless. */
+  it("does not tell you to register a domain when the list simply failed to load", async () => {
+    listDomains.mockImplementation(() => Promise.reject(new Error("Service unavailable")));
+    render(<NewAudit />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/Service unavailable/);
+    expect(screen.queryByText(/no verified domains yet/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/could not be loaded/i)).toBeInTheDocument();
+  });
+
   it("shows a register-and-verify prompt when there are no verified domains", async () => {
     listDomains.mockResolvedValue([{ id: "x", url: "p.gov.in", verify_status: "pending" }]);
     render(<NewAudit />);

@@ -70,7 +70,10 @@ export default function NewAudit() {
     } finally { setReqBusy(false); }
   }
 
-  const noDomains = domains != null && domains.length === 0;
+  /* Not merely `length === 0`: the catch below set domains to [], and nothing
+     distinguished that from a genuine empty estate — so an unreachable API
+     told a department with three verified domains to go and register one. */
+  const noDomains = !err && domains != null && domains.length === 0;
 
   return (
     <AppShell>
@@ -91,7 +94,12 @@ export default function NewAudit() {
           <div className="ux4g-cols-span-12 ux4g-lg-cols-span-8">
             <div className="ux4g-card ux4g-card-solid ux4g-card-outline ux4g-mb-s"><div className="ux4g-card-body">
               <label className="ux4g-label-m-default" htmlFor="audit-domain">Domain</label>
-              {domains == null ? (
+              {/* The server's message is already in the alert above; this slot
+                  only has to say why there is nothing to choose from, rather
+                  than claim the estate is empty. */}
+              {err && domains != null ? (
+                <div className="gx-muted">Your domains could not be loaded.</div>
+              ) : domains == null ? (
                 <div className="ux4g-d-flex ux4g-ai-center ux4g-gap-xs gx-muted">
                   <Spinner size="sm" /> Loading your verified domains…
                 </div>

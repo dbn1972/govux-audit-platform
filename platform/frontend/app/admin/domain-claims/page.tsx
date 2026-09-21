@@ -78,7 +78,7 @@ export default function DomainClaims() {
         <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
           <div className="ux4g-table-responsive ux4g-table-rounded"><table className="ux4g-table ux4g-table-m">
             <thead>
-              <tr><th>Domain</th><th>Claimed by</th><th>Status</th><th>Claimed</th><th></th></tr>
+              <tr><th>Domain</th><th>Claimed by</th><th>Status</th><th>Claimed</th><th><span className="ux4g-sr-only">Actions</span></th></tr>
             </thead>
             <tbody>
               {rows == null && (
@@ -86,7 +86,12 @@ export default function DomainClaims() {
                   <Spinner size="sm" className="ux4g-mr-xs" />Loading…
                 </td></tr>
               )}
-              {rows?.length === 0 && !err && (
+              {rows?.length === 0 && err && (
+                  <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">
+                    Claims could not be loaded.
+                  </td></tr>
+                )}
+                {rows?.length === 0 && !err && (
                 <tr><td colSpan={5} className="gx-muted ux4g-text-center ux4g-py-l">
                   No unverified claims — every registered domain has proven ownership.
                 </td></tr>

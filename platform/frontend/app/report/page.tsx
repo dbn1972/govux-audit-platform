@@ -14,7 +14,9 @@ const CATS: [string, number, number][] = [
 const BANDS = ["A", "B", "C", "D", "E"] as const;
 const SEVERITIES: [string, number, string][] = [
   ["Critical", 2, BAND_COLOR.E], ["High", 3, BAND_COLOR.D],
-  ["Medium", 3, BAND_COLOR.C], ["Low", 2, "#5c636a"],
+  // token, not a literal: #5c636a cannot flip for dark, where it measured
+  // 3.25:1 against its three sibling severities at 8+
+  ["Medium", 3, BAND_COLOR.C], ["Low", 2, "var(--ux4g-text-neutral-secondary)"],
 ];
 
 export default function SampleReport() {

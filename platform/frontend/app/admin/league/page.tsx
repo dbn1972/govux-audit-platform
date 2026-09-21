@@ -56,6 +56,7 @@ export default function League() {
               <thead><tr><th>#</th><th>Domain</th><th>Score</th><th>Band</th></tr></thead>
               <tbody>
                 {rows == null && <tr><td colSpan={4} className="ux4g-text-center ux4g-py-m"><Spinner size="sm" /></td></tr>}
+                {rows?.length === 0 && err && <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">The league table could not be loaded.</td></tr>}
                 {rows?.length === 0 && !err && <tr><td colSpan={4} className="gx-muted ux4g-text-center ux4g-py-l">No audited domains in this segment yet.</td></tr>}
                 {(rows || []).map((r, i) => (
                 <tr key={r.url}><td data-label="Rank" className="gx-num gx-muted">{i + 1}</td>

@@ -79,6 +79,9 @@ export default function Library() {
             <Spinner size="md" label="Loading the library" />
           </div>
         )}
+        {rows != null && matches.length === 0 && err && (
+          <div className="gx-muted ux4g-text-center ux4g-py-l">The guideline library could not be loaded.</div>
+        )}
         {rows != null && matches.length === 0 && !err && (
           <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-empty-state">
             <div className="ux4g-empty-state-icon"><Icon name="search" size={24} /></div>

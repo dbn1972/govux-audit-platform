@@ -212,7 +212,7 @@ export default function Organisations() {
               <tr>
                 <th>Organisation</th><th>Type</th><th>State / UT</th>
                 <th>Domains</th><th>Users</th><th>Audits</th><th>Avg score</th>
-                <th>Last audit</th><th>Studio</th><th></th>
+                <th>Last audit</th><th>Studio</th><th><span className="ux4g-sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody>
