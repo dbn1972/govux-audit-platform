@@ -31,3 +31,13 @@ export function hostOnly(value: string): string {
     .replace(/:\d+$/, "")        // port
     .replace(/\.+$/, "");        // FQDN trailing dot
 }
+
+
+/** Closed vocabulary, mirroring SERVICE_CATEGORIES in routers/domains.py.
+ *  These segment the like-for-like rankings, so the API rejects anything else
+ *  rather than quietly creating a segment no filter can reach. */
+export const SERVICE_CATEGORIES: [string, string][] = [
+  ["transactional", "Transactional"],
+  ["information", "Information"],
+  ["payments", "Payments"],
+];

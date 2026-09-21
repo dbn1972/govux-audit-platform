@@ -4,6 +4,7 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import Icon from "@/components/Icon";
 import Spinner from "@/components/Spinner";
+import AuditNav from "@/components/AuditNav";
 import { api } from "@/lib/api";
 
 const STATES = ["queued", "crawling", "analyzing", "scoring", "completed"];
@@ -74,20 +75,18 @@ export default function Running({ params }: { params: { id: string } }) {
     : stoppedLabel ? (status.pages_done > 0 ? 1 : 0)
     : STATES.indexOf(status.status);
 
-  const heading = done ? `Audit complete — ${status.domain || "…"}`
-    : stoppedLabel ? `${stoppedLabel} — ${status.domain || "…"}`
-    : `Auditing ${status.domain || "…"}`;
+  // The domain and run date live in the AuditNav context bar above; repeating
+  // them here put the same hostname twice within 40px.
+  const heading = done ? "Audit complete" : stoppedLabel || "Audit in progress";
 
   const currentStage = STATES[activeIdx] || (done ? "completed" : status.status);
 
   return (
     <AppShell>
       <div className="gx-page gx-stack">
+        <AuditNav id={params.id} run={{ domain: status.domain, created_at: status.created_at }} />
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
-            <Link href="/audits" className="gx-back ux4g-fs-14 ux4g-mb-2xs">
-              <Icon name="arrow-left" size={14} />Audit history
-            </Link>
             <h1 className="ux4g-mb-2xs">{heading}</h1>
             {/* The old subtitle described a running engine and stayed on screen
                 after the run had finished or failed. */}

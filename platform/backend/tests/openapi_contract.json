@@ -15,6 +15,10 @@
     "204",
     "422"
   ],
+  "DELETE /v1/domains/{domain_id}": [
+    "204",
+    "422"
+  ],
   "DELETE /v1/schedules/{schedule_id}": [
     "204",
     "422"
@@ -227,6 +231,10 @@
     "422"
   ],
   "PATCH /v1/auth/team/{target_id}/role": [
+    "200",
+    "422"
+  ],
+  "PATCH /v1/domains/{domain_id}": [
     "200",
     "422"
   ],

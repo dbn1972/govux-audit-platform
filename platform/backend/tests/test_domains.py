@@ -304,3 +304,84 @@ def test_force_verify_refuses_an_already_verified_domain(client, ctx, verified_d
     r = client.post(f"/v1/domains/{verified_domain.id}/force-verify", headers=ctx["headers"],
                     json={"reason": "belt and braces, just in case"})
     assert r.status_code == 409 and "already verified" in r.json()["detail"]
+
+
+# ---------------------------------------------------------------------------
+# Owner-side management: categorise, and withdraw your own mistake.
+# ---------------------------------------------------------------------------
+
+def _register(client, ctx, **extra):
+    url = f"mg{uuid.uuid4().hex[:6]}.gov.in"
+    r = client.post("/v1/domains", headers=ctx["headers"], json={"url": url, **extra})
+    assert r.status_code == 201, r.text
+    return r.json()
+
+
+def test_category_can_be_changed_after_registration(client, ctx):
+    d = _register(client, ctx)
+    r = client.patch(f"/v1/domains/{d['id']}", headers=ctx["headers"],
+                     json={"service_category": "payments"})
+    assert r.status_code == 200 and r.json()["category"] == "payments"
+    listed = next(x for x in client.get("/v1/domains", headers=ctx["headers"]).json()
+                  if x["id"] == d["id"])
+    assert listed["category"] == "payments"          # and the cached list was invalidated
+
+
+def test_category_is_a_closed_vocabulary(client, ctx):
+    """Rankings filter on this value exactly, so a free-text category would
+    create a segment no filter can ever reach."""
+    d = _register(client, ctx)
+    r = client.patch(f"/v1/domains/{d['id']}", headers=ctx["headers"],
+                     json={"service_category": "misc"})
+    assert r.status_code == 422
+    assert "transactional" in r.json()["detail"]
+
+
+def test_category_can_be_cleared(client, ctx):
+    d = _register(client, ctx, service_category="payments")
+    r = client.patch(f"/v1/domains/{d['id']}", headers=ctx["headers"],
+                     json={"service_category": ""})
+    assert r.status_code == 200 and r.json()["category"] is None
+
+
+def test_another_organisation_cannot_edit_your_domain(client, ctx, db):
+    d = _register(client, ctx)
+    other = models.Organisation(name="Other Dept", org_type="department")
+    db.add(other); db.flush()
+    u = models.User(email=f"o.{uuid.uuid4().hex[:8]}@nic.in", org_id=other.id,
+                    display_name="Other", role="owner")
+    db.add(u); db.flush()
+    dev = models.Device(user_id=u.id, device_pubkey="pk2")
+    db.add(dev); db.commit()
+    from app import security
+    tok = security.issue_access_token(str(u.id), u.role, str(dev.id))
+    hdrs = {"Authorization": f"Bearer {tok}"}
+
+    assert client.patch(f"/v1/domains/{d['id']}", headers=hdrs,
+                        json={"service_category": "payments"}).status_code == 404
+    assert client.delete(f"/v1/domains/{d['id']}", headers=hdrs).status_code == 404
+
+
+def test_owner_can_withdraw_their_own_unverified_claim(client, ctx):
+    """A typo'd host used to be permanent: it sat on the list forever and held
+    the org's slot under uq_domain_org_url, so the corrected name 409'd."""
+    d = _register(client, ctx)
+    assert client.delete(f"/v1/domains/{d['id']}", headers=ctx["headers"]).status_code == 204
+    assert all(x["id"] != d["id"]
+               for x in client.get("/v1/domains", headers=ctx["headers"]).json())
+
+
+def test_withdrawing_a_verified_domain_is_refused(client, ctx, verified_domain):
+    """Its audit history hangs off this row — deleting it would orphan every
+    run ever made against the host."""
+    r = client.delete(f"/v1/domains/{verified_domain.id}", headers=ctx["headers"])
+    assert r.status_code == 409
+    assert "audit history" in r.json()["detail"]
+
+
+def test_list_reports_who_registered_each_domain(client, ctx):
+    d = _register(client, ctx)
+    listed = next(x for x in client.get("/v1/domains", headers=ctx["headers"]).json()
+                  if x["id"] == d["id"])
+    assert listed["registered_by"] == "Tester"
+    assert listed["registered_at"]

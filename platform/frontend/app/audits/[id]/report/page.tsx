@@ -53,6 +53,7 @@ export default function Report({ params }: { params: { id: string } }) {
     <AppShell>
       <div className="gx-page gx-stack">
 
+        <AuditNav id={params.id} />
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
             <h1 className="ux4g-mb-2xs">{r.domain || "Audit report"}</h1>
@@ -81,7 +82,6 @@ export default function Report({ params }: { params: { id: string } }) {
 
         {/* every other view of this audit — four of them previously had no
             inbound link anywhere in the app */}
-        <AuditNav id={params.id} />
 
         {/* One integrity notice, not two.
             This was two callouts: `integrity.flagged` and "any Integrity-*

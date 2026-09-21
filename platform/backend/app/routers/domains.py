@@ -15,6 +15,12 @@ from ..services import verification, url_validate, cache, settings_store, audit_
 router = APIRouter(prefix="/v1/domains", tags=["domains"])
 GOV = re.compile(r"(\.gov\.in|\.nic\.in)$", re.I)
 
+# Closed vocabulary, not free text: service_category is what segments the
+# like-for-like rankings (routers/rankings.py filters on it exactly), so a typo
+# or a new word silently creates a segment nobody can ever filter to. Mirrors
+# the CSV importer's `category` column and the league page's select.
+SERVICE_CATEGORIES = ("transactional", "information", "payments")
+
 
 def _domains_key(org_id) -> str:
     return cache.cache_key("domains", str(org_id))
@@ -60,6 +66,14 @@ def list_domains(user: models.User = Depends(current_user), db: Session = Depend
             for did, score, band, ts in (db.query(ranked.c.did, ranked.c.score, ranked.c.band, ranked.c.ts)
                                            .filter(ranked.c.rn == 1).all()):
                 latest[did] = (float(score), band, ts.isoformat() if ts else None)
+        # who registered each claim, for the domain detail page — one batched
+        # lookup rather than a query per row
+        who: dict = {}
+        actor_ids = {d.created_by for d in rows if d.created_by}
+        if actor_ids:
+            who = {u.id: (u.display_name or u.email)
+                   for u in db.query(models.User).filter(models.User.id.in_(actor_ids)).all()}
+
         out = []
         for d in rows:
             ls = latest.get(d.id)
@@ -76,6 +90,8 @@ def list_domains(user: models.User = Depends(current_user), db: Session = Depend
                         # lets the UI distinguish a proven domain from one a
                         # steward vouched for
                         "verify_method": d.verify_method,
+                        "registered_at": d.created_at.isoformat() if d.created_at else None,
+                        "registered_by": who.get(d.created_by),
                         "latest_score": ls[0] if ls else None,
                         "latest_band": ls[1] if ls else None,
                         "last_audited_at": ls[2] if ls else None})
@@ -180,6 +196,76 @@ def release_claim(domain_id: str, db: Session = Depends(get_db),
     db.commit()
     cache.invalidate(_domains_key(org_id))
     audit_log.record(db, user.id, "domain_claim_released", target=url,
+                     detail={"org_id": str(org_id)})
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+class DomainUpdate(BaseModel):
+    """What an owner may change after registration.
+
+    Deliberately not the url: the host IS the identity here — it carries the
+    verification token, the audit history and the uniqueness constraint on
+    proven ownership. Re-pointing it would silently reattribute someone else's
+    evidence. Register the other host instead.
+    """
+    service_category: str | None = None
+
+
+@router.patch("/{domain_id}")
+def update_domain(domain_id: str, body: DomainUpdate,
+                  user: models.User = Depends(current_user),
+                  db: Session = Depends(get_db)):
+    """Edit a domain your organisation registered.
+
+    Categorisation was write-once and only at registration, and the UI never
+    sent it — so every domain added through the app was permanently
+    uncategorised and invisible to the segmented rankings."""
+    d = db.get(models.Domain, domain_id)
+    if not d or (user.role != "super_admin" and d.org_id != user.org_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
+    if body.service_category is not None:
+        cat = body.service_category.strip().lower()
+        if cat and cat not in SERVICE_CATEGORIES:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_ENTITY,
+                "Unknown service category. Use one of: " + ", ".join(SERVICE_CATEGORIES))
+        d.service_category = cat or None
+    db.commit()
+    cache.invalidate(_domains_key(d.org_id))
+    audit_log.record(db, user.id, "domain_updated", target=d.url,
+                     detail={"service_category": d.service_category})
+    db.commit()
+    return {"id": str(d.id), "url": d.url, "category": d.service_category}
+
+
+@router.delete("/{domain_id}", status_code=204)
+def release_own_claim(domain_id: str, user: models.User = Depends(current_user),
+                      db: Session = Depends(get_db)):
+    """Withdraw your own UNVERIFIED claim on a host.
+
+    The steward route (DELETE /claims/{id}) could already do this, but an owner
+    could not undo their own mistake — a typo'd host sat on the list forever and
+    also held the org's slot under uq_domain_org_url, blocking a re-registration
+    of the corrected name.
+
+    Verified domains are refused for the same reason the steward route refuses
+    them: proven ownership is not casually revocable, and deleting the row would
+    orphan every audit ever run against it.
+    """
+    d = db.get(models.Domain, domain_id)
+    if not d or (user.role != "super_admin" and d.org_id != user.org_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
+    if d.verify_status == "verified":
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "This domain is verified. Its audit history depends on it, so it cannot be "
+            "removed here — ask a programme admin if it genuinely needs to go.")
+    org_id, url = d.org_id, d.url
+    db.delete(d)
+    db.commit()
+    cache.invalidate(_domains_key(org_id))
+    audit_log.record(db, user.id, "domain_claim_withdrawn", target=url,
                      detail={"org_id": str(org_id)})
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

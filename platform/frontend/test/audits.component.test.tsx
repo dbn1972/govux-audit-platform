@@ -8,7 +8,9 @@ import React from "react";
 afterEach(cleanup);
 
 const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+// The status page now renders AuditNav (the context bar + view tabs), which
+// reads the current path to mark its active tab.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }), usePathname: () => "/audits/t-1" }));
 vi.mock("@/components/AppShell", () => ({ default: ({ children }: any) => <div>{children}</div> }));
 vi.mock("next/link", () => ({ default: ({ href, children }: any) => <a href={String(href)}>{children}</a> }));
 

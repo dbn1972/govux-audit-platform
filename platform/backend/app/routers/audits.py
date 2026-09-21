@@ -122,6 +122,7 @@ def audit_status(task_id: str, user: models.User = Depends(current_user),
     domain = db.get(models.Domain, audit.domain_id)
     return AuditStatus(
         task_id=str(audit.id), domain=domain.url, status=audit.status,
+        created_at=audit.created_at,
         pages_done=audit.pages_done, pages_total=audit.pages_total,
         overall_score=float(audit.overall_score) if audit.overall_score else None,
         band=audit.band, guardrail_active=audit.guardrail_active,

@@ -20,6 +20,7 @@ export default function Remediation({ params }: { params: { id: string } }) {
   return (
     <AppShell>
       <div className="gx-page gx-stack">
+        <AuditNav id={params.id} />
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
             <h1 className="ux4g-mb-2xs">Remediation plan</h1>
@@ -29,7 +30,6 @@ export default function Remediation({ params }: { params: { id: string } }) {
             </div>
           </div>
         </div>
-        <AuditNav id={params.id} />
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="ux4g-d-flex ux4g-flex-column ux4g-gap-xs">
           {(items || []).map((f, i) => (

@@ -26,6 +26,7 @@ export default function Documents({ params }: { params: { id: string } }) {
   return (
     <AppShell>
       <div className="gx-page gx-stack">
+        <AuditNav id={params.id} />
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
             <h1 className="ux4g-mb-2xs">Document accessibility</h1>
@@ -35,7 +36,6 @@ export default function Documents({ params }: { params: { id: string } }) {
             </div>
           </div>
         </div>
-        <AuditNav id={params.id} />
         {err && <div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>}
         <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
           <div className="ux4g-card-header">

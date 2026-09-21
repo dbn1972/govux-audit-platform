@@ -27,6 +27,9 @@ const listDomains = vi.fn();
 const registerDomain = vi.fn();
 const verifyDomain = vi.fn();
 const forceVerifyDomain = vi.fn();
+const updateDomain = vi.fn();
+const withdrawDomain = vi.fn();
+const listAudits = vi.fn();
 vi.mock("@/lib/api", () => ({
   api: {
     me: (...a: any[]) => me(...a),
@@ -34,14 +37,22 @@ vi.mock("@/lib/api", () => ({
     registerDomain: (...a: any[]) => registerDomain(...a),
     verifyDomain: (...a: any[]) => verifyDomain(...a),
     forceVerifyDomain: (...a: any[]) => forceVerifyDomain(...a),
+    updateDomain: (...a: any[]) => updateDomain(...a),
+    withdrawDomain: (...a: any[]) => withdrawDomain(...a),
+    listAudits: (...a: any[]) => listAudits(...a),
   },
 }));
 
 import Domains from "@/app/domains/page";
+import DomainDetail from "@/app/domains/[id]/page";
 import RegisterDomain from "@/app/domains/new/page";
 
 beforeEach(() => {
-  [push, me, listDomains, registerDomain, verifyDomain, forceVerifyDomain].forEach((m) => m.mockReset());
+  [push, me, listDomains, registerDomain, verifyDomain, forceVerifyDomain,
+   updateDomain, withdrawDomain, listAudits].forEach((m) => m.mockReset());
+  updateDomain.mockResolvedValue({});
+  withdrawDomain.mockResolvedValue(undefined);
+  listAudits.mockResolvedValue([]);
   me.mockResolvedValue({ is_steward: false });
   listDomains.mockResolvedValue([]);
   verifyDomain.mockResolvedValue({ verify_status: "verified" });
@@ -172,7 +183,7 @@ describe("Register & verify a domain", () => {
       await userEvent.type(screen.getByRole("textbox"), input);
       await userEvent.click(screen.getByRole("button", { name: /Register domain/i }));
 
-      await waitFor(() => expect(registerDomain).toHaveBeenCalledWith(input.trim()));
+      await waitFor(() => expect(registerDomain).toHaveBeenCalledWith(input.trim(), undefined));
       expect(await screen.findByText("govux-verify=abc123")).toBeInTheDocument();
       expect(screen.getByText(/Not yet verified/)).toBeInTheDocument();
     });
@@ -195,7 +206,7 @@ describe("Register & verify a domain", () => {
     await userEvent.type(screen.getByRole("textbox"), typed);
     await userEvent.click(screen.getByRole("button", { name: /Register domain/i }));
 
-    await waitFor(() => expect(registerDomain).toHaveBeenCalledWith(sent));
+    await waitFor(() => expect(registerDomain).toHaveBeenCalledWith(sent, undefined));
     expect(await screen.findByText("govux-verify=abc123")).toBeInTheDocument();
   });
 
@@ -215,6 +226,26 @@ describe("Register & verify a domain", () => {
     await userEvent.type(field, "https://www.epfo.gov.in/hindi/");
     await userEvent.tab();
     expect(field).toHaveValue("www.epfo.gov.in");
+  });
+
+  /* The API has always taken a category and the form never sent one, so every
+     domain registered through the app was uncategorised — and invisible to the
+     segmented rankings, which filter on this exact value. */
+  it("sends the chosen service category with the registration", async () => {
+    registerDomain.mockResolvedValue({ id: "d-1", verify_token: "govux-verify=abc123" });
+    render(<RegisterDomain />);
+    await userEvent.type(screen.getByRole("textbox"), "posts.gov.in");
+    await userEvent.selectOptions(screen.getByLabelText(/Service category/i), "payments");
+    await userEvent.click(screen.getByRole("button", { name: /Register domain/i }));
+    await waitFor(() => expect(registerDomain).toHaveBeenCalledWith("posts.gov.in", "payments"));
+  });
+
+  it("leaves the category unset when none is chosen", async () => {
+    registerDomain.mockResolvedValue({ id: "d-1", verify_token: "govux-verify=abc123" });
+    render(<RegisterDomain />);
+    await userEvent.type(screen.getByRole("textbox"), "posts.gov.in");
+    await userEvent.click(screen.getByRole("button", { name: /Register domain/i }));
+    await waitFor(() => expect(registerDomain).toHaveBeenCalledWith("posts.gov.in", undefined));
   });
 
   it("returns to the list once verification succeeds", async () => {
@@ -312,5 +343,118 @@ describe("Register & verify a domain", () => {
     expect(await screen.findByText(/Domain already registered/)).toBeInTheDocument();
     // still on step 1 — no token to show
     expect(screen.getByRole("button", { name: /Register domain/i })).toBeInTheDocument();
+  });
+});
+
+
+// ---------- managing a domain after registration ---------------------------
+describe("Managing a registered domain", () => {
+  const PENDING = { id: "d-p", url: "draft.gov.in", verify_status: "pending", category: null };
+  const VERIFIED = { id: "d-v", url: "posts.gov.in", verify_status: "verified",
+                     category: "transactional", verify_method: "dns_txt",
+                     registered_at: "2026-08-17T00:00:00Z", registered_by: "Owner (Dev)" };
+
+  it("changes a category in place and tells the API", async () => {
+    listDomains.mockResolvedValue([VERIFIED]);
+    render(<Domains />);
+    const select = await screen.findByLabelText(/Service category for posts.gov.in/i);
+    await userEvent.selectOptions(select, "payments");
+    await waitFor(() => expect(updateDomain).toHaveBeenCalledWith("d-v", "payments"));
+    expect(select).toHaveValue("payments");
+  });
+
+  /* An optimistic row that keeps a value the server rejected is worse than no
+     optimism at all — it tells you the change stuck when it did not. */
+  it("puts the old category back when the change is refused", async () => {
+    listDomains.mockResolvedValue([VERIFIED]);
+    updateDomain.mockRejectedValue(new Error("Unknown service category"));
+    render(<Domains />);
+    const select = await screen.findByLabelText(/Service category for posts.gov.in/i);
+    await userEvent.selectOptions(select, "payments");
+    await waitFor(() => expect(select).toHaveValue("transactional"));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/Unknown service category/);
+  });
+
+  it("offers Withdraw only on an unverified claim", async () => {
+    listDomains.mockResolvedValue([PENDING, VERIFIED]);
+    render(<Domains />);
+    await screen.findByText("draft.gov.in");
+    // one Withdraw, and it belongs to the pending row
+    expect(screen.getAllByRole("button", { name: /Withdraw/i })).toHaveLength(1);
+  });
+
+  it("names the host before withdrawing, and drops the row afterwards", async () => {
+    listDomains.mockResolvedValue([PENDING]);
+    render(<Domains />);
+    await userEvent.click(await screen.findByRole("button", { name: /Withdraw/i }));
+    // the confirmation says which host, not just "are you sure"
+    expect(screen.getByText(/Withdraw the unverified claim on/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /Withdraw claim/i }));
+    await waitFor(() => expect(withdrawDomain).toHaveBeenCalledWith("d-p"));
+    await waitFor(() => expect(screen.queryByText("draft.gov.in")).not.toBeInTheDocument());
+  });
+
+  it("keeps the row and explains when the API refuses the withdrawal", async () => {
+    listDomains.mockResolvedValue([PENDING]);
+    withdrawDomain.mockRejectedValue(new Error("This domain is verified."));
+    render(<Domains />);
+    await userEvent.click(await screen.findByRole("button", { name: /Withdraw/i }));
+    await userEvent.click(screen.getByRole("button", { name: /Withdraw claim/i }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/This domain is verified/);
+    // the row survives; the host also appears in the still-open confirmation
+    expect(screen.getAllByText("draft.gov.in").length).toBeGreaterThan(0);
+  });
+
+  /* A failed read used to render as an empty estate: setRows([]) put "No
+     domains yet" under the error alert. */
+  it("does not claim the estate is empty when the list could not be read", async () => {
+    listDomains.mockRejectedValue(new Error("offline"));
+    render(<Domains />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/offline/);
+    expect(screen.queryByText(/No domains yet/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("Domain detail", () => {
+  const VERIFIED = { id: "d-v", url: "posts.gov.in", verify_status: "verified",
+                     category: "transactional", verify_method: "dns_txt",
+                     registered_at: "2026-08-17T00:00:00Z", registered_by: "Owner (Dev)",
+                     last_audited_at: "2026-09-17T00:00:00Z" };
+
+  it("answers how ownership was proven, when, and by whom", async () => {
+    listDomains.mockResolvedValue([VERIFIED]);
+    render(<DomainDetail params={{ id: "d-v" }} />);
+    expect(await screen.findByRole("heading", { name: "posts.gov.in" })).toBeInTheDocument();
+    expect(screen.getByText("DNS TXT record")).toBeInTheDocument();
+    expect(screen.getAllByText(/Owner \(Dev\)/).length).toBeGreaterThan(0);
+  });
+
+  /* Rows predating verify_method are verified with no method recorded. Saying
+     "Verified" and "Not yet proven" in one card is worse than admitting it. */
+  it("does not call a verified domain unproven when the method is unknown", async () => {
+    listDomains.mockResolvedValue([{ ...VERIFIED, verify_method: null }]);
+    render(<DomainDetail params={{ id: "d-v" }} />);
+    expect(await screen.findByText(/predates method tracking/i)).toBeInTheDocument();
+    expect(screen.queryByText("Not yet proven")).not.toBeInTheDocument();
+  });
+
+  it("lists this host's runs, and links each to the right screen", async () => {
+    listDomains.mockResolvedValue([VERIFIED]);
+    listAudits.mockResolvedValue([
+      { task_id: "a1", domain: "posts.gov.in", status: "completed", score: 72, band: "B", date: "2026-09-17T00:00:00Z" },
+      { task_id: "a2", domain: "other.gov.in", status: "completed", score: 40, band: "D", date: "2026-09-10T00:00:00Z" },
+      { task_id: "a3", domain: "posts.gov.in", status: "crawling", score: null, band: null, date: "2026-09-18T00:00:00Z" },
+    ]);
+    render(<DomainDetail params={{ id: "d-v" }} />);
+    // only this host's runs
+    expect(await screen.findByRole("link", { name: /View report/i })).toHaveAttribute("href", "/audits/a1/report");
+    expect(screen.getByRole("link", { name: /View status/i })).toHaveAttribute("href", "/audits/a3");
+    expect(screen.queryByText("40")).not.toBeInTheDocument();
+  });
+
+  it("says so plainly when the domain is not on the account", async () => {
+    listDomains.mockResolvedValue([]);
+    render(<DomainDetail params={{ id: "nope" }} />);
+    expect(await screen.findByRole("heading", { name: /Domain not found/i })).toBeInTheDocument();
   });
 });

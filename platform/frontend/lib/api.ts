@@ -144,6 +144,11 @@ export const api = {
   // mandatory and the actor is recorded server-side
   forceVerifyDomain: (id: string, reason: string) =>
     req(`/v1/domains/${id}/force-verify`, { method: "POST", body: JSON.stringify({ reason }) }),
+  updateDomain: (id: string, category: string | null) =>
+    req(`/v1/domains/${id}`, { method: "PATCH", body: JSON.stringify({ service_category: category }) }),
+  // withdraw your own UNVERIFIED claim; the API refuses verified domains,
+  // whose audit history depends on the row surviving
+  withdrawDomain: (id: string) => req(`/v1/domains/${id}`, { method: "DELETE" }),
   domainClaims: (contestedOnly = false) =>
     req(`/v1/domains/claims${contestedOnly ? "?contested_only=true" : ""}`),
   releaseClaim: (id: string) => req(`/v1/domains/claims/${id}`, { method: "DELETE" }),

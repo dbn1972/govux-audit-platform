@@ -36,6 +36,7 @@ export default function Compare({ params }: { params: { id: string } }) {
 
   const wrap = (b: React.ReactNode) => (
     <AppShell><div className="gx-page gx-stack">
+      <AuditNav id={params.id} />
       <div className="gx-page-head" style={{ marginBottom: 0 }}>
         <div>
           <h1 className="ux4g-mb-2xs">Compare &amp; page coverage</h1>
@@ -44,7 +45,6 @@ export default function Compare({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
-      <AuditNav id={params.id} />
       {b}
     </div></AppShell>
   );

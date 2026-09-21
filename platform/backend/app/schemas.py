@@ -71,6 +71,9 @@ class AuditStatus(BaseModel):
     task_id: str
     domain: str
     status: str
+    # which RUN this is: a domain audited weekly has many, and every per-audit
+    # view in the UI is otherwise indistinguishable between them
+    created_at: Optional[datetime] = None
     pages_done: int
     pages_total: int
     overall_score: Optional[float] = None

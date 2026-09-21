@@ -17,13 +17,16 @@ export default function Trends({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   const wrap = (b: React.ReactNode) => <AppShell><div className="gx-page gx-stack">
+        <AuditNav id={params.id} />
         <div className="gx-page-head" style={{ marginBottom: 0 }}>
           <div>
             <h1 className="ux4g-mb-2xs">Score trend &amp; history</h1>
             <div className="gx-muted">Every re-audit is a versioned, dated snapshot.</div>
           </div>
         </div>
-    <AuditNav id={params.id} />{b}</div></AppShell>;
+        {b}
+      </div>
+    </AppShell>;
 
   if (err) return wrap(<div className="ux4g-alert ux4g-alert-warning" role="alert">{err}</div>);
   if (!hist) return wrap(<div className="ux4g-text-center ux4g-py-m"><Spinner size="md" label="Loading" /></div>);

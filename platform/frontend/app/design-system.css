@@ -137,6 +137,23 @@ body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
    the success alert on /audits/[id] rendered #116932 on #4a2bc2, 1.28:1, and
    #fafafa on #a391ff, 2.5:1, in dark. Seven such controls across five files. */
 .ux4g-alert :where(a:not([class*="ux4g-btn"])) { color:inherit; }
+
+/* An alert is a flex row upstream (`display:flex; gap:16px; align-items:center`),
+   which is right for an icon beside a line of text and wrong for everything
+   else — and the default, so most call sites get it without asking.
+
+   Two things break. Text nodes become ANONYMOUS flex items, so the 16px gap
+   lands inside sentences: "Batch <b>ab12cd34</b> — <b>7</b> domains enqueued"
+   measured 16px after every chunk (x 308 · 367 · 456 · 488 · 513) where a word
+   space belongs, and the flex item trims the trailing space, so gap:0 would
+   close them up into "Batchab12cd34". And a heading plus a paragraph become
+   two columns rather than two lines.
+
+   Normal flow is the right default for prose; the ten alerts that genuinely
+   want a row already opt in with .ux4g-d-flex, which is display:flex!important
+   and so is untouched. min-height goes with it: 3rem only centres nicely under
+   flex, and padding already gives a single-line alert 46px. */
+.ux4g-alert:not(.ux4g-d-flex) { display:block; min-height:auto; }
 .ux4g-alert-success { --ux4g-alert-text:var(--gx-on-success); }
 .ux4g-alert-error   { --ux4g-alert-text:var(--gx-on-error);   }
 .ux4g-alert-warning { --ux4g-alert-text:var(--gx-on-warning); }
@@ -301,6 +318,19 @@ p > a:only-child { display:inline-flex; align-items:center; min-height:1.5rem; }
 /* An audit task UUID has no spaces, so it cannot wrap and simply runs out of
    its container at high zoom or in a narrow column. */
 .gx-breakable { overflow-wrap:anywhere; }
+
+/* Label/value pairs on a detail screen. A two-column grid rather than a table:
+   these are attributes of one thing, not rows to compare, and the grid keeps
+   the values aligned without the table semantics a screen reader would then
+   announce as data. Collapses to one column where 220px would crowd. */
+.gx-deflist { display:grid; grid-template-columns:auto 1fr; gap:var(--gx-space-2) var(--gx-space-4);
+              margin:0; align-items:baseline; }
+.gx-deflist dt { font-size:.8125rem; color:var(--ux4g-text-neutral-secondary); }
+.gx-deflist dd { margin:0; font-size:.875rem; }
+@media (max-width:480px) {
+  .gx-deflist { grid-template-columns:1fr; gap:0; }
+  .gx-deflist dd { margin-bottom:var(--gx-space-3); }
+}
 
 /* ---------------------------------------------------------------------------
    Icon ligatures are text.

@@ -7,7 +7,7 @@ import Icon from "@/components/Icon";
 import StatusLine from "@/components/StatusLine";
 import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
-import { hostOnly, stripScheme } from "@/lib/domain";
+import { hostOnly, stripScheme, SERVICE_CATEGORIES } from "@/lib/domain";
 
 const GOV = /(\.gov\.in|\.nic\.in)$/i;
 
@@ -27,6 +27,7 @@ export default function RegisterDomain() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [method, setMethod] = useState<"dns_txt" | "file_upload">("dns_txt");
+  const [category, setCategory] = useState("");
 
   // Resume verification for a domain registered earlier. Without this the page
   // was write-once: the DNS token only ever existed in this component's state,
@@ -52,7 +53,7 @@ export default function RegisterDomain() {
     const host = hostOnly(url).toLowerCase();
     if (!GOV.test(host)) { setErr("Only .gov.in / .nic.in domains are accepted"); return; }
     setErr(""); setBusy(true);
-    try { const r = await api.registerDomain(host); setReg(r); setStep(2); }
+    try { const r = await api.registerDomain(host, category || undefined); setReg(r); setStep(2); }
     catch (e: any) { setErr(e.message); }
     finally { setBusy(false); }
   }
@@ -122,6 +123,25 @@ export default function RegisterDomain() {
                   <span className="ux4g-input-helper-text">{err}</span>
                 </div>
               )}
+            </div>
+            {/* The API has always accepted a category and the form never sent
+                one, so every domain registered through the app was
+                uncategorised — and invisible to the segmented rankings, which
+                filter on this exact value. */}
+            <div className="ux4g-mt-s" style={{ maxWidth: 320 }}>
+              <label className="ux4g-label-m-default" htmlFor="domain-category">
+                Service category <span className="gx-muted">(optional)</span>
+              </label>
+              <select id="domain-category" className="ux4g-form-select ux4g-form-select-md ux4g-w-100"
+                value={category} onChange={e => setCategory(e.target.value)}>
+                <option value="">Not categorised</option>
+                {SERVICE_CATEGORIES.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+              </select>
+              <div className="ux4g-input-helper">
+                <span className="ux4g-input-helper-text">
+                  Groups this site with comparable ones in the league table. You can change it later.
+                </span>
+              </div>
             </div>
             <button className="ux4g-btn ux4g-btn-primary ux4g-btn-md ux4g-mt-s" onClick={register} disabled={busy}>
               {busy ? "Registering…" : "Register domain"}</button>

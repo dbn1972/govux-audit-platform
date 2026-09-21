@@ -144,6 +144,17 @@ test.describe("dark theme", () => {
   }
 });
 
+/* Per-domain detail. A dynamic route, so it cannot go in PAGES with the static
+   paths — reach it the way a person does, from the register. */
+test("no critical/serious a11y violations · domain detail", async () => {
+  await openSignedIn("/domains");
+  const details = page.getByRole("link", { name: "Details" }).first();
+  if (await details.count() === 0) test.skip(true, "no domains seeded to open");
+  await details.click();
+  await page.waitForURL(/\/domains\/[0-9a-f-]{8}/);
+  expect(await seriousViolations()).toEqual([]);
+});
+
 // The navigation drawer is a11y-relevant and only exists at mobile widths, so a
 // desktop-only sweep never sees it. It is also the one piece of UI present on
 // every signed-in page, which makes a defect here a defect everywhere.

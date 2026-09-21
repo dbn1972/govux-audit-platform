@@ -14,6 +14,7 @@ type Domain = {
 
 import { BAND_COLOR as bandColor, bandStyle } from "@/lib/score";
 import { relative } from "@/lib/format";
+import { SERVICE_CATEGORIES } from "@/lib/domain";
 
 export default function Domains() {
   const [rows, setRows] = useState<Domain[] | null>(null);
@@ -23,7 +24,10 @@ export default function Domains() {
   useEffect(() => {
     api.listDomains()
       .then((d) => setRows(d || []))
-      .catch((e) => { setErr(e?.message || "Could not load your domains."); setRows([]); });
+      // null, not []: [] renders "No domains yet. Register your first domain →"
+      // under the error alert, telling someone their estate is empty when the
+      // truth is that we could not read it. Same defect as the dashboard's.
+      .catch((e) => { setErr(e?.message || "Could not load your domains."); setRows(null); });
     api.me()
       .then((u) => setIsSteward(!!u?.is_steward))
       .catch(() => {});
@@ -34,6 +38,8 @@ export default function Domains() {
   // bypass any signed-in user could invoke. It is now its own endpoint:
   // steward-only, a written reason required, recorded as `steward_override` so
   // an unproven domain is never mistaken for a DNS/file-proven one.
+  const [withdrawing, setWithdrawing] = useState<string | null>(null);
+  const [savingCat, setSavingCat] = useState<string | null>(null);
   const [overriding, setOverriding] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
@@ -49,6 +55,33 @@ export default function Domains() {
       setErr(e?.message || "Could not force-verify that domain.");
     } finally { setBusy(false); }
   }
+
+  async function setCategory(id: string, category: string) {
+    const before = (rows || []).find((d) => d.id === id)?.category ?? null;
+    setErr(""); setSavingCat(id);
+    setRows((rs) => (rs || []).map((d) => d.id === id ? { ...d, category: category || null } : d));
+    try {
+      await api.updateDomain(id, category || null);
+    } catch (e: any) {
+      // put the old value back rather than leaving the select showing a choice
+      // the server never accepted
+      setRows((rs) => (rs || []).map((d) => d.id === id ? { ...d, category: before } : d));
+      setErr(e?.message || "Could not change that category.");
+    } finally { setSavingCat(null); }
+  }
+
+  async function withdraw(id: string) {
+    setErr(""); setBusy(true);
+    try {
+      await api.withdrawDomain(id);
+      setRows((rs) => (rs || []).filter((d) => d.id !== id));
+      setWithdrawing(null);
+    } catch (e: any) {
+      setErr(e?.message || "Could not withdraw that claim.");
+    } finally { setBusy(false); }
+  }
+
+  const pending = withdrawing ? (rows || []).find((d) => d.id === withdrawing) : null;
 
   return (
     <AppShell>
@@ -87,7 +120,19 @@ export default function Domains() {
                 {(rows || []).map(d => (
                   <tr key={d.id}>
                     <td data-label="Domain" className="ux4g-fw-semibold ux4g-table-cell-text">{d.url}</td>
-                    <td data-label="Category" className="gx-muted ux4g-fs-14">{d.category || "—"}</td>
+                    {/* Editable in place: categorisation was write-once at
+                        registration and the form never offered it, so every
+                        domain added through the app read "—" forever and sat
+                        outside the segmented league table. */}
+                    <td data-label="Category">
+                      <select aria-label={`Service category for ${d.url}`}
+                        className="ux4g-form-select ux4g-form-select-sm"
+                        value={d.category || ""} disabled={savingCat === d.id}
+                        onChange={(e) => setCategory(d.id, e.target.value)}>
+                        <option value="">Not categorised</option>
+                        {SERVICE_CATEGORIES.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+                      </select>
+                    </td>
                     <td data-label="Status">{d.verify_status === "verified"
                       ? (d.verify_method === "steward_override"
                           // an override is verified, but nobody proved anything —
@@ -102,7 +147,9 @@ export default function Domains() {
                           <span className="ux4g-tag-tonal-neutral ux4g-tag-s gx-dot ux4g-ml-2xs" style={bandStyle(d.latest_band)}>{d.latest_band}</span>}</>
                       : <span className="gx-muted">Not audited</span>}</td>
                     <td data-label="Last audited" className="gx-muted ux4g-fs-14">{relative(d.last_audited_at)}</td>
-                    <td data-label="">{d.verify_status === "verified"
+                    <td data-label="">
+                      <Link href={`/domains/${d.id}`} className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm">Details</Link>
+                      {d.verify_status === "verified"
                       ? <Link href={`/audits/new?domain=${d.id}`} className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm">Audit →</Link>
                       : (<>
                           {/* carry the id: a bare /domains/new is a blank form,
@@ -114,9 +161,41 @@ export default function Domains() {
                               Override
                             </button>
                           )}
+                          {/* An owner could not undo their own typo: the claim
+                              sat here forever AND held the org's slot under
+                              uq_domain_org_url, so the corrected host could not
+                              be registered. Unverified only — see the API. */}
+                          <button className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm gx-muted"
+                            onClick={() => { setWithdrawing(d.id); setErr(""); }}>
+                            Withdraw
+                          </button>
                         </>)}</td>
                   </tr>
                 ))}
+                {/* Confirm in place rather than window.confirm: it names the
+                    host being withdrawn, and says what withdrawing does and
+                    does not do. */}
+                {pending && (
+                  <tr>
+                    <td colSpan={6} className="ux4g-bg-neutral-soft">
+                      <div className="ux4g-p-xs ux4g-d-flex ux4g-flex-wrap ux4g-ai-center ux4g-gap-xs">
+                        <Icon name="exclamation-triangle" size={16} className="ux4g-flex-shrink-0" />
+                        <span className="ux4g-fs-14">
+                          Withdraw the unverified claim on <b>{pending.url}</b>? Nothing has been
+                          audited against it, and the host becomes free to register again.
+                        </span>
+                        <span className="ux4g-ml-auto ux4g-d-flex ux4g-gap-2xs">
+                          <button className="ux4g-btn ux4g-btn-outline-danger ux4g-btn-sm"
+                            disabled={busy} onClick={() => withdraw(pending.id)}>
+                            {busy ? "Withdrawing…" : "Withdraw claim"}
+                          </button>
+                          <button className="ux4g-btn ux4g-btn-outline-neutral ux4g-btn-sm"
+                            disabled={busy} onClick={() => setWithdrawing(null)}>Cancel</button>
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
                 {overriding && (
                   <tr>
                     <td colSpan={6} className="ux4g-bg-neutral-soft">
