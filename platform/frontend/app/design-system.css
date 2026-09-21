@@ -83,14 +83,19 @@ body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 
    :where() keeps the specificity at zero: every button-shaped anchor
    (.ux4g-btn), nav link and inline style still wins without !important.
+   The pseudo-classes go INSIDE the :where() for the same reason. Written as
+   `:where(a):hover` the rule is (0,1,0) — a tie with `.ux4g-btn-primary`,
+   broken by source order in this file's favour — so hovering the dashboard's
+   New audit button painted its label #301c7d on its own #3d239f ground, 1.2:1,
+   and the label and its icon disappeared. `:where(a:hover)` is zero.
    UX4G's brand tokens flip under [data-theme="dark"], so both themes follow.
    Focus rings come from the :focus-visible rule above.
    ------------------------------------------------------------------------ */
 :where(a) { color:var(--ux4g-text-brand-primary-default); text-decoration:underline; text-underline-offset:.15em; }
-:where(a):hover { color:var(--ux4g-bg-primary-stronger); }
+:where(a:hover) { color:var(--ux4g-bg-primary-stronger); }
 /* :visited must not be allowed to drop a link to the UA purple, which is
    2.0:1 on the dark ground and reads as disabled text. */
-:where(a):visited { color:var(--ux4g-text-brand-primary-default); }
+:where(a:visited) { color:var(--ux4g-text-brand-primary-default); }
 
 /* ---------------------------------------------------------------------------
    Alerts — contrast repair for an upstream defect.
@@ -233,6 +238,18 @@ body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
    meaning, which is why there is no non-colour cue to preserve here. */
 .gx-dot::before { content:""; inline-size:.375rem; block-size:.375rem;
                   border-radius:50%; background:currentColor; flex:none; }
+
+/* UX4G paints every tag variant `display:flex` — block-level, so two tags side
+   by side stack instead of sitting in a row, and a tag after a number drops to
+   its own line. Measured: the three Browser-engine tags on /audits/new landed
+   at y 295 / 317 / 339, and the band tag on /domains 19px below its score.
+   A tag is an inline object, so `inline-flex` is what that rule wants. Safe
+   against their own layouts: a grid or flex item has its display blockified,
+   so the card and result-list placements that position tags with grid-column
+   still compute to `flex` exactly as before. Same (0,1,0) weight as the
+   :is() list upstream, declared later. */
+:is([class*="ux4g-tag-tonal-"], [class*="ux4g-tag-filled-"],
+    [class*="ux4g-tag-outline-"], [class*="ux4g-tag-text-"]) { display:inline-flex; }
 
 /* ---------------------------------------------------------------------------
    Target size — WCAG 2.2 SC 2.5.8 (AA), 24x24 CSS px.
@@ -427,6 +444,28 @@ p > a:only-child { display:inline-flex; align-items:center; min-height:1.5rem; }
 [data-theme="dark"] .band-A { color:var(--gx-band-A) } [data-theme="dark"] .band-B { color:var(--gx-band-B) }
 [data-theme="dark"] .band-C { color:var(--gx-band-C) } [data-theme="dark"] .band-D { color:var(--gx-band-D) }
 [data-theme="dark"] .band-E { color:var(--gx-band-E) }
+
+/* Primary-tinted hover grounds — contrast repair for an upstream defect.
+
+   In dark, UX4G's primary ramp is inverted: --ux4g-bg-primary-subtle is
+   #3d239f (primary-700) while --ux4g-bg-primary-soft is #301c7d (800) and
+   --ux4g-bg-primary is #24145c (900). "Subtle" is therefore the LOUDEST of the
+   three, and it is what these three hover rules paint. Against the brand ink
+   they keep (--ux4g-text-brand-primary-default, #a391ff) that is 4.15:1 —
+   under AA, and only while the pointer is down on the control, which is why
+   the static axe sweep never saw it. Measured across /audits, /domains,
+   /audits/new and /admin/organisations on every "View report →", "Audit →",
+   "View status →" and "Edit".
+
+   Repainted with --ux4g-bg-primary, the faintest primary ground in this theme
+   and the one UX4G itself uses for tinted surfaces: 6.06:1, and a wash rather
+   than a filled chip. Light theme is unaffected and untouched — its ramp is
+   the right way round. The icon-only variants are left alone: a glyph is a
+   non-text element and 4.15 clears its 3:1 bar. */
+[data-theme="dark"] :is(.ux4g-btn-text-primary, .ux4g-btn-outline-primary,
+                        .ux4g-btn-tonal-primary):hover {
+  background-color:var(--ux4g-bg-primary);
+}
 
 
 

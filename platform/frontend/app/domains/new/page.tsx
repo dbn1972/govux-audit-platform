@@ -6,6 +6,7 @@ import Icon from "@/components/Icon";
 import StatusLine from "@/components/StatusLine";
 import Spinner from "@/components/Spinner";
 import { api } from "@/lib/api";
+import { hostOnly, stripScheme } from "@/lib/domain";
 
 const GOV = /(\.gov\.in|\.nic\.in)$/i;
 
@@ -45,9 +46,12 @@ export default function RegisterDomain() {
   }, [resumeId]);
 
   async function register() {
-    if (!GOV.test(url.trim())) { setErr("Only .gov.in / .nic.in domains are accepted"); return; }
+    // Hostnames are case-insensitive; normalise here rather than as they type,
+    // so the field does not fight someone holding shift.
+    const host = hostOnly(url).toLowerCase();
+    if (!GOV.test(host)) { setErr("Only .gov.in / .nic.in domains are accepted"); return; }
     setErr(""); setBusy(true);
-    try { const r = await api.registerDomain(url.trim()); setReg(r); setStep(2); }
+    try { const r = await api.registerDomain(host); setReg(r); setStep(2); }
     catch (e: any) { setErr(e.message); }
     finally { setBusy(false); }
   }
@@ -89,14 +93,21 @@ export default function RegisterDomain() {
         {step === 1 ? (
           <div className="ux4g-card ux4g-card-solid ux4g-card-outline"><div className="ux4g-card-body">
             {/* UX4G Input contract (input.css): container > label + .ux4g-input > .ux4g-input-input.
-                The https:// scheme sits in the leading-icon slot as a text prefix — UX4G has no
-                Bootstrap-style input-group addon, and the leading slot is the documented place for it. */}
+                The https:// scheme is a plain span, NOT .ux4g-input-leading-icon: that slot is
+                hard-sized to the glyph box (`.ux4g-input-md .ux4g-input-leading-icon{width:1.125rem}`),
+                so a ~48px text prefix overflowed it and printed on top of the placeholder. .ux4g-input
+                is a flex row and .ux4g-input-input is flex:1, so an unstyled span sizes itself
+                correctly and the field starts after it. */}
             <div className={`ux4g-input-container ux4g-input-md ${err ? "ux4g-input-error" : "ux4g-input-default"}`}>
               <label className="ux4g-label-m-default" htmlFor="domain-url">Website domain</label>
               <div className="ux4g-input">
-                <span className="ux4g-input-leading-icon" aria-hidden="true" style={{ fontFamily: "inherit", fontSize: ".875rem" }}>https://</span>
+                <span className="gx-muted ux4g-fs-14 ux4g-mr-2xs ux4g-flex-shrink-0" aria-hidden="true">https://</span>
                 <input id="domain-url" className="ux4g-input-input" placeholder="tracking.indiapost.nic.in"
-                  value={url} onChange={e => setUrl(e.target.value)} />
+                  value={url}
+                  // scheme as they type (safe), everything else once they are
+                  // done — see lib/domain.ts on why that split exists
+                  onChange={e => setUrl(stripScheme(e.target.value))}
+                  onBlur={e => setUrl(hostOnly(e.target.value))} />
               </div>
               {err && (
                 <div className="ux4g-input-helper" role="alert">
@@ -150,10 +161,11 @@ export default function RegisterDomain() {
               <>
                 <p className="ux4g-fs-14 ux4g-mb-xs">Add this TXT record to your domain&apos;s DNS, then verify:</p>
                 <pre className="ux4g-bg-neutral-stronger ux4g-text-white ux4g-p-s ux4g-radius-m ux4g-fs-14"><code>{reg?.verify_token}</code></pre>
-                <div className="ux4g-alert ux4g-alert-info ux4g-fs-14">
-                  ⏱ DNS changes can take up to 30 minutes; we re-check automatically.
+                <div className="ux4g-alert ux4g-alert-info ux4g-fs-14 ux4g-d-flex ux4g-ai-start ux4g-gap-2xs">
+                  <Icon name="hourglass-split" size={16} className="ux4g-flex-shrink-0 ux4g-mt-3xs" />
+                  <span>DNS changes can take up to 30 minutes; we re-check automatically.
                   You can leave this page — the record is kept, and “Verify” on your
-                  domains list brings you straight back here.
+                  domains list brings you straight back here.</span>
                 </div>
               </>
             ) : (

@@ -177,6 +177,46 @@ describe("Register & verify a domain", () => {
       expect(screen.getByText(/Not yet verified/)).toBeInTheDocument();
     });
 
+  // Pasting from the address bar is how most people will fill this field, and
+  // every one of these used to be rejected as "not a .gov.in domain" because
+  // the check is anchored and the pasted string ended in "/" or a path.
+  // Pasting from the address bar is how most people will fill this field, and
+  // every one of these used to be rejected as "not a .gov.in domain": the
+  // check is anchored, and the pasted string ended in "/" or a path.
+  it.each([
+    ["https://www.epfo.gov.in/", "www.epfo.gov.in"],
+    ["https://www.epfo.gov.in", "www.epfo.gov.in"],
+    ["http://tracking.indiapost.nic.in/track?id=7", "tracking.indiapost.nic.in"],
+    ["HTTPS://POSTS.GOV.IN/", "posts.gov.in"],
+    ["indiapost.gov.in:8443/home#top", "indiapost.gov.in"],
+  ])("normalises %s to the bare host before registering", async (typed, sent) => {
+    registerDomain.mockResolvedValue({ id: "d-1", verify_token: "govux-verify=abc123" });
+    render(<RegisterDomain />);
+    await userEvent.type(screen.getByRole("textbox"), typed);
+    await userEvent.click(screen.getByRole("button", { name: /Register domain/i }));
+
+    await waitFor(() => expect(registerDomain).toHaveBeenCalledWith(sent));
+    expect(await screen.findByText("govux-verify=abc123")).toBeInTheDocument();
+  });
+
+  // Normalising per-keystroke ate the character being typed — every dot is a
+  // trailing dot for one keystroke, so "indiapost.gov.in" became
+  // "indiapostgovin". The scheme is stripped as they type; the rest waits.
+  it("does not fight someone typing the domain by hand", async () => {
+    render(<RegisterDomain />);
+    const field = screen.getByRole("textbox");
+    await userEvent.type(field, "https://tracking.indiapost.nic.in");
+    expect(field).toHaveValue("tracking.indiapost.nic.in");
+  });
+
+  it("tidies the field to the bare host once focus leaves it", async () => {
+    render(<RegisterDomain />);
+    const field = screen.getByRole("textbox");
+    await userEvent.type(field, "https://www.epfo.gov.in/hindi/");
+    await userEvent.tab();
+    expect(field).toHaveValue("www.epfo.gov.in");
+  });
+
   it("returns to the list once verification succeeds", async () => {
     registerDomain.mockResolvedValue({ id: "d-1", verify_token: "govux-verify=abc123" });
     verifyDomain.mockResolvedValue({ status: "verified" });
