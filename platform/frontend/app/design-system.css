@@ -788,8 +788,12 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
 
 /* answered state: a rule and a wash, so "what is left" is visible while
    scrolling rather than something you read button by button */
-.gx-check-pass { border-inline-start-color:var(--gx-band-A); background:var(--ux4g-bg-success-subtle); }
-.gx-check-fail { border-inline-start-color:var(--gx-band-E); background:var(--ux4g-bg-error-subtle); }
+/* The band tints (12% in light, 15% in dark) rather than --ux4g-bg-*-subtle:
+   in dark that token is rgb(0,108,53), a filled saturated green, so an
+   answered row read as a solid block instead of a wash. Same construction in
+   both themes, and the tints already track the band palette. */
+.gx-check-pass { border-inline-start-color:var(--gx-band-A); background:var(--gx-band-A-tint); }
+.gx-check-fail { border-inline-start-color:var(--gx-band-E); background:var(--gx-band-E-tint); }
 .gx-check-na   { border-inline-start-color:var(--ux4g-border-color-neutral-default); background:var(--ux4g-bg-neutral-soft); }
 
 .gx-check-actions { display:flex; flex-direction:column; align-items:flex-end; gap:.375rem;
@@ -1004,7 +1008,25 @@ main .ux4g-container-fluid,main .ux4g-container { max-width:var(--gx-page-max);
 .gx-catrail { position:sticky; top:76px; max-height:calc(100vh - 96px); overflow-y:auto;
               background:var(--ux4g-bg-neutral-elevated); border:1px solid var(--ux4g-border-color-neutral-subtle);
               border-radius:var(--ux4g-radius-lg); padding:var(--gx-space-2); }
-@media (max-width:991.98px){ .gx-catrail { position:static; max-height:none; } }
+@media (max-width:991.98px){
+  /* Not `max-height:none`: that turned 26 categories into 890px of rail above
+     the first question — 2,174px of scroll on a 375px screen before anything
+     could be answered. The rail collapses behind a summary instead, and the
+     list inside it still scrolls rather than growing without limit. */
+  .gx-catrail { position:static; max-height:60vh; }
+}
+
+/* The disclosure's trigger. Only rendered below 992px; above it the rail is
+   always open and this never mounts. */
+.gx-catrail-toggle { display:flex; align-items:center; gap:var(--gx-space-2); width:100%;
+                     min-height:2.75rem; padding:var(--gx-space-2) var(--gx-space-4);
+                     background:var(--ux4g-bg-neutral-elevated);
+                     border:1px solid var(--ux4g-border-color-neutral-subtle);
+                     border-radius:var(--ux4g-radius-lg); text-align:start;
+                     font-size:.875rem; color:var(--ux4g-text-neutral-primary); }
+.gx-catrail-toggle .gx-catrail-toggle-count { margin-inline-start:auto;
+                     font-size:.8125rem; color:var(--ux4g-text-neutral-secondary);
+                     font-variant-numeric:tabular-nums; }
 
 .gx-catrail-item { display:flex; align-items:center; gap:.5rem; width:100%;
                    padding:.5rem .625rem; border:0; background:transparent;

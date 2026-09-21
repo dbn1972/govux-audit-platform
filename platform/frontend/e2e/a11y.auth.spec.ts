@@ -30,6 +30,8 @@ const PAGES = [
   "/audits",
   "/settings",
   "/library",
+  // the densest interaction in the product, and it had never been in this gate
+  "/review",
   "/assessments",
   "/studio",
   "/admin/organisations",

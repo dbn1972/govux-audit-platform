@@ -54,6 +54,28 @@ export default function Review() {
   const [result, setResult] = useState<any>(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+  // A decision that fails to save must say so AT the row. The page-level
+  // StatusLine sits ~2,000px above a reviewer working down a 322-item list,
+  // so a failed save scrolled away unseen and looked like it had stuck.
+  const [rowErr, setRowErr] = useState<{ id: string; text: string } | null>(null);
+  const [hideAnswered, setHideAnswered] = useState(false);
+  // Below 992px the category rail is a disclosure rather than 890px of
+  // navigation stacked above the first question; above it, always open.
+  const [narrow, setNarrow] = useState(false);
+  const [railOpen, setRailOpen] = useState(true);
+  useEffect(() => {
+    // Absent in jsdom, and in a handful of old embedded browsers. Without it
+    // `narrow` stays false, which is the desktop behaviour: rail always open.
+    if (typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(max-width: 991.98px)");
+    const apply = () => { setNarrow(mq.matches); setRailOpen(!mq.matches); };
+    apply();
+    // addEventListener on a MediaQueryList is the modern spelling; Safari
+    // before 14 only has addListener.
+    if (mq.addEventListener) { mq.addEventListener("change", apply); return () => mq.removeEventListener("change", apply); }
+    mq.addListener(apply);
+    return () => mq.removeListener(apply);
+  }, []);
 
   // The picker's three lists. Refetched every time the screen returns to it,
   // because it never unmounts on the way out — see below.
@@ -158,7 +180,7 @@ export default function Review() {
 
   async function decide(guidelineId: string, decision: string, note?: string) {
     if (!taskId && !assessmentId) return;
-    setSavingId(guidelineId); setErr("");
+    setSavingId(guidelineId); setErr(""); setRowErr(null);
     try {
       if (taskId) await api.setReviewItem(taskId, guidelineId, decision, note);
       else await api.setAssessmentItem(assessmentId!, guidelineId, decision, note);
@@ -191,7 +213,7 @@ export default function Review() {
         };
       });
     } catch (e: any) {
-      setErr(e?.message || "Could not record that decision.");
+      setRowErr({ id: guidelineId, text: e?.message || "Could not record that decision." });
     } finally { setSavingId(null); }
   }
 
@@ -213,8 +235,17 @@ export default function Review() {
   }
 
   const anyFail = (data?.failed ?? 0) > 0;
+  /* Math.round alone reported 0% — and aria-valuenow="0" — until the 7th of
+     322 answers, so a reviewer who had started saw and heard "none". */
   const pct = data?.reviewable_total
-    ? Math.round((data.decided / data.reviewable_total) * 100) : 0;
+    ? (data.decided > 0
+        ? Math.max(1, Math.round((data.decided / data.reviewable_total) * 100))
+        : 0)
+    : 0;
+  const tierComplete = !!data && data.decided >= (data.reviewable_total ?? data.total);
+  const visibleItems = hideAnswered
+    ? (data?.items || []).filter((i: any) => !i.decision)
+    : (data?.items || []);
   // Both routes through this screen — an engine audit, or a standalone
   // assessment. Everything below used to be gated on `taskId` alone, so an
   // assessment rendered a checklist with no subject, no filters, no progress
@@ -260,7 +291,12 @@ export default function Review() {
 
               <div className="ux4g-grid ux4g-grid-cols-12 ux4g-gap-s">
                 <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6">
-                  <label className="ux4g-label-m-default" htmlFor="assess-domain">Website</label>
+                  {/* Headed, because this column holds TWO ways in and the
+                      other holds one: without them the second control read as
+                      an orphan beside "Mobile app" rather than the alternative
+                      route to the same thing. */}
+                  <h3 className="ux4g-heading-2xs-strong ux4g-mb-xs">Website</h3>
+                  <label className="ux4g-label-m-default" htmlFor="assess-domain">Registered domain</label>
                   <select id="assess-domain" className="ux4g-form-select ux4g-mb-s" defaultValue=""
                     onChange={(e) => e.target.value &&
                       startAssessment({ domain_id: e.target.value, platform: "website" })}
@@ -280,9 +316,13 @@ export default function Review() {
                     …or any <code>.gov.in</code> / <code>.nic.in</code> address
                   </label>
                   <div className="ux4g-d-flex ux4g-gap-xs">
-                    <input id="assess-url" className="ux4g-input ux4g-w-100" value={siteUrl}
-                      placeholder="e.g. cept.gov.in"
-                      onChange={(e) => setSiteUrl(e.target.value)} />
+                    <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                      <div className="ux4g-input">
+                        <input id="assess-url" className="ux4g-input-input" value={siteUrl}
+                          placeholder="e.g. cept.gov.in"
+                          onChange={(e) => setSiteUrl(e.target.value)} />
+                      </div>
+                    </div>
                     <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md ux4g-text-nowrap ux4g-flex-shrink-0" disabled={!siteUrl.trim() || starting}
                       onClick={() => startAssessment({ subject: siteUrl.trim(), platform: "website" })}>
                       Start website
@@ -294,11 +334,16 @@ export default function Review() {
                 </div>
 
                 <div className="ux4g-cols-span-12 ux4g-lg-cols-span-6">
-                  <label className="ux4g-label-m-default" htmlFor="assess-app">Mobile app</label>
+                  <h3 className="ux4g-heading-2xs-strong ux4g-mb-xs">Mobile app</h3>
+                  <label className="ux4g-label-m-default" htmlFor="assess-app">App name</label>
                   <div className="ux4g-d-flex ux4g-gap-xs">
-                    <input id="assess-app" className="ux4g-input ux4g-w-100" value={appName}
-                      placeholder="e.g. India Post Mobile"
-                      onChange={(e) => setAppName(e.target.value)} />
+                    <div className="ux4g-input-container ux4g-input-md ux4g-input-default ux4g-w-100">
+                      <div className="ux4g-input">
+                        <input id="assess-app" className="ux4g-input-input" value={appName}
+                          placeholder="e.g. India Post Mobile"
+                          onChange={(e) => setAppName(e.target.value)} />
+                      </div>
+                    </div>
                     <button className="ux4g-btn ux4g-btn-outline-primary ux4g-btn-md ux4g-text-nowrap ux4g-flex-shrink-0" disabled={!appName.trim() || starting}
                       onClick={() => startAssessment({ subject: appName.trim(), platform: "app" })}>
                       Start app
@@ -413,7 +458,10 @@ export default function Review() {
               </div>
               {/* right-aligned only while it sits beside the subject; once it
                   wraps under it on a phone, right-aligned reads as a mistake */}
-              <div className="ux4g-ml-auto ux4g-text-start ux4g-md-text-end">
+              {/* ux4g-ml-auto is unconditional, so the block still sat at
+                  x=261 of a 375px screen with its text left-aligned inside —
+                  the md- variant only pushes it right once there is room. */}
+              <div className="ux4g-md-ml-auto ux4g-text-start ux4g-md-text-end">
                 {taskId && audit && (
                   <>
                     <div className="gx-muted ux4g-fs-14">Current legal verdict</div>
@@ -437,8 +485,8 @@ export default function Review() {
                 )}
               </div>
               <div style={{ flexBasis: "100%" }}>
-                <Link href="/review" onClick={showPicker} className="ux4g-fs-14">
-                  ← All manual reviews
+                <Link href="/review" onClick={showPicker} className="gx-back ux4g-fs-14">
+                  <Icon name="arrow-left" size={14} />All manual reviews
                 </Link>
               </div>
             </div>
@@ -514,11 +562,17 @@ export default function Review() {
               </div>
             </div>
             <div className="ux4g-flex-grow-1" style={{ minWidth: 160 }}>
-              <article className="ux4g-progress-bar" role="progressbar" aria-label="Review progress"
-                aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}
-                data-ux-progress-bar data-ux-shape="rounded" data-ux-label-placement="outside">
-                <div className="ux4g-progress-bar-track"><div className="ux4g-progress-bar-fill" style={{ width: `${pct}%` }} /></div>
-              </article>
+              {/* No `data-ux-progress-bar`: that hook hands the element to
+                  UX4G's runtime, which initialises from --ux4g-progress-value
+                  (unset here) and wrote aria-valuenow="0" over the value React
+                  had just rendered — so the bar moved while assistive tech was
+                  told "0 percent". Same track+span construction as every other
+                  meter in the app, with the aria under our control. */}
+              <div className="ux4g-progress-bar ux4g-progress-bar-track" role="progressbar"
+                aria-label="Review progress"
+                aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+                <span style={{ width: `${pct}%`, background: "var(--ux4g-bg-primary-strong)" }} />
+              </div>
             </div>
             {data.failed > 0 && (
               <div className="ux4g-text-end">
@@ -528,16 +582,28 @@ export default function Review() {
             )}
             {/* Pass rate over ANSWERED items only, N/A excluded. A compliance
                 rating, NOT the GovUX score — that stays engine-derived. */}
-            {data.rating != null && (
-              <div className="ux4g-text-end">
-                <div className="gx-label">Compliance rating</div>
+            {/* A pass-rate over a self-selected handful is not a finding. One
+                answer out of 322 rendered "100%" with the qualifier in 13px
+                parentheses — on a government compliance screen that reads as
+                a compliant site. Held until every item in the tier has an
+                answer; the raw counts stay visible throughout. */}
+            <div className="ux4g-text-end">
+              <div className="gx-label">Compliance rating</div>
+              {tierComplete && data.rating != null ? (
                 <div className="ux4g-fw-bold gx-num">{data.rating}%
                   <span className="gx-muted ux4g-fw-regular" style={{ fontSize: ".8125rem" }}>
                     {" "}({data.passed} met of {data.passed + data.failed})
                   </span>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="gx-muted ux4g-fs-14" style={{ maxWidth: 260 }}>
+                  <span className="gx-num">—</span> appears once every item in this
+                  {tier ? ` ${tier.toLowerCase()} tier` : " filter"} is answered
+                  {data.passed + data.failed > 0 &&
+                    <> · {data.passed} met, {data.failed} not met so far</>}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -558,8 +624,24 @@ export default function Review() {
                 doubles as the map of what is left: each category carries its own
                 answered-of-total, so a reviewer can see where the work is
                 without opening every one. */}
-            <nav className="gx-catrail" aria-label="Guideline categories">
-              <button type="button" onClick={() => setCategory("")}
+            <div>
+            {narrow && (
+              <button type="button" className="gx-catrail-toggle ux4g-mb-xs"
+                aria-expanded={railOpen} aria-controls="catrail"
+                onClick={() => setRailOpen(o => !o)}>
+                <Icon name={railOpen ? "chevron-up" : "chevron-down"} size={16} />
+                <span className="ux4g-fw-semibold">{category || "All categories"}</span>
+                <span className="gx-catrail-toggle-count">
+                  {category
+                    ? (() => { const c = (data.categories || []).find((x: any) => x.name === category);
+                               return c ? `${c.answered}/${c.count}` : ""; })()
+                    : `${data.decided}/${data.reviewable_total}`}
+                </span>
+              </button>
+            )}
+            <nav className="gx-catrail" id="catrail" aria-label="Guideline categories"
+              hidden={narrow && !railOpen}>
+              <button type="button" onClick={() => { setCategory(""); if (narrow) setRailOpen(false); }}
                 aria-current={category === "" ? "true" : undefined}
                 className="gx-catrail-item">
                 All categories
@@ -568,7 +650,8 @@ export default function Review() {
               {(data.categories || []).map((c: any) => {
                 const done = c.answered >= c.count;
                 return (
-                  <button key={c.name} type="button" onClick={() => setCategory(c.name)}
+                  <button key={c.name} type="button"
+                    onClick={() => { setCategory(c.name); if (narrow) setRailOpen(false); }}
                     aria-current={category === c.name ? "true" : undefined}
                     className={`gx-catrail-item ${done ? "gx-catrail-done" : ""}`}>
                     <span>{c.name}</span>
@@ -579,6 +662,7 @@ export default function Review() {
                 );
               })}
             </nav>
+            </div>
 
           <div className="ux4g-card ux4g-card-solid ux4g-card-outline">
             <div className="ux4g-card-header">
@@ -586,6 +670,15 @@ export default function Review() {
               <span className="gx-muted ux4g-ml-auto" style={{ fontSize: ".8125rem" }}>
                 {data.page_decided ?? 0} of {data.items.length} answered here
               </span>
+              {/* Coming back to a part-finished review, the question is "what
+                  is left?" and the answer was to scan every row. This hides
+                  answered rows IN THIS VIEW only — the rail still carries the
+                  per-category counts for the whole subject. */}
+              <button type="button" onClick={() => setHideAnswered(v => !v)}
+                aria-pressed={hideAnswered}
+                className={`ux4g-btn ux4g-btn-sm ux4g-ml-xs ${hideAnswered ? "ux4g-btn-primary" : "ux4g-btn-outline-neutral"}`}>
+                Unanswered only
+              </button>
             </div>
             {(() => {
               const whole = (data.categories || []).find((c: any) => c.name === category)?.count;
@@ -599,12 +692,19 @@ export default function Review() {
               );
             })()}
             <div>
+              {visibleItems.length === 0 && data.items.length > 0 && hideAnswered && (
+                <div className="gx-muted ux4g-text-center ux4g-py-l">
+                  Everything here is answered.{" "}
+                  <button type="button" className="ux4g-btn ux4g-btn-text-primary ux4g-btn-sm ux4g-p-none"
+                    onClick={() => setHideAnswered(false)}>Show all {data.items.length}</button>
+                </div>
+              )}
               {data.items.length === 0 && (
                 <div className="gx-muted ux4g-text-center ux4g-py-l">
                   No guidelines match this filter. Widen the tier or category to see more.
                 </div>
               )}
-              {data.items.map((it: any) => (
+              {visibleItems.map((it: any) => (
                 <div key={it.guideline_id}
                   className={`gx-check ${it.decision === "pass" ? "gx-check-pass"
                     : it.decision === "fail" ? "gx-check-fail"
@@ -652,6 +752,9 @@ export default function Review() {
                     </div>
                     {savingId === it.guideline_id && (
                       <span className="gx-muted" style={{ fontSize: ".75rem" }}>Saving…</span>
+                    )}
+                    {rowErr?.id === it.guideline_id && (
+                      <StatusLine ok={false} text={rowErr!.text} />
                     )}
                   </div>
                 </div>
@@ -705,9 +808,13 @@ export default function Review() {
               <label htmlFor="review-notes" className="ux4g-label-m-default">
                 Assessor notes <span className="gx-muted ux4g-fw-regular">(optional)</span>
               </label>
-              <textarea id="review-notes" className="ux4g-input ux4g-w-100 ux4g-mb-s" rows={2}
-                value={notes} onChange={e => setNotes(e.target.value)}
-                placeholder="e.g. keyboard trap on the payment step; alt text accurate on all banners." />
+              <div className="ux4g-textarea-container ux4g-textarea-md ux4g-w-100 ux4g-mb-s">
+                <div className="ux4g-textarea">
+                  <textarea id="review-notes" className="ux4g-textarea-input" rows={2}
+                    value={notes} onChange={e => setNotes(e.target.value)}
+                    placeholder="e.g. keyboard trap on the payment step; alt text accurate on all banners." />
+                </div>
+              </div>
               {result ? (
                 <div className="ux4g-alert ux4g-alert-success ux4g-py-xs ux4g-mb-none" role="status">
                   <Icon name="patch-check" size={16} className="ux4g-mr-2xs" />

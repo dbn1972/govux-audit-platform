@@ -10,3 +10,16 @@ import { configure } from "@testing-library/dom";
 // those polls room to complete under contention; a genuinely stuck update still
 // fails, just after a realistic wait rather than a fixed one second.
 configure({ asyncUtilTimeout: 15_000 });
+
+// jsdom ships no matchMedia, and components that adapt their layout to a
+// breakpoint have to ask for one. Default to the DESKTOP answer (no match) so
+// existing tests see what they always saw; a test that wants the narrow
+// behaviour overrides window.matchMedia itself.
+if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).matchMedia = (query: string) => ({
+    matches: false, media: query, onchange: null,
+    addEventListener() {}, removeEventListener() {},
+    addListener() {}, removeListener() {}, dispatchEvent: () => false,
+  });
+}

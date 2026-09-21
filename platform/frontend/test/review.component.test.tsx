@@ -255,7 +255,10 @@ describe("Guided manual review", () => {
   });
 
   it("reports a compliance rating over answered items, ignoring N/A", async () => {
-    reviewChecklist.mockResolvedValue(checklist({ passed: 3, failed: 1, decided: 5, rating: 75 }));
+    // reviewable_total matches decided: the rating only appears once every
+    // item in the tier has an answer
+    reviewChecklist.mockResolvedValue(checklist({ passed: 3, failed: 1, decided: 5, rating: 75,
+                                                  reviewable_total: 5 }));
     render(<Review />);
     await screen.findByText(/Define the organisation's purpose/);
     expect(screen.getByText(/Compliance rating/)).toBeInTheDocument();
@@ -264,23 +267,79 @@ describe("Guided manual review", () => {
     expect(screen.getByText(/3 met of 4/)).toBeInTheDocument();
   });
 
-  it("shows no rating until something has actually been answered", async () => {
+  /* One answer out of 322 used to render "100%" with the qualifier in 13px
+     parentheses — on a compliance screen that reads as a compliant site. The
+     figure is withheld until the whole tier is answered; the raw counts are
+     shown throughout, because those are facts rather than a rate. */
+  it("withholds the rating until the tier is fully answered", async () => {
     reviewChecklist.mockResolvedValue(checklist({
-      decided: 0, failed: 0, passed: 0, rating: null,
-      items: [checklist().items[0]],          // nothing answered anywhere
+      decided: 1, passed: 1, failed: 0, rating: 100, reviewable_total: 322,
     }));
     render(<Review />);
     await screen.findByText(/Define the organisation's purpose/);
-    expect(screen.queryByText(/Compliance rating/)).not.toBeInTheDocument();
+    expect(screen.queryByText("100%")).not.toBeInTheDocument();
+    expect(screen.getByText(/appears once every item in this/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 met, 0 not met so far/)).toBeInTheDocument();
   });
 
   it("the rating updates as answers are given, rather than going stale", async () => {
+    // two reviewable items, one already answered: the click below completes
+    // the tier, which is what releases the figure
+    reviewChecklist.mockResolvedValue(checklist({ reviewable_total: 2 }));
     render(<Review />);
     await screen.findByText(/Define the organisation's purpose/);
     const row = screen.getByText("UX4G-ABT-001").closest(".gx-check")!;
     await userEvent.click(within(row as HTMLElement).getByRole("button", { name: "Yes" }));
     // fixture already carries one "fail" -> 1 met of 2 assessed
     expect(await screen.findByText("50%")).toBeInTheDocument();
+  });
+
+  /* A failed save used to surface ~2,000px above the click, in a page-level
+     line the reviewer had scrolled far past — so a decision that never
+     persisted looked exactly like one that had. */
+  it("reports a failed decision at the row that failed", async () => {
+    setReviewItem.mockImplementation(() => Promise.reject(new Error("Conflict — reload")));
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    const row = screen.getByText("UX4G-ABT-001").closest(".gx-check")! as HTMLElement;
+    await userEvent.click(within(row).getByRole("button", { name: "Yes" }));
+    expect(await within(row).findByText(/Conflict — reload/)).toBeInTheDocument();
+  });
+
+  /* Coming back to a part-finished review, "what is left?" meant scanning
+     every row. */
+  it("can hide the rows that are already answered", async () => {
+    reviewChecklist.mockResolvedValue(checklist({
+      items: [{ ...checklist().items[0] },
+              { ...checklist().items[1], decision: "fail" }],
+    }));
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    await userEvent.click(screen.getByRole("button", { name: /Unanswered only/i }));
+    expect(screen.getByText(/Define the organisation's purpose/)).toBeInTheDocument();
+    expect(screen.queryByText("UX4G-ABT-002")).not.toBeInTheDocument();
+  });
+
+  /* 26 categories stacked above the checklist put the first question 2,174px
+     down a 375px screen. Below 992px the rail is a disclosure. */
+  it("collapses the category rail behind a summary on a narrow screen", async () => {
+    // restored below: leaving this in place would silently make every later
+    // test in this file run as a phone
+    const realMatchMedia = window.matchMedia;
+    (window as any).matchMedia = (q: string) => ({
+      matches: true, media: q, onchange: null,
+      addEventListener() {}, removeEventListener() {},
+      addListener() {}, removeListener() {}, dispatchEvent: () => false,
+    });
+    render(<Review />);
+    await screen.findByText(/Define the organisation's purpose/);
+    const toggle = screen.getByRole("button", { expanded: false });
+    expect(toggle).toHaveAttribute("aria-controls", "catrail");
+    // the rail's own buttons are not reachable until it is opened
+    expect(screen.queryByRole("button", { name: /All categories/ })).not.toBeInTheDocument();
+    await userEvent.click(toggle);
+    expect(screen.getByRole("button", { name: /All categories/ })).toBeInTheDocument();
+    (window as any).matchMedia = realMatchMedia;
   });
 
   // A website audit must not ask about avatar menus or walkthrough screens.
@@ -312,7 +371,7 @@ describe("assessing without an audit", () => {
   it("offers every registered domain, not only the audited ones", async () => {
     listAudits.mockResolvedValue([]);          // nothing has been crawled at all
     render(<Review />);
-    const picker = await screen.findByLabelText(/website/i);
+    const picker = await screen.findByLabelText(/registered domain/i);
     expect(within(picker).getByRole("option", { name: "indiapost.gov.in" })).toBeInTheDocument();
     expect(within(picker).getByRole("option", { name: "ippbonline.gov.in" })).toBeInTheDocument();
   });
@@ -326,7 +385,7 @@ describe("assessing without an audit", () => {
     });
     render(<Review />);
 
-    await userEvent.type(await screen.findByLabelText(/mobile app/i), "India Post Mobile");
+    await userEvent.type(await screen.findByLabelText(/app name/i), "India Post Mobile");
     await userEvent.click(screen.getByRole("button", { name: /start app/i }));
 
     await waitFor(() => expect(createManualAssessment).toHaveBeenCalledWith(
